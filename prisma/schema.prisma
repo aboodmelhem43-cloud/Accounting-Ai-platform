@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// المنشأة التجارية — كل مستخدم ينتمي لمنشأة واحدة في المرحلة الأولى
+model Business {
+  id           String   @id @default(cuid())
+  name         String
+  country      String   @default("EG") // ISO 3166-1 alpha-2
+  baseCurrency String   @default("EGP")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users         User[]
+  accounts      Account[]
+  journalEntries JournalEntry[]
+  invoices      Invoice[]
+}
+
+// المستخدم — مرتبط بمنشأة واحدة
+model User {
+  id           String   @id @default(cuid())
+  businessId   String
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         UserRole @default(OWNER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  business       Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  journalEntries JournalEntry[]
+}
+
+enum UserRole {
+  OWNER
+  ACCOUNTANT
+}
+
+// دليل الحسابات — Chart of Accounts
+model Account {
+  id         String      @id @default(cuid())
+  businessId String
+  name       String
+  nameAr     String?     // الاسم بالعربي
+  type       AccountType
+  code       String      // رمز الحساب مثل 1100
+  isSystem   Boolean     @default(false) // حسابات النظام الافتراضية لا تُحذف
+  createdAt  DateTime    @default(now())
+
+  business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  journalLines JournalLine[]
+
+  @@unique([businessId, code])
+}
+
+enum AccountType {
+  ASSET     // أصول
+  LIABILITY // خصوم
+  EQUITY    // حقوق ملكية
+  REVENUE   // إيرادات
+  EXPENSE   // مصروفات
+}
+
+// قيد اليومية
+model JournalEntry {
+  id          String            @id @default(cuid())
+  businessId  String
+  date        DateTime
+  description String
+  sourceType  JournalSourceType @default(MANUAL)
+  createdById String
+  createdAt   DateTime          @default(now())
+
+  business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  creator  User          @relation(fields: [createdById], references: [id])
+  lines    JournalLine[]
+  invoice  Invoice?
+}
+
+enum JournalSourceType {
+  MANUAL
+  AI_INVOICE
+}
+
+// سطور القيد — لازم مجموع debit = مجموع credit لكل قيد
+model JournalLine {
+  id             String  @id @default(cuid())
+  journalEntryId String
+  accountId      String
+  debit          Decimal @default(0) @db.Decimal(15, 2)
+  credit         Decimal @default(0) @db.Decimal(15, 2)
+  description    String?
+
+  journalEntry JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  account      Account      @relation(fields: [accountId], references: [id])
+}
+
+// الفواتير المرفوعة
+model Invoice {
+  id              String        @id @default(cuid())
+  businessId      String
+  fileUrl         String
+  fileType        String        // image/pdf
+  extractedData   Json?         // البيانات المستخرجة بالذكاء الاصطناعي
+  status          InvoiceStatus @default(PENDING_REVIEW)
+  invoiceType     InvoiceType   @default(PURCHASE) // مشتريات أو مبيعات
+  journalEntryId  String?       @unique
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  journalEntry JournalEntry? @relation(fields: [journalEntryId], references: [id])
+}
+
+enum InvoiceStatus {
+  PENDING_REVIEW
+  CONFIRMED
+  REJECTED
+}
+
+enum InvoiceType {
+  PURCHASE // فاتورة مشتريات
+  SALES    // فاتورة مبيعات
+}
