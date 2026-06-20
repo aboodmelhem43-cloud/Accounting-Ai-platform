@@ -8,6 +8,7 @@ const qatar: ComplianceModule = {
   countryNameEn: "Qatar",
   currency: "QAR",
   currencySymbol: "ر.ق",
+  currencySymbolEn: "QR",
   currencyNameAr: "ريال قطري",
 
   hasVat: false,

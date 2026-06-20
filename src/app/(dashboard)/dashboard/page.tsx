@@ -54,21 +54,21 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <SummaryCard
           title={t("dashboard.total_revenue")}
-          value={`${fmt(statement.totalRevenue)} ${compliance.currencySymbol}`}
+          value={`${fmt(statement.totalRevenue)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
           sub={monthName}
           color="green"
           icon="📈"
         />
         <SummaryCard
           title={t("dashboard.total_expenses")}
-          value={`${fmt(statement.totalExpenses)} ${compliance.currencySymbol}`}
+          value={`${fmt(statement.totalExpenses)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
           sub={monthName}
           color="red"
           icon="📉"
         />
         <SummaryCard
           title={t("dashboard.net_income")}
-          value={`${fmt(statement.netProfit)} ${compliance.currencySymbol}`}
+          value={`${fmt(statement.netProfit)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
           sub={monthName}
           color={statement.netProfit >= 0 ? "blue" : "red"}
           icon="💰"
@@ -121,7 +121,7 @@ export default async function DashboardPage() {
                   <div className="flex items-center gap-3">
                     {extracted?.totalAmount && (
                       <span className="text-sm font-medium">
-                        {fmt(extracted.totalAmount)} {compliance.currencySymbol}
+                        {fmt(extracted.totalAmount)} {lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}
                       </span>
                     )}
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${s.cls}`}>{s.label}</span>

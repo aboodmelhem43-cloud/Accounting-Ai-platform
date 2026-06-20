@@ -8,6 +8,7 @@ const bahrain: ComplianceModule = {
   countryNameEn: "Bahrain",
   currency: "BHD",
   currencySymbol: "د.ب",
+  currencySymbolEn: "BD",
   currencyNameAr: "دينار بحريني",
 
   hasVat: true,

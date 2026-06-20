@@ -9,6 +9,7 @@ const kuwait: ComplianceModule = {
   countryNameEn: "Kuwait",
   currency: "KWD",
   currencySymbol: "د.ك",
+  currencySymbolEn: "KD",
   currencyNameAr: "دينار كويتي",
 
   hasVat: false,

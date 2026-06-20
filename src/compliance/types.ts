@@ -5,7 +5,8 @@ export interface ComplianceModule {
   countryNameAr: string;     // الاسم بالعربي
   countryNameEn: string;
   currency: string;          // ISO 4217
-  currencySymbol: string;
+  currencySymbol: string;    // رمز العملة بالعربي
+  currencySymbolEn: string;  // رمز العملة بالإنجليزي
   currencyNameAr: string;
 
   // الضريبة

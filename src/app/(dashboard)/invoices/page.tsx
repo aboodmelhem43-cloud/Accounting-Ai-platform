@@ -20,7 +20,7 @@ export default async function InvoicesPage() {
   });
 
   const fmt = (n: number) =>
-    `${n.toLocaleString(locale, { minimumFractionDigits: 2 })} ${compliance.currencySymbol}`;
+    `${n.toLocaleString(locale, { minimumFractionDigits: 2 })} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`;
 
   const statusMap: Record<string, { label: string; cls: string }> = {
     PENDING_REVIEW: { label: t("invoices.status.pending"), cls: "bg-yellow-100 text-yellow-700" },

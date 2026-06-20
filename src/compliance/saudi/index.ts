@@ -9,6 +9,7 @@ const saudi: ComplianceModule = {
   countryNameEn: "Saudi Arabia",
   currency: "SAR",
   currencySymbol: "ر.س",
+  currencySymbolEn: "SR",
   currencyNameAr: "ريال سعودي",
 
   hasVat: true,

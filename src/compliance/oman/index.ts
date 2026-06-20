@@ -8,6 +8,7 @@ const oman: ComplianceModule = {
   countryNameEn: "Oman",
   currency: "OMR",
   currencySymbol: "ر.ع",
+  currencySymbolEn: "RO",
   currencyNameAr: "ريال عُماني",
 
   hasVat: true,

@@ -9,6 +9,7 @@ const jordan: ComplianceModule = {
   countryNameEn: "Jordan",
   currency: "JOD",
   currencySymbol: "د.أ",
+  currencySymbolEn: "JD",
   currencyNameAr: "دينار أردني",
 
   hasVat: true,

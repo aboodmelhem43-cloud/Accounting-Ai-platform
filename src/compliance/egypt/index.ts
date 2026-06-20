@@ -9,6 +9,7 @@ const egypt: ComplianceModule = {
   countryNameEn: "Egypt",
   currency: "EGP",
   currencySymbol: "ج.م",
+  currencySymbolEn: "EGP",
   currencyNameAr: "جنيه مصري",
 
   hasVat: true,

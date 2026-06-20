@@ -9,6 +9,7 @@ const uae: ComplianceModule = {
   countryNameEn: "United Arab Emirates",
   currency: "AED",
   currencySymbol: "د.إ",
+  currencySymbolEn: "AED",
   currencyNameAr: "درهم إماراتي",
 
   hasVat: true,
