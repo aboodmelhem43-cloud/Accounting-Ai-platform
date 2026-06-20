@@ -12,12 +12,13 @@ interface SidebarProps {
 
 export default function Sidebar({ businessName, country, currency }: SidebarProps) {
   const pathname = usePathname();
-  const { t, toggleLang } = useLang();
+  const { t, lang, toggleLang } = useLang();
 
   const NAV_ITEMS = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: "🏠" },
     { href: "/invoices", label: t("nav.invoices"), icon: "🧾" },
     { href: "/invoices/upload", label: t("nav.upload"), icon: "⬆️" },
+    { href: "/invoices/create", label: lang === "ar" ? "إنشاء فاتورة" : "Create Invoice", icon: "📝" },
     { href: "/reports/income", label: t("nav.income"), icon: "📊" },
     { href: "/journal", label: t("nav.journal"), icon: "📒" },
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },

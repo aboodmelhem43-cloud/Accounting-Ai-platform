@@ -5,6 +5,7 @@ import { computeIncomeStatement } from "@/lib/ledger";
 import { getComplianceModule } from "@/compliance";
 import { getServerT } from "@/lib/i18n/server";
 import Link from "next/link";
+import DashboardCharts from "@/components/DashboardCharts";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -92,6 +93,8 @@ export default async function DashboardPage() {
           <Link href="/journal" className="btn-secondary">📒 {t("nav.journal")}</Link>
         </div>
       </div>
+
+      <DashboardCharts />
 
       {recentInvoices.length > 0 && (
         <div className="card">

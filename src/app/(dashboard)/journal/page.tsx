@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
 
 interface JournalLine {
@@ -41,11 +42,16 @@ export default function JournalPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t("journal.title")}</h1>
-        <p className="text-gray-500 text-sm mt-1">
-          {total} {lang === "ar" ? "قيد محاسبي" : "entries"}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{t("journal.title")}</h1>
+          <p className="text-gray-500 text-sm mt-1">
+            {total} {lang === "ar" ? "قيد محاسبي" : "entries"}
+          </p>
+        </div>
+        <Link href="/journal/new" className="btn-primary">
+          ✏️ {lang === "ar" ? "قيد جديد" : "New Entry"}
+        </Link>
       </div>
 
       {loading && (
