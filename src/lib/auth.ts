@@ -38,20 +38,29 @@ export const authOptions: NextAuthOptions = {
           country: user.business.country,
           currency: user.business.baseCurrency,
           role: user.role,
+          onboardingCompleted: user.business.onboardingCompleted,
         };
       },
     }),
   ],
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      if (trigger === "update") {
+        const business = await prisma.business.findUnique({
+          where: { id: token.businessId as string },
+          select: { onboardingCompleted: true },
+        });
+        if (business) token.onboardingCompleted = business.onboardingCompleted;
+      }
       if (user) {
-        const u = user as unknown as { businessId: string; businessName: string; country: string; currency: string; role: string };
+        const u = user as unknown as { businessId: string; businessName: string; country: string; currency: string; role: string; onboardingCompleted: boolean };
         token.businessId = u.businessId;
         token.businessName = u.businessName;
         token.country = u.country;
         token.currency = u.currency;
         token.role = u.role;
+        token.onboardingCompleted = u.onboardingCompleted;
       }
       return token;
     },
@@ -63,6 +72,7 @@ export const authOptions: NextAuthOptions = {
         session.user.country = token.country as string;
         session.user.currency = token.currency as string;
         session.user.role = token.role as string;
+        session.user.onboardingCompleted = token.onboardingCompleted as boolean;
       }
       return session;
     },
@@ -85,6 +95,7 @@ declare module "next-auth" {
       country: string;
       currency: string;
       role: string;
+      onboardingCompleted: boolean;
     };
   }
 }
