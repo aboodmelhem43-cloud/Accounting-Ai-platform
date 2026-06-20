@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
+import SupportWidget from "@/components/SupportWidget";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -20,6 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <div className="max-w-5xl mx-auto p-6">{children}</div>
         </main>
       </div>
+      <SupportWidget />
     </SessionProviderWrapper>
   );
 }
