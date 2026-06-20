@@ -4,10 +4,17 @@ import { getComplianceModule } from "@/compliance";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+export type SupportedMediaType =
+  | "image/jpeg"
+  | "image/png"
+  | "image/webp"
+  | "image/gif"
+  | "application/pdf";
+
 // استخراج بيانات الفاتورة من صورة أو PDF باستخدام Claude Vision
 export async function extractInvoiceData(
   fileBuffer: Buffer,
-  mediaType: "image/jpeg" | "image/png" | "image/webp" | "image/gif" | "application/pdf",
+  mediaType: SupportedMediaType,
   countryCode: string
 ): Promise<ExtractedInvoiceData> {
   const compliance = getComplianceModule(countryCode);
@@ -51,26 +58,30 @@ export async function extractInvoiceData(
   "confidence": 0.95
 }`;
 
+  // بناء محتوى الرسالة بحسب نوع الملف
+  const imageMediaType = mediaType as "image/jpeg" | "image/png" | "image/webp" | "image/gif";
+  const fileContent: Anthropic.MessageParam["content"] = mediaType === "application/pdf"
+    ? [
+        // PDF يُرسل كـ document block
+        {
+          type: "document",
+          source: { type: "base64", media_type: "application/pdf", data: fileBuffer.toString("base64") },
+        } as unknown as Anthropic.ImageBlockParam,
+        { type: "text", text: userPrompt },
+      ]
+    : [
+        {
+          type: "image",
+          source: { type: "base64", media_type: imageMediaType, data: fileBuffer.toString("base64") },
+        } as Anthropic.ImageBlockParam,
+        { type: "text", text: userPrompt },
+      ];
+
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 2000,
     system: systemPrompt,
-    messages: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: mediaType === "application/pdf" ? "application/pdf" : mediaType,
-              data: fileBuffer.toString("base64"),
-            },
-          } as Anthropic.ImageBlockParam,
-          { type: "text", text: userPrompt },
-        ],
-      },
-    ],
+    messages: [{ role: "user", content: fileContent }],
   });
 
   const content = response.content[0];

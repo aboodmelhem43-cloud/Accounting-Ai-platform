@@ -41,11 +41,12 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.businessId = (user as { businessId: string }).businessId;
-        token.businessName = (user as { businessName: string }).businessName;
-        token.country = (user as { country: string }).country;
-        token.currency = (user as { currency: string }).currency;
-        token.role = (user as { role: string }).role;
+        const u = user as unknown as { businessId: string; businessName: string; country: string; currency: string; role: string };
+        token.businessId = u.businessId;
+        token.businessName = u.businessName;
+        token.country = u.country;
+        token.currency = u.currency;
+        token.role = u.role;
       }
       return token;
     },

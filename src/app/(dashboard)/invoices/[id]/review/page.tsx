@@ -7,6 +7,7 @@ interface Invoice {
   id: string;
   invoiceType: "PURCHASE" | "SALES";
   fileUrl: string;
+  fileType: string;
   extractedData: ExtractedInvoiceData;
   status: string;
 }
