@@ -29,7 +29,7 @@ export default function CreateInvoicePage() {
   const [lineItems, setLineItems] = useState<LineItem[]>([
     { description: "", quantity: 1, unitPrice: 0 },
   ]);
-  const [taxRate, setTaxRate] = useState(15);
+  const [taxRate, setTaxRate] = useState(0);
   const [notes, setNotes] = useState("");
 
   // حساب الإجماليات
