@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
+import { verifyOtp } from "./otp";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -10,9 +11,10 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "البريد الإلكتروني", type: "email" },
         password: { label: "كلمة المرور", type: "password" },
+        otp: { label: "رمز التحقق", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.email || !credentials?.password || !credentials?.otp) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email.toLowerCase() },
@@ -23,6 +25,9 @@ export const authOptions: NextAuthOptions = {
 
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!isValid) return null;
+
+        const otpValid = await verifyOtp(credentials.email, credentials.otp, "login");
+        if (!otpValid) return null;
 
         return {
           id: user.id,
@@ -68,7 +73,6 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-// توسعة session type
 declare module "next-auth" {
   interface Session {
     user: {

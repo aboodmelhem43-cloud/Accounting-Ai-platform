@@ -1,9 +1,11 @@
 "use client";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useLang } from "@/components/LanguageProvider";
 
 export default function UploadInvoicePage() {
   const router = useRouter();
+  const { t, lang } = useLang();
   const fileRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [invoiceType, setInvoiceType] = useState<"purchase" | "sales">("purchase");
@@ -37,7 +39,7 @@ export default function UploadInvoicePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "فشل في رفع الفاتورة");
+        setError(data.error ?? t("common.error"));
         setStatus("error");
         return;
       }
@@ -45,52 +47,57 @@ export default function UploadInvoicePage() {
       setStatus("done");
       router.push(`/invoices/${data.invoiceId}/review`);
     } catch {
-      setError("حدث خطأ في الاتصال");
+      setError(t("common.error"));
       setStatus("error");
     }
   }
 
   const isLoading = status === "uploading" || status === "extracting";
 
+  const types = [
+    { key: "purchase" as const, label: lang === "ar" ? "🛒 فاتورة مشتريات" : "🛒 Purchase Invoice" },
+    { key: "sales" as const, label: lang === "ar" ? "💼 فاتورة مبيعات" : "💼 Sales Invoice" },
+  ];
+
   return (
     <div className="max-w-xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">رفع فاتورة جديدة</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t("invoices.upload.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">
-          الذكاء الاصطناعي سيستخرج البيانات تلقائيًا — ستتمكن من مراجعتها قبل الحفظ
+          {lang === "ar"
+            ? "الذكاء الاصطناعي سيستخرج البيانات تلقائيًا — ستتمكن من مراجعتها قبل الحفظ"
+            : "AI will extract data automatically — you can review it before saving"}
         </p>
       </div>
 
-      {/* نوع الفاتورة */}
       <div className="card">
-        <label className="label">نوع الفاتورة</label>
+        <label className="label">{lang === "ar" ? "نوع الفاتورة" : "Invoice Type"}</label>
         <div className="grid grid-cols-2 gap-3 mt-2">
-          {(["purchase", "sales"] as const).map((t) => (
+          {types.map((tp) => (
             <button
-              key={t}
+              key={tp.key}
               type="button"
-              onClick={() => setInvoiceType(t)}
+              onClick={() => setInvoiceType(tp.key)}
               className={`py-3 rounded-lg border-2 text-sm font-medium transition-colors ${
-                invoiceType === t
+                invoiceType === tp.key
                   ? "border-blue-600 bg-blue-50 text-blue-700"
                   : "border-gray-200 text-gray-600 hover:border-gray-300"
               }`}
             >
-              {t === "purchase" ? "🛒 فاتورة مشتريات" : "💼 فاتورة مبيعات"}
+              {tp.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* منطقة رفع الملف */}
       <div className="card">
-        <label className="label">ملف الفاتورة</label>
+        <label className="label">{t("invoices.upload.label")}</label>
         <div
           className="mt-2 border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors"
           onClick={() => fileRef.current?.click()}
         >
           {preview ? (
-            <img src={preview} alt="معاينة" className="max-h-48 mx-auto rounded-lg object-contain" />
+            <img src={preview} alt="preview" className="max-h-48 mx-auto rounded-lg object-contain" />
           ) : file ? (
             <div className="text-gray-600">
               <div className="text-3xl mb-2">📄</div>
@@ -100,8 +107,10 @@ export default function UploadInvoicePage() {
           ) : (
             <div className="text-gray-400">
               <div className="text-4xl mb-3">⬆️</div>
-              <p className="font-medium text-gray-600">اضغط لاختيار ملف أو اسحبه هنا</p>
-              <p className="text-xs mt-1">JPG، PNG، WebP، PDF — حتى 10 ميجابايت</p>
+              <p className="font-medium text-gray-600">
+                {lang === "ar" ? "اضغط لاختيار ملف أو اسحبه هنا" : "Click to choose a file or drag it here"}
+              </p>
+              <p className="text-xs mt-1">{t("invoices.upload.hint")}</p>
             </div>
           )}
           <input
@@ -114,19 +123,22 @@ export default function UploadInvoicePage() {
         </div>
         {file && !preview && (
           <p className="text-xs text-gray-400 mt-2 text-center">
-            ملف PDF — سيُرسل للذكاء الاصطناعي للقراءة مباشرة
+            {lang === "ar" ? "ملف PDF — سيُرسل للذكاء الاصطناعي للقراءة مباشرة" : "PDF file — will be sent to AI for direct reading"}
           </p>
         )}
       </div>
 
-      {/* حالة المعالجة */}
       {isLoading && (
         <div className="card bg-blue-50 border-blue-200 text-center py-6">
           <div className="animate-spin text-3xl mb-2">⚙️</div>
           <p className="text-blue-700 font-medium">
-            {status === "uploading" ? "جاري رفع الملف..." : "الذكاء الاصطناعي يقرأ الفاتورة..."}
+            {status === "uploading"
+              ? (lang === "ar" ? "جاري رفع الملف..." : "Uploading file...")
+              : t("invoices.upload.loading")}
           </p>
-          <p className="text-blue-500 text-sm mt-1">قد يستغرق ذلك 10-30 ثانية</p>
+          <p className="text-blue-500 text-sm mt-1">
+            {lang === "ar" ? "قد يستغرق ذلك 10-30 ثانية" : "This may take 10-30 seconds"}
+          </p>
         </div>
       )}
 
@@ -138,14 +150,14 @@ export default function UploadInvoicePage() {
           disabled={!file || isLoading}
           className="btn-primary flex-1"
         >
-          {isLoading ? "جاري المعالجة..." : "رفع وتحليل الفاتورة"}
+          {isLoading ? (lang === "ar" ? "جاري المعالجة..." : "Processing...") : t("invoices.upload.submit")}
         </button>
         <button
           onClick={() => router.back()}
           className="btn-secondary"
           disabled={isLoading}
         >
-          إلغاء
+          {t("common.cancel")}
         </button>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_CHART_OF_ACCOUNTS } from "@/lib/accounts";
 import { SUPPORTED_COUNTRIES } from "@/compliance";
+import { verifyOtp } from "@/lib/otp";
 
 const schema = z.object({
   businessName: z.string().min(2, "اسم المنشأة مطلوب"),
@@ -11,6 +12,7 @@ const schema = z.object({
   password: z.string().min(8, "كلمة المرور لا تقل عن 8 أحرف"),
   userName: z.string().optional(),
   country: z.string().length(2, "رمز الدولة غير صحيح"),
+  otp: z.string().length(6, "رمز التحقق يجب أن يكون 6 أرقام"),
 });
 
 export async function POST(req: NextRequest) {
@@ -18,21 +20,23 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const data = schema.parse(body);
 
-    // التحقق من دعم الدولة
     const supported = SUPPORTED_COUNTRIES.find((c) => c.code === data.country.toUpperCase());
     if (!supported) {
       return NextResponse.json({ error: "الدولة غير مدعومة" }, { status: 400 });
     }
 
-    // التحقق من عدم وجود البريد مسبقًا
     const existing = await prisma.user.findUnique({ where: { email: data.email.toLowerCase() } });
     if (existing) {
       return NextResponse.json({ error: "البريد الإلكتروني مسجل مسبقًا" }, { status: 409 });
     }
 
+    const otpValid = await verifyOtp(data.email, data.otp, "register");
+    if (!otpValid) {
+      return NextResponse.json({ error: "رمز التحقق غير صحيح أو منتهي الصلاحية" }, { status: 400 });
+    }
+
     const passwordHash = await bcrypt.hash(data.password, 12);
 
-    // إنشاء المنشأة والمستخدم ودليل الحسابات في transaction واحدة
     const result = await prisma.$transaction(async (tx) => {
       const business = await tx.business.create({
         data: {
@@ -52,7 +56,6 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // إنشاء دليل الحسابات الافتراضي
       await tx.account.createMany({
         data: DEFAULT_CHART_OF_ACCOUNTS.map((acc) => ({
           businessId: business.id,

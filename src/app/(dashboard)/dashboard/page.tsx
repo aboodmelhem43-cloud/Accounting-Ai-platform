@@ -3,16 +3,18 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { computeIncomeStatement } from "@/lib/ledger";
 import { getComplianceModule } from "@/compliance";
+import { getServerT } from "@/lib/i18n/server";
 import Link from "next/link";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session) return null;
 
+  const { t, lang } = await getServerT();
   const { businessId, country, currency } = session.user;
   const compliance = getComplianceModule(country);
+  const locale = lang === "ar" ? "ar" : "en";
 
-  // بيانات الشهر الحالي
   const now = new Date();
   const from = new Date(now.getFullYear(), now.getMonth(), 1);
   const to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
@@ -29,90 +31,91 @@ export default async function DashboardPage() {
   ]);
 
   const fmt = (n: number) =>
-    n.toLocaleString("ar", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  const monthName = now.toLocaleDateString("ar", { month: "long", year: "numeric" });
+  const monthName = now.toLocaleDateString(locale, { month: "long", year: "numeric" });
 
   return (
     <div className="space-y-6">
-      {/* الترحيب */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">لوحة التحكم</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">
-          {session.user.businessName} · {compliance.countryNameAr} · {monthName}
+          {session.user.businessName} · {lang === "ar" ? compliance.countryNameAr : compliance.countryNameEn} · {monthName}
         </p>
       </div>
 
-      {/* تحذير فاتورة إلكترونية */}
       {compliance.eInvoiceRequired && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-          <span className="font-semibold">⚠️ تنبيه الفاتورة الإلكترونية:</span>{" "}
+          <span className="font-semibold">⚠️ {lang === "ar" ? "تنبيه الفاتورة الإلكترونية:" : "E-Invoice Notice:"}</span>{" "}
           {compliance.eInvoiceNote}
         </div>
       )}
 
-      {/* بطاقات الملخص */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <SummaryCard
-          title="إجمالي الإيرادات"
+          title={t("dashboard.total_revenue")}
           value={`${fmt(statement.totalRevenue)} ${compliance.currencySymbol}`}
           sub={monthName}
           color="green"
           icon="📈"
         />
         <SummaryCard
-          title="إجمالي المصروفات"
+          title={t("dashboard.total_expenses")}
           value={`${fmt(statement.totalExpenses)} ${compliance.currencySymbol}`}
           sub={monthName}
           color="red"
           icon="📉"
         />
         <SummaryCard
-          title="صافي الربح"
+          title={t("dashboard.net_income")}
           value={`${fmt(statement.netProfit)} ${compliance.currencySymbol}`}
           sub={monthName}
           color={statement.netProfit >= 0 ? "blue" : "red"}
           icon="💰"
         />
         <SummaryCard
-          title="الفواتير المعلّقة"
+          title={lang === "ar" ? "الفواتير المعلّقة" : "Pending Invoices"}
           value={String(pendingCount)}
-          sub={`من ${invoiceCount} فاتورة مؤكدة`}
+          sub={lang === "ar" ? `من ${invoiceCount} فاتورة مؤكدة` : `of ${invoiceCount} confirmed`}
           color="yellow"
           icon="🧾"
           href="/invoices"
         />
       </div>
 
-      {/* الإجراءات السريعة */}
       <div className="card">
-        <h2 className="font-semibold text-gray-800 mb-4">إجراءات سريعة</h2>
+        <h2 className="font-semibold text-gray-800 mb-4">{t("dashboard.quick_actions")}</h2>
         <div className="flex flex-wrap gap-3">
-          <Link href="/invoices/upload" className="btn-primary">⬆️ رفع فاتورة جديدة</Link>
-          <Link href="/reports/income" className="btn-secondary">📊 عرض قائمة الدخل</Link>
-          <Link href="/chat" className="btn-secondary">🤖 اسأل المساعد الذكي</Link>
-          <Link href="/journal" className="btn-secondary">📒 دفتر اليومية</Link>
+          <Link href="/invoices/upload" className="btn-primary">⬆️ {t("dashboard.upload_invoice")}</Link>
+          <Link href="/reports/income" className="btn-secondary">📊 {t("nav.income")}</Link>
+          <Link href="/chat" className="btn-secondary">🤖 {t("dashboard.ask_ai")}</Link>
+          <Link href="/journal" className="btn-secondary">📒 {t("nav.journal")}</Link>
         </div>
       </div>
 
-      {/* آخر الفواتير */}
       {recentInvoices.length > 0 && (
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-800">آخر الفواتير</h2>
-            <Link href="/invoices" className="text-sm text-blue-600 hover:underline">عرض الكل</Link>
+            <h2 className="font-semibold text-gray-800">{t("dashboard.recent_invoices")}</h2>
+            <Link href="/invoices" className="text-sm text-blue-600 hover:underline">{t("dashboard.view_all")}</Link>
           </div>
           <div className="divide-y divide-gray-100">
             {recentInvoices.map((inv) => {
               const extracted = inv.extractedData as { vendorName?: string; totalAmount?: number } | null;
+              const statusMap: Record<string, { label: string; cls: string }> = {
+                PENDING_REVIEW: { label: t("invoices.status.pending"), cls: "bg-yellow-100 text-yellow-700" },
+                CONFIRMED: { label: t("invoices.status.confirmed"), cls: "bg-green-100 text-green-700" },
+                REJECTED: { label: t("invoices.status.rejected"), cls: "bg-red-100 text-red-700" },
+              };
+              const s = statusMap[inv.status] ?? { label: inv.status, cls: "bg-gray-100 text-gray-600" };
               return (
                 <div key={inv.id} className="py-3 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-800">
-                      {extracted?.vendorName ?? "فاتورة"}
+                      {extracted?.vendorName ?? (lang === "ar" ? "فاتورة" : "Invoice")}
                     </p>
                     <p className="text-xs text-gray-400">
-                      {new Date(inv.createdAt).toLocaleDateString("ar")}
+                      {new Date(inv.createdAt).toLocaleDateString(locale)}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -121,13 +124,10 @@ export default async function DashboardPage() {
                         {fmt(extracted.totalAmount)} {compliance.currencySymbol}
                       </span>
                     )}
-                    <StatusBadge status={inv.status} />
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${s.cls}`}>{s.label}</span>
                     {inv.status === "PENDING_REVIEW" && (
-                      <Link
-                        href={`/invoices/${inv.id}/review`}
-                        className="text-xs text-blue-600 hover:underline"
-                      >
-                        مراجعة
+                      <Link href={`/invoices/${inv.id}/review`} className="text-xs text-blue-600 hover:underline">
+                        {t("invoices.review")}
                       </Link>
                     )}
                   </div>
@@ -164,14 +164,4 @@ function SummaryCard({
 
   if (href) return <Link href={href} className="block hover:opacity-90 transition-opacity">{content}</Link>;
   return content;
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    PENDING_REVIEW: { label: "بانتظار المراجعة", cls: "bg-yellow-100 text-yellow-700" },
-    CONFIRMED: { label: "مؤكدة", cls: "bg-green-100 text-green-700" },
-    REJECTED: { label: "مرفوضة", cls: "bg-red-100 text-red-700" },
-  };
-  const s = map[status] ?? { label: status, cls: "bg-gray-100 text-gray-600" };
-  return <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${s.cls}`}>{s.label}</span>;
 }

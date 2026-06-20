@@ -131,3 +131,15 @@ enum InvoiceType {
   PURCHASE // فاتورة مشتريات
   SALES    // فاتورة مبيعات
 }
+
+// رموز التحقق بالبريد الإلكتروني
+model OtpCode {
+  id        String   @id @default(cuid())
+  email     String
+  code      String   // hashed
+  purpose   String   // "register" | "login"
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email, purpose])
+}

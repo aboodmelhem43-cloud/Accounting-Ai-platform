@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useLang } from "@/components/LanguageProvider";
 
 interface JournalLine {
   id: string;
@@ -19,6 +20,8 @@ interface JournalEntry {
 }
 
 export default function JournalPage() {
+  const { t, lang } = useLang();
+  const locale = lang === "ar" ? "ar" : "en";
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -39,48 +42,56 @@ export default function JournalPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">دفتر اليومية</h1>
-        <p className="text-gray-500 text-sm mt-1">{total} قيد محاسبي</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t("journal.title")}</h1>
+        <p className="text-gray-500 text-sm mt-1">
+          {total} {lang === "ar" ? "قيد محاسبي" : "entries"}
+        </p>
       </div>
 
       {loading && (
         <div className="text-center py-8 text-gray-500">
           <div className="animate-spin text-2xl mb-2">⚙️</div>
-          <p>جاري التحميل...</p>
+          <p>{t("common.loading")}</p>
         </div>
       )}
 
       {!loading && entries.length === 0 && (
         <div className="card text-center py-12">
           <div className="text-5xl mb-4">📒</div>
-          <p className="text-gray-500">لا توجد قيود بعد.</p>
-          <p className="text-gray-400 text-sm mt-1">سيظهر هنا القيود المُرحَّلة من الفواتير أو المدخلة يدويًا.</p>
+          <p className="text-gray-500">{t("journal.empty")}</p>
+          <p className="text-gray-400 text-sm mt-1">
+            {lang === "ar"
+              ? "سيظهر هنا القيود المُرحَّلة من الفواتير أو المدخلة يدويًا."
+              : "Entries from confirmed invoices or manual input will appear here."}
+          </p>
         </div>
       )}
 
       {!loading && entries.map((entry) => (
         <div key={entry.id} className="card">
-          {/* رأس القيد */}
           <div className="flex items-start justify-between mb-3">
             <div>
               <p className="font-semibold text-gray-800">{entry.description}</p>
               <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
-                <span>📅 {new Date(entry.date).toLocaleDateString("ar")}</span>
+                <span>📅 {new Date(entry.date).toLocaleDateString(locale)}</span>
                 <span>
-                  {entry.sourceType === "AI_INVOICE" ? "🤖 فاتورة ذكاء اصطناعي" : "✏️ يدوي"}
+                  {entry.sourceType === "AI_INVOICE"
+                    ? `🤖 ${t("journal.source.ai")}`
+                    : `✏️ ${t("journal.source.manual")}`}
                 </span>
-                <span>بواسطة: {entry.creator.name ?? entry.creator.email}</span>
+                <span>
+                  {lang === "ar" ? "بواسطة:" : "by:"} {entry.creator.name ?? entry.creator.email}
+                </span>
               </div>
             </div>
           </div>
 
-          {/* سطور القيد */}
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="text-right pb-2 font-medium text-gray-500 text-xs">الحساب</th>
-                <th className="text-left pb-2 font-medium text-gray-500 text-xs">مدين</th>
-                <th className="text-left pb-2 font-medium text-gray-500 text-xs">دائن</th>
+                <th className="text-right pb-2 font-medium text-gray-500 text-xs">{t("journal.account")}</th>
+                <th className="text-left pb-2 font-medium text-gray-500 text-xs">{t("journal.debit")}</th>
+                <th className="text-left pb-2 font-medium text-gray-500 text-xs">{t("journal.credit")}</th>
               </tr>
             </thead>
             <tbody>
@@ -91,10 +102,10 @@ export default function JournalPage() {
                     {line.account.nameAr ?? line.account.name}
                   </td>
                   <td className="py-1.5 text-left font-mono text-xs">
-                    {Number(line.debit) > 0 ? Number(line.debit).toLocaleString("ar") : ""}
+                    {Number(line.debit) > 0 ? Number(line.debit).toLocaleString(locale) : ""}
                   </td>
                   <td className="py-1.5 text-left font-mono text-xs">
-                    {Number(line.credit) > 0 ? Number(line.credit).toLocaleString("ar") : ""}
+                    {Number(line.credit) > 0 ? Number(line.credit).toLocaleString(locale) : ""}
                   </td>
                 </tr>
               ))}
@@ -103,7 +114,6 @@ export default function JournalPage() {
         </div>
       ))}
 
-      {/* pagination */}
       {total > 20 && (
         <div className="flex justify-center gap-3">
           <button
@@ -111,15 +121,17 @@ export default function JournalPage() {
             disabled={page === 1}
             className="btn-secondary"
           >
-            ← السابق
+            {lang === "ar" ? "← السابق" : "← Prev"}
           </button>
-          <span className="py-2 text-sm text-gray-500">صفحة {page}</span>
+          <span className="py-2 text-sm text-gray-500">
+            {lang === "ar" ? `صفحة ${page}` : `Page ${page}`}
+          </span>
           <button
             onClick={() => setPage((p) => p + 1)}
             disabled={entries.length < 20}
             className="btn-secondary"
           >
-            التالي →
+            {lang === "ar" ? "التالي →" : "Next →"}
           </button>
         </div>
       )}
