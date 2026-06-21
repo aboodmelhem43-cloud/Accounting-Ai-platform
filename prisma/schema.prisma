@@ -12,16 +12,18 @@ datasource db {
 
 // المنشأة التجارية — كل مستخدم ينتمي لمنشأة واحدة في المرحلة الأولى
 model Business {
-  id                  String   @id @default(cuid())
+  id                  String    @id @default(cuid())
   name                String
-  country             String   @default("EG") // ISO 3166-1 alpha-2
-  baseCurrency        String   @default("EGP")
+  country             String    @default("EG")
+  baseCurrency        String    @default("EGP")
   taxNumber           String?
   address             String?
   phone               String?
-  onboardingCompleted Boolean  @default(false)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  onboardingCompleted Boolean   @default(false)
+  plan                String    @default("FREE_TRIAL") // FREE_TRIAL | STARTER | PRO | BUSINESS
+  trialEndsAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   users         User[]
   accounts      Account[]

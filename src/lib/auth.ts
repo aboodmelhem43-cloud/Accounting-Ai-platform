@@ -39,6 +39,8 @@ export const authOptions: NextAuthOptions = {
           currency: user.business.baseCurrency,
           role: user.role,
           onboardingCompleted: user.business.onboardingCompleted,
+          plan: user.business.plan,
+          trialEndsAt: user.business.trialEndsAt?.toISOString() ?? null,
         };
       },
     }),
@@ -54,13 +56,15 @@ export const authOptions: NextAuthOptions = {
         if (business) token.onboardingCompleted = business.onboardingCompleted;
       }
       if (user) {
-        const u = user as unknown as { businessId: string; businessName: string; country: string; currency: string; role: string; onboardingCompleted: boolean };
+        const u = user as unknown as { businessId: string; businessName: string; country: string; currency: string; role: string; onboardingCompleted: boolean; plan: string; trialEndsAt: string | null };
         token.businessId = u.businessId;
         token.businessName = u.businessName;
         token.country = u.country;
         token.currency = u.currency;
         token.role = u.role;
         token.onboardingCompleted = u.onboardingCompleted;
+        token.plan = u.plan;
+        token.trialEndsAt = u.trialEndsAt;
       }
       return token;
     },
@@ -73,6 +77,8 @@ export const authOptions: NextAuthOptions = {
         session.user.currency = token.currency as string;
         session.user.role = token.role as string;
         session.user.onboardingCompleted = token.onboardingCompleted as boolean;
+        session.user.plan = token.plan as string;
+        session.user.trialEndsAt = token.trialEndsAt as string | null;
       }
       return session;
     },
@@ -96,6 +102,8 @@ declare module "next-auth" {
       currency: string;
       role: string;
       onboardingCompleted: boolean;
+      plan: string;
+      trialEndsAt: string | null;
     };
   }
 }

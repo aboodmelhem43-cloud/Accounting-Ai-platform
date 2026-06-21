@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import SupportWidget from "@/components/SupportWidget";
+import PlanBanner from "@/components/PlanBanner";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -17,8 +18,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
           country={session.user.country}
           currency={session.user.currency}
         />
-        <main className="flex-1 overflow-auto">
-          <div className="max-w-5xl mx-auto p-6">{children}</div>
+        <main className="flex-1 overflow-auto flex flex-col">
+          <PlanBanner />
+          <div className="max-w-5xl mx-auto p-6 w-full">{children}</div>
         </main>
       </div>
       <SupportWidget />

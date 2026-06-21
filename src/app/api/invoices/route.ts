@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { extractInvoiceData } from "@/lib/ai/extract-invoice";
+import { checkInvoiceLimit } from "@/lib/plans";
 import path from "path";
 import fs from "fs/promises";
 
@@ -21,6 +22,17 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   try {
+    const limitCheck = await checkInvoiceLimit(session.user.businessId);
+    if (!limitCheck.allowed) {
+      return NextResponse.json({
+        error: "plan_limit",
+        message: limitCheck.limit === 0
+          ? "انتهت فترة التجربة المجانية. يرجى الترقية للاستمرار."
+          : `وصلت للحد الأقصى (${limitCheck.limit} فاتورة/شهر). يرجى الترقية.`,
+        plan: limitCheck.plan,
+      }, { status: 403 });
+    }
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const invoiceType = (formData.get("invoiceType") as string) ?? "purchase";

@@ -22,6 +22,7 @@ export default function Sidebar({ businessName, country, currency }: SidebarProp
     { href: "/reports/income", label: t("nav.income"), icon: "📊" },
     { href: "/journal", label: t("nav.journal"), icon: "📒" },
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },
+    { href: "/pricing", label: lang === "ar" ? "الخطط والأسعار" : "Pricing", icon: "💎" },
   ];
 
   return (

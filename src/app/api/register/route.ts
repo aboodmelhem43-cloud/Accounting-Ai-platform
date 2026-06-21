@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { DEFAULT_CHART_OF_ACCOUNTS } from "@/lib/accounts";
 import { SUPPORTED_COUNTRIES } from "@/compliance";
 import { verifyOtp } from "@/lib/otp";
+import { trialEndsAtDate } from "@/lib/plans";
 
 const schema = z.object({
   businessName: z.string().min(2, "اسم المنشأة مطلوب"),
@@ -43,6 +44,8 @@ export async function POST(req: NextRequest) {
           name: data.businessName,
           country: data.country.toUpperCase(),
           baseCurrency: supported.currency,
+          plan: "FREE_TRIAL",
+          trialEndsAt: trialEndsAtDate(),
         },
       });
 

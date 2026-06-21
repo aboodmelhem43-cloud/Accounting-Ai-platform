@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { chat } from "@/lib/ai/chatbot";
+import { checkAiLimit } from "@/lib/plans";
 
 const schema = z.object({
   messages: z.array(
@@ -20,6 +21,16 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   try {
+    const limitCheck = await checkAiLimit(session.user.businessId);
+    if (!limitCheck.allowed) {
+      return NextResponse.json({
+        error: "plan_limit",
+        reply: limitCheck.limit === 0
+          ? "انتهت فترة التجربة المجانية. يرجى الترقية للاستمرار. /pricing"
+          : `وصلت للحد الأقصى (${limitCheck.limit} سؤال/شهر). يرجى الترقية. /pricing`,
+      }, { status: 403 });
+    }
+
     const body = await req.json();
     const data = schema.parse(body);
 
