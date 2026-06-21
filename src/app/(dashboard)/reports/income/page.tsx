@@ -113,7 +113,9 @@ export default function IncomeStatementPage() {
                 {statement.revenue.map((acc) => (
                   <div key={acc.accountId} className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
                     <div>
-                      <span className="text-sm text-gray-800">{acc.accountNameAr ?? acc.accountName}</span>
+                      <span className="text-sm text-gray-800">
+                        {lang === "ar" ? (acc.accountNameAr ?? acc.accountName) : acc.accountName}
+                      </span>
                       <span className="text-xs text-gray-400 mr-2">{acc.accountCode}</span>
                     </div>
                     <span className="font-medium text-green-700">{fmt(acc.balance)}</span>
@@ -140,7 +142,9 @@ export default function IncomeStatementPage() {
                 {statement.expenses.map((acc) => (
                   <div key={acc.accountId} className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
                     <div>
-                      <span className="text-sm text-gray-800">{acc.accountNameAr ?? acc.accountName}</span>
+                      <span className="text-sm text-gray-800">
+                        {lang === "ar" ? (acc.accountNameAr ?? acc.accountName) : acc.accountName}
+                      </span>
                       <span className="text-xs text-gray-400 mr-2">{acc.accountCode}</span>
                     </div>
                     <span className="font-medium text-red-700">{fmt(acc.balance)}</span>
