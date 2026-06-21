@@ -12,6 +12,7 @@ const schema = z.object({
     })
   ),
   message: z.string().min(1),
+  lang: z.enum(["ar", "en"]).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -26,6 +27,7 @@ export async function POST(req: NextRequest) {
       businessId: session.user.businessId,
       messages: data.messages,
       newMessage: data.message,
+      lang: data.lang ?? "ar",
     });
 
     return NextResponse.json({ reply });
