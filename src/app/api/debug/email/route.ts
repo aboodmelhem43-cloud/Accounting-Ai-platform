@@ -23,7 +23,19 @@ export async function GET(req: NextRequest) {
       html: "<p>رمز الاختبار: <strong>123456</strong></p>",
     });
 
-    return NextResponse.json({ ok: true, from: fromEmail, to, result });
+    if (result.error) {
+      return NextResponse.json({
+        ok: false,
+        from: fromEmail,
+        to,
+        resendError: result.error,
+        hint: result.error.message?.includes("domain") || result.error.message?.includes("verified")
+          ? "Domain not verified. Set FROM_EMAIL=onboarding@resend.dev in Vercel temporarily."
+          : "Check Resend dashboard for details.",
+      }, { status: 422 });
+    }
+
+    return NextResponse.json({ ok: true, from: fromEmail, to, id: result.data?.id });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message, from: fromEmail }, { status: 500 });
