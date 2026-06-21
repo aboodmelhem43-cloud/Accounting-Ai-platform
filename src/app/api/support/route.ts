@@ -13,7 +13,7 @@ const schema = z.object({
 });
 
 const PLATFORM_GUIDE = `
-== دليل منصة محاسبي ==
+== دليل منصة Mohasabai ==
 المنصة تساعد أصحاب الأعمال على:
 - رفع الفواتير وقراءتها بالذكاء الاصطناعي (/invoices/upload)
 - مراجعة وتأكيد الفواتير (/invoices)
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   const invoiceCount = await prisma.invoice.count({ where: { businessId: session.user.businessId } });
   const pendingCount = await prisma.invoice.count({ where: { businessId: session.user.businessId, status: "PENDING_REVIEW" } });
 
-  const systemPrompt = `أنت مساعد دعم عملاء ذكي لمنصة "محاسبي" — منصة محاسبة للأعمال الصغيرة.
+  const systemPrompt = `أنت مساعد دعم عملاء ذكي لمنصة "Mohasabai" — منصة محاسبة للأعمال الصغيرة.
 تتحدث مع صاحب منشأة اسمها "${business?.name}" في ${business?.country}.
 
 مهامك:

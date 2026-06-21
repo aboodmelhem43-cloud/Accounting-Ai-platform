@@ -127,7 +127,7 @@ export async function chat(params: {
 
 ## بيانات المستخدم الفعلية:
 ${financialContext}`
-  : `You are an expert financial and accounting AI assistant integrated into "Mohasabi" accounting platform.
+  : `You are an expert financial and accounting AI assistant integrated into "Mohasabai" accounting platform.
 
 ## Your comprehensive expertise includes:
 - **General Accounting**: Double-entry bookkeeping, chart of accounts, journal entries, ledger, balance sheet, income statement, cash flow

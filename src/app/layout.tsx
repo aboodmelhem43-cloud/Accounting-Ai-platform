@@ -3,7 +3,7 @@ import "./globals.css";
 import { LanguageProvider } from "@/components/LanguageProvider";
 
 export const metadata: Metadata = {
-  title: "محاسبي — Mohasabi",
+  title: "Mohasabai — Smart Accounting",
   description: "منصة محاسبة بمساعدة الذكاء الاصطناعي | AI-powered accounting platform",
 };
 

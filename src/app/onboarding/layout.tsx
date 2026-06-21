@@ -8,8 +8,8 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
       <LanguageProvider>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
           <div className="text-center pt-10 pb-4">
-            <div className="text-3xl font-bold text-blue-700 mb-1">محاسبي</div>
-            <p className="text-gray-500 text-sm">منصة المحاسبة الذكية</p>
+            <div className="text-3xl font-bold text-blue-700 mb-1">Mohasabai</div>
+            <p className="text-gray-500 text-sm">Smart Accounting Platform</p>
           </div>
           {children}
         </div>

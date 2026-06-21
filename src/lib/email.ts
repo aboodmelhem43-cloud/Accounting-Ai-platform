@@ -13,10 +13,10 @@ export async function sendOtpEmail(
   const isAr = lang === "ar";
 
   const subject = purpose === "register"
-    ? (isAr ? "رمز التحقق لإنشاء حسابك في محاسبي" : "Verify your email — Mohasabi")
-    : (isAr ? "رمز التحقق لتسجيل الدخول في محاسبي" : "Your login code — Mohasabi");
+    ? (isAr ? "رمز التحقق لإنشاء حسابك في محاسبي" : "Verify your email — Mohasabai")
+    : (isAr ? "رمز التحقق لتسجيل الدخول في محاسبي" : "Your login code — Mohasabai");
 
-  const heading = isAr ? "محاسبي — منصة المحاسبة الذكية" : "Mohasabi — Smart Accounting";
+  const heading = isAr ? "Mohasabai — منصة المحاسبة الذكية" : "Mohasabai — Smart Accounting";
   const intro = purpose === "register"
     ? (isAr ? "أدخل الرمز التالي لإكمال إنشاء حسابك:" : "Enter this code to complete your registration:")
     : (isAr ? "أدخل الرمز التالي لتسجيل الدخول:" : "Enter this code to sign in:");

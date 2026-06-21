@@ -63,7 +63,7 @@ export default function SupportWidget() {
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm">🤖</div>
               <div>
-                <p className="text-white font-semibold text-sm">{isAr ? "دعم محاسبي" : "Mohasabi Support"}</p>
+                <p className="text-white font-semibold text-sm">{"Mohasabai Support"}</p>
                 <p className="text-blue-200 text-xs">{isAr ? "متصل الآن" : "Online now"}</p>
               </div>
             </div>
