@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+  const [passwordless, setPasswordless] = useState(false);
 
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
@@ -27,7 +28,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, lang }),
+        body: JSON.stringify({ email, password: passwordless ? "" : password, lang }),
       });
 
       if (!res.ok) {
@@ -159,17 +160,28 @@ export default function LoginPage() {
             autoComplete="email"
           />
         </div>
-        <div>
-          <label className="label">{t("login.password")}</label>
-          <input
-            type="password"
-            className="input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="current-password"
-          />
-        </div>
+        {!passwordless && (
+          <div>
+            <label className="label">{t("login.password")}</label>
+            <input
+              type="password"
+              className="input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required={!passwordless}
+              autoComplete="current-password"
+            />
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={() => { setPasswordless((v) => !v); setPassword(""); setError(""); }}
+          className="text-xs text-blue-600 hover:underline w-full text-start"
+        >
+          {passwordless
+            ? (lang === "ar" ? "← تسجيل الدخول بكلمة المرور" : "← Login with password instead")
+            : (lang === "ar" ? "تسجيل الدخول بدون كلمة مرور (رمز التحقق فقط)" : "Login without password (OTP only)")}
+        </button>
         {error && <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
         <button type="submit" className="btn-primary w-full" disabled={loading}>
           {loading ? t("login.sending") : t("login.send_otp")}

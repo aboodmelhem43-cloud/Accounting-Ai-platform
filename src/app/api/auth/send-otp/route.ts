@@ -7,7 +7,7 @@ import { sendOtpEmail } from "@/lib/email";
 
 const schema = z.object({
   email: z.string().email(),
-  password: z.string().min(1),
+  password: z.string().optional(),
   lang: z.enum(["ar", "en"]).optional(),
 });
 
@@ -21,13 +21,15 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user) {
-      // نعطي نفس الرد لعدم كشف وجود الحساب
       return NextResponse.json({ sent: true });
     }
 
-    const isValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isValid) {
-      return NextResponse.json({ sent: true });
+    // If password is provided, verify it before sending OTP
+    if (password && password.trim()) {
+      const isValid = await bcrypt.compare(password, user.passwordHash);
+      if (!isValid) {
+        return NextResponse.json({ sent: true });
+      }
     }
 
     const code = await createOtp(email, "login");

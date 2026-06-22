@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
         otp: { label: "رمز التحقق", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password || !credentials?.otp) return null;
+        if (!credentials?.email || !credentials?.otp) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email.toLowerCase() },
@@ -38,8 +38,11 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) return null;
 
-        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
-        if (!isValid) return null;
+        // If a password was supplied, verify it; skip for passwordless (OTP-only) login
+        if (credentials.password && credentials.password.trim()) {
+          const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+          if (!isValid) return null;
+        }
 
         const otpValid = await verifyOtp(credentials.email, credentials.otp, "login");
         if (!otpValid) return null;
