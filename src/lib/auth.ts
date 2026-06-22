@@ -4,6 +4,13 @@ import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { verifyOtp } from "./otp";
 
+function effectiveTrialEnd(trialEndsAt: Date | null, createdAt: Date): Date {
+  const fromCreated = new Date(createdAt);
+  fromCreated.setDate(fromCreated.getDate() + 35);
+  if (!trialEndsAt) return fromCreated;
+  return new Date(trialEndsAt) > fromCreated ? new Date(trialEndsAt) : fromCreated;
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -18,7 +25,15 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email.toLowerCase() },
-          include: { business: true },
+          include: {
+            business: {
+              select: {
+                id: true, name: true, country: true, baseCurrency: true,
+                onboardingCompleted: true, plan: true, trialEndsAt: true,
+                createdAt: true,
+              },
+            },
+          },
         });
 
         if (!user) return null;
@@ -28,6 +43,11 @@ export const authOptions: NextAuthOptions = {
 
         const otpValid = await verifyOtp(credentials.email, credentials.otp, "login");
         if (!otpValid) return null;
+
+        const trialEnd = effectiveTrialEnd(
+          user.business.trialEndsAt ?? null,
+          user.business.createdAt,
+        );
 
         return {
           id: user.id,
@@ -40,7 +60,7 @@ export const authOptions: NextAuthOptions = {
           role: user.role,
           onboardingCompleted: user.business.onboardingCompleted,
           plan: user.business.plan,
-          trialEndsAt: user.business.trialEndsAt?.toISOString() ?? null,
+          trialEndsAt: trialEnd.toISOString(),
         };
       },
     }),

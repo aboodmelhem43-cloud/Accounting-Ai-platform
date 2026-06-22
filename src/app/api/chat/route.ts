@@ -46,10 +46,15 @@ export async function POST(req: NextRequest) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
-    console.error("[chat]", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("[chat]", msg);
+
+    const isAuthError = msg.includes("401") || msg.includes("authentication") || msg.includes("API key") || msg.includes("x-api-key");
     return NextResponse.json({
       error: "server_error",
-      reply: "عذراً، حدث خطأ في الخادم. يرجى المحاولة مرة أخرى بعد قليل.",
+      reply: isAuthError
+        ? "⚠️ المساعد الذكي غير متاح حالياً — يرجى التواصل مع الدعم. (API key not configured)"
+        : "عذراً، حدث خطأ في الخادم. يرجى المحاولة مرة أخرى بعد قليل.",
     }, { status: 500 });
   }
 }
