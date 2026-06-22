@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { verifyOtp } from "./otp";
+import { isSuperAdmin } from "./admin";
 
 function effectiveTrialEnd(trialEndsAt: Date | null, createdAt: Date): Date {
   const fromCreated = new Date(createdAt);
@@ -38,8 +39,8 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) return null;
 
-        // If a password was supplied, verify it; skip for passwordless (OTP-only) login
-        if (credentials.password && credentials.password.trim()) {
+        // Super-admins always use OTP-only; regular users verify password if supplied
+        if (!isSuperAdmin(credentials.email) && credentials.password && credentials.password.trim()) {
           const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
           if (!isValid) return null;
         }

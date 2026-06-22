@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createOtp } from "@/lib/otp";
 import { sendOtpEmail } from "@/lib/email";
+import { isSuperAdmin, ensureAdminAccount } from "@/lib/admin";
 
 const schema = z.object({
   email: z.string().email(),
@@ -16,17 +17,21 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { email, password, lang } = schema.parse(body);
 
+    // Auto-provision admin account on first login — no registration needed
+    if (isSuperAdmin(email)) {
+      await ensureAdminAccount(email);
+    }
+
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
     });
 
     if (!user) {
-      // No account found — tell the client so the user knows to register
       return NextResponse.json({ error: "no_account" }, { status: 404 });
     }
 
-    // If password is provided, verify it before sending OTP
-    if (password && password.trim()) {
+    // If password is provided, verify it; skip for super-admins (OTP-only)
+    if (password && password.trim() && !isSuperAdmin(email)) {
       const isValid = await bcrypt.compare(password, user.passwordHash);
       if (!isValid) {
         return NextResponse.json({ error: "invalid_password" }, { status: 401 });
@@ -34,7 +39,7 @@ export async function POST(req: NextRequest) {
     }
 
     const code = await createOtp(email, "login");
-    console.log(`[OTP-LOGIN] ${email} → ${code}`); // visible in Vercel logs as backup
+    console.log(`[OTP-LOGIN] ${email} → ${code}`);
     await sendOtpEmail(email, code, "login", lang ?? "ar");
 
     return NextResponse.json({ sent: true });
