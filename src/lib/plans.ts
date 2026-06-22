@@ -58,6 +58,16 @@ export function trialDaysLeft(trialEndsAt: Date | null | undefined): number {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
 
+// Returns the effective trial end date: whichever is later between stored trialEndsAt
+// and createdAt + 35 days. This ensures accounts created under the old 10-day limit
+// automatically get the full 35-day trial without a DB migration.
+function effectiveTrialEnd(trialEndsAt: Date | null, createdAt: Date): Date {
+  const fromCreated = new Date(createdAt);
+  fromCreated.setDate(fromCreated.getDate() + 35);
+  if (!trialEndsAt) return fromCreated;
+  return new Date(trialEndsAt) > fromCreated ? new Date(trialEndsAt) : fromCreated;
+}
+
 export async function checkInvoiceLimit(businessId: string): Promise<{
   allowed: boolean;
   used: number;
@@ -66,12 +76,12 @@ export async function checkInvoiceLimit(businessId: string): Promise<{
 }> {
   const business = await prisma.business.findUniqueOrThrow({
     where: { id: businessId },
-    select: { plan: true, trialEndsAt: true },
+    select: { plan: true, trialEndsAt: true, createdAt: true },
   });
 
   const plan = business.plan as PlanId;
 
-  if (plan === "FREE_TRIAL" && isTrialExpired(business.trialEndsAt)) {
+  if (plan === "FREE_TRIAL" && isTrialExpired(effectiveTrialEnd(business.trialEndsAt, business.createdAt))) {
     return { allowed: false, used: 0, limit: 0, plan };
   }
 
@@ -97,12 +107,12 @@ export async function checkAiLimit(businessId: string): Promise<{
 }> {
   const business = await prisma.business.findUniqueOrThrow({
     where: { id: businessId },
-    select: { plan: true, trialEndsAt: true },
+    select: { plan: true, trialEndsAt: true, createdAt: true },
   });
 
   const plan = business.plan as PlanId;
 
-  if (plan === "FREE_TRIAL" && isTrialExpired(business.trialEndsAt)) {
+  if (plan === "FREE_TRIAL" && isTrialExpired(effectiveTrialEnd(business.trialEndsAt, business.createdAt))) {
     return { allowed: false, used: 0, limit: 0, plan };
   }
 
