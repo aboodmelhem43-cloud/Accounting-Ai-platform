@@ -52,6 +52,24 @@ export default function AdminPage() {
   const [trialResult, setTrialResult] = useState<string | null>(null);
   const [trialLoading, setTrialLoading] = useState(false);
 
+  // AI test state
+  const [aiTesting, setAiTesting] = useState(false);
+  const [aiResult, setAiResult] = useState<{ ok: boolean; keyPreview?: string; error?: string; errorType?: string; response?: string; step?: string } | null>(null);
+
+  async function testAi() {
+    setAiTesting(true);
+    setAiResult(null);
+    try {
+      const res = await fetch("/api/admin/test-ai", { method: "POST" });
+      const data = await res.json();
+      setAiResult(data);
+    } catch {
+      setAiResult({ ok: false, error: "Network error" });
+    } finally {
+      setAiTesting(false);
+    }
+  }
+
   const fetchBusinesses = useCallback(async (q: string, c: string, p: number) => {
     setLoading(true);
     setError(null);
@@ -172,6 +190,30 @@ export default function AdminPage() {
           </button>
         </div>
         {trialResult && <p className="text-sm text-amber-700">{trialResult}</p>}
+      </div>
+
+      {/* AI Diagnostics */}
+      <div className="card p-4 space-y-3 border border-blue-200 bg-blue-50">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold text-blue-800 text-sm">AI Assistant Diagnostics</h2>
+          <button
+            onClick={testAi}
+            disabled={aiTesting}
+            className="btn-primary text-sm px-4 py-1.5"
+          >
+            {aiTesting ? "Testing..." : "Test AI Connection"}
+          </button>
+        </div>
+        {aiResult && (
+          <div className={`rounded-lg p-3 text-sm font-mono ${aiResult.ok ? "bg-green-50 border border-green-200 text-green-800" : "bg-red-50 border border-red-200 text-red-800"}`}>
+            <div><span className="font-bold">Status:</span> {aiResult.ok ? "✅ Working" : "❌ Failed"}</div>
+            {aiResult.keyPreview && <div><span className="font-bold">API Key:</span> {aiResult.keyPreview}</div>}
+            {aiResult.step && <div><span className="font-bold">Failed at:</span> {aiResult.step}</div>}
+            {aiResult.errorType && <div><span className="font-bold">Error type:</span> {aiResult.errorType}</div>}
+            {aiResult.error && <div><span className="font-bold">Error:</span> {aiResult.error}</div>}
+            {aiResult.response && <div><span className="font-bold">Response:</span> {aiResult.response}</div>}
+          </div>
+        )}
       </div>
 
       {/* Search */}
