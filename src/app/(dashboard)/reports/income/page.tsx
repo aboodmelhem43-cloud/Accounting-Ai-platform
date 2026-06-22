@@ -139,17 +139,27 @@ export default function IncomeStatementPage() {
               </p>
             ) : (
               <div className="space-y-2">
-                {statement.expenses.map((acc) => (
-                  <div key={acc.accountId} className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
-                    <div>
-                      <span className="text-sm text-gray-800">
-                        {lang === "ar" ? (acc.accountNameAr ?? acc.accountName) : acc.accountName}
+                {statement.expenses.map((acc) => {
+                  const isNegative = acc.balance < 0;
+                  return (
+                    <div key={acc.accountId} className={`flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0 ${isNegative ? "bg-amber-50 rounded px-2" : ""}`}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-800">
+                          {lang === "ar" ? (acc.accountNameAr ?? acc.accountName) : acc.accountName}
+                        </span>
+                        <span className="text-xs text-gray-400">{acc.accountCode}</span>
+                        {isNegative && (
+                          <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">
+                            {lang === "ar" ? "⚠️ رصيد غير طبيعي" : "⚠️ Unusual balance"}
+                          </span>
+                        )}
+                      </div>
+                      <span className={`font-medium ${isNegative ? "text-amber-600" : "text-red-700"}`}>
+                        {fmt(acc.balance)}
                       </span>
-                      <span className="text-xs text-gray-400 mr-2">{acc.accountCode}</span>
                     </div>
-                    <span className="font-medium text-red-700">{fmt(acc.balance)}</span>
-                  </div>
-                ))}
+                  );
+                })}
                 <div className="flex justify-between items-center pt-2 font-bold text-red-800 border-t border-red-200">
                   <span>{lang === "ar" ? "إجمالي المصروفات" : "Total Expenses"}</span>
                   <span>{fmt(statement.totalExpenses)}</span>
@@ -170,12 +180,30 @@ export default function IncomeStatementPage() {
                   {new Date(statement.period.from).toLocaleDateString(locale)} —{" "}
                   {new Date(statement.period.to).toLocaleDateString(locale)}
                 </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {lang === "ar"
+                    ? `إجمالي الإيرادات (${fmt(statement.totalRevenue)}) − إجمالي المصروفات (${fmt(statement.totalExpenses)})`
+                    : `Total Revenue (${fmt(statement.totalRevenue)}) − Total Expenses (${fmt(statement.totalExpenses)})`}
+                </p>
               </div>
               <span className={`text-2xl font-bold ${statement.netProfit >= 0 ? "text-green-700" : "text-red-700"}`}>
                 {fmt(Math.abs(statement.netProfit))}
               </span>
             </div>
           </div>
+
+          {statement.expenses.some((a) => a.balance < 0) && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+              <p className="font-semibold mb-1">
+                ⚠️ {lang === "ar" ? "تنبيه: حسابات مصروفات بأرصدة غير طبيعية" : "Warning: Expense accounts with unusual balances"}
+              </p>
+              <p className="text-xs text-amber-700">
+                {lang === "ar"
+                  ? "بعض حسابات المصروفات لها رصيد دائن (سالب). هذا يعني أن هناك قيوداً مُرحَّلة في الجانب الدائن لحساب مصروف — تحقق من القيود وتأكد من استخدام الحساب الصحيح (مثل: حسابات الإيرادات 4xxx للمبيعات)."
+                  : "Some expense accounts have a credit (negative) balance. This usually means a journal entry was posted to the wrong account. Check your journal entries and make sure sales are credited to Revenue accounts (4xxx), not Expense accounts (5xxx)."}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>
