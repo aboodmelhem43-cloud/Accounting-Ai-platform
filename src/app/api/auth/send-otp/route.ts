@@ -21,18 +21,20 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json({ sent: true });
+      // No account found — tell the client so the user knows to register
+      return NextResponse.json({ error: "no_account" }, { status: 404 });
     }
 
     // If password is provided, verify it before sending OTP
     if (password && password.trim()) {
       const isValid = await bcrypt.compare(password, user.passwordHash);
       if (!isValid) {
-        return NextResponse.json({ sent: true });
+        return NextResponse.json({ error: "invalid_password" }, { status: 401 });
       }
     }
 
     const code = await createOtp(email, "login");
+    console.log(`[OTP-LOGIN] ${email} → ${code}`); // visible in Vercel logs as backup
     await sendOtpEmail(email, code, "login", lang ?? "ar");
 
     return NextResponse.json({ sent: true });

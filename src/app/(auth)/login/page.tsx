@@ -32,7 +32,16 @@ export default function LoginPage() {
       });
 
       if (!res.ok) {
-        setError(t("common.error"));
+        const data = await res.json().catch(() => ({}));
+        if (data.error === "no_account") {
+          setError(lang === "ar"
+            ? "لا يوجد حساب بهذا البريد. يرجى إنشاء حساب أولاً."
+            : "No account found. Please create an account first.");
+        } else if (data.error === "invalid_password") {
+          setError(lang === "ar" ? "كلمة المرور غير صحيحة." : "Incorrect password.");
+        } else {
+          setError(t("common.error"));
+        }
         return;
       }
 
