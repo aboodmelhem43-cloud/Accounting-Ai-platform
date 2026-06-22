@@ -40,6 +40,7 @@ const journalLineSchema = z.object({
 const createJournalSchema = z.object({
   date: z.string().min(1),
   description: z.string().min(1),
+  status: z.enum(["DRAFT", "POSTED"]).default("POSTED"),
   lines: z.array(journalLineSchema).min(2),
 });
 
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "بيانات غير صالحة", details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { date, description, lines } = parsed.data;
+  const { date, description, status, lines } = parsed.data;
 
   try {
     const entry = await createJournalEntry({
@@ -68,6 +69,7 @@ export async function POST(req: NextRequest) {
       date: new Date(date),
       description,
       sourceType: "MANUAL",
+      status,
       lines,
     });
     return NextResponse.json({ id: entry.id }, { status: 201 });

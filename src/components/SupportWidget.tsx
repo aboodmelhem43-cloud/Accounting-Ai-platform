@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useLang } from "./LanguageProvider";
 
 interface Message {
@@ -12,6 +13,7 @@ const STARTERS_EN = ["How do I upload an invoice?", "How do I add a journal entr
 
 export default function SupportWidget() {
   const { lang } = useLang();
+  const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -19,6 +21,8 @@ export default function SupportWidget() {
   const [unread, setUnread] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const isAr = lang === "ar";
+
+  const plan = (session?.user as { plan?: string })?.plan ?? "FREE_TRIAL";
 
   useEffect(() => {
     if (open) {
@@ -55,20 +59,49 @@ export default function SupportWidget() {
 
   return (
     <div className="fixed bottom-6 end-6 z-50 flex flex-col items-end gap-3">
-      {/* نافذة الدردشة */}
       {open && (
-        <div className="w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden" style={{ height: "480px" }}>
+        <div className="w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden" style={{ height: plan === "BUSINESS" ? "560px" : "480px" }}>
           {/* الرأس */}
-          <div className="bg-blue-600 px-4 py-3 flex items-center justify-between">
+          <div className={`px-4 py-3 flex items-center justify-between ${plan === "BUSINESS" ? "bg-gradient-to-r from-purple-600 to-blue-600" : "bg-blue-600"}`}>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm">🤖</div>
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm">
+                {plan === "BUSINESS" ? "⭐" : "🤖"}
+              </div>
               <div>
-                <p className="text-white font-semibold text-sm">{"Mohasabai Support"}</p>
+                <p className="text-white font-semibold text-sm">
+                  {plan === "BUSINESS"
+                    ? (isAr ? "دعم VIP" : "VIP Support")
+                    : "Mohasabai Support"}
+                </p>
                 <p className="text-blue-200 text-xs">{isAr ? "متصل الآن" : "Online now"}</p>
               </div>
             </div>
             <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white text-xl leading-none">×</button>
           </div>
+
+          {/* بطاقة VIP للـ BUSINESS */}
+          {plan === "BUSINESS" && (
+            <div className="bg-purple-50 border-b border-purple-100 px-4 py-3">
+              <p className="text-xs font-semibold text-purple-800 mb-2">
+                {isAr ? "⭐ دعم VIP حصري" : "⭐ Exclusive VIP Support"}
+              </p>
+              <div className="flex gap-2">
+                <a
+                  href="mailto:vip@mohasabai.com"
+                  className="flex-1 bg-purple-600 text-white text-xs py-2 px-3 rounded-lg text-center font-medium hover:bg-purple-700 transition-colors"
+                >
+                  📧 {isAr ? "بريد VIP" : "VIP Email"}
+                </a>
+                <a
+                  href="#"
+                  className="flex-1 bg-green-600 text-white text-xs py-2 px-3 rounded-lg text-center font-medium hover:bg-green-700 transition-colors"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  💬 WhatsApp
+                </a>
+              </div>
+            </div>
+          )}
 
           {/* الرسائل */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
@@ -119,6 +152,21 @@ export default function SupportWidget() {
             <div ref={endRef} />
           </div>
 
+          {/* Priority Support للـ PRO */}
+          {plan === "PRO" && (
+            <div className="bg-blue-50 border-t border-blue-100 px-4 py-2">
+              <p className="text-xs font-semibold text-blue-700 mb-1">
+                {isAr ? "دعم أولوية" : "Priority Support"}
+              </p>
+              <a
+                href="mailto:support@mohasabai.com"
+                className="text-xs text-blue-600 hover:text-blue-800 underline"
+              >
+                support@mohasabai.com
+              </a>
+            </div>
+          )}
+
           {/* حقل الإدخال */}
           <form
             onSubmit={(e) => { e.preventDefault(); send(input); }}
@@ -146,7 +194,9 @@ export default function SupportWidget() {
       {/* زر الفتح */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl transition-all hover:scale-110 relative"
+        className={`w-14 h-14 text-white rounded-full shadow-lg flex items-center justify-center text-2xl transition-all hover:scale-110 relative ${
+          plan === "BUSINESS" ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" : "bg-blue-600 hover:bg-blue-700"
+        }`}
       >
         {open ? "×" : "💬"}
         {unread && !open && (

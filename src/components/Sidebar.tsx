@@ -13,16 +13,20 @@ interface SidebarProps {
 export default function Sidebar({ businessName, country, currency }: SidebarProps) {
   const pathname = usePathname();
   const { t, lang, toggleLang } = useLang();
-
+  const isAr = lang === "ar";
   const NAV_ITEMS = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: "🏠" },
+    { href: "/contacts", label: isAr ? "العملاء والموردون" : "Contacts", icon: "👥" },
+    { href: "/bank-accounts", label: isAr ? "الحسابات البنكية" : "Bank Accounts", icon: "🏦" },
+    { href: "/bank-reconciliation", label: isAr ? "تسوية بنكية" : "Reconciliation", icon: "🔄" },
     { href: "/invoices", label: t("nav.invoices"), icon: "🧾" },
     { href: "/invoices/upload", label: t("nav.upload"), icon: "⬆️" },
-    { href: "/invoices/create", label: lang === "ar" ? "إنشاء فاتورة" : "Create Invoice", icon: "📝" },
-    { href: "/reports/income", label: t("nav.income"), icon: "📊" },
+    { href: "/invoices/create", label: isAr ? "إنشاء فاتورة" : "Create Invoice", icon: "📝" },
+    { href: "/reports", label: isAr ? "التقارير" : "Reports", icon: "📊" },
     { href: "/journal", label: t("nav.journal"), icon: "📒" },
+    { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },
-    { href: "/pricing", label: lang === "ar" ? "الخطط والأسعار" : "Pricing", icon: "💎" },
+    { href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "💎" },
   ];
 
   return (

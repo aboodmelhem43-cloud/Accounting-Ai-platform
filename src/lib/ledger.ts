@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import type { SuggestedJournalEntry, IncomeStatement, AccountBalance } from "@/types";
+import type { SuggestedJournalEntry, IncomeStatement, AccountBalance, BalanceSheet, CashFlowStatement } from "@/types";
 import type { Prisma } from "@prisma/client";
 
 // التحقق من توازن القيد — مجموع المدين يجب أن يساوي مجموع الدائن
@@ -19,10 +19,11 @@ export async function createJournalEntry(params: {
   date: Date;
   description: string;
   sourceType: "MANUAL" | "AI_INVOICE";
+  status?: "DRAFT" | "POSTED";
   lines: { accountId: string; debit: number; credit: number; description?: string }[];
   invoiceId?: string;
 }) {
-  const { businessId, userId, date, description, sourceType, lines, invoiceId } = params;
+  const { businessId, userId, date, description, sourceType, status = "POSTED", lines, invoiceId } = params;
 
   if (!validateJournalBalance(lines)) {
     throw new Error("القيد غير متوازن: مجموع المدين لا يساوي مجموع الدائن");
@@ -41,6 +42,7 @@ export async function createJournalEntry(params: {
         date,
         description,
         sourceType,
+        status,
         lines: {
           create: lines.map((l) => ({
             accountId: l.accountId,
@@ -246,4 +248,180 @@ export async function suggestSalesJournalEntry(params: {
   const desc = `فاتورة مبيعات — ${customerName}${invoiceNumber ? ` رقم ${invoiceNumber}` : ""}`;
 
   return { description: desc, date, lines };
+}
+
+// الميزانية العمومية — محسوبة من الـ ledger
+export async function computeBalanceSheet(
+  businessId: string,
+  asOf: Date
+): Promise<BalanceSheet> {
+  const business = await prisma.business.findUniqueOrThrow({
+    where: { id: businessId },
+  });
+
+  const accounts = await prisma.account.findMany({
+    where: { businessId },
+    include: {
+      journalLines: {
+        where: {
+          journalEntry: { businessId, date: { lte: asOf } },
+        },
+      },
+    },
+  });
+
+  const assets: AccountBalance[] = [];
+  const liabilities: AccountBalance[] = [];
+  const equity: AccountBalance[] = [];
+  let totalRevenue = 0;
+  let totalExpenses = 0;
+
+  for (const acc of accounts) {
+    const totalDebit = acc.journalLines.reduce((s, l) => s + Number(l.debit), 0);
+    const totalCredit = acc.journalLines.reduce((s, l) => s + Number(l.credit), 0);
+
+    const entry: AccountBalance = {
+      accountId: acc.id,
+      accountCode: acc.code,
+      accountName: acc.name,
+      accountNameAr: acc.nameAr,
+      balance: 0,
+      type: acc.type,
+    };
+
+    switch (acc.type) {
+      case "ASSET":
+        entry.balance = totalDebit - totalCredit;
+        if (entry.balance !== 0) assets.push(entry);
+        break;
+      case "LIABILITY":
+        entry.balance = totalCredit - totalDebit;
+        if (entry.balance !== 0) liabilities.push(entry);
+        break;
+      case "EQUITY":
+        entry.balance = totalCredit - totalDebit;
+        if (entry.balance !== 0) equity.push(entry);
+        break;
+      case "REVENUE":
+        totalRevenue += totalCredit - totalDebit;
+        break;
+      case "EXPENSE":
+        totalExpenses += totalDebit - totalCredit;
+        break;
+    }
+  }
+
+  const netProfit = totalRevenue - totalExpenses;
+  const totalAssets = assets.reduce((s, a) => s + a.balance, 0);
+  const totalLiabilities = liabilities.reduce((s, a) => s + a.balance, 0);
+  const totalEquity = equity.reduce((s, a) => s + a.balance, 0) + netProfit;
+
+  return {
+    asOf: asOf.toISOString(),
+    assets,
+    liabilities,
+    equity,
+    totalAssets,
+    totalLiabilities,
+    totalEquity,
+    netProfit,
+    currency: business.baseCurrency,
+  };
+}
+
+// قائمة التدفقات النقدية — طريقة مباشرة مبسطة
+export async function computeCashFlow(
+  businessId: string,
+  from: Date,
+  to: Date
+): Promise<CashFlowStatement> {
+  const business = await prisma.business.findUniqueOrThrow({
+    where: { id: businessId },
+  });
+
+  // حساب النقدية (كود 1100)
+  const cashAccount = await prisma.account.findFirst({
+    where: { businessId, code: "1100" },
+  });
+
+  if (!cashAccount) {
+    return {
+      period: { from: from.toISOString(), to: to.toISOString() },
+      operatingActivities: [],
+      investingActivities: [],
+      financingActivities: [],
+      netOperating: 0,
+      netInvesting: 0,
+      netFinancing: 0,
+      netChange: 0,
+      currency: business.baseCurrency,
+    };
+  }
+
+  // جلب حركات النقدية مع الحسابات المقابلة
+  const cashLines = await prisma.journalLine.findMany({
+    where: {
+      accountId: cashAccount.id,
+      journalEntry: { businessId, date: { gte: from, lte: to } },
+    },
+    include: {
+      journalEntry: {
+        include: {
+          lines: {
+            where: { accountId: { not: cashAccount.id } },
+            include: { account: true },
+          },
+        },
+      },
+    },
+  });
+
+  const operatingActivities: { description: string; amount: number }[] = [];
+  const investingActivities: { description: string; amount: number }[] = [];
+  const financingActivities: { description: string; amount: number }[] = [];
+
+  for (const line of cashLines) {
+    const amount = Number(line.debit) - Number(line.credit); // موجب = تدفق داخل، سالب = تدفق خارج
+    if (amount === 0) continue;
+
+    const counterpartAccount = line.journalEntry.lines[0]?.account;
+    const description = line.journalEntry.description;
+
+    if (!counterpartAccount) {
+      operatingActivities.push({ description, amount });
+      continue;
+    }
+
+    const code = counterpartAccount.code;
+    const firstDigit = code[0];
+
+    if (firstDigit === "4" || firstDigit === "5") {
+      // إيرادات أو مصروفات → تشغيلي
+      operatingActivities.push({ description, amount });
+    } else if (firstDigit === "1") {
+      // أصول (غير النقدية) → استثماري
+      investingActivities.push({ description, amount });
+    } else if (firstDigit === "2" || firstDigit === "3") {
+      // خصوم أو حقوق ملكية → تمويلي
+      financingActivities.push({ description, amount });
+    } else {
+      operatingActivities.push({ description, amount });
+    }
+  }
+
+  const netOperating = operatingActivities.reduce((s, a) => s + a.amount, 0);
+  const netInvesting = investingActivities.reduce((s, a) => s + a.amount, 0);
+  const netFinancing = financingActivities.reduce((s, a) => s + a.amount, 0);
+
+  return {
+    period: { from: from.toISOString(), to: to.toISOString() },
+    operatingActivities,
+    investingActivities,
+    financingActivities,
+    netOperating,
+    netInvesting,
+    netFinancing,
+    netChange: netOperating + netInvesting + netFinancing,
+    currency: business.baseCurrency,
+  };
 }

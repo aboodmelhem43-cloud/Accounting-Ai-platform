@@ -16,6 +16,7 @@ interface JournalEntry {
   date: string;
   description: string;
   sourceType: string;
+  status: "DRAFT" | "POSTED";
   lines: JournalLine[];
   creator: { name: string | null; email: string };
 }
@@ -27,18 +28,32 @@ export default function JournalPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [postingId, setPostingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const res = await fetch(`/api/journal?page=${page}`);
-      const data = await res.json();
-      setEntries(data.entries ?? []);
-      setTotal(data.total ?? 0);
-      setLoading(false);
+  async function load() {
+    setLoading(true);
+    const res = await fetch(`/api/journal?page=${page}`);
+    const data = await res.json();
+    setEntries(data.entries ?? []);
+    setTotal(data.total ?? 0);
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, [page]);
+
+  async function handlePost(id: string) {
+    setPostingId(id);
+    try {
+      const res = await fetch(`/api/journal/${id}/post`, { method: "PATCH" });
+      if (res.ok) {
+        setEntries((prev) =>
+          prev.map((e) => (e.id === id ? { ...e, status: "POSTED" as const } : e))
+        );
+      }
+    } finally {
+      setPostingId(null);
     }
-    load();
-  }, [page]);
+  }
 
   return (
     <div className="space-y-6">
@@ -77,7 +92,14 @@ export default function JournalPage() {
         <div key={entry.id} className="card">
           <div className="flex items-start justify-between mb-3">
             <div>
-              <p className="font-semibold text-gray-800">{entry.description}</p>
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-gray-800">{entry.description}</p>
+                {entry.status === "DRAFT" && (
+                  <span className="inline-flex px-2 py-0.5 text-xs rounded-full font-medium bg-yellow-100 text-yellow-700 border border-yellow-200">
+                    {lang === "ar" ? "مسودة" : "Draft"}
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
                 <span>📅 {new Date(entry.date).toLocaleDateString(locale)}</span>
                 <span>
@@ -90,6 +112,17 @@ export default function JournalPage() {
                 </span>
               </div>
             </div>
+            {entry.status === "DRAFT" && (
+              <button
+                onClick={() => handlePost(entry.id)}
+                disabled={postingId === entry.id}
+                className="btn-primary text-xs py-1.5 px-3"
+              >
+                {postingId === entry.id
+                  ? (lang === "ar" ? "جاري..." : "Posting...")
+                  : (lang === "ar" ? "ترحيل" : "Post")}
+              </button>
+            )}
           </div>
 
           <table className="w-full text-sm">

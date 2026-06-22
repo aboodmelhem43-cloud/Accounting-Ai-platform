@@ -33,6 +33,9 @@ model Business {
   accounts      Account[]
   journalEntries JournalEntry[]
   invoices      Invoice[]
+  contacts     Contact[]
+  bankAccounts BankAccount[]
+  bankStatements BankStatement[]
 }
 
 // المستخدم — مرتبط بمنشأة واحدة
@@ -89,6 +92,7 @@ model JournalEntry {
   sourceType  JournalSourceType @default(MANUAL)
   createdById String
   createdAt   DateTime          @default(now())
+  status      JournalEntryStatus @default(POSTED)
 
   business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
   creator  User          @relation(fields: [createdById], references: [id])
@@ -140,6 +144,74 @@ enum InvoiceStatus {
 enum InvoiceType {
   PURCHASE // فاتورة مشتريات
   SALES    // فاتورة مبيعات
+}
+
+model Contact {
+  id          String      @id @default(cuid())
+  businessId  String
+  type        ContactType
+  name        String
+  email       String?
+  phone       String?
+  address     String?
+  taxNumber   String?
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  business    Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+enum ContactType {
+  CUSTOMER
+  VENDOR
+}
+
+model BankAccount {
+  id             String   @id @default(cuid())
+  businessId     String
+  name           String
+  bankName       String
+  accountNumber  String?
+  iban           String?
+  currency       String   @default("EGP")
+  openingBalance Decimal  @default(0) @db.Decimal(15, 2)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  business   Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  statements BankStatement[]
+}
+
+model BankStatement {
+  id            String   @id @default(cuid())
+  businessId    String
+  bankAccountId String?
+  fileName      String
+  uploadedAt    DateTime @default(now())
+
+  business     Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  bankAccount  BankAccount?      @relation(fields: [bankAccountId], references: [id])
+  transactions BankTransaction[]
+}
+
+model BankTransaction {
+  id              String   @id @default(cuid())
+  statementId     String
+  date            DateTime
+  description     String
+  amount          Decimal  @db.Decimal(15, 2)
+  transactionType String
+  balance         Decimal? @db.Decimal(15, 2)
+  reference       String?
+  matched         Boolean  @default(false)
+
+  statement BankStatement @relation(fields: [statementId], references: [id], onDelete: Cascade)
+}
+
+enum JournalEntryStatus {
+  DRAFT
+  POSTED
 }
 
 // رموز التحقق بالبريد الإلكتروني

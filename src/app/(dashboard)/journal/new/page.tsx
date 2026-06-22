@@ -86,8 +86,7 @@ export default function NewJournalEntryPage() {
     setLines((prev) => prev.filter((_, i) => i !== index));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function submitEntry(statusValue: "DRAFT" | "POSTED") {
     if (!canSubmit) return;
 
     setLoading(true);
@@ -96,6 +95,7 @@ export default function NewJournalEntryPage() {
     const payload = {
       date,
       description,
+      status: statusValue,
       lines: lines
         .filter((l) => l.accountId)
         .map((l) => ({
@@ -123,6 +123,11 @@ export default function NewJournalEntryPage() {
       setError(err instanceof Error ? err.message : "حدث خطأ");
       setLoading(false);
     }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await submitEntry("POSTED");
   }
 
   const fmt = (n: number) => n.toLocaleString(lang === "ar" ? "ar" : "en", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -301,7 +306,7 @@ export default function NewJournalEntryPage() {
           </div>
         )}
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <button
             type="submit"
             disabled={!canSubmit || loading}
@@ -309,7 +314,15 @@ export default function NewJournalEntryPage() {
           >
             {loading
               ? (lang === "ar" ? "جاري الحفظ..." : "Saving...")
-              : (lang === "ar" ? "حفظ القيد" : "Save Entry")}
+              : (lang === "ar" ? "حفظ وترحيل" : "Save & Post")}
+          </button>
+          <button
+            type="button"
+            disabled={!canSubmit || loading}
+            onClick={() => submitEntry("DRAFT")}
+            className="btn-secondary"
+          >
+            {lang === "ar" ? "حفظ كمسودة" : "Save as Draft"}
           </button>
           <button
             type="button"

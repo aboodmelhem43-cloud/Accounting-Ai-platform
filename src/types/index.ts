@@ -1,4 +1,4 @@
-import type { Account, AccountType, InvoiceStatus, InvoiceType, JournalSourceType, UserRole } from "@prisma/client";
+import type { Account, AccountType, InvoiceStatus, InvoiceType, JournalSourceType, JournalEntryStatus, UserRole } from "@prisma/client";
 
 // بيانات الفاتورة المستخرجة بالذكاء الاصطناعي
 export interface ExtractedInvoiceData {
@@ -62,5 +62,29 @@ export interface AccountBalance {
   type: AccountType;
 }
 
+export interface BalanceSheet {
+  asOf: string;
+  assets: AccountBalance[];
+  liabilities: AccountBalance[];
+  equity: AccountBalance[];
+  totalAssets: number;
+  totalLiabilities: number;
+  totalEquity: number;
+  netProfit: number;
+  currency: string;
+}
+
+export interface CashFlowStatement {
+  period: { from: string; to: string };
+  operatingActivities: { description: string; amount: number }[];
+  investingActivities: { description: string; amount: number }[];
+  financingActivities: { description: string; amount: number }[];
+  netOperating: number;
+  netInvesting: number;
+  netFinancing: number;
+  netChange: number;
+  currency: string;
+}
+
 // إعادة تصدير أنواع Prisma المستخدمة في الواجهة
-export type { Account, AccountType, InvoiceStatus, InvoiceType, JournalSourceType, UserRole };
+export type { Account, AccountType, InvoiceStatus, InvoiceType, JournalSourceType, JournalEntryStatus, UserRole };

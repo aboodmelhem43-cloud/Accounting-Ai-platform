@@ -16,7 +16,7 @@ export const PLANS: Record<PlanId, {
     price: 0,
     invoicesPerMonth: 20,
     aiQueriesPerMonth: 10,
-    trialDays: 10,
+    trialDays: 35,
   },
   STARTER: {
     nameEn: "Starter",
@@ -43,7 +43,7 @@ export const PLANS: Record<PlanId, {
 
 export function trialEndsAtDate(): Date {
   const d = new Date();
-  d.setDate(d.getDate() + 10);
+  d.setDate(d.getDate() + 35);
   return d;
 }
 
