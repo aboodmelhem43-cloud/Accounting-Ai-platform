@@ -15,6 +15,8 @@ interface Business {
   _count: { journalEntries: number; invoices: number };
 }
 
+interface CountryStat { country: string; _count: { id: number } }
+
 const PLAN_COLORS: Record<string, string> = {
   FREE_TRIAL: "bg-gray-100 text-gray-700",
   STARTER: "bg-blue-100 text-blue-700",
@@ -27,6 +29,11 @@ const COUNTRY_NAMES: Record<string, string> = {
   KW: "Kuwait", BH: "Bahrain", QA: "Qatar", OM: "Oman",
 };
 
+const COUNTRY_FLAGS: Record<string, string> = {
+  EG: "🇪🇬", SA: "🇸🇦", AE: "🇦🇪", JO: "🇯🇴",
+  KW: "🇰🇼", BH: "🇧🇭", QA: "🇶🇦", OM: "🇴🇲",
+};
+
 export default function AdminPage() {
   const { data: session } = useSession();
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -34,6 +41,8 @@ export default function AdminPage() {
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [search, setSearch] = useState("");
+  const [countryFilter, setCountryFilter] = useState("");
+  const [countryStats, setCountryStats] = useState<CountryStat[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean | null>(null);
@@ -43,11 +52,13 @@ export default function AdminPage() {
   const [trialResult, setTrialResult] = useState<string | null>(null);
   const [trialLoading, setTrialLoading] = useState(false);
 
-  const fetchBusinesses = useCallback(async (q: string, p: number) => {
+  const fetchBusinesses = useCallback(async (q: string, c: string, p: number) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/businesses?search=${encodeURIComponent(q)}&page=${p}`);
+      const params = new URLSearchParams({ search: q, page: String(p) });
+      if (c) params.set("country", c);
+      const res = await fetch(`/api/admin/businesses?${params}`);
       if (res.status === 403) { setIsSuperAdmin(false); return; }
       if (!res.ok) { setError("Failed to load"); return; }
       setIsSuperAdmin(true);
@@ -55,6 +66,7 @@ export default function AdminPage() {
       setBusinesses(data.businesses);
       setTotal(data.total);
       setPages(data.pages);
+      if (p === 1 && !c) setCountryStats(data.countryStats ?? []);
     } catch {
       setError("Network error");
     } finally {
@@ -63,8 +75,8 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    fetchBusinesses(search, page);
-  }, [fetchBusinesses, search, page]);
+    fetchBusinesses(search, countryFilter, page);
+  }, [fetchBusinesses, search, countryFilter, page]);
 
   async function extendTrials() {
     if (!secret) return;
@@ -80,7 +92,7 @@ export default function AdminPage() {
         setTrialResult("Wrong secret or error: " + JSON.stringify(data));
       } else {
         setTrialResult(`Updated ${data.updated} account(s)`);
-        fetchBusinesses(search, page);
+        fetchBusinesses(search, countryFilter, page);
       }
     } catch {
       setTrialResult("Network error");
@@ -107,13 +119,38 @@ export default function AdminPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Super Admin</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Logged in as: {session?.user?.email}</p>
+          <p className="text-sm text-gray-500 mt-0.5">{session?.user?.email}</p>
         </div>
         <div className="text-right">
           <p className="text-3xl font-bold text-gray-900">{total}</p>
-          <p className="text-xs text-gray-500">Total businesses</p>
+          <p className="text-xs text-gray-500">{countryFilter ? `businesses in ${COUNTRY_NAMES[countryFilter] ?? countryFilter}` : "total businesses"}</p>
         </div>
       </div>
+
+      {/* Country stats */}
+      {countryStats.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => { setCountryFilter(""); setPage(1); }}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+              !countryFilter ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-200 hover:border-blue-300"
+            }`}
+          >
+            All countries
+          </button>
+          {countryStats.map((s) => (
+            <button
+              key={s.country}
+              onClick={() => { setCountryFilter(s.country); setPage(1); }}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                countryFilter === s.country ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-200 hover:border-blue-300"
+              }`}
+            >
+              {COUNTRY_FLAGS[s.country] ?? ""} {COUNTRY_NAMES[s.country] ?? s.country} ({s._count.id})
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Extend Trials Tool */}
       <div className="card p-4 space-y-3 border border-amber-200 bg-amber-50">
@@ -169,7 +206,7 @@ export default function AdminPage() {
             {businesses.length === 0 && !loading && (
               <tr>
                 <td colSpan={7} className="text-center py-10 text-gray-400">
-                  {search ? "No results found" : "No businesses yet"}
+                  {search || countryFilter ? "No results found" : "No businesses yet"}
                 </td>
               </tr>
             )}
@@ -186,13 +223,15 @@ export default function AdminPage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-gray-600">{ownerEmail}</td>
-                  <td className="px-4 py-3 text-gray-600">{COUNTRY_NAMES[b.country] ?? b.country} ({b.baseCurrency})</td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {COUNTRY_FLAGS[b.country] ?? ""} {COUNTRY_NAMES[b.country] ?? b.country} ({b.baseCurrency})
+                  </td>
                   <td className="px-4 py-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${PLAN_COLORS[b.plan] ?? "bg-gray-100 text-gray-700"}`}>
                       {b.plan.replace("_", " ")}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3">
                     {trialDate ? (
                       <span className={isExpired ? "text-red-600" : "text-green-600"}>
                         {trialDate.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}

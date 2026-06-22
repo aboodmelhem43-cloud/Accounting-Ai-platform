@@ -26,6 +26,7 @@ export default function Sidebar({ businessName, country, currency }: SidebarProp
     { href: "/journal", label: t("nav.journal"), icon: "📒" },
     { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },
+    { href: "/settings", label: isAr ? "الإعدادات" : "Settings", icon: "⚙️" },
     { href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "💎" },
   ];
 
