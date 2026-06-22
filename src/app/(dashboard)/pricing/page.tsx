@@ -15,8 +15,8 @@ const FEATURES: Record<PlanId, { ar: string[]; en: string[] }> = {
     en: ["50 invoices/month", "20 AI queries/month", "AI invoice scanning", "Sales invoice creation", "Journal ledger", "Customer support"],
   },
   PRO: {
-    ar: ["500 فاتورة/شهر", "AI غير محدود", "كل مميزات Starter", "3 مستخدمين", "تقارير متقدمة", "دعم أولوية"],
-    en: ["500 invoices/month", "Unlimited AI", "All Starter features", "3 users", "Advanced reports", "Priority support"],
+    ar: ["500 فاتورة/شهر", "AI غير محدود", "كل مميزات Starter", "3 مستخدمين", "تقارير متقدمة", "دعم عملاء"],
+    en: ["500 invoices/month", "Unlimited AI", "All Starter features", "3 users", "Advanced reports", "Customer support"],
   },
   BUSINESS: {
     ar: ["فواتير غير محدودة", "AI غير محدود", "كل مميزات Pro", "10 مستخدمين", "API access", "دعم VIP"],
