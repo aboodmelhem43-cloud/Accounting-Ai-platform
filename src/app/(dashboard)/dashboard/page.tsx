@@ -6,6 +6,7 @@ import { getComplianceModule } from "@/compliance";
 import { getServerT } from "@/lib/i18n/server";
 import Link from "next/link";
 import DashboardCharts from "@/components/DashboardCharts";
+import UpgradedToast from "@/components/UpgradedToast";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -38,6 +39,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <UpgradedToast />
       <div>
         <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">

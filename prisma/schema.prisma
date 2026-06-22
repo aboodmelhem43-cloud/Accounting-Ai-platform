@@ -22,6 +22,10 @@ model Business {
   onboardingCompleted Boolean   @default(false)
   plan                String    @default("FREE_TRIAL") // FREE_TRIAL | STARTER | PRO | BUSINESS
   trialEndsAt         DateTime?
+  lsSubscriptionId    String?   @unique // Lemon Squeezy subscription ID
+  lsCustomerId        String?   // Lemon Squeezy customer ID
+  lsVariantId         String?   // active variant ID
+  lsCurrentPeriodEnd  DateTime? // when current billing period ends
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 

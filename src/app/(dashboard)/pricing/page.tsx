@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
 import { PLANS, trialDaysLeft, isTrialExpired } from "@/lib/plans";
@@ -29,11 +30,36 @@ export default function PricingPage() {
   const { data: session } = useSession();
   const { lang } = useLang();
   const isAr = lang === "ar";
+  const [loading, setLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const currentPlan = session?.user.plan as PlanId | undefined;
   const trialEndsAt = session?.user.trialEndsAt;
   const daysLeft = trialDaysLeft(trialEndsAt ? new Date(trialEndsAt) : null);
   const expired = isTrialExpired(trialEndsAt ? new Date(trialEndsAt) : null);
+
+  async function handleUpgrade(plan: PlanId) {
+    setError(null);
+    setLoading(plan);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? (isAr ? "حدث خطأ" : "An error occurred"));
+        return;
+      }
+      // Redirect to Lemon Squeezy checkout page
+      window.location.href = data.url;
+    } catch {
+      setError(isAr ? "تعذر الاتصال بالخادم" : "Could not connect to server");
+    } finally {
+      setLoading(null);
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -47,6 +73,11 @@ export default function PricingPage() {
             ⏳ {isAr ? `تبقى ${daysLeft} أيام من تجربتك المجانية` : `${daysLeft} days left in your free trial`}
           </div>
         )}
+        {error && (
+          <div className="mt-2 bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded-lg">
+            {error}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -56,6 +87,7 @@ export default function PricingPage() {
           const isCurrent = currentPlan === planId;
           const isPro = planId === "PRO";
           const isFreeTrial = planId === "FREE_TRIAL";
+          const isLoadingThis = loading === planId;
 
           return (
             <div
@@ -115,14 +147,17 @@ export default function PricingPage() {
                 </div>
               ) : isFreeTrial ? null : (
                 <button
-                  className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-colors ${
+                  disabled={isLoadingThis || !!loading}
+                  className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
                     isPro
                       ? "bg-blue-600 text-white hover:bg-blue-700"
                       : "bg-gray-900 text-white hover:bg-gray-800"
                   }`}
-                  onClick={() => alert(isAr ? "سيتم إضافة الدفع قريباً!" : "Payment coming soon!")}
+                  onClick={() => handleUpgrade(planId)}
                 >
-                  {isAr ? "ترقية" : "Upgrade"}
+                  {isLoadingThis
+                    ? (isAr ? "جارٍ التحويل..." : "Redirecting...")
+                    : (isAr ? "ترقية" : "Upgrade")}
                 </button>
               )}
             </div>
@@ -132,8 +167,8 @@ export default function PricingPage() {
 
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800">
         {isAr
-          ? "💳 الدفع الإلكتروني قيد التطوير — تواصل معنا على support@mohasabai.com للترقية اليدوية."
-          : "💳 Online payment is coming soon — contact us at support@mohasabai.com for manual upgrades."}
+          ? "💳 الدفع آمن عبر Lemon Squeezy — يدعم بطاقات الكويت والسعودية والإمارات وجميع دول العالم."
+          : "💳 Secure payment via Lemon Squeezy — supports cards from Kuwait, Saudi Arabia, UAE and worldwide."}
       </div>
     </div>
   );
