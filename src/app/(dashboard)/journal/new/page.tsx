@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
 
 interface Account {
@@ -27,6 +28,8 @@ const emptyLine = (): JournalLine => ({
 
 export default function NewJournalEntryPage() {
   const { lang, t } = useLang();
+  const { data: session } = useSession();
+  const currency = session?.user.currency ?? "";
   const router = useRouter();
 
   const today = new Date().toISOString().split("T")[0];
@@ -183,10 +186,10 @@ export default function NewJournalEntryPage() {
                     {t("journal.account")}
                   </th>
                   <th className="pb-2 text-right font-medium text-gray-600 text-xs w-2/12">
-                    {t("journal.debit")}
+                    {t("journal.debit")}{currency ? ` (${currency})` : ""}
                   </th>
                   <th className="pb-2 text-right font-medium text-gray-600 text-xs w-2/12">
-                    {t("journal.credit")}
+                    {t("journal.credit")}{currency ? ` (${currency})` : ""}
                   </th>
                   <th className="pb-2 text-right font-medium text-gray-600 text-xs w-2/12">
                     {lang === "ar" ? "بيان" : "Note"}
@@ -276,11 +279,11 @@ export default function NewJournalEntryPage() {
             <div className="flex justify-end gap-8 text-sm">
               <div className="text-right">
                 <div className="text-gray-500 text-xs">{t("journal.debit")}</div>
-                <div className="font-mono font-semibold text-gray-800">{fmt(totalDebit)}</div>
+                <div className="font-mono font-semibold text-gray-800">{fmt(totalDebit)} <span className="text-xs text-gray-400">{currency}</span></div>
               </div>
               <div className="text-right">
                 <div className="text-gray-500 text-xs">{t("journal.credit")}</div>
-                <div className="font-mono font-semibold text-gray-800">{fmt(totalCredit)}</div>
+                <div className="font-mono font-semibold text-gray-800">{fmt(totalCredit)} <span className="text-xs text-gray-400">{currency}</span></div>
               </div>
               <div className="text-right">
                 <div className="text-gray-500 text-xs">{lang === "ar" ? "الفرق" : "Diff"}</div>
