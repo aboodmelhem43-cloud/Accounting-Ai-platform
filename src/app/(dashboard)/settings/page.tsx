@@ -15,11 +15,14 @@ export default function SettingsPage() {
 
   // Business form
   const [bName, setBName] = useState(session?.user?.businessName ?? "");
+  const [bCountry, setBCountry] = useState(session?.user?.country ?? "EG");
   const [bTaxNumber, setBTaxNumber] = useState("");
   const [bAddress, setBAddress] = useState("");
   const [bPhone, setBPhone] = useState("");
   const [bSaving, setBSaving] = useState(false);
   const [bMsg, setBMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const selectedCountry = SUPPORTED_COUNTRIES.find((c) => c.code === bCountry);
 
   // Profile form
   const [pName, setPName] = useState(session?.user?.name ?? "");
@@ -41,6 +44,7 @@ export default function SettingsPage() {
       .then((r) => r.json())
       .then((d) => {
         setBName(d.name ?? "");
+        setBCountry(d.country ?? session.user.country ?? "EG");
         setBTaxNumber(d.taxNumber ?? "");
         setBAddress(d.address ?? "");
         setBPhone(d.phone ?? "");
@@ -55,7 +59,14 @@ export default function SettingsPage() {
       const res = await fetch("/api/settings/business", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: bName, taxNumber: bTaxNumber || null, address: bAddress || null, phone: bPhone || null }),
+        body: JSON.stringify({
+          name: bName,
+          country: bCountry,
+          baseCurrency: selectedCountry?.currency ?? "",
+          taxNumber: bTaxNumber || null,
+          address: bAddress || null,
+          phone: bPhone || null,
+        }),
       });
       if (res.ok) {
         setBMsg({ ok: true, text: t("settings.business.saved") });
@@ -127,8 +138,6 @@ export default function SettingsPage() {
     }
   }
 
-  const countryName = SUPPORTED_COUNTRIES.find((c) => c.code === session?.user?.country);
-
   const TABS: { id: Tab; label: string }[] = [
     { id: "business", label: t("settings.tab.business") },
     { id: "profile", label: t("settings.tab.profile") },
@@ -164,15 +173,25 @@ export default function SettingsPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t("settings.business.country")}</label>
-              <input
-                className="input bg-gray-50 cursor-not-allowed"
-                value={countryName ? (isAr ? countryName.nameAr : countryName.nameEn) : (session?.user?.country ?? "")}
-                readOnly
-              />
+              <select
+                className="input"
+                value={bCountry}
+                onChange={(e) => setBCountry(e.target.value)}
+              >
+                {SUPPORTED_COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {isAr ? c.nameAr : c.nameEn}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t("settings.business.currency")}</label>
-              <input className="input bg-gray-50 cursor-not-allowed" value={session?.user?.currency ?? ""} readOnly />
+              <input
+                className="input bg-gray-50 cursor-not-allowed"
+                value={selectedCountry?.currency ?? session?.user?.currency ?? ""}
+                readOnly
+              />
             </div>
           </div>
           <div>

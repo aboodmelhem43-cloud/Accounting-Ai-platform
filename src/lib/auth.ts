@@ -75,9 +75,14 @@ export const authOptions: NextAuthOptions = {
       if (trigger === "update") {
         const business = await prisma.business.findUnique({
           where: { id: token.businessId as string },
-          select: { onboardingCompleted: true },
+          select: { name: true, country: true, baseCurrency: true, onboardingCompleted: true },
         });
-        if (business) token.onboardingCompleted = business.onboardingCompleted;
+        if (business) {
+          token.businessName = business.name;
+          token.country = business.country;
+          token.currency = business.baseCurrency;
+          token.onboardingCompleted = business.onboardingCompleted;
+        }
       }
       if (user) {
         const u = user as unknown as { businessId: string; businessName: string; country: string; currency: string; role: string; onboardingCompleted: boolean; plan: string; trialEndsAt: string | null };

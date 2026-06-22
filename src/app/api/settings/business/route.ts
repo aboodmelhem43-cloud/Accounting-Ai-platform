@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 
 const schema = z.object({
   name: z.string().min(2).max(100),
+  country: z.string().length(2).optional(),
+  baseCurrency: z.string().min(2).max(10).optional(),
   taxNumber: z.string().max(50).optional().nullable(),
   address: z.string().max(200).optional().nullable(),
   phone: z.string().max(30).optional().nullable(),
@@ -20,7 +22,14 @@ export async function PATCH(req: NextRequest) {
     const data = schema.parse(body);
     await prisma.business.update({
       where: { id: session.user.businessId },
-      data: { name: data.name, taxNumber: data.taxNumber ?? null, address: data.address ?? null, phone: data.phone ?? null },
+      data: {
+        name: data.name,
+        ...(data.country && { country: data.country }),
+        ...(data.baseCurrency && { baseCurrency: data.baseCurrency }),
+        taxNumber: data.taxNumber ?? null,
+        address: data.address ?? null,
+        phone: data.phone ?? null,
+      },
     });
     return NextResponse.json({ ok: true });
   } catch (error) {
