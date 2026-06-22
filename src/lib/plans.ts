@@ -119,18 +119,23 @@ export async function checkAiLimit(businessId: string): Promise<{
   const limit = PLANS[plan].aiQueriesPerMonth;
   if (limit === -1) return { allowed: true, used: 0, limit: -1, plan };
 
-  // نحسب طلبات الـ AI عبر عدد قيود اليومية المصدرها AI في هذا الشهر
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
 
-  const used = await prisma.journalEntry.count({
-    where: {
-      businessId,
-      sourceType: "AI_INVOICE",
-      createdAt: { gte: startOfMonth },
-    },
-  });
+  let used = 0;
+  try {
+    used = await prisma.journalEntry.count({
+      where: {
+        businessId,
+        sourceType: "AI_INVOICE",
+        createdAt: { gte: startOfMonth },
+      },
+    });
+  } catch {
+    // If the column doesn't exist yet (pending migration), allow the request
+    used = 0;
+  }
 
   return { allowed: used < limit, used, limit, plan };
 }

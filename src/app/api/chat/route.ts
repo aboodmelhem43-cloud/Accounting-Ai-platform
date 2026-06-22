@@ -47,14 +47,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
     const msg = error instanceof Error ? error.message : String(error);
-    console.error("[chat]", msg);
+    const name = error instanceof Error ? error.constructor.name : "UnknownError";
+    console.error("[chat] error type:", name, "| message:", msg);
 
-    const isAuthError = msg.includes("401") || msg.includes("authentication") || msg.includes("API key") || msg.includes("x-api-key");
+    const isAuthError = msg.includes("401") || msg.includes("authentication") || msg.includes("API key") || msg.includes("x-api-key") || name === "AuthenticationError";
+    const isDbError = name.includes("Prisma") || msg.includes("Prisma") || msg.startsWith("P2");
     return NextResponse.json({
       error: "server_error",
       reply: isAuthError
         ? "⚠️ المساعد الذكي غير متاح حالياً — يرجى التواصل مع الدعم. (API key not configured)"
-        : "عذراً، حدث خطأ في الخادم. يرجى المحاولة مرة أخرى بعد قليل.",
+        : isDbError
+          ? "⚠️ خطأ في قاعدة البيانات — يرجى التواصل مع الدعم. (DB error)"
+          : "عذراً، حدث خطأ في الخادم. يرجى المحاولة مرة أخرى بعد قليل.",
     }, { status: 500 });
   }
 }

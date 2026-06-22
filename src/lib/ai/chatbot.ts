@@ -2,8 +2,6 @@ import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/prisma";
 import { getComplianceModule } from "@/compliance";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
 async function buildFinancialContext(businessId: string): Promise<string> {
   const business = await prisma.business.findUniqueOrThrow({ where: { id: businessId } });
   const compliance = getComplianceModule(business.country);
@@ -101,7 +99,21 @@ export async function chat(params: {
 }): Promise<string> {
   const { businessId, messages, newMessage, lang = "ar" } = params;
 
-  const financialContext = await buildFinancialContext(businessId);
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY environment variable is not set — API key missing");
+  }
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+  let financialContext: string;
+  try {
+    financialContext = await buildFinancialContext(businessId);
+  } catch (err) {
+    console.error("[chatbot] buildFinancialContext error:", err);
+    financialContext = lang === "ar"
+      ? "(تعذّر تحميل البيانات المالية)"
+      : "(financial data unavailable)";
+  }
+
   const isAr = lang === "ar";
 
   const systemPrompt = isAr ? `أنت مساعد مالي ومحاسبي خبير ومتكامل تعمل ضمن منصة "محاسبي" للمحاسبة.
