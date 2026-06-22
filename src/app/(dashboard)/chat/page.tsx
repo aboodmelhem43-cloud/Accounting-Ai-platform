@@ -37,7 +37,10 @@ export default function ChatPage() {
         body: JSON.stringify({ messages, message: text, lang }),
       });
       const data = await res.json();
-      const reply = res.ok ? data.reply : t("common.error");
+      // For 403 plan limit errors, show the actual message from the API
+      const reply = res.ok
+        ? data.reply
+        : (data.reply ?? t("common.error"));
       setMessages((m) => [...m, { role: "assistant", content: reply }]);
     } catch {
       setMessages((m) => [...m, { role: "assistant", content: t("common.error") }]);

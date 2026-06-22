@@ -47,6 +47,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
     console.error("[chat]", error);
-    return NextResponse.json({ error: "فشل في معالجة الرسالة" }, { status: 500 });
+    return NextResponse.json({
+      error: "server_error",
+      reply: "عذراً، حدث خطأ في الخادم. يرجى المحاولة مرة أخرى بعد قليل.",
+    }, { status: 500 });
   }
 }
