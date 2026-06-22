@@ -105,7 +105,7 @@ export default function JournalPage() {
                 <tr key={line.id} className="border-b border-gray-50 last:border-0">
                   <td className="py-1.5">
                     <span className="text-gray-400 text-xs ml-1">{line.account.code}</span>
-                    {line.account.nameAr ?? line.account.name}
+                    {lang === "ar" ? (line.account.nameAr ?? line.account.name) : line.account.name}
                   </td>
                   <td className="py-1.5 text-left font-mono text-xs">
                     {Number(line.debit) > 0 ? Number(line.debit).toLocaleString(locale) : ""}
