@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useLang } from "./LanguageProvider";
 
 interface SidebarProps {
@@ -22,6 +22,12 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
   const pathname = usePathname();
   const { t, lang, toggleLang } = useLang();
   const isAr = lang === "ar";
+  const { data: session } = useSession();
+
+  // Check admin via session email — works client-side without server prop
+  const adminEmails = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS ?? "aboodmelhem43@gmail.com")
+    .split(",").map((e) => e.trim().toLowerCase());
+  const showAdmin = isAdmin || adminEmails.includes((session?.user?.email ?? "").toLowerCase());
   const NAV_ITEMS: NavItem[] = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: "🏠" },
     { href: "/contacts", label: isAr ? "العملاء والموردون" : "Contacts", icon: "👥" },
@@ -42,7 +48,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },
     { href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "💎" },
     { href: "/settings", label: isAr ? "الإعدادات" : "Settings", icon: "⚙️" },
-    ...(isAdmin ? [{ href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "🛡️" }] : []),
+    ...(showAdmin ? [{ href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "🛡️" }] : []),
   ];
 
   return (
