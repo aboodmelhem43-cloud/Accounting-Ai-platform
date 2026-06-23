@@ -10,18 +10,31 @@ interface SidebarProps {
   currency: string;
 }
 
+interface NavItem {
+  href: string;
+  label: string;
+  icon: string;
+  children?: { href: string; label: string; icon: string }[];
+}
+
 export default function Sidebar({ businessName, country, currency }: SidebarProps) {
   const pathname = usePathname();
   const { t, lang, toggleLang } = useLang();
   const isAr = lang === "ar";
-  const NAV_ITEMS = [
+  const NAV_ITEMS: NavItem[] = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: "🏠" },
     { href: "/contacts", label: isAr ? "العملاء والموردون" : "Contacts", icon: "👥" },
     { href: "/bank-accounts", label: isAr ? "الحسابات البنكية" : "Bank Accounts", icon: "🏦" },
     { href: "/bank-reconciliation", label: isAr ? "تسوية بنكية" : "Reconciliation", icon: "🔄" },
-    { href: "/invoices", label: t("nav.invoices"), icon: "🧾" },
-    { href: "/invoices/upload", label: t("nav.upload"), icon: "⬆️" },
-    { href: "/invoices/create", label: isAr ? "إنشاء فاتورة" : "Create Invoice", icon: "📝" },
+    {
+      href: "/invoices",
+      label: t("nav.invoices"),
+      icon: "🧾",
+      children: [
+        { href: "/invoices/upload", label: t("nav.upload"), icon: "⬆️" },
+        { href: "/invoices/create", label: isAr ? "إنشاء فاتورة" : "Create Invoice", icon: "📝" },
+      ],
+    },
     { href: "/reports", label: isAr ? "التقارير" : "Reports", icon: "📊" },
     { href: "/journal", label: t("nav.journal"), icon: "📒" },
     { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
@@ -41,20 +54,45 @@ export default function Sidebar({ businessName, country, currency }: SidebarProp
       {/* القائمة */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive = pathname === item.href;
+          const isParentActive = item.children
+            ? pathname.startsWith(item.href + "/")
+            : pathname.startsWith(item.href + "/");
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-blue-50 text-blue-700"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <span className="text-base">{item.icon}</span>
-              {item.label}
-            </Link>
+            <div key={item.href}>
+              <Link
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive || (!item.children && isParentActive)
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <span className="text-base">{item.icon}</span>
+                {item.label}
+              </Link>
+              {item.children && (
+                <div className={`mt-0.5 mb-0.5 ${isAr ? "mr-4 border-r-2" : "ml-4 border-l-2"} border-gray-100 space-y-0.5`}>
+                  {item.children.map((child) => {
+                    const childActive = pathname === child.href;
+                    return (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={`flex items-center gap-2 ${isAr ? "pr-3" : "pl-3"} py-2 rounded-lg text-xs font-medium transition-colors ${
+                          childActive
+                            ? "bg-blue-50 text-blue-700"
+                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                        }`}
+                      >
+                        <span className="text-sm">{child.icon}</span>
+                        {child.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>
