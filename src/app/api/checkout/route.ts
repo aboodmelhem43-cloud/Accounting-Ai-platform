@@ -37,7 +37,8 @@ export async function POST(req: NextRequest) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
-    console.error("[checkout]", error);
-    return NextResponse.json({ error: "Failed to create checkout" }, { status: 500 });
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("[checkout]", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
