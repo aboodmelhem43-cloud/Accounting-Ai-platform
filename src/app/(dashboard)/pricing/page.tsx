@@ -7,8 +7,8 @@ import type { PlanId } from "@/lib/plans";
 
 const FEATURES: Record<PlanId, { ar: string[]; en: string[] }> = {
   FREE_TRIAL: {
-    ar: ["20 فاتورة", "10 أسئلة AI", "لوحة التحكم", "قائمة الدخل", "10 أيام مجاناً"],
-    en: ["20 invoices", "10 AI queries", "Dashboard", "Income report", "10 days free"],
+    ar: ["20 فاتورة", "10 أسئلة AI", "لوحة التحكم", "قائمة الدخل", "35 يوم مجاناً"],
+    en: ["20 invoices", "10 AI queries", "Dashboard", "Income report", "35 days free"],
   },
   STARTER: {
     ar: ["50 فاتورة/شهر", "20 سؤال AI/شهر", "رفع فواتير بالذكاء الاصطناعي", "إنشاء فواتير مبيعات", "دفتر اليومية", "دعم عملاء"],
@@ -126,7 +126,7 @@ export default function PricingPage() {
                   )}
                   {isFreeTrial && (
                     <p className="text-xs text-amber-600 mt-1">
-                      {isAr ? "10 أيام ثم يجب الترقية" : "10 days then upgrade required"}
+                      {isAr ? "35 يوم ثم يجب الترقية" : "35 days then upgrade required"}
                     </p>
                   )}
                 </div>

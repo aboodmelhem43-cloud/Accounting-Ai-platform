@@ -17,6 +17,20 @@ interface Business {
 
 interface CountryStat { country: string; _count: { id: number } }
 
+interface PlanBreakdown { plan: string; count: number; price: number }
+interface MonthlySignup { month: string; count: number }
+interface AdminStats {
+  totalBusinesses: number;
+  newLast7d: number;
+  newLast30d: number;
+  totalInvoices: number;
+  totalEntries: number;
+  mrr: number;
+  trialActive: number;
+  planBreakdown: PlanBreakdown[];
+  monthlySignups: MonthlySignup[];
+}
+
 const PLAN_COLORS: Record<string, string> = {
   FREE_TRIAL: "bg-gray-100 text-gray-700",
   STARTER: "bg-blue-100 text-blue-700",
@@ -52,9 +66,40 @@ export default function AdminPage() {
   const [trialResult, setTrialResult] = useState<string | null>(null);
   const [trialLoading, setTrialLoading] = useState(false);
 
+  // Stats state
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+
   // AI test state
   const [aiTesting, setAiTesting] = useState(false);
   const [aiResult, setAiResult] = useState<{ ok: boolean; keyPreview?: string; error?: string; errorType?: string; response?: string; step?: string } | null>(null);
+
+  // LS test state
+  const [lsTesting, setLsTesting] = useState(false);
+  const [lsResult, setLsResult] = useState<{ ok: boolean; keyPreview?: string; storeId?: string; variants?: Record<string, string>; webhookSecret?: string; step?: string; error?: string } | null>(null);
+
+  const fetchStats = useCallback(async () => {
+    setStatsLoading(true);
+    try {
+      const res = await fetch("/api/admin/stats");
+      if (res.ok) setStats(await res.json());
+    } catch { /* ignore */ } finally {
+      setStatsLoading(false);
+    }
+  }, []);
+
+  async function testLs() {
+    setLsTesting(true);
+    setLsResult(null);
+    try {
+      const res = await fetch("/api/admin/test-lemonsqueezy", { method: "POST" });
+      setLsResult(await res.json());
+    } catch {
+      setLsResult({ ok: false, error: "Network error" });
+    } finally {
+      setLsTesting(false);
+    }
+  }
 
   async function testAi() {
     setAiTesting(true);
@@ -95,6 +140,10 @@ export default function AdminPage() {
   useEffect(() => {
     fetchBusinesses(search, countryFilter, page);
   }, [fetchBusinesses, search, countryFilter, page]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   async function extendTrials() {
     if (!secret) return;
@@ -143,6 +192,97 @@ export default function AdminPage() {
           <p className="text-3xl font-bold text-gray-900">{total}</p>
           <p className="text-xs text-gray-500">{countryFilter ? `businesses in ${COUNTRY_NAMES[countryFilter] ?? countryFilter}` : "total businesses"}</p>
         </div>
+      </div>
+
+      {/* Platform Analytics */}
+      <div className="space-y-4">
+        {/* Overview stat cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: "Total Businesses", value: stats?.totalBusinesses ?? "—", sub: `+${stats?.newLast7d ?? 0} this week` },
+            { label: "New (30 days)", value: stats?.newLast30d ?? "—", sub: "new signups" },
+            { label: "Est. MRR", value: stats ? `$${stats.mrr.toLocaleString()}` : "—", sub: "paid plans only" },
+            { label: "Active Trials", value: stats?.trialActive ?? "—", sub: "free trial users" },
+          ].map((card) => (
+            <div key={card.label} className="card p-4 space-y-1">
+              <p className="text-xs text-gray-500">{card.label}</p>
+              <p className="text-2xl font-bold text-gray-900">{statsLoading ? <span className="animate-pulse text-gray-300">—</span> : card.value}</p>
+              <p className="text-xs text-gray-400">{card.sub}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Plan breakdown */}
+          <div className="card p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-gray-700">Subscriptions by Plan</h3>
+            {statsLoading && <div className="h-24 animate-pulse bg-gray-100 rounded" />}
+            {stats && (
+              <div className="space-y-2">
+                {[
+                  { plan: "FREE_TRIAL", label: "Free Trial", color: "bg-gray-400" },
+                  { plan: "STARTER", label: "Starter ($69)", color: "bg-blue-500" },
+                  { plan: "PRO", label: "Pro ($149)", color: "bg-purple-500" },
+                  { plan: "BUSINESS", label: "Business ($199)", color: "bg-green-500" },
+                ].map(({ plan, label, color }) => {
+                  const entry = stats.planBreakdown.find((p) => p.plan === plan);
+                  const count = entry?.count ?? 0;
+                  const max = Math.max(...stats.planBreakdown.map((p) => p.count), 1);
+                  return (
+                    <div key={plan} className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500 w-32 shrink-0">{label}</span>
+                      <div className="flex-1 bg-gray-100 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full ${color}`}
+                          style={{ width: `${(count / max) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-xs font-medium text-gray-700 w-6 text-right">{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Monthly growth chart */}
+          <div className="card p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-gray-700">Monthly Signups (6 months)</h3>
+            {statsLoading && <div className="h-24 animate-pulse bg-gray-100 rounded" />}
+            {stats && (
+              <div className="flex items-end gap-2 h-24">
+                {stats.monthlySignups.map(({ month, count }) => {
+                  const max = Math.max(...stats.monthlySignups.map((m) => m.count), 1);
+                  const pct = Math.max((count / max) * 100, 4);
+                  return (
+                    <div key={month} className="flex flex-col items-center gap-1 flex-1">
+                      <span className="text-xs font-medium text-gray-600">{count || ""}</span>
+                      <div className="w-full bg-blue-500 rounded-t" style={{ height: `${pct}%` }} />
+                      <span className="text-xs text-gray-400 leading-none">{month}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Activity totals */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="card p-4">
+            <p className="text-xs text-gray-500">Total Invoices Created</p>
+            <p className="text-xl font-bold text-gray-900">{stats?.totalInvoices.toLocaleString() ?? "—"}</p>
+          </div>
+          <div className="card p-4">
+            <p className="text-xs text-gray-500">Total Journal Entries</p>
+            <p className="text-xl font-bold text-gray-900">{stats?.totalEntries.toLocaleString() ?? "—"}</p>
+          </div>
+        </div>
+
+        <p className="text-xs text-gray-400">
+          Website visitor analytics are available in the{" "}
+          <span className="font-medium">Vercel Dashboard → Analytics</span> tab.
+        </p>
       </div>
 
       {/* Country stats */}
@@ -212,6 +352,36 @@ export default function AdminPage() {
             {aiResult.errorType && <div><span className="font-bold">Error type:</span> {aiResult.errorType}</div>}
             {aiResult.error && <div><span className="font-bold">Error:</span> {aiResult.error}</div>}
             {aiResult.response && <div><span className="font-bold">Response:</span> {aiResult.response}</div>}
+          </div>
+        )}
+      </div>
+
+      {/* Lemon Squeezy Diagnostics */}
+      <div className="card p-4 space-y-3 border border-yellow-200 bg-yellow-50">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold text-yellow-800 text-sm">Payment Gateway Diagnostics (Lemon Squeezy)</h2>
+          <button onClick={testLs} disabled={lsTesting} className="btn-primary text-sm px-4 py-1.5">
+            {lsTesting ? "Testing..." : "Test LS Connection"}
+          </button>
+        </div>
+        {lsResult && (
+          <div className={`rounded-lg p-3 text-sm font-mono ${lsResult.ok ? "bg-green-50 border border-green-200 text-green-800" : "bg-red-50 border border-red-200 text-red-800"}`}>
+            <div><span className="font-bold">Status:</span> {lsResult.ok ? "✅ Connected" : "❌ Failed"}</div>
+            {lsResult.keyPreview && <div><span className="font-bold">API Key:</span> {lsResult.keyPreview}</div>}
+            {lsResult.storeId && <div><span className="font-bold">Store ID:</span> {lsResult.storeId}</div>}
+            {lsResult.step && <div><span className="font-bold">Failed at:</span> {lsResult.step}</div>}
+            {lsResult.error && <div><span className="font-bold">Error:</span> {lsResult.error}</div>}
+            {lsResult.variants && (
+              <div className="mt-1 space-y-0.5">
+                <div className="font-bold">Variant IDs:</div>
+                {Object.entries(lsResult.variants).map(([plan, id]) => (
+                  <div key={plan} className="ml-2">
+                    {plan}: <span className={id === "NOT SET" ? "text-red-600" : ""}>{id}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {lsResult.webhookSecret && <div><span className="font-bold">Webhook Secret:</span> {lsResult.webhookSecret}</div>}
           </div>
         )}
       </div>

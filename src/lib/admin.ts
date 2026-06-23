@@ -2,7 +2,8 @@ import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { DEFAULT_CHART_OF_ACCOUNTS } from "./accounts";
 
-export function isSuperAdmin(email: string): boolean {
+export function isSuperAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
   const admins = (process.env.SUPER_ADMIN_EMAILS ?? "")
     .split(",")
     .map((e) => e.trim().toLowerCase())

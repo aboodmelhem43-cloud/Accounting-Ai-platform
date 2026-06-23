@@ -5,7 +5,8 @@ export type PlanId = "FREE_TRIAL" | "STARTER" | "PRO" | "BUSINESS";
 export const PLANS: Record<PlanId, {
   nameEn: string;
   nameAr: string;
-  price: number;
+  price: number;       // in KWD
+  currency: string;
   invoicesPerMonth: number;  // -1 = unlimited
   aiQueriesPerMonth: number; // -1 = unlimited
   trialDays?: number;
@@ -14,6 +15,7 @@ export const PLANS: Record<PlanId, {
     nameEn: "Free Trial",
     nameAr: "تجربة مجانية",
     price: 0,
+    currency: "USD",
     invoicesPerMonth: 20,
     aiQueriesPerMonth: 10,
     trialDays: 35,
@@ -22,6 +24,7 @@ export const PLANS: Record<PlanId, {
     nameEn: "Starter",
     nameAr: "المبتدئ",
     price: 69,
+    currency: "USD",
     invoicesPerMonth: 50,
     aiQueriesPerMonth: 20,
   },
@@ -29,6 +32,7 @@ export const PLANS: Record<PlanId, {
     nameEn: "Pro",
     nameAr: "المحترف",
     price: 149,
+    currency: "USD",
     invoicesPerMonth: 500,
     aiQueriesPerMonth: -1,
   },
@@ -36,6 +40,7 @@ export const PLANS: Record<PlanId, {
     nameEn: "Business",
     nameAr: "الأعمال",
     price: 199,
+    currency: "USD",
     invoicesPerMonth: -1,
     aiQueriesPerMonth: -1,
   },
