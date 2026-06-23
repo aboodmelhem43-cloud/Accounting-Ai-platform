@@ -120,7 +120,8 @@ export default function PricingPage() {
                     <span className="text-3xl font-bold text-gray-900">{isAr ? "مجاني" : "Free"}</span>
                   ) : (
                     <div>
-                      <span className="text-3xl font-bold text-gray-900">${plan.price}</span>
+                      <span className="text-3xl font-bold text-gray-900">{plan.price}</span>
+                      <span className="text-gray-500 text-sm font-semibold"> KWD</span>
                       <span className="text-gray-400 text-sm">/{isAr ? "شهر" : "mo"}</span>
                     </div>
                   )}

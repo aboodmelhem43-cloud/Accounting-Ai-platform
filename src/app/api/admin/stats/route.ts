@@ -6,9 +6,9 @@ import { prisma } from "@/lib/prisma";
 
 const PLAN_PRICES: Record<string, number> = {
   FREE_TRIAL: 0,
-  STARTER: 69,
-  PRO: 149,
-  BUSINESS: 199,
+  STARTER: 22,
+  PRO: 50,
+  BUSINESS: 65,
 };
 
 export async function GET() {
