@@ -46,10 +46,14 @@ export async function POST(req: NextRequest) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
-    console.error("[chat]", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("[chat]", msg);
+    const isApiKeyError = msg.includes("API_KEY") || msg.includes("authentication") || msg.includes("401");
     return NextResponse.json({
       error: "server_error",
-      reply: "عذراً، حدث خطأ في الخادم. يرجى المحاولة مرة أخرى بعد قليل.",
+      reply: isApiKeyError
+        ? "خطأ في إعداد مفتاح الذكاء الاصطناعي. يرجى التواصل مع الدعم."
+        : "عذراً، حدث خطأ في الخادم. يرجى المحاولة مرة أخرى بعد قليل.",
     }, { status: 500 });
   }
 }
