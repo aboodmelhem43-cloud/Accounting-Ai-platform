@@ -29,6 +29,8 @@ export default function JournalPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [postingId, setPostingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -55,8 +57,62 @@ export default function JournalPage() {
     }
   }
 
+  async function handleDelete(id: string) {
+    setDeletingId(id);
+    setConfirmId(null);
+    try {
+      const res = await fetch(`/api/journal/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setEntries((prev) => prev.filter((e) => e.id !== id));
+        setTotal((t) => t - 1);
+      }
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   return (
     <div className="space-y-6">
+      {/* Confirm delete modal */}
+      {confirmId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4 space-y-4">
+            <div className="text-center">
+              <div className="text-3xl mb-2">🗑️</div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {lang === "ar" ? "حذف القيد؟" : "Delete Entry?"}
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                {lang === "ar"
+                  ? "سيتم حذف القيد وسطوره نهائياً. هذا الإجراء لا يمكن التراجع عنه."
+                  : "This entry and all its lines will be permanently deleted. This cannot be undone."}
+              </p>
+              {entries.find((e) => e.id === confirmId)?.status === "POSTED" && (
+                <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2 mt-2">
+                  ⚠️ {lang === "ar"
+                    ? "هذا القيد مُرحَّل — حذفه سيؤثر على التقارير المالية."
+                    : "This entry is posted — deleting it will affect financial reports."}
+                </p>
+              )}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmId(null)}
+                className="btn-secondary flex-1"
+              >
+                {lang === "ar" ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                onClick={() => handleDelete(confirmId)}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+              >
+                {lang === "ar" ? "حذف" : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t("journal.title")}</h1>
@@ -112,17 +168,33 @@ export default function JournalPage() {
                 </span>
               </div>
             </div>
-            {entry.status === "DRAFT" && (
+            <div className="flex items-center gap-2">
+              {entry.status === "DRAFT" && (
+                <button
+                  onClick={() => handlePost(entry.id)}
+                  disabled={postingId === entry.id}
+                  className="btn-primary text-xs py-1.5 px-3"
+                >
+                  {postingId === entry.id
+                    ? (lang === "ar" ? "جاري..." : "Posting...")
+                    : (lang === "ar" ? "ترحيل" : "Post")}
+                </button>
+              )}
               <button
-                onClick={() => handlePost(entry.id)}
-                disabled={postingId === entry.id}
-                className="btn-primary text-xs py-1.5 px-3"
+                onClick={() => setConfirmId(entry.id)}
+                disabled={deletingId === entry.id}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                title={lang === "ar" ? "حذف القيد" : "Delete entry"}
               >
-                {postingId === entry.id
-                  ? (lang === "ar" ? "جاري..." : "Posting...")
-                  : (lang === "ar" ? "ترحيل" : "Post")}
+                {deletingId === entry.id ? (
+                  <span className="text-xs animate-pulse">...</span>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                )}
               </button>
-            )}
+            </div>
           </div>
 
           <table className="w-full text-sm">

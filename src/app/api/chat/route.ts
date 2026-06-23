@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { chat } from "@/lib/ai/chatbot";
 import { checkAiLimit } from "@/lib/plans";
+import { prisma } from "@/lib/prisma";
 
 const schema = z.object({
   messages: z.array(
@@ -39,6 +40,14 @@ export async function POST(req: NextRequest) {
       messages: data.messages,
       newMessage: data.message,
       lang: data.lang ?? "ar",
+    });
+
+    // Persist both the user message and the AI reply
+    await prisma.chatMessage.createMany({
+      data: [
+        { businessId: session.user.businessId, role: "user", content: data.message },
+        { businessId: session.user.businessId, role: "assistant", content: reply },
+      ],
     });
 
     return NextResponse.json({ reply });

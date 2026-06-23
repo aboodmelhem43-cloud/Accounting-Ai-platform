@@ -29,13 +29,24 @@ model Business {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  users         User[]
-  accounts      Account[]
+  users          User[]
+  accounts       Account[]
   journalEntries JournalEntry[]
-  invoices      Invoice[]
-  contacts     Contact[]
-  bankAccounts BankAccount[]
+  invoices       Invoice[]
+  contacts       Contact[]
+  bankAccounts   BankAccount[]
   bankStatements BankStatement[]
+  chatMessages   ChatMessage[]
+}
+
+model ChatMessage {
+  id         String   @id @default(cuid())
+  businessId String
+  role       String   // "user" | "assistant"
+  content    String
+  createdAt  DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
 
 // المستخدم — مرتبط بمنشأة واحدة
