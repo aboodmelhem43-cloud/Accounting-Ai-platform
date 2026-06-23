@@ -2,7 +2,6 @@ import { createHmac, timingSafeEqual } from "crypto";
 import type { PlanId } from "./plans";
 
 const LS_API_KEY = process.env.LEMONSQUEEZY_API_KEY;
-const LS_STORE_ID = process.env.LEMONSQUEEZY_STORE_ID;
 
 export const PLAN_VARIANT_IDS: Record<string, PlanId> = {};
 
@@ -24,6 +23,21 @@ export function planToVariantId(plan: PlanId): string | null {
   return map[plan] ?? null;
 }
 
+async function getStoreId(): Promise<string> {
+  // Use env var if explicitly set, otherwise auto-fetch from API
+  if (process.env.LEMONSQUEEZY_STORE_ID) {
+    return process.env.LEMONSQUEEZY_STORE_ID;
+  }
+  const res = await fetch("https://api.lemonsqueezy.com/v1/stores", {
+    headers: { Authorization: `Bearer ${LS_API_KEY}`, Accept: "application/vnd.api+json" },
+  });
+  if (!res.ok) throw new Error(`Failed to fetch LS stores: ${res.status}`);
+  const json = await res.json();
+  const id = json.data?.[0]?.id;
+  if (!id) throw new Error("No Lemon Squeezy store found for this API key");
+  return String(id);
+}
+
 export async function createCheckout({
   variantId,
   email,
@@ -35,10 +49,11 @@ export async function createCheckout({
   businessId: string;
   name: string;
 }): Promise<string> {
-  if (!LS_API_KEY || !LS_STORE_ID) {
+  if (!LS_API_KEY) {
     throw new Error("Lemon Squeezy credentials not configured");
   }
 
+  const storeId = await getStoreId();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://mohasabai.com";
 
   const res = await fetch("https://api.lemonsqueezy.com/v1/checkouts", {
@@ -62,7 +77,7 @@ export async function createCheckout({
           },
         },
         relationships: {
-          store: { data: { type: "stores", id: LS_STORE_ID } },
+          store: { data: { type: "stores", id: storeId } },
           variant: { data: { type: "variants", id: variantId } },
         },
       },
