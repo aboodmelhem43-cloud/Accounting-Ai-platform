@@ -54,7 +54,8 @@ export async function createCheckout({
   }
 
   const storeId = await getStoreId();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://mohasabai.com";
+  const rawUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://mohasabai.com").replace(/\/$/, "");
+  const appUrl = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
 
   const res = await fetch("https://api.lemonsqueezy.com/v1/checkouts", {
     method: "POST",
