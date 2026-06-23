@@ -51,14 +51,17 @@ export async function POST(req: NextRequest) {
     console.error("[chat] error type:", name, "| message:", msg);
 
     const isAuthError = msg.includes("401") || msg.includes("authentication") || msg.includes("API key") || msg.includes("x-api-key") || name === "AuthenticationError";
+    const isBillingError = msg.includes("credit balance") || msg.includes("billing") || msg.includes("quota") || msg.includes("insufficient");
     const isDbError = name.includes("Prisma") || msg.includes("Prisma") || msg.startsWith("P2");
     return NextResponse.json({
       error: "server_error",
-      reply: isAuthError
-        ? "⚠️ المساعد الذكي غير متاح حالياً — يرجى التواصل مع الدعم. (API key not configured)"
-        : isDbError
-          ? "⚠️ خطأ في قاعدة البيانات — يرجى التواصل مع الدعم. (DB error)"
-          : "عذراً، حدث خطأ في الخادم. يرجى المحاولة مرة أخرى بعد قليل.",
+      reply: isBillingError
+        ? "⚠️ رصيد Anthropic API منتهٍ — يرجى إضافة رصيد من لوحة تحكم Anthropic. (Insufficient API credits)"
+        : isAuthError
+          ? "⚠️ المساعد الذكي غير متاح حالياً — يرجى التواصل مع الدعم. (API key not configured)"
+          : isDbError
+            ? "⚠️ خطأ في قاعدة البيانات — يرجى التواصل مع الدعم. (DB error)"
+            : "عذراً، حدث خطأ في الخادم. يرجى المحاولة مرة أخرى بعد قليل.",
     }, { status: 500 });
   }
 }

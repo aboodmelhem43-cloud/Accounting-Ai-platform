@@ -48,7 +48,6 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },
     { href: "/settings", label: isAr ? "الإعدادات" : "Settings", icon: "⚙️" },
     { href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "💎" },
-    { href: "/settings", label: isAr ? "الإعدادات" : "Settings", icon: "⚙️" },
     ...(showAdmin ? [{ href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "🛡️" }] : []),
   ];
 
