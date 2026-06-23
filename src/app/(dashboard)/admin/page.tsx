@@ -74,6 +74,10 @@ export default function AdminPage() {
   const [aiTesting, setAiTesting] = useState(false);
   const [aiResult, setAiResult] = useState<{ ok: boolean; keyPreview?: string; error?: string; errorType?: string; response?: string; step?: string } | null>(null);
 
+  // LS test state
+  const [lsTesting, setLsTesting] = useState(false);
+  const [lsResult, setLsResult] = useState<{ ok: boolean; keyPreview?: string; storeId?: string; variants?: Record<string, string>; webhookSecret?: string; step?: string; error?: string } | null>(null);
+
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
     try {
@@ -83,6 +87,19 @@ export default function AdminPage() {
       setStatsLoading(false);
     }
   }, []);
+
+  async function testLs() {
+    setLsTesting(true);
+    setLsResult(null);
+    try {
+      const res = await fetch("/api/admin/test-lemonsqueezy", { method: "POST" });
+      setLsResult(await res.json());
+    } catch {
+      setLsResult({ ok: false, error: "Network error" });
+    } finally {
+      setLsTesting(false);
+    }
+  }
 
   async function testAi() {
     setAiTesting(true);
@@ -335,6 +352,36 @@ export default function AdminPage() {
             {aiResult.errorType && <div><span className="font-bold">Error type:</span> {aiResult.errorType}</div>}
             {aiResult.error && <div><span className="font-bold">Error:</span> {aiResult.error}</div>}
             {aiResult.response && <div><span className="font-bold">Response:</span> {aiResult.response}</div>}
+          </div>
+        )}
+      </div>
+
+      {/* Lemon Squeezy Diagnostics */}
+      <div className="card p-4 space-y-3 border border-yellow-200 bg-yellow-50">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold text-yellow-800 text-sm">Payment Gateway Diagnostics (Lemon Squeezy)</h2>
+          <button onClick={testLs} disabled={lsTesting} className="btn-primary text-sm px-4 py-1.5">
+            {lsTesting ? "Testing..." : "Test LS Connection"}
+          </button>
+        </div>
+        {lsResult && (
+          <div className={`rounded-lg p-3 text-sm font-mono ${lsResult.ok ? "bg-green-50 border border-green-200 text-green-800" : "bg-red-50 border border-red-200 text-red-800"}`}>
+            <div><span className="font-bold">Status:</span> {lsResult.ok ? "✅ Connected" : "❌ Failed"}</div>
+            {lsResult.keyPreview && <div><span className="font-bold">API Key:</span> {lsResult.keyPreview}</div>}
+            {lsResult.storeId && <div><span className="font-bold">Store ID:</span> {lsResult.storeId}</div>}
+            {lsResult.step && <div><span className="font-bold">Failed at:</span> {lsResult.step}</div>}
+            {lsResult.error && <div><span className="font-bold">Error:</span> {lsResult.error}</div>}
+            {lsResult.variants && (
+              <div className="mt-1 space-y-0.5">
+                <div className="font-bold">Variant IDs:</div>
+                {Object.entries(lsResult.variants).map(([plan, id]) => (
+                  <div key={plan} className="ml-2">
+                    {plan}: <span className={id === "NOT SET" ? "text-red-600" : ""}>{id}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {lsResult.webhookSecret && <div><span className="font-bold">Webhook Secret:</span> {lsResult.webhookSecret}</div>}
           </div>
         )}
       </div>
