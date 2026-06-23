@@ -8,6 +8,7 @@ interface SidebarProps {
   businessName: string;
   country: string;
   currency: string;
+  isAdmin?: boolean;
 }
 
 interface NavItem {
@@ -17,7 +18,7 @@ interface NavItem {
   children?: { href: string; label: string; icon: string }[];
 }
 
-export default function Sidebar({ businessName, country, currency }: SidebarProps) {
+export default function Sidebar({ businessName, country, currency, isAdmin }: SidebarProps) {
   const pathname = usePathname();
   const { t, lang, toggleLang } = useLang();
   const isAr = lang === "ar";
@@ -40,6 +41,8 @@ export default function Sidebar({ businessName, country, currency }: SidebarProp
     { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },
     { href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "💎" },
+    { href: "/settings", label: isAr ? "الإعدادات" : "Settings", icon: "⚙️" },
+    ...(isAdmin ? [{ href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "🛡️" }] : []),
   ];
 
   return (

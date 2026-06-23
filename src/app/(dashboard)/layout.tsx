@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import { isSuperAdmin } from "@/lib/admin";
 import Sidebar from "@/components/Sidebar";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import SupportWidget from "@/components/SupportWidget";
@@ -17,6 +18,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           businessName={session.user.businessName}
           country={session.user.country}
           currency={session.user.currency}
+          isAdmin={isSuperAdmin(session.user.email)}
         />
         <main className="flex-1 overflow-auto flex flex-col">
           <PlanBanner />
