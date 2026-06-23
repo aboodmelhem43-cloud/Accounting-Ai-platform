@@ -201,7 +201,7 @@ export default function AdminPage() {
           {[
             { label: "Total Businesses", value: stats?.totalBusinesses ?? "—", sub: `+${stats?.newLast7d ?? 0} this week` },
             { label: "New (30 days)", value: stats?.newLast30d ?? "—", sub: "new signups" },
-            { label: "Est. MRR", value: stats ? `${stats.mrr.toLocaleString()} KWD` : "—", sub: "paid plans only" },
+            { label: "Est. MRR", value: stats ? `$${stats.mrr.toLocaleString()}` : "—", sub: "paid plans only" },
             { label: "Active Trials", value: stats?.trialActive ?? "—", sub: "free trial users" },
           ].map((card) => (
             <div key={card.label} className="card p-4 space-y-1">
