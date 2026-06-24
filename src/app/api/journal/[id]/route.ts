@@ -5,13 +5,15 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
+  const { id } = await params;
+
   const entry = await prisma.journalEntry.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       lines: {
         include: {
@@ -33,13 +35,15 @@ export async function GET(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
+  const { id } = await params;
+
   const entry = await prisma.journalEntry.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { id: true, businessId: true, status: true },
   });
 
@@ -48,7 +52,7 @@ export async function DELETE(
     return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   }
 
-  await prisma.journalEntry.delete({ where: { id: params.id } });
+  await prisma.journalEntry.delete({ where: { id } });
 
   return NextResponse.json({ ok: true });
 }
