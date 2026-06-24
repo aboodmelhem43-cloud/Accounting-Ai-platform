@@ -35,26 +35,81 @@ const FEATURES = [
   },
 ];
 
+const STEPS = [
+  {
+    num: "01",
+    ar: { title: "أنشئ حسابك", desc: "سجّل منشأتك في دقيقتين. لا بطاقة ائتمان، لا إعداد معقد." },
+    en: { title: "Create your account", desc: "Register your business in 2 minutes. No credit card, no complex setup." },
+    icon: "🏢",
+  },
+  {
+    num: "02",
+    ar: { title: "ارفع فواتيرك أو أنشئها", desc: "ارفع صور الفواتير وسيقرأها الذكاء الاصطناعي، أو أنشئ فاتورتك من الصفر بالتنسيق الصحيح لبلدك." },
+    en: { title: "Upload or create invoices", desc: "Upload invoice photos — AI reads them — or create invoices from scratch in your country's correct format." },
+    icon: "🧾",
+  },
+  {
+    num: "03",
+    ar: { title: "اعرض تقاريرك المالية", desc: "قائمة الدخل، الميزانية، دفتر الأستاذ — كلها محدثة لحظياً بدون أي عمل إضافي." },
+    en: { title: "View your financial reports", desc: "Income statement, balance sheet, general ledger — all updated instantly with no extra work." },
+    icon: "📊",
+  },
+];
+
+const COMPARE = [
+  {
+    feature: { ar: "قراءة الفواتير تلقائياً", en: "Automatic invoice reading" },
+    mohasabai: true, excel: false, manual: false,
+  },
+  {
+    feature: { ar: "دفتر مزدوج القيد", en: "Double-entry ledger" },
+    mohasabai: true, excel: false, manual: true,
+  },
+  {
+    feature: { ar: "تقارير مالية فورية", en: "Instant financial reports" },
+    mohasabai: true, excel: "partial", manual: false,
+  },
+  {
+    feature: { ar: "فاتورة إلكترونية متوافقة", en: "E-invoice compliance" },
+    mohasabai: true, excel: false, manual: false,
+  },
+  {
+    feature: { ar: "مساعد AI للأسئلة المالية", en: "AI financial assistant" },
+    mohasabai: true, excel: false, manual: false,
+  },
+  {
+    feature: { ar: "دعم 8 دول عربية", en: "8 Arab country support" },
+    mohasabai: true, excel: false, manual: false,
+  },
+  {
+    feature: { ar: "لا تحتاج محاسب متفرغ", en: "No full-time accountant needed" },
+    mohasabai: true, excel: false, manual: false,
+  },
+];
+
 const PRICING = [
   {
     id: "STARTER",
     price: "$69",
-    ar: { name: "المبتدئ", period: "/شهر", features: ["50 فاتورة/شهر", "20 سؤال AI/شهر", "رفع الفواتير", "إنشاء الفواتير", "دفتر اليومية", "دعم عملاء"] },
-    en: { name: "Starter", period: "/mo", features: ["50 invoices/month", "20 AI queries/month", "Invoice scanning", "Invoice creation", "Journal ledger", "Customer support"] },
+    localHint: { ar: "≈ 260 ر.س / 3,500 ج.م", en: "≈ SAR 260 / EGP 3,500" },
+    ar: { name: "المبتدئ", period: "/شهر", desc: "للأعمال الناشئة", features: ["50 فاتورة/شهر", "20 سؤال AI/شهر", "رفع وإنشاء الفواتير", "دفتر اليومية", "تقارير أساسية", "دعم عملاء"] },
+    en: { name: "Starter", period: "/mo", desc: "For new businesses", features: ["50 invoices/month", "20 AI queries/month", "Upload & create invoices", "Journal ledger", "Basic reports", "Customer support"] },
     highlight: false,
   },
   {
     id: "PRO",
     price: "$149",
-    ar: { name: "الاحترافي", period: "/شهر", features: ["500 فاتورة/شهر", "AI غير محدود", "كل مميزات المبتدئ", "3 مستخدمين", "تقارير متقدمة", "دعم أولوية"] },
-    en: { name: "Pro", period: "/mo", features: ["500 invoices/month", "Unlimited AI", "Everything in Starter", "3 users", "Advanced reports", "Priority support"] },
+    localHint: { ar: "≈ 560 ر.س / 7,500 ج.م", en: "≈ SAR 560 / EGP 7,500" },
+    ar: { name: "الاحترافي", period: "/شهر", desc: "للأعمال النامية", features: ["500 فاتورة/شهر", "AI غير محدود", "كل مميزات المبتدئ", "3 مستخدمين", "تقارير متقدمة", "دعم أولوية"] },
+    en: { name: "Pro", period: "/mo", desc: "For growing businesses", features: ["500 invoices/month", "Unlimited AI", "Everything in Starter", "3 users", "Advanced reports", "Priority support"] },
     highlight: true,
   },
   {
     id: "BUSINESS",
     price: "$199",
-    ar: { name: "الأعمال", period: "/شهر", features: ["فواتير غير محدودة", "AI غير محدود", "كل مميزات الاحترافي", "10 مستخدمين", "API access", "دعم VIP"] },
-    en: { name: "Business", period: "/mo", features: ["Unlimited invoices", "Unlimited AI", "Everything in Pro", "10 users", "API access", "VIP support"] },
+    localHint: { ar: "≈ 746 ر.س / 10,000 ج.م", en: "≈ SAR 746 / EGP 10,000" },
+    ar: { name: "الأعمال", period: "/شهر", desc: "للشركات المتوسطة", features: ["فواتير غير محدودة", "AI غير محدود", "كل مميزات الاحترافي", "10 مستخدمين", "API access", "دعم VIP"] },
+    en: { name: "Business", period: "/mo", desc: "For mid-size companies", features: ["Unlimited invoices", "Unlimited AI", "Everything in Pro", "10 users", "API access", "VIP support"] },
     highlight: false,
   },
 ];
@@ -70,8 +125,32 @@ const COUNTRIES = [
   { flag: "🇴🇲", ar: "عُمان", en: "Oman", system: "" },
 ];
 
+const FAQS = [
+  {
+    ar: { q: "هل بياناتي آمنة؟", a: "نعم. كل منشأة معزولة تماماً عن الأخرى. البيانات مشفّرة، والخوادم في مراكز بيانات موثّقة. لا نشارك بياناتك مع أي طرف ثالث." },
+    en: { q: "Is my data secure?", a: "Yes. Each business is fully isolated from others. Data is encrypted, hosted on certified data centers. We never share your data with third parties." },
+  },
+  {
+    ar: { q: "هل أحتاج خبرة محاسبية لاستخدام المنصة؟", a: "لا. الواجهة مصممة لأصحاب الأعمال غير المتخصصين. الذكاء الاصطناعي يقترح القيود، وأنت تراجع وتؤكد فقط." },
+    en: { q: "Do I need accounting experience?", a: "No. The interface is designed for non-accountants. The AI suggests journal entries, you just review and confirm." },
+  },
+  {
+    ar: { q: "هل المنصة متوافقة مع الفاتورة الإلكترونية في بلدي؟", a: "ندعم JoFotara (الأردن)، ETA (مصر)، وZATCA (السعودية) حالياً — مع توليد رمز QR ضريبي للسعودية. الدول الأخرى ستُضاف قريباً." },
+    en: { q: "Is the platform e-invoice compliant in my country?", a: "We support JoFotara (Jordan), ETA (Egypt), and ZATCA (Saudi Arabia) — including automatic tax QR codes for Saudi. Other countries coming soon." },
+  },
+  {
+    ar: { q: "ماذا يحدث بعد انتهاء التجربة المجانية؟", a: "تتلقى إشعاراً قبل الانتهاء. إذا لم تشترك، تبقى بياناتك محفوظة لمدة 30 يوماً إضافية يمكنك خلالها تصديرها." },
+    en: { q: "What happens after the free trial ends?", a: "You'll receive a reminder before it expires. If you don't subscribe, your data is kept for 30 more days so you can export it." },
+  },
+  {
+    ar: { q: "هل يمكنني إلغاء الاشتراك في أي وقت؟", a: "نعم. لا عقود، لا رسوم إلغاء. يمكنك الإلغاء من لوحة الإعدادات في أي وقت وتأثيره فوري." },
+    en: { q: "Can I cancel anytime?", a: "Yes. No contracts, no cancellation fees. Cancel from your settings panel at any time — effective immediately." },
+  },
+];
+
 export default function LandingPage() {
   const [lang, setLang] = useState<"ar" | "en">("ar");
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const isAr = lang === "ar";
 
   return (
@@ -112,8 +191,8 @@ export default function LandingPage() {
           </h1>
           <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto mb-10 leading-relaxed">
             {isAr
-              ? "منصة محاسبة بمساعدة الذكاء الاصطناعي — قراءة الفواتير تلقائياً، قوائم مالية فورية، ومتوافقة مع الفاتورة الإلكترونية في 8 دول عربية."
-              : "AI-powered accounting platform — automatic invoice scanning, instant financial reports, and full e-invoice compliance across 8 Arab countries."}
+              ? "ارفع فواتيرك، واتركها للذكاء الاصطناعي. قوائم مالية فورية، فاتورة إلكترونية متوافقة، وبدون محاسب متفرغ."
+              : "Upload your invoices and let AI do the rest. Instant financial reports, e-invoice compliance, and no full-time accountant needed."}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
@@ -135,11 +214,46 @@ export default function LandingPage() {
             {[
               { num: "8", label: isAr ? "دول عربية" : "Arab countries" },
               { num: "35", label: isAr ? "يوم مجاناً" : "days free" },
-              { num: "100%", label: isAr ? "دفتر مزدوج القيد" : "Double-entry" },
+              { num: "~8h", label: isAr ? "توفير أسبوعي" : "saved/week" },
             ].map((s) => (
               <div key={s.label}>
                 <div className="text-3xl font-bold">{s.num}</div>
                 <div className="text-blue-200 text-sm mt-1">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {isAr ? "كيف يعمل محاسباي؟" : "How does Mohasabai work?"}
+            </h2>
+            <p className="text-gray-500 mt-3 text-base">
+              {isAr ? "ثلاث خطوات فقط للتحكم الكامل بمحاسبتك" : "Just three steps to full control of your accounting"}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            {/* connecting line — desktop only */}
+            <div className="hidden md:block absolute top-10 left-1/4 right-1/4 h-0.5 bg-blue-100" />
+            {STEPS.map((step, i) => (
+              <div key={step.num} className="relative text-center">
+                <div className="w-16 h-16 rounded-2xl bg-blue-50 border-2 border-blue-100 flex items-center justify-center text-2xl mx-auto mb-4">
+                  {step.icon}
+                </div>
+                <div className="text-xs font-bold text-blue-400 mb-1 tracking-widest">{step.num}</div>
+                <h3 className="font-bold text-gray-900 text-base mb-2">
+                  {isAr ? step.ar.title : step.en.title}
+                </h3>
+                <p className="text-gray-500 text-sm leading-relaxed">
+                  {isAr ? step.ar.desc : step.en.desc}
+                </p>
+                {i < STEPS.length - 1 && (
+                  <div className="md:hidden text-2xl text-blue-200 mt-4">↓</div>
+                )}
               </div>
             ))}
           </div>
@@ -175,8 +289,68 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Comparison table */}
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {isAr ? "لماذا محاسباي؟" : "Why Mohasabai?"}
+            </h2>
+            <p className="text-gray-500 mt-3 text-base">
+              {isAr ? "مقارنة مع البدائل الشائعة" : "Compared to common alternatives"}
+            </p>
+          </div>
+          <div className="overflow-x-auto rounded-2xl border border-gray-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="text-right px-6 py-4 font-semibold text-gray-600 w-1/2">
+                    {isAr ? "الميزة" : "Feature"}
+                  </th>
+                  <th className="px-4 py-4 font-bold text-blue-700 text-center">
+                    {isAr ? "محاسباي" : "Mohasabai"}
+                  </th>
+                  <th className="px-4 py-4 font-semibold text-gray-400 text-center">Excel</th>
+                  <th className="px-4 py-4 font-semibold text-gray-400 text-center">
+                    {isAr ? "يدوي" : "Manual"}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {COMPARE.map((row) => (
+                  <tr key={row.feature.en} className="hover:bg-gray-50">
+                    <td className="px-6 py-3 text-gray-700 font-medium">
+                      {isAr ? row.feature.ar : row.feature.en}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {row.mohasabai === true && <span className="text-green-500 font-bold text-base">✓</span>}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {row.excel === true ? (
+                        <span className="text-green-500 font-bold text-base">✓</span>
+                      ) : row.excel === "partial" ? (
+                        <span className="text-yellow-400 font-bold text-base">~</span>
+                      ) : (
+                        <span className="text-red-300 text-base">✕</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {row.manual === true ? (
+                        <span className="text-green-500 font-bold text-base">✓</span>
+                      ) : (
+                        <span className="text-red-300 text-base">✕</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       {/* Countries */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold text-gray-900">
@@ -190,7 +364,7 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {COUNTRIES.map((c) => (
-              <div key={c.en} className="border border-gray-200 rounded-xl p-4 text-center hover:border-blue-300 hover:bg-blue-50/30 transition-all">
+              <div key={c.en} className="bg-white border border-gray-200 rounded-xl p-4 text-center hover:border-blue-300 hover:bg-blue-50/30 transition-all">
                 <div className="text-3xl mb-2">{c.flag}</div>
                 <div className="font-semibold text-gray-800 text-sm">{isAr ? c.ar : c.en}</div>
                 {c.system && (
@@ -203,7 +377,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900">
@@ -230,12 +404,18 @@ export default function LandingPage() {
                       {isAr ? "الأكثر شيوعاً" : "Most Popular"}
                     </div>
                   )}
-                  <div className={`text-lg font-bold mb-1 ${plan.highlight ? "text-blue-100" : "text-gray-500"}`}>
+                  <div className={`text-sm font-semibold mb-0.5 ${plan.highlight ? "text-blue-100" : "text-gray-400"}`}>
                     {p.name}
                   </div>
-                  <div className="flex items-baseline gap-1 mb-6">
+                  <div className={`text-xs mb-3 ${plan.highlight ? "text-blue-200" : "text-gray-400"}`}>
+                    {p.desc}
+                  </div>
+                  <div className="flex items-baseline gap-1 mb-1">
                     <span className="text-4xl font-bold">{plan.price}</span>
                     <span className={`text-sm ${plan.highlight ? "text-blue-200" : "text-gray-400"}`}>{p.period}</span>
+                  </div>
+                  <div className={`text-xs mb-6 ${plan.highlight ? "text-blue-200" : "text-gray-400"}`}>
+                    {isAr ? plan.localHint.ar : plan.localHint.en}
                   </div>
                   <ul className="space-y-3 flex-1 mb-8">
                     {p.features.map((f) => (
@@ -259,6 +439,44 @@ export default function LandingPage() {
               );
             })}
           </div>
+          <p className="text-center text-xs text-gray-400 mt-8">
+            {isAr
+              ? "الأسعار بالدولار الأمريكي. المعادلات التقريبية للعملات المحلية معروضة للتوضيح."
+              : "Prices in USD. Local currency equivalents shown for reference."}
+          </p>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-3xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {isAr ? "أسئلة شائعة" : "Frequently Asked Questions"}
+            </h2>
+          </div>
+          <div className="space-y-3">
+            {FAQS.map((faq, i) => {
+              const f = isAr ? faq.ar : faq.en;
+              const isOpen = openFaq === i;
+              return (
+                <div key={i} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : i)}
+                    className="w-full text-right px-6 py-4 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="font-semibold text-gray-800 text-sm">{f.q}</span>
+                    <span className={`text-blue-500 text-lg transition-transform flex-shrink-0 ${isOpen ? "rotate-45" : ""}`}>+</span>
+                  </button>
+                  {isOpen && (
+                    <div className="px-6 pb-5 text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-4">
+                      {f.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
@@ -268,10 +486,13 @@ export default function LandingPage() {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             {isAr ? "جاهز لتنظيم محاسبتك؟" : "Ready to organize your accounting?"}
           </h2>
-          <p className="text-blue-100 text-lg mb-8">
+          <p className="text-blue-100 text-lg mb-2">
             {isAr
               ? "انضم إلى أصحاب الأعمال الذين يثقون بمحاسباي لإدارة حساباتهم"
               : "Join business owners who trust Mohasabai to manage their accounts"}
+          </p>
+          <p className="text-blue-200 text-sm mb-8">
+            {isAr ? "35 يوماً مجاناً — لا بطاقة ائتمان — إلغاء في أي وقت" : "35 days free — no credit card — cancel anytime"}
           </p>
           <Link
             href="/register"
