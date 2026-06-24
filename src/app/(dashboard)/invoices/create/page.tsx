@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import { useLang } from "@/components/LanguageProvider";
 
 interface LineItem {
@@ -301,15 +302,8 @@ export default function CreateInvoicePage() {
             {/* QR code for Saudi Arabia */}
             {qrData ? (
               <div className="text-center">
-                <div className="w-28 h-28 border-2 border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=112x112&data=${encodeURIComponent(qrData)}`}
-                    alt="ZATCA QR Code"
-                    width={112}
-                    height={112}
-                    className="rounded"
-                  />
+                <div className="w-28 h-28 border-2 border-gray-300 rounded-lg flex items-center justify-center bg-white p-1.5">
+                  <QRCodeSVG value={qrData} size={100} level="M" />
                 </div>
                 <p className="text-xs text-gray-400 mt-1">ZATCA QR Code</p>
               </div>

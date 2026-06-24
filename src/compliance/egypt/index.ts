@@ -1,8 +1,5 @@
 import type { ComplianceModule } from "../types";
 
-// وحدة امتثال مصر
-// ضريبة القيمة المضافة: 14%
-// الفاتورة الإلكترونية: ETA — إلزامية منذ 15/12/2022 (B2B)
 const egypt: ComplianceModule = {
   countryCode: "EG",
   countryNameAr: "جمهورية مصر العربية",
@@ -20,7 +17,7 @@ const egypt: ComplianceModule = {
   eInvoiceSystem: "ETA",
   eInvoiceRequired: true,
   eInvoiceNote:
-    "الفاتورة الإلكترونية B2B إلزامية عبر منظومة ETA منذ ديسمبر 2022. توجد تسهيلات للأنشطة التي لا تتجاوز إيراداتها 20 مليون جنيه. دعم الربط بـ ETA قيد التطوير.",
+    "الفاتورة الإلكترونية B2B إلزامية عبر منظومة ETA. أنشئ فاتورتك هنا، ثم سجّلها في بوابة الفاتورة الإلكترونية (eta.gov.eg).",
 
   taxIdPattern: /^\d{9}$/,
   taxIdLabel: "الرقم الضريبي (9 أرقام)",

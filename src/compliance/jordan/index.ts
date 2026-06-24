@@ -1,8 +1,5 @@
 import type { ComplianceModule } from "../types";
 
-// وحدة امتثال الأردن
-// ضريبة المبيعات العامة (GST): 16% على معظم السلع والخدمات
-// الفاتورة الإلكترونية: JoFotara — إلزامية لكل عملية بيع بقيمة دينار فأكثر
 const jordan: ComplianceModule = {
   countryCode: "JO",
   countryNameAr: "المملكة الأردنية الهاشمية",
@@ -20,7 +17,7 @@ const jordan: ComplianceModule = {
   eInvoiceSystem: "JoFotara",
   eInvoiceRequired: true,
   eInvoiceNote:
-    "نظام JoFotara إلزامي لكل عملية بيع بقيمة دينار أردني أو أكثر (يشمل المهن الحرة والأفراد). دعم الربط بـ JoFotara قيد التطوير.",
+    "نظام JoFotara إلزامي لكل عملية بيع بقيمة دينار أردني أو أكثر. أنشئ فاتورتك من هنا، ثم سجّلها في بوابة JoFotara الرسمية.",
 
   taxIdPattern: /^\d{9}$/,
   taxIdLabel: "الرقم الضريبي (9 أرقام)",

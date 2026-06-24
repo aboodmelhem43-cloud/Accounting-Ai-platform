@@ -20,6 +20,7 @@
     "bcryptjs": "^2.4.3",
     "next": "^15.1.0",
     "next-auth": "^4.24.10",
+    "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "resend": "^4.8.0",

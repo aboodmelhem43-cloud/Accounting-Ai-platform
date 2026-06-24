@@ -1,8 +1,5 @@
 import type { ComplianceModule } from "../types";
 
-// وحدة امتثال المملكة العربية السعودية
-// الفاتورة الإلكترونية: ZATCA — إلزامية منذ 2021
-// ضريبة القيمة المضافة: 15%
 const saudi: ComplianceModule = {
   countryCode: "SA",
   countryNameAr: "المملكة العربية السعودية",
@@ -20,7 +17,7 @@ const saudi: ComplianceModule = {
   eInvoiceSystem: "ZATCA",
   eInvoiceRequired: true,
   eInvoiceNote:
-    "الفاتورة الإلكترونية إلزامية عبر منصة فاتورة (ZATCA). دعم الربط المباشر قيد التطوير ويُضاف في الإصدار القادم.",
+    "الفاتورة الإلكترونية إلزامية عبر منصة فاتورة (ZATCA). أنشئ فاتورتك هنا مع رمز QR الضريبي، ثم ارفعها إلى بوابة ZATCA Fatoora.",
 
   taxIdPattern: /^\d{15}$/,
   taxIdLabel: "الرقم الضريبي (15 رقمًا)",
