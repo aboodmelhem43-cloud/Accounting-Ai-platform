@@ -108,12 +108,17 @@ const EINVOICE_COLORS: Record<string, string> = {
 
 const today = new Date().toISOString().split("T")[0];
 
+import { useRouter } from "next/navigation";
+
 export default function CreateInvoicePage() {
   const { lang } = useLang();
   const isAr = lang === "ar";
+  const router = useRouter();
 
   const [view, setView] = useState<"form" | "preview">("form");
   const [business, setBusiness] = useState<BusinessInfo | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   // Invoice fields
   const [invoiceNumber, setInvoiceNumber] = useState(`INV-${today.replace(/-/g, "")}`);
@@ -194,6 +199,39 @@ export default function CreateInvoicePage() {
     return btoa(String.fromCharCode(...merged));
   }
 
+  async function saveInvoice() {
+    if (saving || saved) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/invoices/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invoiceNumber, invoiceDate, dueDate,
+          sellerName, sellerTaxNumber, sellerAddress,
+          customerName, customerTaxNumber, customerAddress, customerPhone, customerEmail,
+          lineItems,
+          subtotal, taxRate, taxAmount, grandTotal,
+          currency: compliance.currency,
+          currencySymbol: compliance.currencySymbol,
+          notes,
+          country: business?.country ?? "",
+          eInvoiceSystem: compliance.eInvoiceSystem,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSaved(true);
+        setTimeout(() => router.push("/invoices"), 1200);
+      } else {
+        const err = await res.json();
+        alert(err.message ?? (isAr ? "فشل الحفظ" : "Save failed"));
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (view === "preview") {
     const qrData = compliance.showQr && sellerTaxNumber ? buildZatcaQrData() : null;
     return (
@@ -202,8 +240,19 @@ export default function CreateInvoicePage() {
           <button onClick={() => setView("form")} className="btn-secondary">
             {isAr ? "← رجوع" : "← Back"}
           </button>
-          <button onClick={() => window.print()} className="btn-primary">
+          <button onClick={() => window.print()} className="btn-secondary">
             🖨️ {isAr ? "طباعة / PDF" : "Print / PDF"}
+          </button>
+          <button
+            onClick={saveInvoice}
+            disabled={saving || saved}
+            className="btn-primary"
+          >
+            {saved
+              ? (isAr ? "✅ تم الحفظ!" : "✅ Saved!")
+              : saving
+                ? (isAr ? "جاري الحفظ..." : "Saving...")
+                : (isAr ? "💾 حفظ الفاتورة" : "💾 Save Invoice")}
           </button>
         </div>
 
