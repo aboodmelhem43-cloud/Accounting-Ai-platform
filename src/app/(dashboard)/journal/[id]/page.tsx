@@ -21,7 +21,7 @@ interface JournalEntry {
   createdAt: string;
   lines: JournalLine[];
   creator: { name: string | null; email: string };
-  invoice: { id: string; vendorName: string | null } | null;
+  invoice: { id: string; invoiceType: string } | null;
 }
 
 export default function JournalEntryPage() {
@@ -207,7 +207,9 @@ export default function JournalEntryPage() {
               {isAr ? "مصدر الفاتورة:" : "From invoice:"}
             </span>
             <Link href={`/invoices/${entry.invoice.id}`} className="text-blue-600 hover:underline font-medium">
-              {entry.invoice.vendorName ?? entry.invoice.id}
+              {isAr
+                ? (entry.invoice.invoiceType === "PURCHASE" ? "فاتورة مشتريات" : "فاتورة مبيعات")
+                : (entry.invoice.invoiceType === "PURCHASE" ? "Purchase Invoice" : "Sales Invoice")}
             </Link>
           </div>
         )}

@@ -19,7 +19,7 @@ export async function GET(
         },
       },
       creator: { select: { name: true, email: true } },
-      invoice: { select: { id: true, vendorName: true } },
+      invoice: { select: { id: true, invoiceType: true } },
     },
   });
 
