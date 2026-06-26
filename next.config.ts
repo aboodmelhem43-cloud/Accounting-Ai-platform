@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -11,4 +12,11 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // Sentry org + project are read from SENTRY_ORG and SENTRY_PROJECT env vars
+  // Source maps are uploaded only when SENTRY_AUTH_TOKEN is set (CI/CD)
+  silent: true,
+  // Disable Sentry build-time features when DSN is not configured
+  disableServerWebpackPlugin: !process.env.NEXT_PUBLIC_SENTRY_DSN,
+  disableClientWebpackPlugin: !process.env.NEXT_PUBLIC_SENTRY_DSN,
+});
