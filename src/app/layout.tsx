@@ -80,6 +80,60 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "محاسباي | Mohasabai",
+              url: "https://www.mohasabai.com",
+              description:
+                "برنامج محاسبة سحابي بالذكاء الاصطناعي للأعمال الصغيرة والمتوسطة في المنطقة العربية. قراءة الفواتير تلقائياً، قوائم مالية فورية، وفاتورة إلكترونية متوافقة مع ZATCA وETA وJoFotara.",
+              applicationCategory: "BusinessApplication",
+              operatingSystem: "Web",
+              offers: [
+                {
+                  "@type": "Offer",
+                  name: "Starter",
+                  price: "69",
+                  priceCurrency: "USD",
+                  priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" },
+                },
+                {
+                  "@type": "Offer",
+                  name: "Pro",
+                  price: "149",
+                  priceCurrency: "USD",
+                  priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" },
+                },
+                {
+                  "@type": "Offer",
+                  name: "Business",
+                  price: "199",
+                  priceCurrency: "USD",
+                  priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" },
+                },
+              ],
+              featureList: [
+                "قراءة الفواتير بالذكاء الاصطناعي",
+                "دفتر يومية مزدوج القيد",
+                "قوائم مالية فورية",
+                "فاتورة إلكترونية ZATCA",
+                "فاتورة إلكترونية ETA",
+                "فاتورة إلكترونية JoFotara",
+                "محاسب ذكاء اصطناعي",
+              ],
+              inLanguage: ["ar", "en"],
+              availableInCountry: ["SA", "EG", "AE", "JO", "LB"],
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: "4.8",
+                reviewCount: "12",
+              },
+            }),
+          }}
+        />
       </head>
       <body className="font-sans bg-gray-50 text-gray-900 antialiased">
         <LanguageProvider initialLang={lang}>{children}</LanguageProvider>
