@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getComplianceModule } from "@/compliance";
 import { getServerT } from "@/lib/i18n/server";
 import Link from "next/link";
+import { Suspense } from "react";
+import InvoiceFilters from "./InvoiceFilters";
 
 type ExtractedData = {
   vendorName?: string;
@@ -13,7 +15,34 @@ type ExtractedData = {
   invoiceDate?: string;
 };
 
-export default async function InvoicesPage() {
+function getPeriodRange(period: string): { from: Date; to: Date } | null {
+  const now = new Date();
+  if (period === "this_month") {
+    return {
+      from: new Date(now.getFullYear(), now.getMonth(), 1),
+      to: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59),
+    };
+  }
+  if (period === "last_month") {
+    return {
+      from: new Date(now.getFullYear(), now.getMonth() - 1, 1),
+      to: new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59),
+    };
+  }
+  if (period === "this_year") {
+    return {
+      from: new Date(now.getFullYear(), 0, 1),
+      to: new Date(now.getFullYear(), 11, 31, 23, 59, 59),
+    };
+  }
+  return null;
+}
+
+export default async function InvoicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string; period?: string }>;
+}) {
   const session = await getServerSession(authOptions);
   if (!session) return null;
 
@@ -21,12 +50,37 @@ export default async function InvoicesPage() {
   const locale = lang === "ar" ? "ar" : "en";
   const isAr = lang === "ar";
   const compliance = getComplianceModule(session.user.country);
+  const { businessId } = session.user;
 
-  const invoices = await prisma.invoice.findMany({
-    where: { businessId: session.user.businessId },
+  const { q = "", status = "", period = "" } = await searchParams;
+  const periodRange = getPeriodRange(period);
+
+  const allInvoices = await prisma.invoice.findMany({
+    where: {
+      businessId,
+      ...(status ? { status: status as "PENDING_REVIEW" | "CONFIRMED" | "REJECTED" } : {}),
+      ...(periodRange ? { createdAt: { gte: periodRange.from, lte: periodRange.to } } : {}),
+    },
     orderBy: { createdAt: "desc" },
-    take: 50,
+    take: 200,
   });
+
+  // Text search over JSON fields in memory
+  const needle = q.trim().toLowerCase();
+  const invoices = needle
+    ? allInvoices.filter((inv) => {
+        const d = inv.extractedData as ExtractedData | null;
+        const haystack = [
+          d?.invoiceNumber,
+          d?.vendorName,
+          d?.customerName,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(needle);
+      })
+    : allInvoices;
 
   const fmt = (n: number) =>
     `${n.toLocaleString(locale, { minimumFractionDigits: 2 })} ${isAr ? compliance.currencySymbol : compliance.currencySymbolEn}`;
@@ -37,13 +91,15 @@ export default async function InvoicesPage() {
     REJECTED: { label: t("invoices.status.rejected"), cls: "bg-red-100 text-red-700" },
   };
 
+  const hasFilters = !!(q || status || period);
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t("invoices.title")}</h1>
           <p className="text-gray-500 text-sm mt-1">
-            {invoices.length} {isAr ? "فاتورة" : "invoices"}
+            {invoices.length}{hasFilters ? ` ${isAr ? "نتيجة" : "results"}` : ` ${isAr ? "فاتورة" : "invoices"}`}
           </p>
         </div>
         <div className="flex gap-2">
@@ -56,18 +112,33 @@ export default async function InvoicesPage() {
         </div>
       </div>
 
+      {/* Filters */}
+      <Suspense fallback={null}>
+        <InvoiceFilters />
+      </Suspense>
+
       {invoices.length === 0 ? (
         <div className="card text-center py-12">
-          <div className="text-5xl mb-4">🧾</div>
-          <p className="text-gray-500">{t("invoices.empty")}</p>
-          <div className="flex gap-3 justify-center mt-4">
-            <Link href="/invoices/create" className="btn-primary inline-flex">
-              ✏️ {isAr ? "إنشاء فاتورة" : "Create Invoice"}
+          <div className="text-5xl mb-4">{hasFilters ? "🔍" : "🧾"}</div>
+          <p className="text-gray-500">
+            {hasFilters
+              ? (isAr ? "لا توجد فواتير تطابق البحث" : "No invoices match your search")
+              : t("invoices.empty")}
+          </p>
+          {hasFilters ? (
+            <Link href="/invoices" className="btn-secondary inline-flex mt-4">
+              {isAr ? "إلغاء الفلتر" : "Clear filters"}
             </Link>
-            <Link href="/invoices/upload" className="btn-secondary inline-flex">
-              {t("invoices.upload")}
-            </Link>
-          </div>
+          ) : (
+            <div className="flex gap-3 justify-center mt-4">
+              <Link href="/invoices/create" className="btn-primary inline-flex">
+                ✏️ {isAr ? "إنشاء فاتورة" : "Create Invoice"}
+              </Link>
+              <Link href="/invoices/upload" className="btn-secondary inline-flex">
+                {t("invoices.upload")}
+              </Link>
+            </div>
+          )}
         </div>
       ) : (
         <div className="card p-0 overflow-hidden">
@@ -96,7 +167,7 @@ export default async function InvoicesPage() {
                 const invoiceDate = d?.invoiceDate
                   ? new Date(d.invoiceDate).toLocaleDateString(locale)
                   : new Date(inv.createdAt).toLocaleDateString(locale);
-                const status = statusMap[inv.status] ?? { label: inv.status, cls: "bg-gray-100 text-gray-600" };
+                const s = statusMap[inv.status] ?? { label: inv.status, cls: "bg-gray-100 text-gray-600" };
                 return (
                   <tr key={inv.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-mono text-gray-700 text-xs">{invoiceNum}</td>
@@ -114,8 +185,8 @@ export default async function InvoicesPage() {
                     <td className="px-4 py-3">{d?.totalAmount ? fmt(d.totalAmount) : "—"}</td>
                     <td className="px-4 py-3 text-gray-500">{invoiceDate}</td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${status.cls}`}>
-                        {status.label}
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${s.cls}`}>
+                        {s.label}
                       </span>
                     </td>
                     <td className="px-4 py-3">

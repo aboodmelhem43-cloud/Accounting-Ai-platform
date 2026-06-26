@@ -53,7 +53,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
   ];
 
   return (
-    <aside className="w-64 bg-white border-l border-gray-200 flex flex-col h-screen sticky top-0">
+    <aside className="hidden md:flex w-64 bg-white border-l border-gray-200 flex-col h-screen sticky top-0">
       {/* الشعار */}
       <div className="p-6 border-b border-gray-100">
         <div className="text-xl font-bold text-blue-700">{t("app.name")}</div>
