@@ -16,8 +16,8 @@ const LanguageContext = createContext<LanguageContextValue>({
   dir: "rtl",
 });
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLang] = useState<Lang>("ar");
+export function LanguageProvider({ children, initialLang = "ar" }: { children: React.ReactNode; initialLang?: Lang }) {
+  const [lang, setLang] = useState<Lang>(initialLang);
 
   useEffect(() => {
     const saved = localStorage.getItem("lang") as Lang | null;

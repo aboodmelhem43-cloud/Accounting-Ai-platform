@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { Analytics } from "@vercel/analytics/next";
+import { cookies } from "next/headers";
 
 const SITE_URL = "https://www.mohasabai.com";
 const SITE_NAME = "محاسباي | Mohasabai";
@@ -65,9 +66,13 @@ export const metadata: Metadata = {
   category: "technology",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value === "en" ? "en" : "ar";
+  const dir = lang === "en" ? "ltr" : "rtl";
+
   return (
-    <html lang="ar" dir="rtl">
+    <html lang={lang} dir={dir}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -77,7 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="font-sans bg-gray-50 text-gray-900 antialiased">
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider initialLang={lang}>{children}</LanguageProvider>
         <Analytics />
       </body>
     </html>

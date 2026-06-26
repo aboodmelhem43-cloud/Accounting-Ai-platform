@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useLang } from "@/components/LanguageProvider";
 
 const FEATURES = [
   {
@@ -149,7 +150,7 @@ const FAQS = [
 ];
 
 export default function LandingPage() {
-  const [lang, setLang] = useState<"ar" | "en">("ar");
+  const { lang, toggleLang } = useLang();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const isAr = lang === "ar";
 
@@ -167,7 +168,7 @@ export default function LandingPage() {
               {isAr ? "الأسعار" : "Pricing"}
             </a>
             <button
-              onClick={() => setLang(isAr ? "en" : "ar")}
+              onClick={toggleLang}
               className="text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
             >
               {isAr ? "English" : "عربي"}
