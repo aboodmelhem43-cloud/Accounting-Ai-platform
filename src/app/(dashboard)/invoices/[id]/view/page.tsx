@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { getServerT } from "@/lib/i18n/server";
 import PrintButton from "./PrintButton";
+import ZatcaQr from "./ZatcaQr";
 import Link from "next/link";
 
 type LineItem = { description: string; quantity: number; unitPrice: number };
@@ -67,7 +68,7 @@ export default async function InvoiceViewPage({
         <Link href="/invoices" className="text-sm text-gray-500 hover:text-gray-700">
           ← {isAr ? "العودة للفواتير" : "Back to Invoices"}
         </Link>
-        <PrintButton label={isAr ? "🖨️ طباعة" : "🖨️ Print"} />
+        <PrintButton label={isAr ? "🖨️ طباعة" : "🖨️ Print"} invoiceNumber={d?.invoiceNumber} />
       </div>
 
       {/* Invoice document */}
@@ -200,6 +201,18 @@ export default async function InvoiceViewPage({
             </p>
             <p className="text-sm text-gray-600 whitespace-pre-wrap">{d.notes}</p>
           </div>
+        )}
+
+        {/* ZATCA QR — only for Saudi invoices with a VAT number */}
+        {d?.eInvoiceSystem === "ZATCA" && d.sellerTaxNumber && d.invoiceDate && (
+          <ZatcaQr
+            sellerName={d.sellerName ?? ""}
+            vatNumber={d.sellerTaxNumber}
+            invoiceDate={d.invoiceDate}
+            grandTotal={d.grandTotal ?? 0}
+            vatAmount={d.taxAmount ?? 0}
+            isAr={isAr}
+          />
         )}
       </div>
     </div>

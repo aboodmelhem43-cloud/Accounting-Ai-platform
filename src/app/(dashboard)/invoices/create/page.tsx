@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { useLang } from "@/components/LanguageProvider";
+import { buildZatcaQr } from "@/lib/zatca";
 
 interface LineItem {
   description: string;
@@ -175,29 +176,8 @@ export default function CreateInvoicePage() {
     setLineItems((prev) => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
   }
 
-  // Generate ZATCA QR data (TLV base64) for Saudi Arabia
-  function buildZatcaQrData(): string {
-    function tlv(tag: number, value: string): Uint8Array {
-      const encoded = new TextEncoder().encode(value);
-      const result = new Uint8Array(2 + encoded.length);
-      result[0] = tag;
-      result[1] = encoded.length;
-      result.set(encoded, 2);
-      return result;
-    }
-    const parts = [
-      tlv(1, sellerName),
-      tlv(2, sellerTaxNumber),
-      tlv(3, new Date(invoiceDate).toISOString()),
-      tlv(4, grandTotal.toFixed(2)),
-      tlv(5, taxAmount.toFixed(2)),
-    ];
-    const total = parts.reduce((s, p) => s + p.length, 0);
-    const merged = new Uint8Array(total);
-    let offset = 0;
-    for (const p of parts) { merged.set(p, offset); offset += p.length; }
-    return btoa(String.fromCharCode(...merged));
-  }
+  const buildZatcaQrData = () =>
+    buildZatcaQr(sellerName, sellerTaxNumber, invoiceDate, grandTotal, taxAmount);
 
   async function saveInvoice() {
     if (saving || saved) return;
