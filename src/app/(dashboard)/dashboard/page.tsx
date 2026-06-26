@@ -55,49 +55,92 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <SummaryCard
-          title={t("dashboard.total_revenue")}
-          value={`${fmt(statement.totalRevenue)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
-          sub={monthName}
-          color="green"
-          icon="📈"
-        />
-        <SummaryCard
-          title={t("dashboard.total_expenses")}
-          value={`${fmt(statement.totalExpenses)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
-          sub={monthName}
-          color="red"
-          icon="📉"
-        />
-        <SummaryCard
-          title={t("dashboard.net_income")}
-          value={`${fmt(statement.netProfit)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
-          sub={monthName}
-          color={statement.netProfit >= 0 ? "blue" : "red"}
-          icon="💰"
-        />
-        <SummaryCard
-          title={lang === "ar" ? "الفواتير المعلّقة" : "Pending Invoices"}
-          value={String(pendingCount)}
-          sub={lang === "ar" ? `من ${invoiceCount} فاتورة مؤكدة` : `of ${invoiceCount} confirmed`}
-          color="yellow"
-          icon="🧾"
-          href="/invoices"
-        />
-      </div>
-
-      <div className="card">
-        <h2 className="font-semibold text-gray-800 mb-4">{t("dashboard.quick_actions")}</h2>
-        <div className="flex flex-wrap gap-3">
-          <Link href="/invoices/upload" className="btn-primary">⬆️ {t("dashboard.upload_invoice")}</Link>
-          <Link href="/reports/income" className="btn-secondary">📊 {t("nav.income")}</Link>
-          <Link href="/chat" className="btn-secondary">🤖 {t("dashboard.ask_ai")}</Link>
-          <Link href="/journal" className="btn-secondary">📒 {t("nav.journal")}</Link>
+      {recentInvoices.length === 0 ? (
+        <div className="card border-2 border-dashed border-blue-200 bg-blue-50/40 text-center py-12 px-6">
+          <div className="text-5xl mb-4">🚀</div>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">
+            {lang === "ar" ? "مرحباً بك في محاسباي!" : "Welcome to Mohasabai!"}
+          </h2>
+          <p className="text-gray-500 text-sm mb-8 max-w-md mx-auto">
+            {lang === "ar"
+              ? "ابدأ بإضافة أول فاتورة لك — سواء بإنشائها يدوياً أو برفع صورة/PDF، وسيُنشئ النظام القيود المحاسبية تلقائياً."
+              : "Start by adding your first invoice — create it manually or upload a photo/PDF, and the system will post the journal entries automatically."}
+          </p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <Link href="/invoices/create" className="btn-primary">
+              📝 {lang === "ar" ? "إنشاء فاتورة" : "Create Invoice"}
+            </Link>
+            <Link href="/invoices/upload" className="btn-secondary">
+              ⬆️ {lang === "ar" ? "رفع فاتورة" : "Upload Invoice"}
+            </Link>
+            <Link href="/chat" className="btn-secondary">
+              🤖 {lang === "ar" ? "اسأل المساعد الذكي" : "Ask AI Assistant"}
+            </Link>
+          </div>
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-right">
+            {[
+              { step: "1", icon: "🧾", title: lang === "ar" ? "أضف فاتورتك الأولى" : "Add your first invoice", desc: lang === "ar" ? "أنشئ أو ارفع فاتورة مبيعات أو مشتريات" : "Create or upload a sales or purchase invoice" },
+              { step: "2", icon: "📒", title: lang === "ar" ? "راجع القيود التلقائية" : "Review auto-posted entries", desc: lang === "ar" ? "يُنشئ النظام قيود مزدوجة القيد تلقائياً" : "The system creates double-entry journal entries automatically" },
+              { step: "3", icon: "📊", title: lang === "ar" ? "استعرض التقارير" : "View your reports", desc: lang === "ar" ? "قائمة الدخل والميزانية العمومية جاهزة فوراً" : "Income statement and balance sheet ready instantly" },
+            ].map(({ step, icon, title, desc }) => (
+              <div key={step} className="bg-white rounded-xl border border-gray-100 p-4 text-start">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">{step}</span>
+                  <span className="text-lg">{icon}</span>
+                </div>
+                <p className="text-sm font-semibold text-gray-800">{title}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <SummaryCard
+              title={t("dashboard.total_revenue")}
+              value={`${fmt(statement.totalRevenue)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
+              sub={monthName}
+              color="green"
+              icon="📈"
+            />
+            <SummaryCard
+              title={t("dashboard.total_expenses")}
+              value={`${fmt(statement.totalExpenses)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
+              sub={monthName}
+              color="red"
+              icon="📉"
+            />
+            <SummaryCard
+              title={t("dashboard.net_income")}
+              value={`${fmt(statement.netProfit)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
+              sub={monthName}
+              color={statement.netProfit >= 0 ? "blue" : "red"}
+              icon="💰"
+            />
+            <SummaryCard
+              title={lang === "ar" ? "الفواتير المعلّقة" : "Pending Invoices"}
+              value={String(pendingCount)}
+              sub={lang === "ar" ? `من ${invoiceCount} فاتورة مؤكدة` : `of ${invoiceCount} confirmed`}
+              color="yellow"
+              icon="🧾"
+              href="/invoices"
+            />
+          </div>
 
-      <DashboardCharts />
+          <div className="card">
+            <h2 className="font-semibold text-gray-800 mb-4">{t("dashboard.quick_actions")}</h2>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/invoices/upload" className="btn-primary">⬆️ {t("dashboard.upload_invoice")}</Link>
+              <Link href="/reports/income" className="btn-secondary">📊 {t("nav.income")}</Link>
+              <Link href="/chat" className="btn-secondary">🤖 {t("dashboard.ask_ai")}</Link>
+              <Link href="/journal" className="btn-secondary">📒 {t("nav.journal")}</Link>
+            </div>
+          </div>
+
+          <DashboardCharts />
+        </>
+      )}
 
       {recentInvoices.length > 0 && (
         <div className="card">
