@@ -64,6 +64,9 @@ export const metadata: Metadata = {
     languages: { ar: SITE_URL, en: SITE_URL },
   },
   category: "technology",
+  verification: {
+    google: "PjsNKMnjUUWgPW4WCW5pvTFaALeiNr4bfek4SCT6vs4",
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
