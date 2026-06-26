@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
 import { SUPPORTED_COUNTRIES } from "@/compliance";
@@ -37,9 +37,8 @@ export default function SettingsPage() {
   const [pwMsg, setPwMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   // Load business data on first render from API
-  const [loaded, setLoaded] = useState(false);
-  if (!loaded && session) {
-    setLoaded(true);
+  useEffect(() => {
+    if (!session) return;
     fetch("/api/settings/business-info")
       .then((r) => r.json())
       .then((d) => {
@@ -50,7 +49,8 @@ export default function SettingsPage() {
         setBPhone(d.phone ?? "");
       })
       .catch(() => {});
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.businessId]);
 
   async function saveBusiness() {
     setBSaving(true);

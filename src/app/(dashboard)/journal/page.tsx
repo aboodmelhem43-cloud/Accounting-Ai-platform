@@ -31,27 +31,39 @@ export default function JournalPage() {
   const [postingId, setPostingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
-    const res = await fetch(`/api/journal?page=${page}`);
-    const data = await res.json();
-    setEntries(data.entries ?? []);
-    setTotal(data.total ?? 0);
-    setLoading(false);
+    try {
+      const res = await fetch(`/api/journal?page=${page}`);
+      const data = await res.json();
+      setEntries(data.entries ?? []);
+      setTotal(data.total ?? 0);
+    } catch {
+      // keep existing entries on network error
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { load(); }, [page]);
 
   async function handlePost(id: string) {
     setPostingId(id);
+    setActionError(null);
     try {
       const res = await fetch(`/api/journal/${id}/post`, { method: "PATCH" });
       if (res.ok) {
         setEntries((prev) =>
           prev.map((e) => (e.id === id ? { ...e, status: "POSTED" as const } : e))
         );
+      } else {
+        const d = await res.json().catch(() => ({})) as { error?: string };
+        setActionError(d.error ?? (lang === "ar" ? "فشل ترحيل القيد" : "Failed to post entry"));
       }
+    } catch {
+      setActionError(lang === "ar" ? "خطأ في الاتصال" : "Connection error");
     } finally {
       setPostingId(null);
     }
@@ -60,12 +72,18 @@ export default function JournalPage() {
   async function handleDelete(id: string) {
     setDeletingId(id);
     setConfirmId(null);
+    setActionError(null);
     try {
       const res = await fetch(`/api/journal/${id}`, { method: "DELETE" });
       if (res.ok) {
         setEntries((prev) => prev.filter((e) => e.id !== id));
         setTotal((t) => t - 1);
+      } else {
+        const d = await res.json().catch(() => ({})) as { error?: string };
+        setActionError(d.error ?? (lang === "ar" ? "فشل حذف القيد" : "Failed to delete entry"));
       }
+    } catch {
+      setActionError(lang === "ar" ? "خطأ في الاتصال" : "Connection error");
     } finally {
       setDeletingId(null);
     }
@@ -110,6 +128,13 @@ export default function JournalPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {actionError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
+          <span>{actionError}</span>
+          <button onClick={() => setActionError(null)} className="text-red-400 hover:text-red-600 ml-2">✕</button>
         </div>
       )}
 

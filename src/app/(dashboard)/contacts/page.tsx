@@ -121,8 +121,13 @@ export default function ContactsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm(isAr ? "هل تريد حذف هذا الاتصال؟" : "Delete this contact?")) return;
-    await fetch(`/api/contacts/${id}`, { method: "DELETE" });
+    setDeleteId(id);
+  }
+
+  async function confirmDelete() {
+    if (!deleteId) return;
+    await fetch(`/api/contacts/${deleteId}`, { method: "DELETE" });
+    setDeleteId(null);
     load();
   }
 
@@ -222,6 +227,36 @@ export default function ContactsPage() {
           </table>
         )}
       </div>
+
+      {/* Delete confirmation modal */}
+      {deleteId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4">
+            <div className="text-center">
+              <div className="text-3xl mb-2">🗑️</div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {isAr ? "حذف الاتصال؟" : "Delete Contact?"}
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                {isAr
+                  ? "سيتم حذف هذا الاتصال نهائيًا. هذا الإجراء لا يمكن التراجع عنه."
+                  : "This contact will be permanently deleted. This cannot be undone."}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setDeleteId(null)} className="btn-secondary flex-1">
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+              >
+                {isAr ? "حذف" : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* مودال الإضافة/التعديل */}
       {showModal && (

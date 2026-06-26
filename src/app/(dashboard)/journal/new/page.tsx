@@ -118,12 +118,12 @@ export default function NewJournalEntryPage() {
 
       if (!res.ok) {
         const data = await res.json() as { error?: string };
-        throw new Error(data.error ?? "حدث خطأ");
+        throw new Error(data.error ?? (lang === "ar" ? "حدث خطأ" : "An error occurred"));
       }
 
       router.push("/journal");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "حدث خطأ");
+      setError(err instanceof Error ? err.message : (lang === "ar" ? "حدث خطأ" : "An error occurred"));
       setLoading(false);
     }
   }
