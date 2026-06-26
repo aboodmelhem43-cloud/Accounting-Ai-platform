@@ -6,9 +6,10 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
 
-  // الصفحة الرئيسية
+  // الصفحة الرئيسية — المسوّق يراها دائماً؛ المسجّل دخول يُوجَّه للداشبورد
   if (pathname === "/") {
-    return NextResponse.redirect(new URL(token ? "/dashboard" : "/login", req.url));
+    if (token) return NextResponse.redirect(new URL("/dashboard", req.url));
+    return NextResponse.next();
   }
 
   // صفحات المصادقة — لو مسجّل دخول وجّهه للـ dashboard أو الـ onboarding
