@@ -3,8 +3,18 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
+
+  // Allow public files and SEO routes without auth
+  if (
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt" ||
+    pathname.startsWith("/google")
+  ) {
+    return NextResponse.next();
+  }
+
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   // الصفحة الرئيسية — المسوّق يراها دائماً؛ المسجّل دخول يُوجَّه للداشبورد
   if (pathname === "/") {
@@ -40,5 +50,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|uploads|sitemap.xml|robots.txt|google).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|uploads).*)"],
 };
