@@ -159,7 +159,13 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="text-xl font-bold text-blue-700">Mohasabai · محاسباي</div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 md:gap-3">
+            <a href="#how" className="hidden md:block text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
+              {isAr ? "كيف يعمل" : "How it works"}
+            </a>
+            <a href="#pricing" className="hidden md:block text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
+              {isAr ? "الأسعار" : "Pricing"}
+            </a>
             <button
               onClick={() => setLang(isAr ? "en" : "ar")}
               className="text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
@@ -226,7 +232,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="py-20 bg-white">
+      <section id="how" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900">
@@ -377,7 +383,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="py-20 bg-white">
+      <section id="pricing" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900">
