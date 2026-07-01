@@ -7,31 +7,41 @@ import { cookies } from "next/headers";
 const SITE_URL = "https://www.mohasabai.com";
 const SITE_NAME = "محاسباي | Mohasabai";
 const DESCRIPTION =
-  "برنامج محاسبة سحابي بالذكاء الاصطناعي للأعمال الصغيرة والمتوسطة في المنطقة العربية. قراءة الفواتير تلقائياً، قوائم مالية فورية، وفاتورة إلكترونية متوافقة مع ZATCA وETA وJoFotara. AI-powered accounting for Arab businesses.";
+  "محاسباي — منصة محاسبة سحابية ذكية للأعمال الصغيرة والمتوسطة في السعودية ومصر والإمارات والأردن. برنامج محاسبة اون لاين بالذكاء الاصطناعي: قراءة الفواتير تلقائياً، قوائم مالية فورية، وفاتورة إلكترونية متوافقة مع ZATCA وETA وJoFotara. Mohasabai — AI accounting platform for Arab businesses.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "محاسباي — برنامج محاسبة ذكي للأعمال العربية",
+    default: "محاسباي — منصة محاسبة سحابية ذكية | برنامج محاسبة للأعمال العربية",
     template: "%s | محاسباي",
   },
   description: DESCRIPTION,
   keywords: [
     "برنامج محاسبة",
+    "منصة محاسبة",
     "محاسبة سحابية",
+    "برنامج محاسبة اون لاين",
     "برنامج فواتير",
     "فاتورة إلكترونية",
     "برنامج محاسبة للمشاريع الصغيرة",
-    "محاسبة اون لاين",
+    "برنامج محاسبة للشركات الصغيرة",
+    "محاسبة ذكاء اصطناعي",
     "ZATCA",
+    "فاتورة ضريبية",
     "ETA فاتورة",
     "JoFotara",
     "برنامج محاسبة سعودي",
     "برنامج محاسبة مصري",
     "برنامج محاسبة اردني",
     "برنامج محاسبة اماراتي",
-    "accounting software arabic",
-    "arabic accounting",
+    "برنامج محاسبة كويتي",
+    "accounting software",
+    "accounting platform",
+    "cloud accounting software",
+    "arabic accounting software",
+    "accounting software for small business",
+    "AI accounting",
+    "online accounting",
     "mohasabai",
     "محاسباي",
   ],
