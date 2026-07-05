@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import * as XLSX from "xlsx";
 import type { CashFlowStatement } from "@/types";
 
 export default function CashFlowPage() {
@@ -37,6 +38,38 @@ export default function CashFlowPage() {
     const abs = Math.abs(n).toLocaleString(isAr ? "ar" : "en", { minimumFractionDigits: 2 });
     return n < 0 ? `(${abs})` : abs;
   };
+
+  function exportExcel() {
+    if (!data) return;
+    const rows: (string | number)[][] = [];
+    rows.push([isAr ? "أنشطة التشغيل" : "Operating Activities"]);
+    rows.push([isAr ? "البيان" : "Description", isAr ? "المبلغ" : "Amount"]);
+    for (const a of data.operatingActivities) {
+      rows.push([a.description, a.amount]);
+    }
+    rows.push([isAr ? "الصافي" : "Net", data.netOperating]);
+    rows.push([]);
+    rows.push([isAr ? "أنشطة الاستثمار" : "Investing Activities"]);
+    rows.push([isAr ? "البيان" : "Description", isAr ? "المبلغ" : "Amount"]);
+    for (const a of data.investingActivities) {
+      rows.push([a.description, a.amount]);
+    }
+    rows.push([isAr ? "الصافي" : "Net", data.netInvesting]);
+    rows.push([]);
+    rows.push([isAr ? "أنشطة التمويل" : "Financing Activities"]);
+    rows.push([isAr ? "البيان" : "Description", isAr ? "المبلغ" : "Amount"]);
+    for (const a of data.financingActivities) {
+      rows.push([a.description, a.amount]);
+    }
+    rows.push([isAr ? "الصافي" : "Net", data.netFinancing]);
+    rows.push([]);
+    rows.push([isAr ? "صافي التغير في النقدية" : "Net Change in Cash", data.netChange]);
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws["!cols"] = [{ wch: 50 }, { wch: 18 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, isAr ? "التدفقات النقدية" : "Cash Flow");
+    XLSX.writeFile(wb, `cashflow-${from.substring(0, 7)}.xlsx`);
+  }
 
   function Section({
     title,
@@ -100,6 +133,11 @@ export default function CashFlowPage() {
         <button onClick={load} disabled={loading} className="btn-primary">
           {loading ? "..." : (isAr ? "تحديث" : "Update")}
         </button>
+        {data && (
+          <button onClick={exportExcel} className="btn-secondary">
+            ⬇ {isAr ? "تصدير Excel" : "Export Excel"}
+          </button>
+        )}
       </div>
 
       {loading && (

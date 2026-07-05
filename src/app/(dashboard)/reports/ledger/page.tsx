@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import * as XLSX from "xlsx";
 
 interface Account {
   id: string;
@@ -101,6 +102,32 @@ export default function LedgerPage() {
     URL.revokeObjectURL(url);
   }
 
+  function exportExcel() {
+    if (!data) return;
+    let balance = 0;
+    const headers: (string | number)[] = isAr
+      ? ["التاريخ", "البيان", "مدين", "دائن", "الرصيد"]
+      : ["Date", "Description", "Debit", "Credit", "Balance"];
+    const rows: (string | number)[][] = [headers];
+    for (const l of data.lines) {
+      const debit = Number(l.debit);
+      const credit = Number(l.credit);
+      balance += debit - credit;
+      rows.push([
+        new Date(l.journalEntry.date).toLocaleDateString("en"),
+        l.journalEntry.description,
+        debit || "",
+        credit || "",
+        balance,
+      ]);
+    }
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws["!cols"] = [{ wch: 14 }, { wch: 40 }, { wch: 14 }, { wch: 14 }, { wch: 14 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, isAr ? "دفتر الأستاذ" : "Ledger");
+    XLSX.writeFile(wb, `ledger-${data.account.code}-${from}-${to}.xlsx`);
+  }
+
   const fmt = (n: number) =>
     n.toLocaleString(isAr ? "ar" : "en", { minimumFractionDigits: 2 });
 
@@ -166,6 +193,11 @@ export default function LedgerPage() {
         {data && data.lines.length > 0 && (
           <button onClick={exportCSV} className="btn-secondary">
             ⬇ {isAr ? "تصدير CSV" : "Export CSV"}
+          </button>
+        )}
+        {data && data.lines.length > 0 && (
+          <button onClick={exportExcel} className="btn-secondary">
+            ⬇ {isAr ? "تصدير Excel" : "Export Excel"}
           </button>
         )}
       </div>

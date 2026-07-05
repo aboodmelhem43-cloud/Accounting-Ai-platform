@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
+import * as XLSX from "xlsx";
 import type { IncomeStatement } from "@/types";
 
 export default function IncomeStatementPage() {
@@ -62,6 +63,32 @@ export default function IncomeStatementPage() {
     },
   ];
 
+  function exportExcel() {
+    if (!statement) return;
+    const isAr = lang === "ar";
+    const rows: (string | number)[][] = [];
+    rows.push([isAr ? "الإيرادات" : "Revenue"]);
+    rows.push([isAr ? "الكود" : "Code", isAr ? "الحساب" : "Account", isAr ? "الرصيد" : "Balance"]);
+    for (const acc of statement.revenue) {
+      rows.push([acc.accountCode, isAr ? (acc.accountNameAr ?? acc.accountName) : acc.accountName, acc.balance]);
+    }
+    rows.push([isAr ? "إجمالي الإيرادات" : "Total Revenue", "", statement.totalRevenue]);
+    rows.push([]);
+    rows.push([isAr ? "المصروفات" : "Expenses"]);
+    rows.push([isAr ? "الكود" : "Code", isAr ? "الحساب" : "Account", isAr ? "الرصيد" : "Balance"]);
+    for (const acc of statement.expenses) {
+      rows.push([acc.accountCode, isAr ? (acc.accountNameAr ?? acc.accountName) : acc.accountName, acc.balance]);
+    }
+    rows.push([isAr ? "إجمالي المصروفات" : "Total Expenses", "", statement.totalExpenses]);
+    rows.push([]);
+    rows.push([isAr ? "صافي الربح / الخسارة" : "Net Profit / Loss", "", statement.netProfit]);
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws["!cols"] = [{ wch: 14 }, { wch: 40 }, { wch: 18 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, isAr ? "قائمة الدخل" : "Income Statement");
+    XLSX.writeFile(wb, `income-statement-${from.substring(0, 7)}.xlsx`);
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -88,6 +115,11 @@ export default function IncomeStatementPage() {
               </button>
             ))}
           </div>
+          {statement && (
+            <button onClick={exportExcel} className="btn-secondary">
+              ⬇ {lang === "ar" ? "تصدير Excel" : "Export Excel"}
+            </button>
+          )}
         </div>
       </div>
 

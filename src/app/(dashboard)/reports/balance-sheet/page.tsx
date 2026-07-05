@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import * as XLSX from "xlsx";
 import type { BalanceSheet, AccountBalance } from "@/types";
 
 export default function BalanceSheetPage() {
@@ -57,6 +58,39 @@ export default function BalanceSheetPage() {
 
   const fmt = (n: number) => n.toLocaleString(isAr ? "ar" : "en", { minimumFractionDigits: 2 });
 
+  function exportExcel() {
+    if (!data) return;
+    const rows: (string | number)[][] = [];
+    rows.push([isAr ? "الأصول" : "Assets"]);
+    rows.push([isAr ? "الكود" : "Code", isAr ? "الحساب" : "Account", isAr ? "الرصيد" : "Balance"]);
+    for (const a of data.assets) {
+      rows.push([a.accountCode, isAr ? (a.accountNameAr ?? a.accountName) : a.accountName, a.balance]);
+    }
+    rows.push([isAr ? "إجمالي الأصول" : "Total Assets", "", data.totalAssets]);
+    rows.push([]);
+    rows.push([isAr ? "الخصوم" : "Liabilities"]);
+    rows.push([isAr ? "الكود" : "Code", isAr ? "الحساب" : "Account", isAr ? "الرصيد" : "Balance"]);
+    for (const a of data.liabilities) {
+      rows.push([a.accountCode, isAr ? (a.accountNameAr ?? a.accountName) : a.accountName, a.balance]);
+    }
+    rows.push([isAr ? "إجمالي الخصوم" : "Total Liabilities", "", data.totalLiabilities]);
+    rows.push([]);
+    rows.push([isAr ? "حقوق الملكية" : "Equity"]);
+    rows.push([isAr ? "الكود" : "Code", isAr ? "الحساب" : "Account", isAr ? "الرصيد" : "Balance"]);
+    for (const a of data.equity) {
+      rows.push([a.accountCode, isAr ? (a.accountNameAr ?? a.accountName) : a.accountName, a.balance]);
+    }
+    if (data.netProfit !== 0) {
+      rows.push([isAr ? "صافي الربح" : "Net Profit", "", data.netProfit]);
+    }
+    rows.push([isAr ? "إجمالي حقوق الملكية" : "Total Equity", "", data.totalEquity]);
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws["!cols"] = [{ wch: 14 }, { wch: 40 }, { wch: 18 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, isAr ? "الميزانية العمومية" : "Balance Sheet");
+    XLSX.writeFile(wb, `balance-sheet-${asOf.substring(0, 7)}.xlsx`);
+  }
+
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
@@ -83,6 +117,11 @@ export default function BalanceSheetPage() {
         <button onClick={load} disabled={loading} className="btn-primary">
           {loading ? "..." : (isAr ? "تحديث" : "Update")}
         </button>
+        {data && (
+          <button onClick={exportExcel} className="btn-secondary">
+            ⬇ {isAr ? "تصدير Excel" : "Export Excel"}
+          </button>
+        )}
       </div>
 
       {loading && (
