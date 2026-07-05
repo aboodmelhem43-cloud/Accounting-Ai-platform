@@ -6,6 +6,7 @@ import { extractInvoiceData } from "@/lib/ai/extract-invoice";
 import { checkInvoiceLimit } from "@/lib/plans";
 import path from "path";
 import fs from "fs/promises";
+import { put } from "@vercel/blob";
 
 const ALLOWED_TYPES: Record<string, "image/jpeg" | "image/png" | "image/webp" | "application/pdf"> = {
   "image/jpeg": "image/jpeg",
@@ -49,14 +50,23 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // حفظ الملف محليًا
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await fs.mkdir(uploadDir, { recursive: true });
+    // حفظ الملف — Vercel Blob في الإنتاج، محلي في بيئة التطوير
     const ext = file.name.split(".").pop() ?? "jpg";
     const filename = `${session.user.businessId}-${Date.now()}.${ext}`;
-    const filePath = path.join(uploadDir, filename);
-    await fs.writeFile(filePath, buffer);
-    const fileUrl = `/uploads/${filename}`;
+    let fileUrl: string;
+
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      // fallback: حفظ محلي عند غياب توكن Vercel Blob
+      const uploadDir = path.join(process.cwd(), "public", "uploads");
+      await fs.mkdir(uploadDir, { recursive: true });
+      const filePath = path.join(uploadDir, filename);
+      await fs.writeFile(filePath, buffer);
+      fileUrl = `/uploads/${filename}`;
+    } else {
+      // رفع الملف إلى Vercel Blob
+      const blob = await put(filename, buffer, { access: "public" });
+      fileUrl = blob.url;
+    }
 
     // استخراج البيانات بالذكاء الاصطناعي
     const extractedData = await extractInvoiceData(buffer, mediaType, session.user.country);

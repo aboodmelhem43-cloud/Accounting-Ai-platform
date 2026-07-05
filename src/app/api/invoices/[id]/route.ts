@@ -19,7 +19,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   return NextResponse.json(invoice);
 }
 
-// تحديث البيانات المستخرجة قبل التأكيد
+// تحديث البيانات المستخرجة قبل التأكيد، أو رفض الفاتورة
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
@@ -27,6 +27,25 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const body = await req.json();
 
+  // رفض الفاتورة — لا يُسمح إلا للفواتير قيد المراجعة
+  if (body.status === "REJECTED") {
+    const invoice = await prisma.invoice.findFirst({
+      where: { id, businessId: session.user.businessId, status: "PENDING_REVIEW" },
+    });
+
+    if (!invoice) {
+      return NextResponse.json({ error: "الفاتورة غير موجودة أو لا يمكن رفضها" }, { status: 404 });
+    }
+
+    const updated = await prisma.invoice.update({
+      where: { id },
+      data: { status: "REJECTED" },
+    });
+
+    return NextResponse.json(updated);
+  }
+
+  // تحديث البيانات المستخرجة فقط
   const invoice = await prisma.invoice.findFirst({
     where: { id, businessId: session.user.businessId, status: "PENDING_REVIEW" },
   });
