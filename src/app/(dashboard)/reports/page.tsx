@@ -37,6 +37,24 @@ const REPORTS = [
     descEn: "Detailed movements for each account with running balance",
     color: "orange",
   },
+  {
+    href: "/reports/trial-balance",
+    icon: "⚖️",
+    titleAr: "ميزان المراجعة",
+    titleEn: "Trial Balance",
+    descAr: "أرصدة جميع الحسابات في تاريخ محدد للتحقق من توازن القيود",
+    descEn: "All account balances as of a date to verify double-entry balance",
+    color: "teal",
+  },
+  {
+    href: "/reports/aging",
+    icon: "📅",
+    titleAr: "تقرير تقادم الذمم",
+    titleEn: "AR / AP Aging",
+    descAr: "تصنيف مديونيات العملاء ومستحقات الموردين حسب عمر الفاتورة",
+    descEn: "Receivables and payables grouped by invoice age buckets",
+    color: "red",
+  },
 ];
 
 const colorMap: Record<string, string> = {
@@ -44,6 +62,8 @@ const colorMap: Record<string, string> = {
   green: "bg-green-100 text-green-600",
   purple: "bg-purple-100 text-purple-600",
   orange: "bg-orange-100 text-orange-600",
+  teal: "bg-teal-100 text-teal-600",
+  red: "bg-red-100 text-red-600",
 };
 
 export default function ReportsPage() {
