@@ -18,23 +18,27 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = BLOG_POSTS.find((p) => p.slug === slug);
   if (!post) return {};
+  const cookieStore = await cookies();
+  const isAr = cookieStore.get("lang")?.value !== "en";
+  const title = isAr ? post.title.ar : post.title.en;
+  const description = isAr ? post.excerpt.ar : post.excerpt.en;
   const url = `${SITE_URL}/blog/${slug}`;
   return {
-    title: post.title.ar,
-    description: post.excerpt.ar,
+    title,
+    description,
     alternates: { canonical: url },
     openGraph: {
-      title: post.title.ar,
-      description: post.excerpt.ar,
+      title,
+      description,
       url,
       type: "article",
       publishedTime: post.date,
-      authors: ["محاسباي"],
+      authors: [isAr ? "محاسباي" : "Mohasabai"],
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title.ar,
-      description: post.excerpt.ar,
+      title,
+      description,
     },
   };
 }

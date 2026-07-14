@@ -3,18 +3,29 @@ import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { BLOG_POSTS } from "@/lib/blog";
 
-export const metadata: Metadata = {
-  title: "مدونة محاسباي — نصائح محاسبية وأدلة الفاتورة الإلكترونية",
-  description:
-    "مقالات ونصائح عملية في المحاسبة، إدارة الفواتير، الفاتورة الإلكترونية ZATCA وETA، والتقارير المالية للمشاريع الصغيرة والمتوسطة في المنطقة العربية.",
-  alternates: { canonical: "https://www.mohasabai.com/blog" },
-  openGraph: {
-    title: "مدونة محاسباي — نصائح محاسبية عملية",
-    description: "مقالات في المحاسبة، الفاتورة الإلكترونية، والتقارير المالية للأعمال العربية",
-    url: "https://www.mohasabai.com/blog",
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = await cookies();
+  const isAr = cookieStore.get("lang")?.value !== "en";
+  return {
+    title: isAr
+      ? "مدونة محاسباي — نصائح محاسبية وأدلة الفاتورة الإلكترونية"
+      : "Mohasabai Blog — Accounting Tips & E-Invoice Guides",
+    description: isAr
+      ? "مقالات ونصائح عملية في المحاسبة، إدارة الفواتير، الفاتورة الإلكترونية ZATCA وETA، والتقارير المالية للمشاريع الصغيرة والمتوسطة في المنطقة العربية."
+      : "Practical articles on accounting, invoice management, ZATCA & ETA e-invoicing, and financial reports for small and medium businesses in the Arab world.",
+    alternates: { canonical: "https://www.mohasabai.com/blog" },
+    openGraph: {
+      title: isAr
+        ? "مدونة محاسباي — نصائح محاسبية عملية"
+        : "Mohasabai Blog — Practical Accounting Tips",
+      description: isAr
+        ? "مقالات في المحاسبة، الفاتورة الإلكترونية، والتقارير المالية للأعمال العربية"
+        : "Articles on accounting, e-invoicing, and financial reports for Arab businesses",
+      url: "https://www.mohasabai.com/blog",
+      type: "website",
+    },
+  };
+}
 
 export default async function BlogPage() {
   const cookieStore = await cookies();
