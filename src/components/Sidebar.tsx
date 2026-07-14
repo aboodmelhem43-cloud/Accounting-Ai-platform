@@ -47,7 +47,14 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
     { href: "/journal", label: t("nav.journal"), icon: "📒" },
     { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },
-    { href: "/settings", label: isAr ? "الإعدادات" : "Settings", icon: "⚙️" },
+    {
+      href: "/settings",
+      label: isAr ? "الإعدادات" : "Settings",
+      icon: "⚙️",
+      children: (session?.user?.plan === "PRO" || session?.user?.plan === "BUSINESS")
+        ? [{ href: "/settings/team", label: isAr ? "الفريق" : "Team", icon: "👤" }]
+        : undefined,
+    },
     { href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "💎" },
     ...(showAdmin ? [{ href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "🛡️" }] : []),
   ];

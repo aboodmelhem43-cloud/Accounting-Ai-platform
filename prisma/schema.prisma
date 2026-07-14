@@ -37,6 +37,7 @@ model Business {
   bankAccounts   BankAccount[]
   bankStatements BankStatement[]
   chatMessages   ChatMessage[]
+  invites        Invite[]
 }
 
 model ChatMessage {
@@ -223,6 +224,23 @@ model BankTransaction {
 enum JournalEntryStatus {
   DRAFT
   POSTED
+}
+
+// دعوات إضافة مستخدمين فرعيين
+model Invite {
+  id         String    @id @default(cuid())
+  businessId String
+  email      String
+  role       UserRole  @default(ACCOUNTANT)
+  token      String    @unique @default(cuid())
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([token])
 }
 
 // رموز التحقق بالبريد الإلكتروني
