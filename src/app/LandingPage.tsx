@@ -180,6 +180,9 @@ export default function LandingPage() {
             <a href="#pricing" className="hidden md:block text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
               {isAr ? "الأسعار" : "Pricing"}
             </a>
+            <a href="/blog" className="hidden md:block text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
+              {isAr ? "المدونة" : "Blog"}
+            </a>
             <button
               onClick={toggleLang}
               className="text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"

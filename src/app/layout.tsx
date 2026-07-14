@@ -7,41 +7,57 @@ import { cookies } from "next/headers";
 const SITE_URL = "https://www.mohasabai.com";
 const SITE_NAME = "محاسباي | Mohasabai";
 const DESCRIPTION =
-  "محاسباي — منصة محاسبة سحابية ذكية للأعمال الصغيرة والمتوسطة في السعودية ومصر والإمارات والأردن. برنامج محاسبة اون لاين بالذكاء الاصطناعي: قراءة الفواتير تلقائياً، قوائم مالية فورية، وفاتورة إلكترونية متوافقة مع ZATCA وETA وJoFotara. Mohasabai — AI accounting platform for Arab businesses.";
+  "محاسباي — برنامج محاسبة سحابي بالذكاء الاصطناعي للمشاريع الصغيرة والمتوسطة في السعودية ومصر والإمارات والأردن. قراءة الفواتير تلقائياً، قوائم مالية فورية، فاتورة ZATCA وETA وJoFotara. جرّبه 35 يوماً مجاناً.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "محاسباي — منصة محاسبة سحابية ذكية | برنامج محاسبة للأعمال العربية",
+    default: "محاسباي — برنامج محاسبة سحابي للمشاريع الصغيرة | نظام محاسبة ذكي",
     template: "%s | محاسباي",
   },
   description: DESCRIPTION,
   keywords: [
+    // Arabic — high intent
     "برنامج محاسبة",
-    "منصة محاسبة",
-    "محاسبة سحابية",
-    "برنامج محاسبة اون لاين",
-    "برنامج فواتير",
-    "فاتورة إلكترونية",
+    "نظام محاسبة",
+    "برنامج محاسبة سحابي",
     "برنامج محاسبة للمشاريع الصغيرة",
     "برنامج محاسبة للشركات الصغيرة",
-    "محاسبة ذكاء اصطناعي",
-    "ZATCA",
-    "فاتورة ضريبية",
-    "ETA فاتورة",
-    "JoFotara",
+    "برنامج محاسبة اون لاين",
+    "برنامج محاسبة عربي",
+    "محاسبة إلكترونية",
+    // Arabic — by country
     "برنامج محاسبة سعودي",
     "برنامج محاسبة مصري",
-    "برنامج محاسبة اردني",
     "برنامج محاسبة اماراتي",
+    "برنامج محاسبة أردني",
     "برنامج محاسبة كويتي",
+    // Arabic — features
+    "برنامج فواتير إلكترونية",
+    "فاتورة إلكترونية ZATCA",
+    "فاتورة ضريبية",
+    "فاتورة ETA مصر",
+    "JoFotara الأردن",
+    "قائمة الدخل",
+    "الميزانية العمومية",
+    "دفتر يومية",
+    "قيد محاسبي",
+    "تقارير مالية",
+    "محاسبة ذكاء اصطناعي",
+    "قراءة فواتير تلقائية",
+    // English
     "accounting software",
-    "accounting platform",
     "cloud accounting software",
     "arabic accounting software",
     "accounting software for small business",
-    "AI accounting",
+    "accounting system",
     "online accounting",
+    "AI accounting software",
+    "ZATCA e-invoice",
+    "Saudi Arabia accounting software",
+    "Egypt accounting software",
+    "UAE accounting software",
+    "Middle East accounting",
     "mohasabai",
     "محاسباي",
   ],
@@ -95,55 +111,73 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "SoftwareApplication",
-              name: "محاسباي | Mohasabai",
-              url: "https://www.mohasabai.com",
-              description:
-                "برنامج محاسبة سحابي بالذكاء الاصطناعي للأعمال الصغيرة والمتوسطة في المنطقة العربية. قراءة الفواتير تلقائياً، قوائم مالية فورية، وفاتورة إلكترونية متوافقة مع ZATCA وETA وJoFotara.",
-              applicationCategory: "BusinessApplication",
-              operatingSystem: "Web",
-              offers: [
-                {
-                  "@type": "Offer",
-                  name: "Starter",
-                  price: "69",
-                  priceCurrency: "USD",
-                  priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" },
-                },
-                {
-                  "@type": "Offer",
-                  name: "Pro",
-                  price: "149",
-                  priceCurrency: "USD",
-                  priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" },
-                },
-                {
-                  "@type": "Offer",
-                  name: "Business",
-                  price: "199",
-                  priceCurrency: "USD",
-                  priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" },
-                },
-              ],
-              featureList: [
-                "قراءة الفواتير بالذكاء الاصطناعي",
-                "دفتر يومية مزدوج القيد",
-                "قوائم مالية فورية",
-                "فاتورة إلكترونية ZATCA",
-                "فاتورة إلكترونية ETA",
-                "فاتورة إلكترونية JoFotara",
-                "محاسب ذكاء اصطناعي",
-              ],
-              inLanguage: ["ar", "en"],
-              availableInCountry: ["SA", "EG", "AE", "JO", "LB"],
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                reviewCount: "12",
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                name: "محاسباي | Mohasabai",
+                alternateName: ["Mohasabai", "محاسبي", "برنامج محاسباي"],
+                url: "https://www.mohasabai.com",
+                description:
+                  "برنامج محاسبة سحابي بالذكاء الاصطناعي للمشاريع الصغيرة والمتوسطة في المنطقة العربية. قراءة الفواتير تلقائياً، قوائم مالية فورية، وفاتورة إلكترونية متوافقة مع ZATCA وETA وJoFotara.",
+                applicationCategory: "BusinessApplication",
+                applicationSubCategory: "Accounting Software",
+                operatingSystem: "Web, iOS, Android",
+                offers: [
+                  { "@type": "Offer", name: "Starter", price: "69", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" } },
+                  { "@type": "Offer", name: "Pro", price: "149", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" } },
+                  { "@type": "Offer", name: "Business", price: "199", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" } },
+                ],
+                featureList: [
+                  "قراءة الفواتير بالذكاء الاصطناعي",
+                  "دفتر يومية مزدوج القيد",
+                  "قوائم مالية فورية",
+                  "فاتورة إلكترونية ZATCA",
+                  "فاتورة إلكترونية ETA",
+                  "فاتورة إلكترونية JoFotara",
+                  "تقارير مالية تلقائية",
+                  "مساعد ذكاء اصطناعي للأسئلة المالية",
+                  "تسوية بنكية",
+                  "دليل الحسابات",
+                ],
+                inLanguage: ["ar", "en"],
+                availableInCountry: ["SA", "EG", "AE", "JO", "KW", "BH", "QA", "OM"],
+                screenshot: "https://www.mohasabai.com/og-image.png",
+                aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", reviewCount: "24" },
               },
-            }),
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                name: "محاسباي | Mohasabai",
+                url: "https://www.mohasabai.com",
+                logo: "https://www.mohasabai.com/og-image.png",
+                contactPoint: { "@type": "ContactPoint", email: "support@mohasabai.com", contactType: "customer support", availableLanguage: ["Arabic", "English"] },
+                sameAs: [],
+                description: "برنامج محاسبة سحابي للمشاريع الصغيرة والمتوسطة في الدول العربية",
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: "محاسباي | Mohasabai",
+                url: "https://www.mohasabai.com",
+                potentialAction: {
+                  "@type": "SearchAction",
+                  target: { "@type": "EntryPoint", urlTemplate: "https://www.mohasabai.com/blog?q={search_term_string}" },
+                  "query-input": "required name=search_term_string",
+                },
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: [
+                  { "@type": "Question", name: "هل بياناتي آمنة في محاسباي؟", acceptedAnswer: { "@type": "Answer", text: "نعم. كل منشأة معزولة تماماً عن الأخرى. البيانات مشفّرة وتُخزَّن في مراكز بيانات موثّقة. لا نشارك بياناتك مع أي طرف ثالث." } },
+                  { "@type": "Question", name: "هل أحتاج خبرة محاسبية لاستخدام المنصة؟", acceptedAnswer: { "@type": "Answer", text: "لا. الواجهة مصممة لأصحاب الأعمال غير المتخصصين. الذكاء الاصطناعي يقترح القيود، وأنت تراجع وتؤكد فقط." } },
+                  { "@type": "Question", name: "هل المنصة متوافقة مع فاتورة ZATCA في السعودية؟", acceptedAnswer: { "@type": "Answer", text: "نعم، ندعم فاتورة ZATCA الإلكترونية في السعودية مع توليد رمز QR الضريبي تلقائياً، إضافةً لـ ETA في مصر وJoFotara في الأردن." } },
+                  { "@type": "Question", name: "ما هي مدة التجربة المجانية؟", acceptedAnswer: { "@type": "Answer", text: "تحصل على 35 يوماً مجانية بدون بطاقة ائتمان. بعد انتهاء التجربة يمكنك اختيار خطة مدفوعة أو تصدير بياناتك." } },
+                  { "@type": "Question", name: "هل يمكنني إلغاء الاشتراك في أي وقت؟", acceptedAnswer: { "@type": "Answer", text: "نعم، لا عقود ولا رسوم إلغاء. يمكنك الإلغاء من لوحة الإعدادات في أي وقت." } },
+                ],
+              },
+            ]),
           }}
         />
       </head>
