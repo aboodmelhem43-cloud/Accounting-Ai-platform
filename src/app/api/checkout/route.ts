@@ -7,6 +7,7 @@ import type { PlanId } from "@/lib/plans";
 
 const schema = z.object({
   plan: z.enum(["STARTER", "PRO", "BUSINESS"]),
+  billing: z.enum(["monthly", "yearly"]).default("monthly"),
 });
 
 export async function POST(req: NextRequest) {
@@ -15,9 +16,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { plan } = schema.parse(body);
+    const { plan, billing } = schema.parse(body);
 
-    const variantId = planToVariantId(plan as PlanId);
+    const variantId = planToVariantId(plan as PlanId, billing);
     if (!variantId) {
       return NextResponse.json(
         { error: "Payment system not configured yet. Contact support@mohasabai.com." },

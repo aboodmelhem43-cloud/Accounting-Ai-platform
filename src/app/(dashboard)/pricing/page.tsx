@@ -24,12 +24,19 @@ const FEATURES: Record<PlanId, { ar: string[]; en: string[] }> = {
   },
 };
 
+const YEARLY_PRICES: Record<string, number> = {
+  STARTER: 690,
+  PRO: 1490,
+  BUSINESS: 1990,
+};
+
 const PLAN_ORDER: PlanId[] = ["FREE_TRIAL", "STARTER", "PRO", "BUSINESS"];
 
 export default function PricingPage() {
   const { data: session } = useSession();
   const { lang } = useLang();
   const isAr = lang === "ar";
+  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,14 +52,13 @@ export default function PricingPage() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan, billing }),
       });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? (isAr ? "حدث خطأ" : "An error occurred"));
         return;
       }
-      // Redirect to Lemon Squeezy checkout page
       window.location.href = data.url;
     } catch {
       setError(isAr ? "تعذر الاتصال بالخادم" : "Could not connect to server");
@@ -80,6 +86,31 @@ export default function PricingPage() {
         )}
       </div>
 
+      {/* Billing toggle */}
+      <div className="flex justify-center">
+        <div className="inline-flex items-center bg-gray-100 rounded-xl p-1 gap-1">
+          <button
+            onClick={() => setBilling("monthly")}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
+              billing === "monthly" ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {isAr ? "شهري" : "Monthly"}
+          </button>
+          <button
+            onClick={() => setBilling("yearly")}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
+              billing === "yearly" ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {isAr ? "سنوي" : "Yearly"}
+            <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">
+              {isAr ? "شهران مجاناً" : "2 months free"}
+            </span>
+          </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {PLAN_ORDER.map((planId) => {
           const plan = PLANS[planId];
@@ -88,6 +119,8 @@ export default function PricingPage() {
           const isPro = planId === "PRO";
           const isFreeTrial = planId === "FREE_TRIAL";
           const isLoadingThis = loading === planId;
+          const yearlyPrice = YEARLY_PRICES[planId];
+          const monthlySaving = plan.price * 2;
 
           return (
             <div
@@ -118,10 +151,18 @@ export default function PricingPage() {
                 <div className="mt-2">
                   {plan.price === 0 ? (
                     <span className="text-3xl font-bold text-gray-900">{isAr ? "مجاني" : "Free"}</span>
-                  ) : (
+                  ) : billing === "monthly" ? (
                     <div>
                       <span className="text-3xl font-bold text-gray-900">${plan.price}</span>
                       <span className="text-gray-400 text-sm">/{isAr ? "شهر" : "mo"}</span>
+                    </div>
+                  ) : (
+                    <div>
+                      <span className="text-3xl font-bold text-gray-900">${yearlyPrice}</span>
+                      <span className="text-gray-400 text-sm">/{isAr ? "سنة" : "yr"}</span>
+                      <p className="text-green-600 text-xs font-semibold mt-1">
+                        {isAr ? `وفّر $${monthlySaving}` : `Save $${monthlySaving}`}
+                      </p>
                     </div>
                   )}
                   {isFreeTrial && (

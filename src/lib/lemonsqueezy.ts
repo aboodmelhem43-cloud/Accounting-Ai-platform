@@ -10,17 +10,23 @@ export function variantToPlan(variantId: string): PlanId | null {
     [process.env.LEMONSQUEEZY_VARIANT_STARTER ?? ""]: "STARTER",
     [process.env.LEMONSQUEEZY_VARIANT_PRO ?? ""]: "PRO",
     [process.env.LEMONSQUEEZY_VARIANT_BUSINESS ?? ""]: "BUSINESS",
+    [process.env.LEMONSQUEEZY_VARIANT_STARTER_YEARLY ?? ""]: "STARTER",
+    [process.env.LEMONSQUEEZY_VARIANT_PRO_YEARLY ?? ""]: "PRO",
+    [process.env.LEMONSQUEEZY_VARIANT_BUSINESS_YEARLY ?? ""]: "BUSINESS",
   };
   return map[variantId] ?? null;
 }
 
-export function planToVariantId(plan: PlanId): string | null {
+export function planToVariantId(plan: PlanId, billing: "monthly" | "yearly" = "monthly"): string | null {
   const map: Record<string, string | undefined> = {
-    STARTER: process.env.LEMONSQUEEZY_VARIANT_STARTER,
-    PRO: process.env.LEMONSQUEEZY_VARIANT_PRO,
-    BUSINESS: process.env.LEMONSQUEEZY_VARIANT_BUSINESS,
+    STARTER_monthly: process.env.LEMONSQUEEZY_VARIANT_STARTER,
+    PRO_monthly: process.env.LEMONSQUEEZY_VARIANT_PRO,
+    BUSINESS_monthly: process.env.LEMONSQUEEZY_VARIANT_BUSINESS,
+    STARTER_yearly: process.env.LEMONSQUEEZY_VARIANT_STARTER_YEARLY,
+    PRO_yearly: process.env.LEMONSQUEEZY_VARIANT_PRO_YEARLY,
+    BUSINESS_yearly: process.env.LEMONSQUEEZY_VARIANT_BUSINESS_YEARLY,
   };
-  return map[plan] ?? null;
+  return map[`${plan}_${billing}`] ?? null;
 }
 
 async function getStoreId(): Promise<string> {
