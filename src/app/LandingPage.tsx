@@ -91,26 +91,38 @@ const COMPARE = [
 const PRICING = [
   {
     id: "STARTER",
-    price: "$69",
-    localHint: { ar: "≈ 260 ر.س / 3,500 ج.م", en: "≈ SAR 260 / EGP 3,500" },
-    ar: { name: "المبتدئ", period: "/شهر", desc: "للأعمال الناشئة", features: ["50 فاتورة/شهر", "20 سؤال AI/شهر", "رفع وإنشاء الفواتير", "دفتر اليومية", "تقارير أساسية", "دعم عملاء"] },
-    en: { name: "Starter", period: "/mo", desc: "For new businesses", features: ["50 invoices/month", "20 AI queries/month", "Upload & create invoices", "Journal ledger", "Basic reports", "Customer support"] },
+    monthlyPrice: 69,
+    yearlyPrice: 690,
+    localHint: {
+      monthly: { ar: "≈ 260 ر.س / 3,500 ج.م", en: "≈ SAR 260 / EGP 3,500" },
+      yearly: { ar: "≈ 2,590 ر.س / 35,000 ج.م", en: "≈ SAR 2,590 / EGP 35,000" },
+    },
+    ar: { name: "المبتدئ", desc: "للأعمال الناشئة", features: ["50 فاتورة/شهر", "20 سؤال AI/شهر", "رفع وإنشاء الفواتير", "دفتر اليومية", "تقارير أساسية", "دعم عملاء"] },
+    en: { name: "Starter", desc: "For new businesses", features: ["50 invoices/month", "20 AI queries/month", "Upload & create invoices", "Journal ledger", "Basic reports", "Customer support"] },
     highlight: false,
   },
   {
     id: "PRO",
-    price: "$149",
-    localHint: { ar: "≈ 560 ر.س / 7,500 ج.م", en: "≈ SAR 560 / EGP 7,500" },
-    ar: { name: "الاحترافي", period: "/شهر", desc: "للأعمال النامية", features: ["500 فاتورة/شهر", "AI غير محدود", "كل مميزات المبتدئ", "3 مستخدمين", "تقارير متقدمة", "دعم أولوية"] },
-    en: { name: "Pro", period: "/mo", desc: "For growing businesses", features: ["500 invoices/month", "Unlimited AI", "Everything in Starter", "3 users", "Advanced reports", "Priority support"] },
+    monthlyPrice: 149,
+    yearlyPrice: 1490,
+    localHint: {
+      monthly: { ar: "≈ 560 ر.س / 7,500 ج.م", en: "≈ SAR 560 / EGP 7,500" },
+      yearly: { ar: "≈ 5,590 ر.س / 75,000 ج.م", en: "≈ SAR 5,590 / EGP 75,000" },
+    },
+    ar: { name: "الاحترافي", desc: "للأعمال النامية", features: ["500 فاتورة/شهر", "AI غير محدود", "كل مميزات المبتدئ", "3 مستخدمين", "تقارير متقدمة", "دعم أولوية"] },
+    en: { name: "Pro", desc: "For growing businesses", features: ["500 invoices/month", "Unlimited AI", "Everything in Starter", "3 users", "Advanced reports", "Priority support"] },
     highlight: true,
   },
   {
     id: "BUSINESS",
-    price: "$199",
-    localHint: { ar: "≈ 746 ر.س / 10,000 ج.م", en: "≈ SAR 746 / EGP 10,000" },
-    ar: { name: "الأعمال", period: "/شهر", desc: "للشركات المتوسطة", features: ["فواتير غير محدودة", "AI غير محدود", "كل مميزات الاحترافي", "10 مستخدمين", "API access", "دعم VIP"] },
-    en: { name: "Business", period: "/mo", desc: "For mid-size companies", features: ["Unlimited invoices", "Unlimited AI", "Everything in Pro", "10 users", "API access", "VIP support"] },
+    monthlyPrice: 199,
+    yearlyPrice: 1990,
+    localHint: {
+      monthly: { ar: "≈ 746 ر.س / 10,000 ج.م", en: "≈ SAR 746 / EGP 10,000" },
+      yearly: { ar: "≈ 7,460 ر.س / 100,000 ج.م", en: "≈ SAR 7,460 / EGP 100,000" },
+    },
+    ar: { name: "الأعمال", desc: "للشركات المتوسطة", features: ["فواتير غير محدودة", "AI غير محدود", "كل مميزات الاحترافي", "10 مستخدمين", "API access", "دعم VIP"] },
+    en: { name: "Business", desc: "For mid-size companies", features: ["Unlimited invoices", "Unlimited AI", "Everything in Pro", "10 users", "API access", "VIP support"] },
     highlight: false,
   },
 ];
@@ -152,6 +164,7 @@ const FAQS = [
 export default function LandingPage() {
   const { lang, toggleLang } = useLang();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const isAr = lang === "ar";
 
   return (
@@ -386,7 +399,7 @@ export default function LandingPage() {
       {/* Pricing */}
       <section id="pricing" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-900">
               {isAr ? "خطط واضحة بدون مفاجآت" : "Simple, transparent pricing"}
             </h2>
@@ -394,9 +407,41 @@ export default function LandingPage() {
               {isAr ? "ابدأ مجاناً 35 يوماً — لا بطاقة ائتمان مطلوبة" : "Start free for 35 days — no credit card required"}
             </p>
           </div>
+
+          {/* Billing toggle */}
+          <div className="flex justify-center mb-10">
+            <div className="inline-flex items-center bg-gray-100 rounded-xl p-1 gap-1">
+              <button
+                onClick={() => setBilling("monthly")}
+                className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  billing === "monthly" ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {isAr ? "شهري" : "Monthly"}
+              </button>
+              <button
+                onClick={() => setBilling("yearly")}
+                className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
+                  billing === "yearly" ? "bg-white shadow text-gray-900" : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {isAr ? "سنوي" : "Yearly"}
+                <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                  {isAr ? "شهران مجاناً" : "2 months free"}
+                </span>
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {PRICING.map((plan) => {
               const p = isAr ? plan.ar : plan.en;
+              const price = billing === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;
+              const period = billing === "monthly" ? (isAr ? "/شهر" : "/mo") : (isAr ? "/سنة" : "/yr");
+              const saving = plan.monthlyPrice * 2;
+              const hint = billing === "monthly"
+                ? (isAr ? plan.localHint.monthly.ar : plan.localHint.monthly.en)
+                : (isAr ? plan.localHint.yearly.ar : plan.localHint.yearly.en);
               return (
                 <div
                   key={plan.id}
@@ -418,11 +463,16 @@ export default function LandingPage() {
                     {p.desc}
                   </div>
                   <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-4xl font-bold">{plan.price}</span>
-                    <span className={`text-sm ${plan.highlight ? "text-blue-200" : "text-gray-400"}`}>{p.period}</span>
+                    <span className="text-4xl font-bold">${price}</span>
+                    <span className={`text-sm ${plan.highlight ? "text-blue-200" : "text-gray-400"}`}>{period}</span>
                   </div>
+                  {billing === "yearly" && (
+                    <div className={`text-xs font-semibold mb-1 ${plan.highlight ? "text-green-300" : "text-green-600"}`}>
+                      {isAr ? `وفّر $${saving}` : `Save $${saving}`}
+                    </div>
+                  )}
                   <div className={`text-xs mb-6 ${plan.highlight ? "text-blue-200" : "text-gray-400"}`}>
-                    {isAr ? plan.localHint.ar : plan.localHint.en}
+                    {hint}
                   </div>
                   <ul className="space-y-3 flex-1 mb-8">
                     {p.features.map((f) => (
