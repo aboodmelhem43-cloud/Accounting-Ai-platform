@@ -1,15 +1,52 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useLang } from "./LanguageProvider";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+  streaming?: boolean;
 }
 
-const STARTERS_AR = ["كيف أرفع فاتورة؟", "كيف أضيف قيد يدوي؟", "أين تقرير الدخل؟", "كيف أطبع فاتورة؟"];
-const STARTERS_EN = ["How do I upload an invoice?", "How do I add a journal entry?", "Where is the income report?", "How do I print an invoice?"];
+// Convert [/path] mentions in AI replies into clickable links
+function parseLinks(text: string, onNav: (path: string) => void) {
+  const parts = text.split(/(\[\/[^\]]+\])/g);
+  return parts.map((part, i) => {
+    const match = part.match(/^\[(\/.+)\]$/);
+    if (match) {
+      return (
+        <button
+          key={i}
+          onClick={() => onNav(match[1])}
+          className="inline-flex items-center gap-0.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded px-1.5 py-0.5 text-xs font-mono transition-colors"
+        >
+          {match[1]} ↗
+        </button>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
+const STARTERS_AR = [
+  "كيف أرفع فاتورة؟",
+  "كيف أضيف قيد يدوي؟",
+  "أين تقرير الدخل؟",
+  "كيف أضيف عميل للمكتب؟",
+  "الفرق بين الخطط؟",
+  "كيف أسوّي كشف البنك؟",
+];
+
+const STARTERS_EN = [
+  "How do I upload an invoice?",
+  "How do I add a journal entry?",
+  "Where is the income report?",
+  "How do I add a practice client?",
+  "What's the difference between plans?",
+  "How does bank reconciliation work?",
+];
 
 type Tab = "chat" | "email";
 type EmailState = "idle" | "sending" | "sent" | "error";
@@ -17,52 +54,107 @@ type EmailState = "idle" | "sending" | "sent" | "error";
 export default function SupportWidget() {
   const { lang } = useLang();
   const { data: session } = useSession();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("chat");
 
-  // Chat state
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [streaming, setStreaming] = useState(false);
   const [unread, setUnread] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  // Email state
   const [emailSubject, setEmailSubject] = useState("");
   const [emailMessage, setEmailMessage] = useState("");
   const [emailState, setEmailState] = useState<EmailState>("idle");
 
   const isAr = lang === "ar";
-  const plan = (session?.user as { plan?: string })?.plan ?? "FREE_TRIAL";
+  const plan = session?.user?.plan ?? "FREE_TRIAL";
 
   useEffect(() => {
     if (open) {
       setUnread(false);
-      endRef.current?.scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     }
   }, [open, messages]);
 
+  const navigate = useCallback((path: string) => {
+    router.push(path);
+    setOpen(false);
+  }, [router]);
+
   async function send(text: string) {
-    if (!text.trim() || loading) return;
+    if (!text.trim() || streaming) return;
     setInput("");
+
     const userMsg: Message = { role: "user", content: text };
-    setMessages((m) => [...m, userMsg]);
-    setLoading(true);
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
+    setStreaming(true);
+
+    // Add an empty assistant message that we'll stream into
+    setMessages((m) => [...m, { role: "assistant", content: "", streaming: true }]);
+
+    abortRef.current = new AbortController();
 
     try {
       const res = await fetch("/api/support", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages, message: text }),
+        body: JSON.stringify({
+          messages: messages.slice(-10),
+          message: text,
+          lang,
+        }),
+        signal: abortRef.current.signal,
       });
-      const data = await res.json();
-      const reply = res.ok ? data.reply : (isAr ? "حدث خطأ، حاول مرة أخرى." : "Something went wrong.");
-      setMessages((m) => [...m, { role: "assistant", content: reply }]);
+
+      if (!res.ok || !res.body) {
+        throw new Error("Request failed");
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        setMessages((m) => {
+          const last = m[m.length - 1];
+          if (last.role !== "assistant") return m;
+          return [...m.slice(0, -1), { ...last, content: last.content + chunk }];
+        });
+        endRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Mark streaming done
+      setMessages((m) => {
+        const last = m[m.length - 1];
+        if (last.role !== "assistant") return m;
+        return [...m.slice(0, -1), { ...last, streaming: false }];
+      });
+
       if (!open) setUnread(true);
-    } catch {
-      setMessages((m) => [...m, { role: "assistant", content: isAr ? "حدث خطأ، حاول مرة أخرى." : "Something went wrong." }]);
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === "AbortError") return;
+      setMessages((m) => {
+        const last = m[m.length - 1];
+        if (last.role !== "assistant") return m;
+        return [
+          ...m.slice(0, -1),
+          {
+            role: "assistant",
+            content: isAr
+              ? "حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى."
+              : "Connection error. Please try again.",
+            streaming: false,
+          },
+        ];
+      });
     } finally {
-      setLoading(false);
+      setStreaming(false);
     }
   }
 
@@ -70,7 +162,6 @@ export default function SupportWidget() {
     e.preventDefault();
     if (emailState === "sending") return;
     setEmailState("sending");
-
     try {
       const res = await fetch("/api/support/contact", {
         method: "POST",
@@ -91,24 +182,34 @@ export default function SupportWidget() {
 
   const starters = isAr ? STARTERS_AR : STARTERS_EN;
 
+  const headerGradient =
+    plan === "BUSINESS"
+      ? "bg-gradient-to-r from-purple-600 to-blue-600"
+      : "bg-blue-700";
+
   return (
     <div className="fixed bottom-6 end-6 z-50 flex flex-col items-end gap-3">
       {open && (
         <div
           className="w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden"
-          style={{ height: plan === "BUSINESS" ? "580px" : "500px" }}
+          style={{ height: "560px" }}
         >
           {/* Header */}
-          <div className={`px-4 py-3 flex items-center justify-between flex-shrink-0 ${plan === "BUSINESS" ? "bg-gradient-to-r from-purple-600 to-blue-600" : "bg-blue-600"}`}>
+          <div className={`px-4 py-3 flex items-center justify-between flex-shrink-0 ${headerGradient}`}>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm">
                 {plan === "BUSINESS" ? "⭐" : "🤖"}
               </div>
               <div>
                 <p className="text-white font-semibold text-sm">
-                  {plan === "BUSINESS" ? (isAr ? "دعم VIP" : "VIP Support") : "Mohasabai Support"}
+                  {plan === "BUSINESS"
+                    ? (isAr ? "دعم VIP" : "VIP Support")
+                    : "Mohasabai Support"}
                 </p>
-                <p className="text-blue-200 text-xs">{isAr ? "متصل الآن" : "Online now"}</p>
+                <p className="text-white/70 text-xs flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full inline-block" />
+                  {isAr ? "ذكاء اصطناعي · 24/7" : "AI-powered · 24/7"}
+                </p>
               </div>
             </div>
             <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white text-xl leading-none">×</button>
@@ -128,9 +229,10 @@ export default function SupportWidget() {
                   📧 {isAr ? "بريد VIP" : "VIP Email"}
                 </a>
                 <a
-                  href="#"
+                  href="https://wa.me/96500000000"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex-1 bg-green-600 text-white text-xs py-2 px-3 rounded-lg text-center font-medium hover:bg-green-700 transition-colors"
-                  onClick={(e) => e.preventDefault()}
                 >
                   💬 WhatsApp
                 </a>
@@ -169,9 +271,11 @@ export default function SupportWidget() {
                 {messages.length === 0 && (
                   <div className="space-y-3">
                     <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-gray-700 shadow-sm">
-                      {isAr ? "👋 أهلاً! كيف يمكنني مساعدتك؟" : "👋 Hi! How can I help you?"}
+                      {isAr
+                        ? "👋 أهلاً! أنا مساعدك الذكي على مدار الساعة. كيف أساعدك؟"
+                        : "👋 Hi! I'm your 24/7 AI assistant. How can I help?"}
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-2">
                       {starters.map((s) => (
                         <button
                           key={s}
@@ -187,35 +291,32 @@ export default function SupportWidget() {
 
                 {messages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                    {msg.role === "assistant" && (
+                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs flex-shrink-0 mt-0.5 me-2">
+                        🤖
+                      </div>
+                    )}
                     <div
-                      className={`max-w-[85%] px-3 py-2 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
+                      className={`max-w-[82%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
                         msg.role === "user"
                           ? "bg-blue-600 text-white rounded-br-sm"
                           : "bg-white text-gray-800 rounded-bl-sm shadow-sm"
                       }`}
                     >
-                      {msg.content}
+                      {msg.role === "assistant"
+                        ? <span className="whitespace-pre-wrap">{parseLinks(msg.content, navigate)}{msg.streaming && <span className="inline-block w-1.5 h-4 bg-gray-400 rounded animate-pulse ms-0.5" />}</span>
+                        : <span className="whitespace-pre-wrap">{msg.content}</span>
+                      }
                     </div>
                   </div>
                 ))}
 
-                {loading && (
-                  <div className="flex justify-start">
-                    <div className="bg-white px-3 py-2 rounded-2xl rounded-bl-sm shadow-sm">
-                      <div className="flex gap-1 items-center h-4">
-                        {[0, 150, 300].map((d) => (
-                          <div key={d} className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: `${d}ms` }} />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
                 <div ref={endRef} />
               </div>
 
               {plan === "PRO" && (
                 <div className="bg-blue-50 border-t border-blue-100 px-4 py-2 flex-shrink-0">
-                  <p className="text-xs font-semibold text-blue-700 mb-1">
+                  <p className="text-xs font-semibold text-blue-700 mb-0.5">
                     {isAr ? "دعم أولوية" : "Priority Support"}
                   </p>
                   <a href="mailto:support@mohasabai.com" className="text-xs text-blue-600 hover:text-blue-800 underline">
@@ -234,15 +335,26 @@ export default function SupportWidget() {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={isAr ? "اكتب سؤالك..." : "Type your question..."}
                   className="input flex-1 text-sm py-2"
-                  disabled={loading}
+                  disabled={streaming}
+                  dir="auto"
                 />
-                <button
-                  type="submit"
-                  disabled={!input.trim() || loading}
-                  className="btn-primary px-3 py-2 text-sm"
-                >
-                  {isAr ? "إرسال" : "Send"}
-                </button>
+                {streaming ? (
+                  <button
+                    type="button"
+                    onClick={() => { abortRef.current?.abort(); setStreaming(false); }}
+                    className="px-3 py-2 text-sm text-red-500 hover:text-red-700 border border-red-200 rounded-lg"
+                  >
+                    ■
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={!input.trim()}
+                    className="btn-primary px-3 py-2 text-sm"
+                  >
+                    {isAr ? "↑" : "↑"}
+                  </button>
+                )}
               </form>
             </>
           )}
@@ -256,10 +368,10 @@ export default function SupportWidget() {
                   <p className="text-gray-800 font-semibold text-sm">
                     {isAr ? "تم إرسال رسالتك بنجاح!" : "Message sent successfully!"}
                   </p>
-                  <p className="text-gray-500 text-xs">
+                  <p className="text-gray-500 text-xs max-w-52">
                     {isAr
-                      ? "سيتواصل معك فريق الدعم خلال 24 ساعة. تم إرسال تأكيد لبريدك الإلكتروني."
-                      : "Our support team will reach out within 24 hours. A confirmation was sent to your email."}
+                      ? "سيتواصل معك فريق الدعم في أقرب وقت. أرسلنا تأكيداً لبريدك."
+                      : "Our support team will follow up shortly. A confirmation was sent to your email."}
                   </p>
                   <button
                     onClick={() => setEmailState("idle")}
@@ -270,16 +382,9 @@ export default function SupportWidget() {
                 </div>
               ) : (
                 <form onSubmit={sendEmail} className="space-y-4">
-                  <div>
-                    <p className="text-xs text-gray-500 mb-3">
-                      {isAr
-                        ? "أرسل لنا رسالتك وسيرد عليك فريق الدعم خلال 24 ساعة."
-                        : "Send us a message and our support team will reply within 24 hours."}
-                    </p>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 mb-4 flex items-center gap-2">
-                      <span className="text-blue-600 text-sm">📧</span>
-                      <span className="text-blue-700 text-xs font-medium">support@mohasabai.com</span>
-                    </div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 flex items-center gap-2">
+                    <span className="text-blue-600 text-sm">📧</span>
+                    <span className="text-blue-700 text-xs font-medium">support@mohasabai.com</span>
                   </div>
 
                   <div>
@@ -305,21 +410,21 @@ export default function SupportWidget() {
                     <textarea
                       value={emailMessage}
                       onChange={(e) => setEmailMessage(e.target.value)}
-                      placeholder={isAr ? "اشرح مشكلتك أو سؤالك بالتفصيل..." : "Describe your issue or question in detail..."}
+                      placeholder={isAr ? "اشرح مشكلتك أو سؤالك..." : "Describe your issue or question..."}
                       className="input w-full text-sm py-2 resize-none"
                       rows={5}
                       required
                       minLength={10}
                       maxLength={3000}
                     />
-                    <p className="text-xs text-gray-400 mt-1 text-end">
-                      {emailMessage.length}/3000
-                    </p>
+                    <p className="text-xs text-gray-400 mt-1 text-end">{emailMessage.length}/3000</p>
                   </div>
 
                   {emailState === "error" && (
                     <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">
-                      {isAr ? "فشل الإرسال. حاول مرة أخرى أو راسلنا مباشرة على support@mohasabai.com" : "Send failed. Try again or email us directly at support@mohasabai.com"}
+                      {isAr
+                        ? "فشل الإرسال. راسلنا مباشرة على support@mohasabai.com"
+                        : "Send failed. Email us directly at support@mohasabai.com"}
                     </p>
                   )}
 
@@ -345,8 +450,9 @@ export default function SupportWidget() {
         className={`w-14 h-14 text-white rounded-full shadow-lg flex items-center justify-center text-2xl transition-all hover:scale-110 relative ${
           plan === "BUSINESS"
             ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-            : "bg-blue-600 hover:bg-blue-700"
+            : "bg-blue-700 hover:bg-blue-800"
         }`}
+        aria-label={isAr ? "فتح الدعم" : "Open support"}
       >
         {open ? "×" : "💬"}
         {unread && !open && (
