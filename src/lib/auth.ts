@@ -10,6 +10,7 @@ interface ClientBusiness {
   name: string;
   country: string;
   currency: string;
+  source?: "practice" | "bookkeeper";
 }
 
 function effectiveTrialEnd(trialEndsAt: Date | null, createdAt: Date): Date {
@@ -39,6 +40,10 @@ export const authOptions: NextAuthOptions = {
                 id: true, name: true, country: true, baseCurrency: true,
                 onboardingCompleted: true, plan: true, trialEndsAt: true,
                 createdAt: true,
+                // مكتب المحاسبة — تحميل عملاء المكتب
+                practiceClients: {
+                  select: { id: true, name: true, country: true, baseCurrency: true },
+                },
               },
             },
             bookkeeperAccesses: {
@@ -68,12 +73,27 @@ export const authOptions: NextAuthOptions = {
           user.business.createdAt,
         );
 
-        const clientBusinesses: ClientBusiness[] = user.bookkeeperAccesses.map((a) => ({
+        // دمج عملاء المكتب + وصول المحاسب الفردي
+        const practiceClients: ClientBusiness[] = user.business.practiceClients.map((c) => ({
+          id: c.id,
+          name: c.name,
+          country: c.country,
+          currency: c.baseCurrency,
+          source: "practice" as const,
+        }));
+        const bookkeeperClients: ClientBusiness[] = user.bookkeeperAccesses.map((a) => ({
           id: a.business.id,
           name: a.business.name,
           country: a.business.country,
           currency: a.business.baseCurrency,
+          source: "bookkeeper" as const,
         }));
+        // Practice clients first, then individual bookkeeper access
+        const seen = new Set<string>();
+        const clientBusinesses: ClientBusiness[] = [];
+        for (const c of [...practiceClients, ...bookkeeperClients]) {
+          if (!seen.has(c.id)) { seen.add(c.id); clientBusinesses.push(c); }
+        }
 
         return {
           id: user.id,
@@ -89,6 +109,7 @@ export const authOptions: NextAuthOptions = {
           plan: user.business.plan,
           trialEndsAt: trialEnd.toISOString(),
           clientBusinesses,
+          isPractice: practiceClients.length > 0,
         };
       },
     }),
@@ -117,12 +138,10 @@ export const authOptions: NextAuthOptions = {
               },
             });
             if (biz) {
-              // For a client business, look up the client owner's role for context
               let role = token.role as string;
               if (!isOwn) {
                 role = "ACCOUNTANT";
               } else {
-                // Switching back to own business — restore original role
                 const ownUser = await prisma.user.findUnique({
                   where: { id: token.sub as string },
                   select: { role: true },
@@ -160,6 +179,7 @@ export const authOptions: NextAuthOptions = {
           businessId: string; primaryBusinessId: string; businessName: string;
           country: string; currency: string; role: string; onboardingCompleted: boolean;
           plan: string; trialEndsAt: string | null; clientBusinesses: ClientBusiness[];
+          isPractice: boolean;
         };
         token.businessId = u.businessId;
         token.primaryBusinessId = u.primaryBusinessId;
@@ -171,6 +191,7 @@ export const authOptions: NextAuthOptions = {
         token.plan = u.plan;
         token.trialEndsAt = u.trialEndsAt;
         token.clientBusinesses = u.clientBusinesses;
+        token.isPractice = u.isPractice;
       }
       return token;
     },
@@ -187,6 +208,7 @@ export const authOptions: NextAuthOptions = {
         session.user.plan = token.plan as string;
         session.user.trialEndsAt = token.trialEndsAt as string | null;
         session.user.clientBusinesses = (token.clientBusinesses ?? []) as ClientBusiness[];
+        session.user.isPractice = (token.isPractice ?? false) as boolean;
       }
       return session;
     },
@@ -214,6 +236,7 @@ declare module "next-auth" {
       plan: string;
       trialEndsAt: string | null;
       clientBusinesses: ClientBusiness[];
+      isPractice: boolean;
     };
   }
 }

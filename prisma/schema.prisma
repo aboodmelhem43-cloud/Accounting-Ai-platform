@@ -26,6 +26,8 @@ model Business {
   lsCustomerId        String?   // Lemon Squeezy customer ID
   lsVariantId         String?   // active variant ID
   lsCurrentPeriodEnd  DateTime? // when current billing period ends
+  // مكتب المحاسبة — إذا كانت هذه المنشأة عميلاً يُدار من قِبَل مكتب
+  managedByBusinessId String?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
@@ -39,6 +41,9 @@ model Business {
   chatMessages       ChatMessage[]
   invites            Invite[]
   bookkeeperAccesses BookkeeperAccess[]
+  // العملاء الذين يديرهم هذا المكتب
+  practiceClients    Business[] @relation("PracticeClients")
+  managedBy          Business?  @relation("PracticeClients", fields: [managedByBusinessId], references: [id])
 }
 
 model ChatMessage {

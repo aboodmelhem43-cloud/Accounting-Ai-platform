@@ -36,6 +36,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
   const primaryBusinessId = session?.user?.primaryBusinessId ?? session?.user?.businessId;
   const activeBusinessId = session?.user?.businessId;
   const isViewingClientBiz = activeBusinessId !== primaryBusinessId;
+  const isPractice = session?.user?.isPractice ?? clientBusinesses.some((b) => b.source === "practice");
 
   // Resolved display values (prefer session for active-business accuracy)
   const displayName = session?.user?.businessName ?? businessName;
@@ -75,9 +76,17 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
       href: "/settings",
       label: isAr ? "الإعدادات" : "Settings",
       icon: "⚙️",
-      children: (session?.user?.plan === "PRO" || session?.user?.plan === "BUSINESS") && !isViewingClientBiz
-        ? [{ href: "/settings/team", label: isAr ? "الفريق" : "Team", icon: "👤" }]
-        : undefined,
+      children: (() => {
+        if (isViewingClientBiz) return undefined;
+        const sub = [];
+        if (session?.user?.plan === "PRO" || session?.user?.plan === "BUSINESS") {
+          sub.push({ href: "/settings/team", label: isAr ? "الفريق" : "Team", icon: "👤" });
+        }
+        if (isPractice) {
+          sub.push({ href: "/settings/clients", label: isAr ? "عملاء المكتب" : "Clients", icon: "🏢" });
+        }
+        return sub.length > 0 ? sub : undefined;
+      })(),
     },
     ...(!isViewingClientBiz ? [{ href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "💎" }] : []),
     ...(showAdmin && !isViewingClientBiz ? [{ href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "🛡️" }] : []),
@@ -135,13 +144,13 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                         disabled={switchingId === biz.id}
                         className={`w-full flex items-center gap-2 px-3 py-2.5 text-left hover:bg-gray-50 transition-colors ${activeBusinessId === biz.id ? "bg-blue-50" : ""}`}
                       >
-                        <span className="text-base">👔</span>
+                        <span className="text-base">{biz.source === "practice" ? "🏢" : "👔"}</span>
                         <div className="min-w-0 flex-1">
                           <div className="text-xs font-medium text-gray-900 truncate">{biz.name}</div>
                           <div className="text-xs text-gray-400">{biz.country} · {biz.currency}</div>
                         </div>
                         {switchingId === biz.id
-                          ? <span className="text-gray-400 text-xs">{isAr ? "..." : "..."}</span>
+                          ? <span className="text-gray-400 text-xs">...</span>
                           : activeBusinessId === biz.id
                           ? <span className="text-blue-600 text-xs">✓</span>
                           : null}
@@ -161,15 +170,15 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
 
         {/* Client-mode banner */}
         {isViewingClientBiz && (
-          <div className="mt-2 flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-2 py-1">
-            <span className="text-xs text-amber-700 font-medium">
-              {isAr ? "وضع المحاسب" : "Bookkeeper mode"}
+          <div className="mt-2 flex items-center justify-between bg-purple-50 border border-purple-200 rounded-lg px-2 py-1">
+            <span className="text-xs text-purple-700 font-medium">
+              {isAr ? "وضع العميل" : "Client mode"}
             </span>
             <button
               onClick={() => switchBusiness(primaryBusinessId!)}
-              className="text-xs text-amber-600 hover:text-amber-800 font-medium"
+              className="text-xs text-purple-600 hover:text-purple-800 font-medium"
             >
-              {isAr ? "خروج" : "Exit"}
+              {isAr ? "رجوع للمكتب" : "Back to practice"}
             </button>
           </div>
         )}
