@@ -15,6 +15,7 @@ type Props = {
   invoiceId: string;
   invoiceType: "SALES" | "PURCHASE";
   paymentStatus: string;
+  documentType?: string;
   totalAmount: number;
   alreadyPaid: number;
   contactEmail?: string | null;
@@ -41,6 +42,7 @@ export default function InvoiceActions({
   invoiceId,
   invoiceType,
   paymentStatus: initialStatus,
+  documentType = "INVOICE",
   totalAmount,
   alreadyPaid: initialPaid,
   contactEmail,
@@ -51,11 +53,18 @@ export default function InvoiceActions({
 }: Props) {
   const [showPayment, setShowPayment] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
+  const [showCreditNote, setShowCreditNote] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState(initialStatus);
   const [alreadyPaid, setAlreadyPaid] = useState(initialPaid);
   const [payments, setPayments] = useState<Payment[]>(initialPayments);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Credit note form state
+  const [creditAmount, setCreditAmount] = useState("");
+  const [creditDate, setCreditDate] = useState(new Date().toISOString().split("T")[0]);
+  const [creditReason, setCreditReason] = useState("");
+  const [creditNoteId, setCreditNoteId] = useState<string | null>(null);
 
   // Payment form state
   const [payAmount, setPayAmount] = useState("");
@@ -121,6 +130,29 @@ export default function InvoiceActions({
     }
   }
 
+  async function handleCreditNote(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    const amount = parseFloat(creditAmount);
+    if (!amount || amount <= 0) { setError(isAr ? "أدخل مبلغاً صحيحاً" : "Enter valid amount"); return; }
+    if (amount > totalAmount) { setError(isAr ? "المبلغ أكبر من إجمالي الفاتورة" : "Amount exceeds invoice total"); return; }
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/invoices/${invoiceId}/credit-note`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount, date: creditDate, reason: creditReason || undefined }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error ?? "حدث خطأ"); return; }
+      setCreditNoteId(data.creditNoteId);
+    } catch {
+      setError(isAr ? "حدث خطأ في الاتصال" : "Connection error");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const fmt = (n: number) => `${n.toLocaleString(isAr ? "ar-EG" : "en-US", { minimumFractionDigits: 2 })} ${currencySymbol}`;
 
   return (
@@ -149,6 +181,14 @@ export default function InvoiceActions({
             className="btn-secondary text-sm px-4 py-2"
           >
             {isAr ? "إرسال بالبريد" : "Send by Email"}
+          </button>
+        )}
+        {documentType === "INVOICE" && paymentStatus !== "VOIDED" && (
+          <button
+            onClick={() => setShowCreditNote(true)}
+            className="btn-secondary text-sm px-4 py-2 border-orange-300 text-orange-700 hover:bg-orange-50"
+          >
+            {isAr ? "إصدار إشعار دائن" : "Issue Credit Note"}
           </button>
         )}
       </div>
@@ -238,6 +278,80 @@ export default function InvoiceActions({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Credit Note Modal */}
+      {showCreditNote && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md" dir={isAr ? "rtl" : "ltr"}>
+            <h2 className="text-lg font-bold mb-1">{isAr ? "إصدار إشعار دائن" : "Issue Credit Note"}</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              {isAr ? "سيتم إنشاء قيد عكسي يقلل من الإيراد المسجل" : "A reversal entry will be created reducing the recorded revenue"}
+            </p>
+            {creditNoteId ? (
+              <div className="text-center space-y-4">
+                <div className="text-4xl">✅</div>
+                <p className="text-green-700 font-medium">{isAr ? "تم إصدار الإشعار الدائن بنجاح" : "Credit note issued successfully"}</p>
+                <div className="flex gap-3">
+                  <a href={`/invoices/${creditNoteId}`} className="btn-primary flex-1 text-center text-sm">
+                    {isAr ? "عرض الإشعار" : "View Credit Note"}
+                  </a>
+                  <button onClick={() => { setShowCreditNote(false); setCreditNoteId(null); setCreditAmount(""); setCreditReason(""); }} className="btn-secondary flex-1 text-sm">
+                    {isAr ? "إغلاق" : "Close"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {error && <div className="bg-red-50 text-red-700 rounded-lg px-4 py-2 text-sm mb-4">{error}</div>}
+                <form onSubmit={handleCreditNote} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">{isAr ? "المبلغ" : "Amount"}</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      max={totalAmount}
+                      value={creditAmount}
+                      onChange={(e) => setCreditAmount(e.target.value)}
+                      placeholder={`${isAr ? "أقصى:" : "Max:"} ${totalAmount.toFixed(2)}`}
+                      className="input w-full"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">{isAr ? "التاريخ" : "Date"}</label>
+                    <input
+                      type="date"
+                      value={creditDate}
+                      onChange={(e) => setCreditDate(e.target.value)}
+                      className="input w-full"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">{isAr ? "السبب (اختياري)" : "Reason (optional)"}</label>
+                    <input
+                      type="text"
+                      value={creditReason}
+                      onChange={(e) => setCreditReason(e.target.value)}
+                      className="input w-full"
+                      placeholder={isAr ? "مثال: إرجاع بضاعة" : "e.g. Goods returned"}
+                    />
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button type="submit" disabled={loading} className="btn-primary flex-1">
+                      {loading ? "..." : isAr ? "إصدار الإشعار" : "Issue Credit Note"}
+                    </button>
+                    <button type="button" onClick={() => { setShowCreditNote(false); setError(""); }} className="btn-secondary flex-1">
+                      {isAr ? "إلغاء" : "Cancel"}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -93,6 +93,7 @@ export default async function InvoiceViewPage({
           invoiceId={id}
           invoiceType={invoice.invoiceType as "SALES" | "PURCHASE"}
           paymentStatus={invoice.paymentStatus}
+          documentType={(invoice as { documentType?: string }).documentType ?? "INVOICE"}
           totalAmount={totalAmount}
           alreadyPaid={alreadyPaid}
           contactEmail={invoice.contact?.email ?? d?.customerEmail ?? null}

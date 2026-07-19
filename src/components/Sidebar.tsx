@@ -68,8 +68,25 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
       ],
     },
     { href: "/accounts", label: isAr ? "دليل الحسابات" : "Chart of Accounts", icon: "📋" },
-    { href: "/reports", label: isAr ? "التقارير" : "Reports", icon: "📊" },
-    { href: "/journal", label: t("nav.journal"), icon: "📒" },
+    { href: "/fixed-assets", label: isAr ? "الأصول الثابتة" : "Fixed Assets", icon: "🏗️" },
+    {
+      href: "/reports",
+      label: isAr ? "التقارير" : "Reports",
+      icon: "📊",
+      children: [
+        { href: "/vat-return", label: isAr ? "إقرار ضريبة القيمة المضافة" : "VAT Return", icon: "🧮" },
+      ],
+    },
+    {
+      href: "/journal",
+      label: t("nav.journal"),
+      icon: "📒",
+      children: [
+        { href: "/recurring", label: isAr ? "القيود المتكررة" : "Recurring Entries", icon: "🔁" },
+        { href: "/periods", label: isAr ? "الفترات المحاسبية" : "Accounting Periods", icon: "🔒" },
+        { href: "/opening-balances", label: isAr ? "الأرصدة الافتتاحية" : "Opening Balances", icon: "⚖️" },
+      ],
+    },
     { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },
     {
