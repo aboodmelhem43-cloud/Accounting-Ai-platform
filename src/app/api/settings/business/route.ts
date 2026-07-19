@@ -16,6 +16,7 @@ const schema = z.object({
 export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+  if (session.user.role !== "OWNER") return NextResponse.json({ error: "مسموح لصاحب الحساب فقط" }, { status: 403 });
 
   try {
     const body = await req.json();

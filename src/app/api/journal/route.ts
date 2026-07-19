@@ -63,6 +63,16 @@ export async function POST(req: NextRequest) {
   const { date, description, status, lines } = parsed.data;
 
   try {
+    // Validate that all accountIds belong to this business
+    const accountIds = [...new Set(lines.map((l) => l.accountId))];
+    const validAccounts = await prisma.account.findMany({
+      where: { id: { in: accountIds }, businessId: session.user.businessId },
+      select: { id: true },
+    });
+    if (validAccounts.length !== accountIds.length) {
+      return NextResponse.json({ error: "حساب غير صالح" }, { status: 400 });
+    }
+
     const entry = await createJournalEntry({
       businessId: session.user.businessId,
       userId: session.user.id,

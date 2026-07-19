@@ -39,7 +39,6 @@ export async function POST(req: NextRequest) {
     }
 
     const code = await createOtp(email, "login");
-    console.log(`[OTP-LOGIN] ${email} → ${code}`);
     await sendOtpEmail(email, code, "login", lang ?? "ar");
 
     return NextResponse.json({ sent: true });

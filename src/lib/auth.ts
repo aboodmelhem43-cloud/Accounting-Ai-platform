@@ -124,10 +124,23 @@ export const authOptions: NextAuthOptions = {
           const primaryId = (token.primaryBusinessId ?? token.businessId) as string;
 
           // Allow switching to own business or to an active client business
+          // Always validate against live DB — JWT cache may be stale after revocation
           const isOwn = targetId === primaryId;
-          const isClient = (token.clientBusinesses as ClientBusiness[] ?? []).some(
-            (b) => b.id === targetId,
-          );
+          let isClient = false;
+          if (!isOwn) {
+            const userId = token.sub as string;
+            const [practiceClient, bookkeeperAccess] = await Promise.all([
+              prisma.business.findFirst({
+                where: { id: targetId, managedByBusinessId: primaryId },
+                select: { id: true },
+              }),
+              prisma.bookkeeperAccess.findFirst({
+                where: { userId, businessId: targetId, status: "ACTIVE" },
+                select: { id: true },
+              }),
+            ]);
+            isClient = !!(practiceClient || bookkeeperAccess);
+          }
 
           if (isOwn || isClient) {
             const biz = await prisma.business.findUnique({
