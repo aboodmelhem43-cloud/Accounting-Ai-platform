@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { getServerT } from "@/lib/i18n/server";
 import PrintButton from "./PrintButton";
 import ZatcaQr from "./ZatcaQr";
+import InvoiceActions from "./InvoiceActions";
 import Link from "next/link";
 
 type LineItem = { description: string; quantity: number; unitPrice: number };
@@ -26,6 +27,7 @@ type ExtractedData = {
   taxRate?: number;
   taxAmount?: number;
   grandTotal?: number;
+  totalAmount?: number;
   currency?: string;
   currencySymbol?: string;
   notes?: string;
@@ -45,7 +47,13 @@ export default async function InvoiceViewPage({
   const isAr = lang === "ar";
   const locale = isAr ? "ar" : "en";
 
-  const invoice = await prisma.invoice.findUnique({ where: { id } });
+  const invoice = await prisma.invoice.findUnique({
+    where: { id },
+    include: {
+      payments: { orderBy: { date: "desc" } },
+      contact: true,
+    },
+  });
 
   if (!invoice) notFound();
   if (invoice.businessId !== session.user.businessId) notFound();
@@ -54,6 +62,14 @@ export default async function InvoiceViewPage({
   const d = invoice.extractedData as ExtractedData | null;
   const lineItems: LineItem[] = d?.lineItems ?? [];
   const currencySymbol = d?.currencySymbol ?? "";
+  const totalAmount = d?.grandTotal ?? d?.totalAmount ?? 0;
+  const alreadyPaid = invoice.payments.reduce((s, p) => s + Number(p.amount), 0);
+
+  const assetAccounts = await prisma.account.findMany({
+    where: { businessId: session.user.businessId, type: "ASSET" },
+    orderBy: { code: "asc" },
+    select: { id: true, name: true, nameAr: true, code: true, type: true },
+  });
 
   const fmt = (n: number) =>
     `${n.toLocaleString(locale, { minimumFractionDigits: 2 })} ${currencySymbol}`;
@@ -70,6 +86,27 @@ export default async function InvoiceViewPage({
         </Link>
         <PrintButton label={isAr ? "🖨️ طباعة" : "🖨️ Print"} invoiceNumber={d?.invoiceNumber} />
       </div>
+
+      {/* Payment status / actions bar — client component */}
+      {invoice.status === "CONFIRMED" && (
+        <InvoiceActions
+          invoiceId={id}
+          invoiceType={invoice.invoiceType as "SALES" | "PURCHASE"}
+          paymentStatus={invoice.paymentStatus}
+          totalAmount={totalAmount}
+          alreadyPaid={alreadyPaid}
+          contactEmail={invoice.contact?.email ?? d?.customerEmail ?? null}
+          assetAccounts={assetAccounts}
+          isAr={isAr}
+          currencySymbol={currencySymbol}
+          payments={invoice.payments.map((p) => ({
+            id: p.id,
+            amount: Number(p.amount),
+            date: p.date.toISOString().split("T")[0],
+            note: p.note,
+          }))}
+        />
+      )}
 
       {/* Invoice document */}
       <div
@@ -95,9 +132,10 @@ export default async function InvoiceViewPage({
             <p className="text-sm text-gray-500 mt-1">
               {isAr ? "تاريخ الإصدار:" : "Date:"} {fmtDate(d?.invoiceDate)}
             </p>
-            {d?.dueDate && (
+            {(d?.dueDate || invoice.dueDate) && (
               <p className="text-sm text-gray-500">
-                {isAr ? "تاريخ الاستحقاق:" : "Due:"} {fmtDate(d.dueDate)}
+                {isAr ? "تاريخ الاستحقاق:" : "Due:"}{" "}
+                {fmtDate(invoice.dueDate?.toISOString().split("T")[0] ?? d?.dueDate)}
               </p>
             )}
           </div>

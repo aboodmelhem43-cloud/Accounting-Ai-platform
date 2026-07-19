@@ -147,11 +147,29 @@ model Invoice {
   status          InvoiceStatus @default(PENDING_REVIEW)
   invoiceType     InvoiceType   @default(PURCHASE) // مشتريات أو مبيعات
   journalEntryId  String?       @unique
+  contactId       String?       // جهة الاتصال المرتبطة
+  dueDate         DateTime?     // تاريخ الاستحقاق
+  paymentStatus   String        @default("UNPAID") // UNPAID | PARTIALLY_PAID | PAID | VOIDED
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
-  business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  journalEntry JournalEntry? @relation(fields: [journalEntryId], references: [id])
+  business     Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  journalEntry JournalEntry?    @relation(fields: [journalEntryId], references: [id])
+  contact      Contact?         @relation(fields: [contactId], references: [id])
+  payments     InvoicePayment[]
+}
+
+// دفعات الفاتورة — لتتبع الدفعات الجزئية
+model InvoicePayment {
+  id             String   @id @default(cuid())
+  invoiceId      String
+  amount         Decimal  @db.Decimal(15, 2)
+  date           DateTime
+  note           String?
+  journalEntryId String?
+  createdAt      DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 }
 
 enum InvoiceStatus {
@@ -179,6 +197,7 @@ model Contact {
   updatedAt   DateTime    @updatedAt
 
   business    Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  invoices    Invoice[]
 }
 
 enum ContactType {
@@ -224,6 +243,7 @@ model BankTransaction {
   balance         Decimal? @db.Decimal(15, 2)
   reference       String?
   matched         Boolean  @default(false)
+  journalEntryId  String?  // القيد المرتبط بعد المطابقة
 
   statement BankStatement @relation(fields: [statementId], references: [id], onDelete: Cascade)
 }

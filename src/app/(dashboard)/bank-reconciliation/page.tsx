@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useLang } from "@/components/LanguageProvider";
 
 interface BankAccount {
@@ -27,6 +27,21 @@ interface BankStatement {
   transactions: BankTransaction[];
 }
 
+interface LedgerAccount {
+  id: string;
+  name: string;
+  nameAr: string | null;
+  code: string;
+  type: string;
+}
+
+interface CodingDialog {
+  txId: string;
+  description: string;
+  amount: number;
+  transactionType: string;
+}
+
 export default function BankReconciliationPage() {
   const { lang } = useLang();
   const isAr = lang === "ar";
@@ -38,6 +53,11 @@ export default function BankReconciliationPage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [statement, setStatement] = useState<BankStatement | null>(null);
   const [matchingId, setMatchingId] = useState<string | null>(null);
+  const [ledgerAccounts, setLedgerAccounts] = useState<LedgerAccount[]>([]);
+  const [codingDialog, setCodingDialog] = useState<CodingDialog | null>(null);
+  const [codingBankAccount, setCodingBankAccount] = useState("");
+  const [codingCounterpart, setCodingCounterpart] = useState("");
+  const [codingError, setCodingError] = useState("");
 
   useEffect(() => {
     fetch("/api/bank-accounts")
@@ -45,6 +65,13 @@ export default function BankReconciliationPage() {
       .then((data: BankAccount[]) => {
         setBankAccounts(Array.isArray(data) ? data : []);
         if (data.length > 0) setSelectedBankAccountId(data[0].id);
+      })
+      .catch(() => {});
+
+    fetch("/api/accounts")
+      .then((r) => r.json())
+      .then((data: LedgerAccount[]) => {
+        setLedgerAccounts(Array.isArray(data) ? data : []);
       })
       .catch(() => {});
   }, []);
@@ -73,23 +100,54 @@ export default function BankReconciliationPage() {
     }
   }
 
-  async function handleMatch(txId: string) {
-    if (!statement) return;
-    setMatchingId(txId);
+  function openCodingDialog(tx: BankTransaction) {
+    setCodingError("");
+    // Pre-select defaults: first ASSET for bank side, first REVENUE/EXPENSE for counterpart
+    const assetAccounts = ledgerAccounts.filter((a) => a.type === "ASSET");
+    const oppositeType = tx.transactionType === "CREDIT" ? "REVENUE" : "EXPENSE";
+    const counterpartAccounts = ledgerAccounts.filter((a) => a.type === oppositeType);
+
+    setCodingBankAccount(assetAccounts[0]?.id ?? "");
+    setCodingCounterpart(counterpartAccounts[0]?.id ?? "");
+    setCodingDialog({
+      txId: tx.id,
+      description: tx.description,
+      amount: Number(tx.amount),
+      transactionType: tx.transactionType,
+    });
+  }
+
+  async function handleMatch() {
+    if (!statement || !codingDialog) return;
+    if (!codingBankAccount || !codingCounterpart) {
+      setCodingError(isAr ? "يجب اختيار كلا الحسابين" : "Both accounts are required");
+      return;
+    }
+    setCodingError("");
+    setMatchingId(codingDialog.txId);
     try {
-      await fetch(`/api/bank-reconciliation/${statement.id}/transactions/${txId}/match`, {
-        method: "PATCH",
-      });
+      const res = await fetch(
+        `/api/bank-reconciliation/${statement.id}/transactions/${codingDialog.txId}/match`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            bankAccountId: codingBankAccount,
+            counterpartAccountId: codingCounterpart,
+          }),
+        }
+      );
+      if (!res.ok) {
+        const d = await res.json() as { error?: string };
+        setCodingError(d.error ?? (isAr ? "حدث خطأ" : "Error occurred"));
+        return;
+      }
       setStatement((s) =>
         s
-          ? {
-              ...s,
-              transactions: s.transactions.map((t) =>
-                t.id === txId ? { ...t, matched: true } : t
-              ),
-            }
+          ? { ...s, transactions: s.transactions.map((t) => t.id === codingDialog.txId ? { ...t, matched: true } : t) }
           : s
       );
+      setCodingDialog(null);
     } finally {
       setMatchingId(null);
     }
@@ -97,6 +155,8 @@ export default function BankReconciliationPage() {
 
   const unmatchedCount = statement?.transactions.filter((t) => !t.matched).length ?? 0;
   const matchedCount = statement?.transactions.filter((t) => t.matched).length ?? 0;
+
+  const accountName = (a: LedgerAccount) => (isAr && a.nameAr ? a.nameAr : a.name);
 
   return (
     <div className="space-y-6">
@@ -246,13 +306,13 @@ export default function BankReconciliationPage() {
                           </span>
                         ) : (
                           <button
-                            onClick={() => handleMatch(tx.id)}
+                            onClick={() => openCodingDialog(tx)}
                             disabled={matchingId === tx.id}
                             className="text-xs text-blue-600 hover:text-blue-800 font-medium border border-blue-200 rounded px-2 py-1 hover:bg-blue-50 transition-colors disabled:opacity-50"
                           >
                             {matchingId === tx.id
                               ? "..."
-                              : (isAr ? "مطابقة" : "Match")}
+                              : (isAr ? "ترحيل" : "Code & Post")}
                           </button>
                         )}
                       </td>
@@ -260,6 +320,88 @@ export default function BankReconciliationPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Coding Dialog Modal */}
+      {codingDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md" dir={isAr ? "rtl" : "ltr"}>
+            <h2 className="text-lg font-bold mb-1">{isAr ? "ترحيل الحركة" : "Code & Post Transaction"}</h2>
+            <p className="text-sm text-gray-500 mb-4 truncate">{codingDialog.description}</p>
+
+            <div className="bg-gray-50 rounded-lg px-4 py-3 mb-4 flex justify-between text-sm">
+              <span className="text-gray-600">{isAr ? "المبلغ" : "Amount"}</span>
+              <span className={`font-bold ${codingDialog.transactionType === "CREDIT" ? "text-green-600" : "text-red-500"}`}>
+                {codingDialog.transactionType === "CREDIT" ? "+" : "-"}
+                {Math.abs(codingDialog.amount).toLocaleString(isAr ? "ar-EG" : "en-US", { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+
+            {codingError && (
+              <div className="bg-red-50 text-red-700 rounded-lg px-4 py-2 text-sm mb-4">{codingError}</div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  {isAr ? "حساب البنك (في دليل الحسابات)" : "Bank Account (in Chart of Accounts)"}
+                </label>
+                <select
+                  value={codingBankAccount}
+                  onChange={(e) => setCodingBankAccount(e.target.value)}
+                  className="input w-full"
+                >
+                  <option value="">{isAr ? "اختر الحساب..." : "Select account..."}</option>
+                  {ledgerAccounts.filter((a) => a.type === "ASSET").map((a) => (
+                    <option key={a.id} value={a.id}>{a.code} — {accountName(a)}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  {codingDialog.transactionType === "CREDIT"
+                    ? (isAr ? "الحساب المقابل (إيرادات)" : "Counterpart Account (Revenue)")
+                    : (isAr ? "الحساب المقابل (مصروفات)" : "Counterpart Account (Expense)")}
+                </label>
+                <select
+                  value={codingCounterpart}
+                  onChange={(e) => setCodingCounterpart(e.target.value)}
+                  className="input w-full"
+                >
+                  <option value="">{isAr ? "اختر الحساب..." : "Select account..."}</option>
+                  {ledgerAccounts
+                    .filter((a) => codingDialog.transactionType === "CREDIT" ? a.type !== "ASSET" : a.type !== "ASSET")
+                    .map((a) => (
+                      <option key={a.id} value={a.id}>{a.code} — {accountName(a)}</option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
+                {codingDialog.transactionType === "CREDIT"
+                  ? (isAr ? "مدين: البنك | دائن: الحساب المقابل" : "Dr: Bank | Cr: Counterpart")
+                  : (isAr ? "مدين: الحساب المقابل | دائن: البنك" : "Dr: Counterpart | Cr: Bank")}
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleMatch}
+                  disabled={!!matchingId}
+                  className="btn-primary flex-1"
+                >
+                  {matchingId ? "..." : (isAr ? "ترحيل القيد" : "Post Journal Entry")}
+                </button>
+                <button
+                  onClick={() => { setCodingDialog(null); setCodingError(""); }}
+                  className="btn-secondary flex-1"
+                >
+                  {isAr ? "إلغاء" : "Cancel"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
