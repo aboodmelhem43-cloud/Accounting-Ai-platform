@@ -5,6 +5,13 @@ import { prisma } from "./prisma";
 import { verifyOtp } from "./otp";
 import { isSuperAdmin } from "./admin";
 
+interface ClientBusiness {
+  id: string;
+  name: string;
+  country: string;
+  currency: string;
+}
+
 function effectiveTrialEnd(trialEndsAt: Date | null, createdAt: Date): Date {
   const fromCreated = new Date(createdAt);
   fromCreated.setDate(fromCreated.getDate() + 35);
@@ -34,6 +41,14 @@ export const authOptions: NextAuthOptions = {
                 createdAt: true,
               },
             },
+            bookkeeperAccesses: {
+              where: { status: "ACTIVE" },
+              include: {
+                business: {
+                  select: { id: true, name: true, country: true, baseCurrency: true },
+                },
+              },
+            },
           },
         });
 
@@ -53,11 +68,19 @@ export const authOptions: NextAuthOptions = {
           user.business.createdAt,
         );
 
+        const clientBusinesses: ClientBusiness[] = user.bookkeeperAccesses.map((a) => ({
+          id: a.business.id,
+          name: a.business.name,
+          country: a.business.country,
+          currency: a.business.baseCurrency,
+        }));
+
         return {
           id: user.id,
           email: user.email,
           name: user.name ?? user.email,
           businessId: user.businessId,
+          primaryBusinessId: user.businessId,
           businessName: user.business.name,
           country: user.business.country,
           currency: user.business.baseCurrency,
@@ -65,28 +88,81 @@ export const authOptions: NextAuthOptions = {
           onboardingCompleted: user.business.onboardingCompleted,
           plan: user.business.plan,
           trialEndsAt: trialEnd.toISOString(),
+          clientBusinesses,
         };
       },
     }),
   ],
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user, trigger }) {
-      if (trigger === "update") {
-        const business = await prisma.business.findUnique({
-          where: { id: token.businessId as string },
-          select: { name: true, country: true, baseCurrency: true, onboardingCompleted: true },
-        });
-        if (business) {
-          token.businessName = business.name;
-          token.country = business.country;
-          token.currency = business.baseCurrency;
-          token.onboardingCompleted = business.onboardingCompleted;
+    async jwt({ token, user, trigger, session }) {
+      if (trigger === "update" && session) {
+        // Business switcher: bookkeeper switches to a client business
+        if (session.activeBusinessId) {
+          const targetId = session.activeBusinessId as string;
+          const primaryId = (token.primaryBusinessId ?? token.businessId) as string;
+
+          // Allow switching to own business or to an active client business
+          const isOwn = targetId === primaryId;
+          const isClient = (token.clientBusinesses as ClientBusiness[] ?? []).some(
+            (b) => b.id === targetId,
+          );
+
+          if (isOwn || isClient) {
+            const biz = await prisma.business.findUnique({
+              where: { id: targetId },
+              select: {
+                name: true, country: true, baseCurrency: true,
+                onboardingCompleted: true, plan: true, trialEndsAt: true, createdAt: true,
+              },
+            });
+            if (biz) {
+              // For a client business, look up the client owner's role for context
+              let role = token.role as string;
+              if (!isOwn) {
+                role = "ACCOUNTANT";
+              } else {
+                // Switching back to own business — restore original role
+                const ownUser = await prisma.user.findUnique({
+                  where: { id: token.sub as string },
+                  select: { role: true },
+                });
+                if (ownUser) role = ownUser.role;
+              }
+
+              const trialEnd = effectiveTrialEnd(biz.trialEndsAt ?? null, biz.createdAt);
+              token.businessId = targetId;
+              token.businessName = biz.name;
+              token.country = biz.country;
+              token.currency = biz.baseCurrency;
+              token.onboardingCompleted = biz.onboardingCompleted;
+              token.plan = biz.plan;
+              token.trialEndsAt = trialEnd.toISOString();
+              token.role = role;
+            }
+          }
+        } else {
+          // Regular profile/session refresh
+          const business = await prisma.business.findUnique({
+            where: { id: token.businessId as string },
+            select: { name: true, country: true, baseCurrency: true, onboardingCompleted: true },
+          });
+          if (business) {
+            token.businessName = business.name;
+            token.country = business.country;
+            token.currency = business.baseCurrency;
+            token.onboardingCompleted = business.onboardingCompleted;
+          }
         }
       }
       if (user) {
-        const u = user as unknown as { businessId: string; businessName: string; country: string; currency: string; role: string; onboardingCompleted: boolean; plan: string; trialEndsAt: string | null };
+        const u = user as unknown as {
+          businessId: string; primaryBusinessId: string; businessName: string;
+          country: string; currency: string; role: string; onboardingCompleted: boolean;
+          plan: string; trialEndsAt: string | null; clientBusinesses: ClientBusiness[];
+        };
         token.businessId = u.businessId;
+        token.primaryBusinessId = u.primaryBusinessId;
         token.businessName = u.businessName;
         token.country = u.country;
         token.currency = u.currency;
@@ -94,6 +170,7 @@ export const authOptions: NextAuthOptions = {
         token.onboardingCompleted = u.onboardingCompleted;
         token.plan = u.plan;
         token.trialEndsAt = u.trialEndsAt;
+        token.clientBusinesses = u.clientBusinesses;
       }
       return token;
     },
@@ -101,6 +178,7 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user.id = token.sub as string;
         session.user.businessId = token.businessId as string;
+        session.user.primaryBusinessId = token.primaryBusinessId as string;
         session.user.businessName = token.businessName as string;
         session.user.country = token.country as string;
         session.user.currency = token.currency as string;
@@ -108,6 +186,7 @@ export const authOptions: NextAuthOptions = {
         session.user.onboardingCompleted = token.onboardingCompleted as boolean;
         session.user.plan = token.plan as string;
         session.user.trialEndsAt = token.trialEndsAt as string | null;
+        session.user.clientBusinesses = (token.clientBusinesses ?? []) as ClientBusiness[];
       }
       return session;
     },
@@ -126,6 +205,7 @@ declare module "next-auth" {
       email: string;
       name?: string | null;
       businessId: string;
+      primaryBusinessId: string;
       businessName: string;
       country: string;
       currency: string;
@@ -133,6 +213,7 @@ declare module "next-auth" {
       onboardingCompleted: boolean;
       plan: string;
       trialEndsAt: string | null;
+      clientBusinesses: ClientBusiness[];
     };
   }
 }

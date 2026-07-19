@@ -29,15 +29,16 @@ model Business {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  users          User[]
-  accounts       Account[]
-  journalEntries JournalEntry[]
-  invoices       Invoice[]
-  contacts       Contact[]
-  bankAccounts   BankAccount[]
-  bankStatements BankStatement[]
-  chatMessages   ChatMessage[]
-  invites        Invite[]
+  users              User[]
+  accounts           Account[]
+  journalEntries     JournalEntry[]
+  invoices           Invoice[]
+  contacts           Contact[]
+  bankAccounts       BankAccount[]
+  bankStatements     BankStatement[]
+  chatMessages       ChatMessage[]
+  invites            Invite[]
+  bookkeeperAccesses BookkeeperAccess[]
 }
 
 model ChatMessage {
@@ -61,8 +62,9 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  business       Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  journalEntries JournalEntry[]
+  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  journalEntries     JournalEntry[]
+  bookkeeperAccesses BookkeeperAccess[]
 }
 
 enum UserRole {
@@ -226,12 +228,13 @@ enum JournalEntryStatus {
   POSTED
 }
 
-// دعوات إضافة مستخدمين فرعيين
+// دعوات إضافة مستخدمين فرعيين أو محاسبين خارجيين
 model Invite {
   id         String    @id @default(cuid())
   businessId String
   email      String
   role       UserRole  @default(ACCOUNTANT)
+  type       String    @default("TEAM") // "TEAM" | "BOOKKEEPER"
   token      String    @unique @default(cuid())
   expiresAt  DateTime
   usedAt     DateTime?
@@ -241,6 +244,22 @@ model Invite {
 
   @@index([businessId])
   @@index([token])
+}
+
+// وصول المحاسب الخارجي لمنشأة عميل
+model BookkeeperAccess {
+  id         String   @id @default(cuid())
+  userId     String
+  businessId String
+  status     String   @default("ACTIVE") // "ACTIVE" | "REVOKED"
+  grantedAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([userId])
+  @@index([businessId])
 }
 
 // رموز التحقق بالبريد الإلكتروني
