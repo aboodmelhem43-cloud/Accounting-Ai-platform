@@ -114,7 +114,7 @@ export async function sendInviteEmail(
   }
 }
 
-// ── JV Workflow Notifications ────────────────────────────────────────────────
+// ── JV Workflow Notifications (submit / approve / reject) ────────────────────
 
 function jvEmailWrapper(dir: string, lang: string, body: string) {
   return `<!DOCTYPE html>
