@@ -89,7 +89,7 @@ export default function NewJournalEntryPage() {
     setLines((prev) => prev.filter((_, i) => i !== index));
   }
 
-  async function submitEntry(statusValue: "DRAFT" | "POSTED") {
+  async function submitEntry(statusValue: "DRAFT" | "PENDING_REVIEW" | "POSTED") {
     if (!canSubmit) return;
 
     setLoading(true);
@@ -310,15 +310,28 @@ export default function NewJournalEntryPage() {
         )}
 
         <div className="flex gap-3 flex-wrap">
-          <button
-            type="submit"
-            disabled={!canSubmit || loading}
-            className="btn-primary"
-          >
-            {loading
-              ? (lang === "ar" ? "جاري الحفظ..." : "Saving...")
-              : (lang === "ar" ? "حفظ وترحيل" : "Save & Post")}
-          </button>
+          {session?.user?.role === "OWNER" ? (
+            <button
+              type="submit"
+              disabled={!canSubmit || loading}
+              className="btn-primary"
+            >
+              {loading
+                ? (lang === "ar" ? "جاري الحفظ..." : "Saving...")
+                : (lang === "ar" ? "حفظ وترحيل" : "Save & Post")}
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={!canSubmit || loading}
+              onClick={() => submitEntry("PENDING_REVIEW")}
+              className="btn-primary"
+            >
+              {loading
+                ? (lang === "ar" ? "جاري..." : "Submitting...")
+                : (lang === "ar" ? "تقديم للمراجعة" : "Submit for Review")}
+            </button>
+          )}
           <button
             type="button"
             disabled={!canSubmit || loading}

@@ -75,9 +75,12 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  journalEntries     JournalEntry[]
-  bookkeeperAccesses BookkeeperAccess[]
+  business                Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdJournalEntries   JournalEntry[]     @relation("JournalCreator")
+  updatedJournalEntries   JournalEntry[]     @relation("JournalUpdater")
+  submittedJournalEntries JournalEntry[]     @relation("JournalSubmitter")
+  reviewedJournalEntries  JournalEntry[]     @relation("JournalReviewer")
+  bookkeeperAccesses      BookkeeperAccess[]
 }
 
 enum UserRole {
@@ -112,21 +115,34 @@ enum AccountType {
 
 // قيد اليومية
 model JournalEntry {
-  id          String            @id @default(cuid())
-  businessId  String
-  date        DateTime
-  description String
-  sourceType  JournalSourceType @default(MANUAL)
-  createdById String
-  createdAt   DateTime          @default(now())
-  status      JournalEntryStatus @default(POSTED)
-  isLocked    Boolean           @default(false)
-  lockedAt    DateTime?
+  id               String             @id @default(cuid())
+  businessId       String
+  date             DateTime
+  description      String
+  sourceType       JournalSourceType  @default(MANUAL)
+  status           JournalEntryStatus @default(POSTED)
+  isLocked         Boolean            @default(false)
+  lockedAt         DateTime?
+  // من أنشأ القيد
+  createdById      String
+  createdAt        DateTime           @default(now())
+  // آخر تعديل
+  updatedById      String?
+  updatedAt        DateTime           @updatedAt
+  // سير عمل الموافقة
+  submittedById    String?
+  submittedAt      DateTime?
+  reviewedById     String?
+  reviewedAt       DateTime?
+  rejectionReason  String?
 
-  business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  creator  User          @relation(fields: [createdById], references: [id])
-  lines    JournalLine[]
-  invoice  Invoice?
+  business  Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  creator   User          @relation("JournalCreator",   fields: [createdById],   references: [id])
+  updater   User?         @relation("JournalUpdater",   fields: [updatedById],   references: [id])
+  submitter User?         @relation("JournalSubmitter", fields: [submittedById], references: [id])
+  reviewer  User?         @relation("JournalReviewer",  fields: [reviewedById],  references: [id])
+  lines     JournalLine[]
+  invoice   Invoice?
 }
 
 enum JournalSourceType {
@@ -265,8 +281,10 @@ model BankTransaction {
 }
 
 enum JournalEntryStatus {
-  DRAFT
-  POSTED
+  DRAFT           // مسودة — لم يُرحَّل بعد
+  PENDING_REVIEW  // بانتظار موافقة المسؤول
+  REJECTED        // مرفوض — يحتاج تعديل
+  POSTED          // مُرحَّل في دفتر الأستاذ
 }
 
 // دعوات إضافة مستخدمين فرعيين أو محاسبين خارجيين
