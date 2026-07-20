@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { createJournalEntry } from "@/lib/ledger";
+import { JournalEntryStatus } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -11,11 +12,21 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const page = Number(searchParams.get("page") ?? 1);
+  const statusParam = searchParams.get("status");
+  const validStatuses = Object.values(JournalEntryStatus) as string[];
+  const statusFilter = statusParam && validStatuses.includes(statusParam)
+    ? (statusParam as JournalEntryStatus)
+    : undefined;
   const limit = 20;
+
+  const where = {
+    businessId: session.user.businessId,
+    ...(statusFilter ? { status: statusFilter } : {}),
+  };
 
   const [entries, total] = await Promise.all([
     prisma.journalEntry.findMany({
-      where: { businessId: session.user.businessId },
+      where,
       orderBy: { date: "desc" },
       skip: (page - 1) * limit,
       take: limit,
@@ -27,7 +38,7 @@ export async function GET(req: NextRequest) {
         reviewer:  { select: { name: true, email: true } },
       },
     }),
-    prisma.journalEntry.count({ where: { businessId: session.user.businessId } }),
+    prisma.journalEntry.count({ where }),
   ]);
 
   return NextResponse.json({ entries, total, page, pages: Math.ceil(total / limit) });
