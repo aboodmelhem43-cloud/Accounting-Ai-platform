@@ -133,7 +133,7 @@ export default function CreateInvoicePage() {
   const [selectedContactId, setSelectedContactId] = useState("");
 
   // Invoice fields
-  const [invoiceNumber, setInvoiceNumber] = useState(`INV-${today.replace(/-/g, "")}`);
+  const [invoiceNumber, setInvoiceNumber] = useState("");
   const [invoiceDate, setInvoiceDate] = useState(today);
   const [dueDate, setDueDate] = useState("");
 
@@ -159,7 +159,7 @@ export default function CreateInvoicePage() {
 
   const compliance = COMPLIANCE[business?.country ?? ""] ?? COMPLIANCE["EG"];
 
-  // Load business info and customers on mount
+  // Load business info, customers, and next invoice number on mount
   useEffect(() => {
     fetch("/api/settings/business-info")
       .then((r) => r.json())
@@ -177,6 +177,11 @@ export default function CreateInvoicePage() {
       .then((r) => r.json())
       .then((data: CustomerContact[]) => setCustomers(Array.isArray(data) ? data : []))
       .catch(() => {});
+
+    fetch("/api/invoices/next-number")
+      .then((r) => r.json())
+      .then((data: { number: string }) => { if (data.number) setInvoiceNumber(data.number); })
+      .catch(() => setInvoiceNumber(`INV-${today.replace(/-/g, "")}`));
   }, []);
 
   function applyContact(contactId: string) {

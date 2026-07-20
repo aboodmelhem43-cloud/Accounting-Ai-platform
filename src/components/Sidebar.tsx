@@ -89,6 +89,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
     },
     { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },
+    { href: "/audit-log", label: isAr ? "سجل المراجعة" : "Audit Trail", icon: "🗂️" },
     {
       href: "/settings",
       label: isAr ? "الإعدادات" : "Settings",

@@ -149,5 +149,26 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Advance the invoice number seed so the next auto-number is fresh
+  try {
+    const biz = await prisma.business.findUnique({
+      where: { id: businessId },
+      select: { invoiceNumberPrefix: true, invoiceNumberSeed: true },
+    });
+    const prefix = biz?.invoiceNumberPrefix ?? "INV";
+    const expectedPattern = new RegExp(`^${prefix}-\\d+$`);
+    if (expectedPattern.test(data.invoiceNumber)) {
+      const num = parseInt(data.invoiceNumber.replace(`${prefix}-`, ""), 10);
+      if (!isNaN(num) && num > (biz?.invoiceNumberSeed ?? 0)) {
+        await prisma.business.update({
+          where: { id: businessId },
+          data: { invoiceNumberSeed: num },
+        });
+      }
+    }
+  } catch {
+    // non-critical — seed sync failure doesn't affect the saved invoice
+  }
+
   return NextResponse.json({ invoiceId: invoice.id }, { status: 201 });
 }
