@@ -21,7 +21,10 @@ export async function GET(req: NextRequest) {
       take: limit,
       include: {
         lines: { include: { account: true } },
-        creator: { select: { name: true, email: true } },
+        creator:   { select: { name: true, email: true } },
+        updater:   { select: { name: true, email: true } },
+        submitter: { select: { name: true, email: true } },
+        reviewer:  { select: { name: true, email: true } },
       },
     }),
     prisma.journalEntry.count({ where: { businessId: session.user.businessId } }),
@@ -40,7 +43,7 @@ const journalLineSchema = z.object({
 const createJournalSchema = z.object({
   date: z.string().min(1),
   description: z.string().min(1),
-  status: z.enum(["DRAFT", "POSTED"]).default("POSTED"),
+  status: z.enum(["DRAFT", "PENDING_REVIEW", "POSTED"]).default("POSTED"),
   lines: z.array(journalLineSchema).min(2),
 });
 
@@ -73,13 +76,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "حساب غير صالح" }, { status: 400 });
     }
 
+    // ACCOUNTANT cannot post directly — force to DRAFT if they somehow pass POSTED
+    const resolvedStatus = session.user.role === "OWNER" ? status : (status === "POSTED" ? "DRAFT" : status);
+
     const entry = await createJournalEntry({
       businessId: session.user.businessId,
       userId: session.user.id,
       date: new Date(date),
       description,
       sourceType: "MANUAL",
-      status,
+      status: resolvedStatus,
       lines,
     });
     return NextResponse.json({ id: entry.id }, { status: 201 });

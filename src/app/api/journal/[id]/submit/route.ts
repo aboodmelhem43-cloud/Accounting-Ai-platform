@@ -8,10 +8,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-  if (session.user.role !== "OWNER") {
-    return NextResponse.json({ error: "فقط المالك يمكنه الترحيل المباشر — استخدم 'تقديم للمراجعة'" }, { status: 403 });
-  }
-
   const { id } = await params;
   const entry = await prisma.journalEntry.findFirst({
     where: { id, businessId: session.user.businessId },
@@ -19,15 +15,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   if (!entry) return NextResponse.json({ error: "القيد غير موجود" }, { status: 404 });
   if (entry.isLocked) return NextResponse.json({ error: "القيد مقفل" }, { status: 403 });
-  if (entry.status === "POSTED") return NextResponse.json({ error: "القيد مُرحَّل بالفعل" }, { status: 400 });
+  if (entry.status !== "DRAFT" && entry.status !== "REJECTED") {
+    return NextResponse.json({ error: "لا يمكن تقديم هذا القيد للمراجعة" }, { status: 400 });
+  }
 
   const updated = await prisma.journalEntry.update({
     where: { id },
     data: {
-      status: "POSTED",
-      reviewedById: session.user.id,
-      reviewedAt: new Date(),
+      status: "PENDING_REVIEW",
+      submittedById: session.user.id,
+      submittedAt: new Date(),
       updatedById: session.user.id,
+      rejectionReason: null,
     },
   });
 
@@ -36,10 +35,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     userId: session.user.id,
     userName: session.user.name ?? undefined,
     userEmail: session.user.email,
-    action: "POST",
+    action: "UPDATE",
     entity: "JournalEntry",
     entityId: id,
-    description: `ترحيل مباشر للقيد: ${entry.description}`,
+    description: `تقديم القيد للمراجعة: ${entry.description}`,
   });
 
   return NextResponse.json({ status: updated.status });

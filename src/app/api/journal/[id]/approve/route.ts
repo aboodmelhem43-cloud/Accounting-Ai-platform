@@ -9,7 +9,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   if (session.user.role !== "OWNER") {
-    return NextResponse.json({ error: "فقط المالك يمكنه الترحيل المباشر — استخدم 'تقديم للمراجعة'" }, { status: 403 });
+    return NextResponse.json({ error: "صلاحيات المالك مطلوبة للموافقة" }, { status: 403 });
   }
 
   const { id } = await params;
@@ -18,8 +18,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   });
 
   if (!entry) return NextResponse.json({ error: "القيد غير موجود" }, { status: 404 });
-  if (entry.isLocked) return NextResponse.json({ error: "القيد مقفل" }, { status: 403 });
-  if (entry.status === "POSTED") return NextResponse.json({ error: "القيد مُرحَّل بالفعل" }, { status: 400 });
+  if (entry.status !== "PENDING_REVIEW") {
+    return NextResponse.json({ error: "القيد ليس بانتظار المراجعة" }, { status: 400 });
+  }
 
   const updated = await prisma.journalEntry.update({
     where: { id },
@@ -28,6 +29,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       reviewedById: session.user.id,
       reviewedAt: new Date(),
       updatedById: session.user.id,
+      rejectionReason: null,
     },
   });
 
@@ -39,7 +41,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     action: "POST",
     entity: "JournalEntry",
     entityId: id,
-    description: `ترحيل مباشر للقيد: ${entry.description}`,
+    description: `موافقة وترحيل القيد: ${entry.description}`,
   });
 
   return NextResponse.json({ status: updated.status });
