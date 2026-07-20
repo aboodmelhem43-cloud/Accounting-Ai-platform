@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
+import { InvoiceStatus } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createJournalEntry } from "@/lib/ledger";
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
       fileUrl: "",
       fileType: "created",
       invoiceType: "PURCHASE",
-      status: data.status,
+      status: data.status as InvoiceStatus,
       dueDate: data.dueDate ? new Date(data.dueDate) : null,
       extractedData: {
         invoiceNumber: data.invoiceNumber,
