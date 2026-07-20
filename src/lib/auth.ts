@@ -5,6 +5,14 @@ import { prisma } from "./prisma";
 import { verifyOtp } from "./otp";
 import { isSuperAdmin } from "./admin";
 
+interface ClientBusiness {
+  id: string;
+  name: string;
+  country: string;
+  currency: string;
+  source?: "practice" | "bookkeeper";
+}
+
 function effectiveTrialEnd(trialEndsAt: Date | null, createdAt: Date): Date {
   const fromCreated = new Date(createdAt);
   fromCreated.setDate(fromCreated.getDate() + 35);
@@ -32,6 +40,18 @@ export const authOptions: NextAuthOptions = {
                 id: true, name: true, country: true, baseCurrency: true,
                 onboardingCompleted: true, plan: true, trialEndsAt: true,
                 createdAt: true,
+                // مكتب المحاسبة — تحميل عملاء المكتب
+                practiceClients: {
+                  select: { id: true, name: true, country: true, baseCurrency: true },
+                },
+              },
+            },
+            bookkeeperAccesses: {
+              where: { status: "ACTIVE" },
+              include: {
+                business: {
+                  select: { id: true, name: true, country: true, baseCurrency: true },
+                },
               },
             },
           },
@@ -53,11 +73,34 @@ export const authOptions: NextAuthOptions = {
           user.business.createdAt,
         );
 
+        // دمج عملاء المكتب + وصول المحاسب الفردي
+        const practiceClients: ClientBusiness[] = user.business.practiceClients.map((c) => ({
+          id: c.id,
+          name: c.name,
+          country: c.country,
+          currency: c.baseCurrency,
+          source: "practice" as const,
+        }));
+        const bookkeeperClients: ClientBusiness[] = user.bookkeeperAccesses.map((a) => ({
+          id: a.business.id,
+          name: a.business.name,
+          country: a.business.country,
+          currency: a.business.baseCurrency,
+          source: "bookkeeper" as const,
+        }));
+        // Practice clients first, then individual bookkeeper access
+        const seen = new Set<string>();
+        const clientBusinesses: ClientBusiness[] = [];
+        for (const c of [...practiceClients, ...bookkeeperClients]) {
+          if (!seen.has(c.id)) { seen.add(c.id); clientBusinesses.push(c); }
+        }
+
         return {
           id: user.id,
           email: user.email,
           name: user.name ?? user.email,
           businessId: user.businessId,
+          primaryBusinessId: user.businessId,
           businessName: user.business.name,
           country: user.business.country,
           currency: user.business.baseCurrency,
@@ -65,28 +108,94 @@ export const authOptions: NextAuthOptions = {
           onboardingCompleted: user.business.onboardingCompleted,
           plan: user.business.plan,
           trialEndsAt: trialEnd.toISOString(),
+          clientBusinesses,
+          isPractice: practiceClients.length > 0,
         };
       },
     }),
   ],
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user, trigger }) {
-      if (trigger === "update") {
-        const business = await prisma.business.findUnique({
-          where: { id: token.businessId as string },
-          select: { name: true, country: true, baseCurrency: true, onboardingCompleted: true },
-        });
-        if (business) {
-          token.businessName = business.name;
-          token.country = business.country;
-          token.currency = business.baseCurrency;
-          token.onboardingCompleted = business.onboardingCompleted;
+    async jwt({ token, user, trigger, session }) {
+      if (trigger === "update" && session) {
+        // Business switcher: bookkeeper switches to a client business
+        if (session.activeBusinessId) {
+          const targetId = session.activeBusinessId as string;
+          const primaryId = (token.primaryBusinessId ?? token.businessId) as string;
+
+          // Allow switching to own business or to an active client business
+          // Always validate against live DB — JWT cache may be stale after revocation
+          const isOwn = targetId === primaryId;
+          let isClient = false;
+          if (!isOwn) {
+            const userId = token.sub as string;
+            const [practiceClient, bookkeeperAccess] = await Promise.all([
+              prisma.business.findFirst({
+                where: { id: targetId, managedByBusinessId: primaryId },
+                select: { id: true },
+              }),
+              prisma.bookkeeperAccess.findFirst({
+                where: { userId, businessId: targetId, status: "ACTIVE" },
+                select: { id: true },
+              }),
+            ]);
+            isClient = !!(practiceClient || bookkeeperAccess);
+          }
+
+          if (isOwn || isClient) {
+            const biz = await prisma.business.findUnique({
+              where: { id: targetId },
+              select: {
+                name: true, country: true, baseCurrency: true,
+                onboardingCompleted: true, plan: true, trialEndsAt: true, createdAt: true,
+              },
+            });
+            if (biz) {
+              let role = token.role as string;
+              if (!isOwn) {
+                role = "ACCOUNTANT";
+              } else {
+                const ownUser = await prisma.user.findUnique({
+                  where: { id: token.sub as string },
+                  select: { role: true },
+                });
+                if (ownUser) role = ownUser.role;
+              }
+
+              const trialEnd = effectiveTrialEnd(biz.trialEndsAt ?? null, biz.createdAt);
+              token.businessId = targetId;
+              token.businessName = biz.name;
+              token.country = biz.country;
+              token.currency = biz.baseCurrency;
+              token.onboardingCompleted = biz.onboardingCompleted;
+              token.plan = biz.plan;
+              token.trialEndsAt = trialEnd.toISOString();
+              token.role = role;
+            }
+          }
+        } else {
+          // Regular profile/session refresh
+          const business = await prisma.business.findUnique({
+            where: { id: token.businessId as string },
+            select: { name: true, country: true, baseCurrency: true, onboardingCompleted: true },
+          });
+          if (business) {
+            token.businessName = business.name;
+            token.country = business.country;
+            token.currency = business.baseCurrency;
+            token.onboardingCompleted = business.onboardingCompleted;
+          }
         }
       }
       if (user) {
-        const u = user as unknown as { businessId: string; businessName: string; country: string; currency: string; role: string; onboardingCompleted: boolean; plan: string; trialEndsAt: string | null };
+        const u = user as unknown as {
+          businessId: string; primaryBusinessId: string; businessName: string;
+          country: string; currency: string; role: string; onboardingCompleted: boolean;
+          plan: string; trialEndsAt: string | null; clientBusinesses: ClientBusiness[];
+          isPractice: boolean;
+        };
         token.businessId = u.businessId;
+        token.primaryBusinessId = u.primaryBusinessId;
         token.businessName = u.businessName;
         token.country = u.country;
         token.currency = u.currency;
@@ -94,6 +203,8 @@ export const authOptions: NextAuthOptions = {
         token.onboardingCompleted = u.onboardingCompleted;
         token.plan = u.plan;
         token.trialEndsAt = u.trialEndsAt;
+        token.clientBusinesses = u.clientBusinesses;
+        token.isPractice = u.isPractice;
       }
       return token;
     },
@@ -101,6 +212,7 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user.id = token.sub as string;
         session.user.businessId = token.businessId as string;
+        session.user.primaryBusinessId = token.primaryBusinessId as string;
         session.user.businessName = token.businessName as string;
         session.user.country = token.country as string;
         session.user.currency = token.currency as string;
@@ -108,6 +220,8 @@ export const authOptions: NextAuthOptions = {
         session.user.onboardingCompleted = token.onboardingCompleted as boolean;
         session.user.plan = token.plan as string;
         session.user.trialEndsAt = token.trialEndsAt as string | null;
+        session.user.clientBusinesses = (token.clientBusinesses ?? []) as ClientBusiness[];
+        session.user.isPractice = (token.isPractice ?? false) as boolean;
       }
       return session;
     },
@@ -126,6 +240,7 @@ declare module "next-auth" {
       email: string;
       name?: string | null;
       businessId: string;
+      primaryBusinessId: string;
       businessName: string;
       country: string;
       currency: string;
@@ -133,6 +248,8 @@ declare module "next-auth" {
       onboardingCompleted: boolean;
       plan: string;
       trialEndsAt: string | null;
+      clientBusinesses: ClientBusiness[];
+      isPractice: boolean;
     };
   }
 }

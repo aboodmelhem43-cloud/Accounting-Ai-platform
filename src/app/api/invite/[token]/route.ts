@@ -22,17 +22,26 @@ export async function GET(
     return NextResponse.json({ error: "Invitation is invalid or has expired." }, { status: 404 });
   }
 
+  // For bookkeeper invites, check if the invitee already has an account
+  const existingUser = await prisma.user.findUnique({
+    where: { email: invite.email },
+    select: { id: true, name: true },
+  });
+
   return NextResponse.json({
     email: invite.email,
     businessName: invite.business.name,
     role: invite.role,
+    type: invite.type,
+    hasAccount: !!existingUser,
+    existingName: existingUser?.name ?? null,
   });
 }
 
-// POST — accept invite: create user account
+// POST — accept invite
 const acceptSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  name: z.string().min(2, "Name must be at least 2 characters").optional(),
+  password: z.string().min(8, "Password must be at least 8 characters").optional(),
 });
 
 export async function POST(
@@ -47,9 +56,78 @@ export async function POST(
   }
 
   const body = await req.json();
-  const { name, password } = acceptSchema.parse(body);
 
-  // Check email not already taken
+  if (invite.type === "BOOKKEEPER") {
+    // Bookkeeper invite: existing user just accepts access; new user also creates account
+    const existingUser = await prisma.user.findUnique({ where: { email: invite.email } });
+
+    if (existingUser) {
+      // Grant access to this business
+      await prisma.$transaction([
+        prisma.bookkeeperAccess.upsert({
+          where: { userId_businessId: { userId: existingUser.id, businessId: invite.businessId } },
+          create: { userId: existingUser.id, businessId: invite.businessId, status: "ACTIVE" },
+          update: { status: "ACTIVE" },
+        }),
+        prisma.invite.update({
+          where: { id: invite.id },
+          data: { usedAt: new Date() },
+        }),
+      ]);
+      return NextResponse.json({ ok: true, email: invite.email }, { status: 200 });
+    }
+
+    // New user — need name + password to create account
+    const { name, password } = acceptSchema.parse(body);
+    if (!name || !password) {
+      return NextResponse.json(
+        { error: "Name and password are required for new accounts." },
+        { status: 400 }
+      );
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    // Create a profile business for the bookkeeper
+    await prisma.$transaction(async (tx) => {
+      const profileBiz = await tx.business.create({
+        data: {
+          name: `${name} (Bookkeeper)`,
+          country: invite.business.country,
+          baseCurrency: "EGP",
+          onboardingCompleted: true,
+        },
+      });
+      const newUser = await tx.user.create({
+        data: {
+          businessId: profileBiz.id,
+          email: invite.email,
+          passwordHash,
+          name,
+          role: "OWNER",
+        },
+      });
+      await tx.bookkeeperAccess.create({
+        data: { userId: newUser.id, businessId: invite.businessId, status: "ACTIVE" },
+      });
+      await tx.invite.update({
+        where: { id: invite.id },
+        data: { usedAt: new Date() },
+      });
+    });
+
+    return NextResponse.json({ ok: true, email: invite.email }, { status: 201 });
+  }
+
+  // TEAM invite — original flow
+  const { name, password } = acceptSchema.parse(body);
+  if (!name || !password) {
+    return NextResponse.json(
+      { error: "Name and password are required." },
+      { status: 400 }
+    );
+  }
+
   const existing = await prisma.user.findUnique({ where: { email: invite.email } });
   if (existing) {
     return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });

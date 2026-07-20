@@ -7,6 +7,9 @@ interface InviteInfo {
   email: string;
   businessName: string;
   role: string;
+  type: string;
+  hasAccount: boolean;
+  existingName: string | null;
 }
 
 export default function AcceptInvitePage({ params }: { params: Promise<{ token: string }> }) {
@@ -39,20 +42,32 @@ export default function AcceptInvitePage({ params }: { params: Promise<{ token: 
   async function handleAccept(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (password !== confirm) {
-      setError("Passwords do not match");
-      return;
+
+    // For new-user bookkeeper or team invite: validate password
+    const needsPassword = !info?.hasAccount;
+    if (needsPassword) {
+      if (password !== confirm) {
+        setError("Passwords do not match");
+        return;
+      }
+      if (password.length < 8) {
+        setError("Password must be at least 8 characters");
+        return;
+      }
     }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
-      return;
-    }
+
     setSubmitting(true);
     try {
+      const body: Record<string, string> = {};
+      if (needsPassword) {
+        body.name = name;
+        body.password = password;
+      }
+
       const res = await fetch(`/api/invite/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, password }),
+        body: JSON.stringify(body),
       });
       const d = await res.json();
       if (res.ok) {
@@ -67,6 +82,9 @@ export default function AcceptInvitePage({ params }: { params: Promise<{ token: 
       setSubmitting(false);
     }
   }
+
+  const isBookkeeper = info?.type === "BOOKKEEPER";
+  const isExistingUser = info?.hasAccount ?? false;
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -102,7 +120,9 @@ export default function AcceptInvitePage({ params }: { params: Promise<{ token: 
           {done && (
             <div className="text-center">
               <div className="text-4xl mb-4">✅</div>
-              <h1 className="text-xl font-bold text-gray-900 mb-2">Account Created!</h1>
+              <h1 className="text-xl font-bold text-gray-900 mb-2">
+                {isBookkeeper ? "Access Granted!" : "Account Created!"}
+              </h1>
               <p className="text-gray-500 text-sm">Redirecting you to login…</p>
             </div>
           )}
@@ -111,13 +131,22 @@ export default function AcceptInvitePage({ params }: { params: Promise<{ token: 
           {info && !done && (
             <>
               <div className="text-center mb-6">
-                <div className="text-3xl mb-3">✉️</div>
+                <div className="text-3xl mb-3">{isBookkeeper ? "🔑" : "✉️"}</div>
                 <h1 className="text-xl font-bold text-gray-900 mb-1">
-                  You&apos;re Invited
+                  {isBookkeeper ? "Bookkeeper Invitation" : "You're Invited"}
                 </h1>
                 <p className="text-gray-500 text-sm">
-                  Join <span className="font-semibold text-gray-800">{info.businessName}</span> as an{" "}
-                  <span className="text-blue-600 font-medium">Accountant</span>
+                  {isBookkeeper ? (
+                    <>
+                      You&apos;ve been invited to manage the books for{" "}
+                      <span className="font-semibold text-gray-800">{info.businessName}</span>
+                    </>
+                  ) : (
+                    <>
+                      Join <span className="font-semibold text-gray-800">{info.businessName}</span> as an{" "}
+                      <span className="text-blue-600 font-medium">Accountant</span>
+                    </>
+                  )}
                 </p>
               </div>
 
@@ -133,49 +162,67 @@ export default function AcceptInvitePage({ params }: { params: Promise<{ token: 
                     dir="ltr"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    className="input"
-                    placeholder="Your full name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    autoFocus
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="password"
-                    className="input"
-                    placeholder="Min. 8 characters"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="new-password"
-                    dir="ltr"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Confirm Password <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="password"
-                    className="input"
-                    placeholder="Repeat password"
-                    value={confirm}
-                    onChange={(e) => setConfirm(e.target.value)}
-                    required
-                    autoComplete="new-password"
-                    dir="ltr"
-                  />
-                </div>
+
+                {/* Existing bookkeeper user — just accept */}
+                {isBookkeeper && isExistingUser ? (
+                  <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-sm text-blue-800">
+                    <p className="font-medium mb-1">
+                      Welcome back{info.existingName ? `, ${info.existingName}` : ""}!
+                    </p>
+                    <p className="text-blue-600">
+                      Click below to grant yourself access to{" "}
+                      <span className="font-semibold">{info.businessName}</span>.
+                    </p>
+                  </div>
+                ) : (
+                  /* New user — collect name + password */
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        className="input"
+                        placeholder="Your full name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                        autoFocus
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Password <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="password"
+                        className="input"
+                        placeholder="Min. 8 characters"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        autoComplete="new-password"
+                        dir="ltr"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Confirm Password <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="password"
+                        className="input"
+                        placeholder="Repeat password"
+                        value={confirm}
+                        onChange={(e) => setConfirm(e.target.value)}
+                        required
+                        autoComplete="new-password"
+                        dir="ltr"
+                      />
+                    </div>
+                  </>
+                )}
+
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded-lg">
                     {error}
@@ -183,10 +230,17 @@ export default function AcceptInvitePage({ params }: { params: Promise<{ token: 
                 )}
                 <button
                   type="submit"
-                  disabled={submitting || !name.trim() || !password || !confirm}
+                  disabled={
+                    submitting ||
+                    (!isExistingUser && (!name.trim() || !password || !confirm))
+                  }
                   className="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {submitting ? "Creating account…" : "Accept Invitation"}
+                  {submitting
+                    ? "Processing…"
+                    : isBookkeeper && isExistingUser
+                    ? "Accept Access"
+                    : "Accept Invitation"}
                 </button>
               </form>
             </>

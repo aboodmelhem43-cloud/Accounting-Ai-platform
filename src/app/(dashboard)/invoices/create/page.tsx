@@ -19,6 +19,15 @@ interface BusinessInfo {
   phone: string | null;
 }
 
+interface CustomerContact {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  taxNumber: string | null;
+}
+
 interface CountryCompliance {
   vatRate: number;
   vatName: string;
@@ -120,9 +129,11 @@ export default function CreateInvoicePage() {
   const [business, setBusiness] = useState<BusinessInfo | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [customers, setCustomers] = useState<CustomerContact[]>([]);
+  const [selectedContactId, setSelectedContactId] = useState("");
 
   // Invoice fields
-  const [invoiceNumber, setInvoiceNumber] = useState(`INV-${today.replace(/-/g, "")}`);
+  const [invoiceNumber, setInvoiceNumber] = useState("");
   const [invoiceDate, setInvoiceDate] = useState(today);
   const [dueDate, setDueDate] = useState("");
 
@@ -148,7 +159,7 @@ export default function CreateInvoicePage() {
 
   const compliance = COMPLIANCE[business?.country ?? ""] ?? COMPLIANCE["EG"];
 
-  // Load business info on mount
+  // Load business info, customers, and next invoice number on mount
   useEffect(() => {
     fetch("/api/settings/business-info")
       .then((r) => r.json())
@@ -161,7 +172,29 @@ export default function CreateInvoicePage() {
         setTaxRate(Math.round(c.vatRate * 100));
       })
       .catch(() => {});
+
+    fetch("/api/contacts?type=CUSTOMER")
+      .then((r) => r.json())
+      .then((data: CustomerContact[]) => setCustomers(Array.isArray(data) ? data : []))
+      .catch(() => {});
+
+    fetch("/api/invoices/next-number")
+      .then((r) => r.json())
+      .then((data: { number: string }) => { if (data.number) setInvoiceNumber(data.number); })
+      .catch(() => setInvoiceNumber(`INV-${today.replace(/-/g, "")}`));
   }, []);
+
+  function applyContact(contactId: string) {
+    const contact = customers.find((c) => c.id === contactId);
+    setSelectedContactId(contactId);
+    if (contact) {
+      setCustomerName(contact.name);
+      setCustomerEmail(contact.email ?? "");
+      setCustomerPhone(contact.phone ?? "");
+      setCustomerAddress(contact.address ?? "");
+      setCustomerTaxNumber(contact.taxNumber ?? "");
+    }
+  }
 
   const subtotal = lineItems.reduce((s, l) => s + l.quantity * l.unitPrice, 0);
   const taxAmount = subtotal * (taxRate / 100);
@@ -190,6 +223,7 @@ export default function CreateInvoicePage() {
           invoiceNumber, invoiceDate, dueDate,
           sellerName, sellerTaxNumber, sellerAddress,
           customerName, customerTaxNumber, customerAddress, customerPhone, customerEmail,
+          contactId: selectedContactId || undefined,
           lineItems,
           subtotal, taxRate, taxAmount, grandTotal,
           currency: compliance.currency,
@@ -470,6 +504,24 @@ export default function CreateInvoicePage() {
       {/* Buyer info */}
       <div className="card space-y-4">
         <h2 className="font-semibold text-gray-800">{isAr ? "بيانات العميل / المشتري" : "Customer / Buyer Details"}</h2>
+
+        {/* Contact selector */}
+        {customers.length > 0 && (
+          <div>
+            <label className="label">{isAr ? "اختر من جهات الاتصال" : "Select from Contacts"}</label>
+            <select
+              value={selectedContactId}
+              onChange={(e) => applyContact(e.target.value)}
+              className="input"
+            >
+              <option value="">{isAr ? "— إدخال يدوي —" : "— Manual entry —"}</option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}{c.email ? ` (${c.email})` : ""}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="label">{isAr ? "اسم العميل / الشركة" : "Customer / Company Name"}</label>

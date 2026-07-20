@@ -20,7 +20,7 @@ export async function createJournalEntry(params: {
   description: string;
   sourceType: "MANUAL" | "AI_INVOICE";
   status?: "DRAFT" | "POSTED";
-  lines: { accountId: string; debit: number; credit: number; description?: string }[];
+  lines: { accountId: string; debit: number; credit: number; description?: string; foreignCurrency?: string; foreignAmount?: number; exchangeRate?: number }[];
   invoiceId?: string;
 }) {
   const { businessId, userId, date, description, sourceType, status = "POSTED", lines, invoiceId } = params;
@@ -31,6 +31,17 @@ export async function createJournalEntry(params: {
 
   if (lines.length < 2) {
     throw new Error("القيد يحتاج على الأقل سطرين (مدين ودائن)");
+  }
+
+  // التحقق من أن الفترة المحاسبية ليست مقفلة
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const closedPeriod = await prisma.accountingPeriod.findUnique({
+    where: { businessId_year_month: { businessId, year, month } },
+    select: { status: true },
+  });
+  if (closedPeriod?.status === "CLOSED") {
+    throw new Error(`الفترة المحاسبية ${year}/${String(month).padStart(2, "0")} مقفلة — لا يمكن إضافة قيود عليها`);
   }
 
   // إنشاء القيد مع سطوره في transaction واحدة
@@ -49,6 +60,9 @@ export async function createJournalEntry(params: {
             debit: l.debit,
             credit: l.credit,
             description: l.description,
+            foreignCurrency: l.foreignCurrency,
+            foreignAmount: l.foreignAmount,
+            exchangeRate: l.exchangeRate,
           })),
         },
       },

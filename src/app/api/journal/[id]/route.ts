@@ -44,12 +44,25 @@ export async function DELETE(
 
   const entry = await prisma.journalEntry.findUnique({
     where: { id },
-    select: { id: true, businessId: true, status: true },
+    select: { id: true, businessId: true, status: true, isLocked: true, date: true },
   });
 
   if (!entry) return NextResponse.json({ error: "القيد غير موجود" }, { status: 404 });
   if (entry.businessId !== session.user.businessId) {
     return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
+  }
+  if (entry.isLocked) {
+    return NextResponse.json({ error: "القيد مقفل ولا يمكن حذفه" }, { status: 409 });
+  }
+
+  const year = entry.date.getFullYear();
+  const month = entry.date.getMonth() + 1;
+  const closedPeriod = await prisma.accountingPeriod.findUnique({
+    where: { businessId_year_month: { businessId: session.user.businessId, year, month } },
+    select: { status: true },
+  });
+  if (closedPeriod?.status === "CLOSED") {
+    return NextResponse.json({ error: "الفترة المحاسبية مقفلة — لا يمكن حذف قيودها" }, { status: 409 });
   }
 
   await prisma.journalEntry.delete({ where: { id } });

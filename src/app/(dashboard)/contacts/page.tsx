@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
 
 type ContactType = "CUSTOMER" | "VENDOR";
@@ -26,6 +27,24 @@ interface ContactForm {
   notes: string;
 }
 
+interface ContactInvoice {
+  id: string;
+  invoiceNumber: string | null;
+  invoiceDate: string | null;
+  dueDate: string | null;
+  total: number;
+  paid: number;
+  outstanding: number;
+  paymentStatus: string;
+  invoiceType: string;
+}
+
+interface ContactHistory {
+  contact: Contact;
+  invoices: ContactInvoice[];
+  summary: { totalBilled: number; totalPaid: number; outstanding: number; currency: string };
+}
+
 const emptyForm = (): ContactForm => ({
   type: "CUSTOMER",
   name: "",
@@ -35,6 +54,13 @@ const emptyForm = (): ContactForm => ({
   taxNumber: "",
   notes: "",
 });
+
+const paymentStatusLabels: Record<string, { ar: string; en: string; color: string }> = {
+  UNPAID: { ar: "غير مدفوعة", en: "Unpaid", color: "text-yellow-700 bg-yellow-100" },
+  PARTIALLY_PAID: { ar: "جزئي", en: "Partial", color: "text-blue-700 bg-blue-100" },
+  PAID: { ar: "مدفوعة", en: "Paid", color: "text-green-700 bg-green-100" },
+  VOIDED: { ar: "ملغاة", en: "Voided", color: "text-gray-500 bg-gray-100" },
+};
 
 export default function ContactsPage() {
   const { lang } = useLang();
@@ -49,6 +75,8 @@ export default function ContactsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [historyContact, setHistoryContact] = useState<ContactHistory | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -85,6 +113,19 @@ export default function ContactsPage() {
     });
     setError(null);
     setShowModal(true);
+  }
+
+  async function openHistory(contactId: string) {
+    setHistoryLoading(true);
+    setHistoryContact(null);
+    try {
+      const res = await fetch(`/api/contacts/${contactId}/transactions`);
+      if (res.ok) {
+        const data = await res.json() as ContactHistory;
+        setHistoryContact(data);
+      }
+    } catch { /* ignore */ }
+    finally { setHistoryLoading(false); }
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -131,7 +172,8 @@ export default function ContactsPage() {
     load();
   }
 
-  const tabContacts = contacts;
+  const fmt = (n: number, currency: string) =>
+    `${n.toLocaleString(isAr ? "ar-EG" : "en-US", { minimumFractionDigits: 2 })} ${currency}`;
 
   return (
     <div className="space-y-6">
@@ -176,7 +218,7 @@ export default function ContactsPage() {
             <div className="animate-spin text-2xl mb-2">⚙️</div>
             <p>{isAr ? "جاري التحميل..." : "Loading..."}</p>
           </div>
-        ) : tabContacts.length === 0 ? (
+        ) : contacts.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-5xl mb-4">👥</div>
             <p className="text-gray-500 font-medium">
@@ -201,13 +243,25 @@ export default function ContactsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {tabContacts.map((c) => (
+              {contacts.map((c) => (
                 <tr key={c.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3 font-medium text-gray-800">{c.name}</td>
                   <td className="px-4 py-3 text-gray-500">{c.email ?? "—"}</td>
                   <td className="px-4 py-3 text-gray-500">{c.phone ?? "—"}</td>
                   <td className="px-4 py-3 text-gray-500">{c.taxNumber ?? "—"}</td>
                   <td className="px-4 py-3 flex gap-2 justify-end">
+                    <Link
+                      href={`/contacts/${c.id}`}
+                      className="text-xs text-gray-500 hover:text-gray-700 font-medium"
+                    >
+                      {isAr ? "تفاصيل" : "Details"}
+                    </Link>
+                    <button
+                      onClick={() => openHistory(c.id)}
+                      className="text-xs text-purple-600 hover:text-purple-800 font-medium"
+                    >
+                      {isAr ? "السجل" : "History"}
+                    </button>
                     <button
                       onClick={() => openEdit(c)}
                       className="text-xs text-blue-600 hover:text-blue-800 font-medium"
@@ -227,6 +281,103 @@ export default function ContactsPage() {
           </table>
         )}
       </div>
+
+      {/* History modal */}
+      {(historyLoading || historyContact) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto" dir={isAr ? "rtl" : "ltr"}>
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 sticky top-0 bg-white">
+              <h2 className="text-lg font-bold text-gray-900">
+                {historyContact
+                  ? (isAr ? `سجل: ${historyContact.contact.name}` : `History: ${historyContact.contact.name}`)
+                  : (isAr ? "جاري التحميل..." : "Loading...")}
+              </h2>
+              <button onClick={() => setHistoryContact(null)} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+
+            {historyLoading && (
+              <div className="text-center py-12 text-gray-400">
+                <div className="animate-spin text-2xl mb-2">⚙️</div>
+              </div>
+            )}
+
+            {historyContact && !historyLoading && (
+              <div className="p-6 space-y-6">
+                {/* Summary */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-gray-50 rounded-xl p-4 text-center">
+                    <div className="text-lg font-bold text-gray-800">
+                      {fmt(historyContact.summary.totalBilled, historyContact.summary.currency)}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">{isAr ? "إجمالي الفواتير" : "Total Billed"}</div>
+                  </div>
+                  <div className="bg-green-50 rounded-xl p-4 text-center">
+                    <div className="text-lg font-bold text-green-700">
+                      {fmt(historyContact.summary.totalPaid, historyContact.summary.currency)}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">{isAr ? "المدفوع" : "Paid"}</div>
+                  </div>
+                  <div className={`rounded-xl p-4 text-center ${historyContact.summary.outstanding > 0 ? "bg-red-50" : "bg-green-50"}`}>
+                    <div className={`text-lg font-bold ${historyContact.summary.outstanding > 0 ? "text-red-700" : "text-green-700"}`}>
+                      {fmt(historyContact.summary.outstanding, historyContact.summary.currency)}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">{isAr ? "المتبقي" : "Outstanding"}</div>
+                  </div>
+                </div>
+
+                {/* Invoices */}
+                {historyContact.invoices.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400">
+                    <p>{isAr ? "لا توجد فواتير مرتبطة" : "No linked invoices yet"}</p>
+                  </div>
+                ) : (
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">{isAr ? "الفواتير" : "Invoices"}</h3>
+                    <div className="space-y-2">
+                      {historyContact.invoices.map((inv) => {
+                        const ps = paymentStatusLabels[inv.paymentStatus] ?? paymentStatusLabels.UNPAID;
+                        return (
+                          <div key={inv.id} className="flex items-center gap-3 border border-gray-100 rounded-xl px-4 py-3 text-sm hover:bg-gray-50">
+                            <div className="flex-1">
+                              <span className="font-medium text-gray-800">
+                                {inv.invoiceNumber ? `#${inv.invoiceNumber}` : `#${inv.id.slice(-6).toUpperCase()}`}
+                              </span>
+                              {inv.invoiceDate && (
+                                <span className="text-gray-400 text-xs mx-2">
+                                  {new Date(inv.invoiceDate).toLocaleDateString(isAr ? "ar-EG" : "en-US")}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <div className="font-medium text-gray-800">
+                                {fmt(inv.total, historyContact.summary.currency)}
+                              </div>
+                              {inv.outstanding > 0 && (
+                                <div className="text-xs text-red-600">
+                                  {isAr ? "متبقي:" : "Due:"} {fmt(inv.outstanding, historyContact.summary.currency)}
+                                </div>
+                              )}
+                            </div>
+                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${ps.color}`}>
+                              {isAr ? ps.ar : ps.en}
+                            </span>
+                            <a
+                              href={`/invoices/${inv.id}/view`}
+                              className="text-xs text-blue-600 hover:underline"
+                            >
+                              {isAr ? "عرض" : "View"}
+                            </a>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Delete confirmation modal */}
       {deleteId && (

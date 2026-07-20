@@ -19,25 +19,39 @@ model Business {
   taxNumber           String?
   address             String?
   phone               String?
-  onboardingCompleted Boolean   @default(false)
-  plan                String    @default("FREE_TRIAL") // FREE_TRIAL | STARTER | PRO | BUSINESS
+  onboardingCompleted  Boolean   @default(false)
+  invoiceNumberPrefix  String    @default("INV")
+  invoiceNumberSeed    Int       @default(0)
+  logo                 String?   // base64 data URL or external URL
+  defaultPaymentTerms  String?   // e.g. "Net 30"
+  plan                 String    @default("FREE_TRIAL") // FREE_TRIAL | STARTER | PRO | BUSINESS
   trialEndsAt         DateTime?
   lsSubscriptionId    String?   @unique // Lemon Squeezy subscription ID
   lsCustomerId        String?   // Lemon Squeezy customer ID
   lsVariantId         String?   // active variant ID
   lsCurrentPeriodEnd  DateTime? // when current billing period ends
+  // مكتب المحاسبة — إذا كانت هذه المنشأة عميلاً يُدار من قِبَل مكتب
+  managedByBusinessId String?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  users          User[]
-  accounts       Account[]
-  journalEntries JournalEntry[]
-  invoices       Invoice[]
-  contacts       Contact[]
-  bankAccounts   BankAccount[]
-  bankStatements BankStatement[]
-  chatMessages   ChatMessage[]
-  invites        Invite[]
+  users               User[]
+  accounts            Account[]
+  journalEntries      JournalEntry[]
+  invoices            Invoice[]
+  contacts            Contact[]
+  bankAccounts        BankAccount[]
+  bankStatements      BankStatement[]
+  chatMessages        ChatMessage[]
+  invites             Invite[]
+  bookkeeperAccesses  BookkeeperAccess[]
+  auditLogs           AuditLog[]
+  accountingPeriods   AccountingPeriod[]
+  recurringTemplates  RecurringTemplate[]
+  fixedAssets         FixedAsset[]
+  // العملاء الذين يديرهم هذا المكتب
+  practiceClients     Business[] @relation("PracticeClients")
+  managedBy           Business?  @relation("PracticeClients", fields: [managedByBusinessId], references: [id])
 }
 
 model ChatMessage {
@@ -61,8 +75,9 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  business       Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  journalEntries JournalEntry[]
+  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  journalEntries     JournalEntry[]
+  bookkeeperAccesses BookkeeperAccess[]
 }
 
 enum UserRole {
@@ -105,6 +120,8 @@ model JournalEntry {
   createdById String
   createdAt   DateTime          @default(now())
   status      JournalEntryStatus @default(POSTED)
+  isLocked    Boolean           @default(false)
+  lockedAt    DateTime?
 
   business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
   creator  User          @relation(fields: [createdById], references: [id])
@@ -119,12 +136,15 @@ enum JournalSourceType {
 
 // سطور القيد — لازم مجموع debit = مجموع credit لكل قيد
 model JournalLine {
-  id             String  @id @default(cuid())
-  journalEntryId String
-  accountId      String
-  debit          Decimal @default(0) @db.Decimal(15, 2)
-  credit         Decimal @default(0) @db.Decimal(15, 2)
-  description    String?
+  id              String   @id @default(cuid())
+  journalEntryId  String
+  accountId       String
+  debit           Decimal  @default(0) @db.Decimal(15, 2)
+  credit          Decimal  @default(0) @db.Decimal(15, 2)
+  description     String?
+  foreignCurrency String?
+  foreignAmount   Decimal? @db.Decimal(15, 2)
+  exchangeRate    Decimal? @db.Decimal(10, 6)
 
   journalEntry JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
   account      Account      @relation(fields: [accountId], references: [id])
@@ -140,11 +160,32 @@ model Invoice {
   status          InvoiceStatus @default(PENDING_REVIEW)
   invoiceType     InvoiceType   @default(PURCHASE) // مشتريات أو مبيعات
   journalEntryId  String?       @unique
+  contactId       String?       // جهة الاتصال المرتبطة
+  dueDate         DateTime?     // تاريخ الاستحقاق
+  paymentStatus   String        @default("UNPAID") // UNPAID | PARTIALLY_PAID | PAID | VOIDED
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
-  business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  journalEntry JournalEntry? @relation(fields: [journalEntryId], references: [id])
+  documentType      String        @default("INVOICE") // INVOICE | CREDIT_NOTE | DEBIT_NOTE
+  relatedInvoiceId  String?       // للإشارة إلى الفاتورة الأصلية في حالة إشعارات الخصم/الائتمان
+
+  business     Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  journalEntry JournalEntry?    @relation(fields: [journalEntryId], references: [id])
+  contact      Contact?         @relation(fields: [contactId], references: [id])
+  payments     InvoicePayment[]
+}
+
+// دفعات الفاتورة — لتتبع الدفعات الجزئية
+model InvoicePayment {
+  id             String   @id @default(cuid())
+  invoiceId      String
+  amount         Decimal  @db.Decimal(15, 2)
+  date           DateTime
+  note           String?
+  journalEntryId String?
+  createdAt      DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 }
 
 enum InvoiceStatus {
@@ -172,6 +213,7 @@ model Contact {
   updatedAt   DateTime    @updatedAt
 
   business    Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  invoices    Invoice[]
 }
 
 enum ContactType {
@@ -217,6 +259,7 @@ model BankTransaction {
   balance         Decimal? @db.Decimal(15, 2)
   reference       String?
   matched         Boolean  @default(false)
+  journalEntryId  String?  // القيد المرتبط بعد المطابقة
 
   statement BankStatement @relation(fields: [statementId], references: [id], onDelete: Cascade)
 }
@@ -226,12 +269,13 @@ enum JournalEntryStatus {
   POSTED
 }
 
-// دعوات إضافة مستخدمين فرعيين
+// دعوات إضافة مستخدمين فرعيين أو محاسبين خارجيين
 model Invite {
   id         String    @id @default(cuid())
   businessId String
   email      String
   role       UserRole  @default(ACCOUNTANT)
+  type       String    @default("TEAM") // "TEAM" | "BOOKKEEPER"
   token      String    @unique @default(cuid())
   expiresAt  DateTime
   usedAt     DateTime?
@@ -241,6 +285,22 @@ model Invite {
 
   @@index([businessId])
   @@index([token])
+}
+
+// وصول المحاسب الخارجي لمنشأة عميل
+model BookkeeperAccess {
+  id         String   @id @default(cuid())
+  userId     String
+  businessId String
+  status     String   @default("ACTIVE") // "ACTIVE" | "REVOKED"
+  grantedAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([userId])
+  @@index([businessId])
 }
 
 // رموز التحقق بالبريد الإلكتروني
@@ -253,4 +313,105 @@ model OtpCode {
   createdAt DateTime @default(now())
 
   @@index([email, purpose])
+}
+
+// سجل المراجعة والتدقيق
+model AuditLog {
+  id          String   @id @default(cuid())
+  businessId  String
+  userId      String?
+  userName    String?
+  userEmail   String?
+  action      String   // CREATE | UPDATE | DELETE | LOCK | CLOSE | OPEN | POST | CONFIRM | REJECT | SEND | PAY
+  entity      String   // JournalEntry | Invoice | Account | Contact | Period | FixedAsset | RecurringTemplate
+  entityId    String
+  description String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, entity, entityId])
+  @@index([businessId, createdAt(sort: Desc)])
+}
+
+// الفترات المحاسبية — لإقفال الأشهر
+model AccountingPeriod {
+  id         String    @id @default(cuid())
+  businessId String
+  year       Int
+  month      Int
+  status     String    @default("OPEN") // OPEN | CLOSED
+  closedAt   DateTime?
+  closedById String?
+  notes      String?
+  createdAt  DateTime  @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, year, month])
+  @@index([businessId, status])
+}
+
+// قوالب القيود المتكررة
+model RecurringTemplate {
+  id          String    @id @default(cuid())
+  businessId  String
+  name        String
+  description String
+  frequency   String    // MONTHLY | WEEKLY | QUARTERLY | YEARLY
+  dayOfMonth  Int?
+  nextRunDate DateTime
+  endDate     DateTime?
+  isActive    Boolean   @default(true)
+  createdById String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lines       Json      // [{accountId, accountCode, accountName, debit, credit, description}]
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, isActive])
+}
+
+// الأصول الثابتة
+model FixedAsset {
+  id                     String    @id @default(cuid())
+  businessId             String
+  name                   String
+  code                   String?
+  category               String?
+  purchaseDate           DateTime
+  purchaseCost           Decimal   @db.Decimal(15, 2)
+  residualValue          Decimal   @default(0) @db.Decimal(15, 2)
+  usefulLifeMonths       Int
+  depreciationMethod     String    @default("STRAIGHT_LINE") // STRAIGHT_LINE | DECLINING_BALANCE
+  assetAccountId         String
+  accumDeprecAccountId   String
+  deprecExpenseAccountId String
+  status                 String    @default("ACTIVE") // ACTIVE | DISPOSED | FULLY_DEPRECIATED
+  disposedAt             DateTime?
+  notes                  String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  business            Business                 @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  depreciationEntries AssetDepreciationEntry[]
+
+  @@index([businessId, status])
+}
+
+// قيود إهلاك الأصول
+model AssetDepreciationEntry {
+  id             String   @id @default(cuid())
+  assetId        String
+  periodYear     Int
+  periodMonth    Int
+  amount         Decimal  @db.Decimal(15, 2)
+  journalEntryId String?
+  createdAt      DateTime @default(now())
+
+  asset FixedAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, periodYear, periodMonth])
 }

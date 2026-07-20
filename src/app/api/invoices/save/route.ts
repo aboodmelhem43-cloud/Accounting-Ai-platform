@@ -24,6 +24,7 @@ const schema = z.object({
   customerAddress: z.string().optional(),
   customerPhone: z.string().optional(),
   customerEmail: z.string().optional(),
+  contactId: z.string().optional(),
   lineItems: z.array(lineItemSchema),
   subtotal: z.number(),
   taxRate: z.number(),
@@ -65,6 +66,16 @@ export async function POST(req: NextRequest) {
   });
   const byCode = Object.fromEntries(accounts.map((a) => [a.code, a]));
 
+  // Validate contactId if provided
+  if (data.contactId) {
+    const contact = await prisma.contact.findFirst({
+      where: { id: data.contactId, businessId },
+    });
+    if (!contact) {
+      return NextResponse.json({ error: "جهة الاتصال غير صالحة" }, { status: 400 });
+    }
+  }
+
   const invoice = await prisma.invoice.create({
     data: {
       businessId,
@@ -72,6 +83,8 @@ export async function POST(req: NextRequest) {
       fileType: "created",
       invoiceType: "SALES",
       status: "CONFIRMED",
+      contactId: data.contactId ?? null,
+      dueDate: data.dueDate ? new Date(data.dueDate) : null,
       extractedData: {
         invoiceNumber: data.invoiceNumber,
         invoiceDate: data.invoiceDate,
@@ -134,6 +147,27 @@ export async function POST(req: NextRequest) {
     } catch {
       // القيد اختياري — لا نفشل الحفظ إذا فشل القيد
     }
+  }
+
+  // Advance the invoice number seed so the next auto-number is fresh
+  try {
+    const biz = await prisma.business.findUnique({
+      where: { id: businessId },
+      select: { invoiceNumberPrefix: true, invoiceNumberSeed: true },
+    });
+    const prefix = biz?.invoiceNumberPrefix ?? "INV";
+    const expectedPattern = new RegExp(`^${prefix}-\\d+$`);
+    if (expectedPattern.test(data.invoiceNumber)) {
+      const num = parseInt(data.invoiceNumber.replace(`${prefix}-`, ""), 10);
+      if (!isNaN(num) && num > (biz?.invoiceNumberSeed ?? 0)) {
+        await prisma.business.update({
+          where: { id: businessId },
+          data: { invoiceNumberSeed: num },
+        });
+      }
+    }
+  } catch {
+    // non-critical — seed sync failure doesn't affect the saved invoice
   }
 
   return NextResponse.json({ invoiceId: invoice.id }, { status: 201 });

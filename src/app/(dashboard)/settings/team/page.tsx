@@ -19,9 +19,26 @@ interface PendingInvite {
   createdAt: string;
 }
 
+interface BookkeeperEntry {
+  accessId: string;
+  userId: string;
+  name: string | null;
+  email: string;
+  grantedAt: string;
+}
+
+interface BookkeeperInvite {
+  id: string;
+  email: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
 interface TeamData {
   users: TeamUser[];
   invites: PendingInvite[];
+  bookkeepers: BookkeeperEntry[];
+  bookkeeperInvites: BookkeeperInvite[];
   maxUsers: number;
   planName: string;
 }
@@ -36,9 +53,14 @@ export default function TeamPage() {
   const [loading, setLoading] = useState(true);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviting, setInviting] = useState(false);
+  const [bkInviteEmail, setBkInviteEmail] = useState("");
+  const [bkInviting, setBkInviting] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [bkMsg, setBkMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [cancelingId, setCancelingId] = useState<string | null>(null);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [cancelBkId, setCancelBkId] = useState<string | null>(null);
 
   const fetchTeam = useCallback(async () => {
     try {
@@ -59,7 +81,7 @@ export default function TeamPage() {
       const res = await fetch("/api/team", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: inviteEmail }),
+        body: JSON.stringify({ email: inviteEmail, type: "TEAM" }),
       });
       const d = await res.json();
       if (res.ok) {
@@ -73,6 +95,31 @@ export default function TeamPage() {
       setMsg({ ok: false, text: isAr ? "خطأ في الاتصال" : "Connection error" });
     } finally {
       setInviting(false);
+    }
+  }
+
+  async function handleBookkeeperInvite(e: React.FormEvent) {
+    e.preventDefault();
+    setBkMsg(null);
+    setBkInviting(true);
+    try {
+      const res = await fetch("/api/team", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: bkInviteEmail, type: "BOOKKEEPER" }),
+      });
+      const d = await res.json();
+      if (res.ok) {
+        setBkMsg({ ok: true, text: isAr ? `تم إرسال دعوة المحاسب إلى ${bkInviteEmail}` : `Bookkeeper invitation sent to ${bkInviteEmail}` });
+        setBkInviteEmail("");
+        await fetchTeam();
+      } else {
+        setBkMsg({ ok: false, text: d.error ?? (isAr ? "حدث خطأ" : "An error occurred") });
+      }
+    } catch {
+      setBkMsg({ ok: false, text: isAr ? "خطأ في الاتصال" : "Connection error" });
+    } finally {
+      setBkInviting(false);
     }
   }
 
@@ -98,6 +145,27 @@ export default function TeamPage() {
       if (res.ok) await fetchTeam();
     } finally {
       setCancelingId(null);
+    }
+  }
+
+  async function handleRevokeBookkeeper(accessId: string) {
+    if (!confirm(isAr ? "هل تريد إلغاء وصول هذا المحاسب؟" : "Revoke this bookkeeper's access?")) return;
+    setRevokingId(accessId);
+    try {
+      const res = await fetch(`/api/team/bookkeepers/${accessId}`, { method: "DELETE" });
+      if (res.ok) await fetchTeam();
+    } finally {
+      setRevokingId(null);
+    }
+  }
+
+  async function handleCancelBkInvite(inviteId: string) {
+    setCancelBkId(inviteId);
+    try {
+      const res = await fetch(`/api/team/invites/${inviteId}`, { method: "DELETE" });
+      if (res.ok) await fetchTeam();
+    } finally {
+      setCancelBkId(null);
     }
   }
 
@@ -229,7 +297,7 @@ export default function TeamPage() {
         </div>
       </div>
 
-      {/* Pending invitations */}
+      {/* Pending team invitations */}
       {data && data.invites.length > 0 && (
         <div className="card">
           <h2 className="font-semibold text-gray-900 mb-4">
@@ -264,6 +332,128 @@ export default function TeamPage() {
           </div>
         </div>
       )}
+
+      {/* ── External Bookkeepers Section ── */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="font-semibold text-gray-900">
+              {isAr ? "المحاسبون الخارجيون" : "External Bookkeepers"}
+            </h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {isAr
+                ? "محاسبون يمكنهم الوصول إلى بياناتك دون الانضمام لفريقك الداخلي"
+                : "Accountants who can access your books without joining your internal team"}
+            </p>
+          </div>
+          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
+            {isAr ? "مثل Xero" : "Xero-style"}
+          </span>
+        </div>
+
+        {/* Active bookkeepers */}
+        {data && data.bookkeepers.length > 0 ? (
+          <div className="space-y-3 mb-4">
+            {data.bookkeepers.map((bk) => (
+              <div key={bk.accessId} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-sm">
+                    {(bk.name ?? bk.email).charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">{bk.name ?? "—"}</div>
+                    <div className="text-xs text-gray-400">{bk.email}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
+                    {isAr ? "محاسب خارجي" : "Bookkeeper"}
+                  </span>
+                  {isOwner && (
+                    <button
+                      onClick={() => handleRevokeBookkeeper(bk.accessId)}
+                      disabled={revokingId === bk.accessId}
+                      className="text-xs text-red-500 hover:text-red-700 disabled:opacity-50"
+                    >
+                      {revokingId === bk.accessId ? "..." : (isAr ? "إلغاء الوصول" : "Revoke")}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400 mb-4">
+            {isAr ? "لا يوجد محاسبون خارجيون حتى الآن." : "No external bookkeepers yet."}
+          </p>
+        )}
+
+        {/* Pending bookkeeper invites */}
+        {data && data.bookkeeperInvites.length > 0 && (
+          <div className="mb-4 space-y-2">
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              {isAr ? "دعوات معلقة" : "Pending invites"}
+            </p>
+            {data.bookkeeperInvites.map((inv) => (
+              <div key={inv.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                <div>
+                  <div className="text-sm text-gray-800">{inv.email}</div>
+                  <div className="text-xs text-gray-400">
+                    {isAr ? "تنتهي" : "Expires"}{" "}
+                    {new Date(inv.expiresAt).toLocaleDateString(isAr ? "ar" : "en-GB")}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                    {isAr ? "في الانتظار" : "Pending"}
+                  </span>
+                  {isOwner && (
+                    <button
+                      onClick={() => handleCancelBkInvite(inv.id)}
+                      disabled={cancelBkId === inv.id}
+                      className="text-xs text-red-500 hover:text-red-700 disabled:opacity-50"
+                    >
+                      {cancelBkId === inv.id ? "..." : (isAr ? "إلغاء" : "Cancel")}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Invite bookkeeper form */}
+        {isOwner && (
+          <form onSubmit={handleBookkeeperInvite} className="flex gap-3 border-t border-gray-100 pt-4">
+            <input
+              type="email"
+              className="input flex-1"
+              placeholder={isAr ? "بريد المحاسب الخارجي" : "Bookkeeper's email"}
+              value={bkInviteEmail}
+              onChange={(e) => setBkInviteEmail(e.target.value)}
+              required
+              dir="ltr"
+            />
+            <button
+              type="submit"
+              disabled={bkInviting || !bkInviteEmail.trim()}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap disabled:opacity-60"
+            >
+              {bkInviting ? (isAr ? "..." : "Sending...") : (isAr ? "دعوة محاسب" : "Invite Bookkeeper")}
+            </button>
+          </form>
+        )}
+        {bkMsg && (
+          <p className={`text-sm mt-2 ${bkMsg.ok ? "text-green-600" : "text-red-600"}`}>{bkMsg.text}</p>
+        )}
+        {isOwner && (
+          <p className="text-xs text-gray-400 mt-2">
+            {isAr
+              ? "المحاسب الخارجي يمكنه الوصول إلى بياناتك من حسابه الخاص دون التأثير على مقاعد الفريق."
+              : "External bookkeepers access your books from their own account without using a team seat."}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

@@ -9,7 +9,7 @@ export async function GET() {
 
   const business = await prisma.business.findUnique({
     where: { id: session.user.businessId },
-    select: { name: true, country: true, baseCurrency: true, taxNumber: true, address: true, phone: true },
+    select: { name: true, country: true, baseCurrency: true, taxNumber: true, address: true, phone: true, logo: true, defaultPaymentTerms: true, invoiceNumberPrefix: true, invoiceNumberSeed: true },
   });
 
   return NextResponse.json(business ?? {});

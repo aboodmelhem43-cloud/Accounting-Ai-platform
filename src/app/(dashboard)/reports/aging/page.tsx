@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
+import * as XLSX from "xlsx";
 
 interface AgingRow {
   contactName: string;
@@ -41,6 +42,34 @@ export default function AgingPage() {
 
   const fmtCell = (n: number) => (n === 0 ? "" : fmt(n));
 
+  function exportExcel() {
+    const label = agingType === "AR"
+      ? (lang === "ar" ? "ذمم مدينة" : "Accounts Receivable")
+      : (lang === "ar" ? "ذمم دائنة" : "Accounts Payable");
+    const data = [
+      ...rows.map((r) => ({
+        [lang === "ar" ? "الجهة" : "Contact"]: r.contactName,
+        [lang === "ar" ? "حالي" : "Current"]: r.current || "",
+        [lang === "ar" ? "31-60 يوم" : "31-60 Days"]: r.days30 || "",
+        [lang === "ar" ? "61-90 يوم" : "61-90 Days"]: r.days60 || "",
+        [lang === "ar" ? "+90 يوم" : "+90 Days"]: r.days90 || "",
+        [lang === "ar" ? "الإجمالي" : "Total"]: r.total,
+      })),
+      {
+        [lang === "ar" ? "الجهة" : "Contact"]: lang === "ar" ? "الإجمالي" : "Total",
+        [lang === "ar" ? "حالي" : "Current"]: totals.current,
+        [lang === "ar" ? "31-60 يوم" : "31-60 Days"]: totals.days30,
+        [lang === "ar" ? "61-90 يوم" : "61-90 Days"]: totals.days60,
+        [lang === "ar" ? "+90 يوم" : "+90 Days"]: totals.days90,
+        [lang === "ar" ? "الإجمالي" : "Total"]: totals.total,
+      },
+    ];
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, label);
+    XLSX.writeFile(wb, `aging-${agingType.toLowerCase()}-${new Date().toISOString().split("T")[0]}.xlsx`);
+  }
+
   const totals = rows.reduce(
     (acc, r) => ({
       current: acc.current + r.current,
@@ -64,27 +93,34 @@ export default function AgingPage() {
       </div>
 
       <div className="card">
-        <div className="flex gap-2">
-          <button
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-              agingType === "AR"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-            onClick={() => setAgingType("AR")}
-          >
-            {t("reports.aging.ar")}
-          </button>
-          <button
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-              agingType === "AP"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-            onClick={() => setAgingType("AP")}
-          >
-            {t("reports.aging.ap")}
-          </button>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex gap-2">
+            <button
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                agingType === "AR"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+              onClick={() => setAgingType("AR")}
+            >
+              {t("reports.aging.ar")}
+            </button>
+            <button
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                agingType === "AP"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+              onClick={() => setAgingType("AP")}
+            >
+              {t("reports.aging.ap")}
+            </button>
+          </div>
+          {rows.length > 0 && (
+            <button onClick={exportExcel} className="btn-secondary text-sm py-1.5 px-4">
+              {lang === "ar" ? "⬇️ تصدير Excel" : "⬇️ Export Excel"}
+            </button>
+          )}
         </div>
       </div>
 

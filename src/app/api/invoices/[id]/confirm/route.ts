@@ -38,6 +38,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const body = await req.json();
     const data = confirmSchema.parse(body);
 
+    // Validate that all accountIds belong to this business
+    const accountIds = [...new Set(data.journalLines.map((l) => l.accountId))];
+    const validAccounts = await prisma.account.findMany({
+      where: { id: { in: accountIds }, businessId: session.user.businessId },
+      select: { id: true },
+    });
+    if (validAccounts.length !== accountIds.length) {
+      return NextResponse.json({ error: "حساب غير صالح" }, { status: 400 });
+    }
+
     const journalEntry = await createJournalEntry({
       businessId: session.user.businessId,
       userId: session.user.id ?? session.user.email,
