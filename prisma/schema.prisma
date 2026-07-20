@@ -128,7 +128,7 @@ model JournalEntry {
   createdAt        DateTime           @default(now())
   // آخر تعديل
   updatedById      String?
-  updatedAt        DateTime           @updatedAt
+  updatedAt        DateTime           @default(now()) @updatedAt
   // سير عمل الموافقة
   submittedById    String?
   submittedAt      DateTime?
