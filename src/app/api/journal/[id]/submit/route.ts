@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+import { sendJvSubmittedEmail } from "@/lib/email";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -40,6 +41,25 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     entityId: id,
     description: `تقديم القيد للمراجعة: ${entry.description}`,
   });
+
+  // إرسال إشعار بالبريد الإلكتروني للمالك
+  const owner = await prisma.user.findFirst({
+    where: { businessId: session.user.businessId, role: "OWNER" },
+    select: { email: true },
+  });
+  const business = await prisma.business.findUnique({
+    where: { id: session.user.businessId },
+    select: { name: true },
+  });
+  if (owner?.email) {
+    sendJvSubmittedEmail({
+      ownerEmail: owner.email,
+      accountantName: session.user.name ?? session.user.email,
+      entryDescription: entry.description,
+      entryId: id,
+      businessName: business?.name ?? "",
+    }).catch((e) => console.error("[email] JV submit notification failed:", e));
+  }
 
   return NextResponse.json({ status: updated.status });
 }

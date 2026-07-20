@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+import { sendJvRejectedEmail } from "@/lib/email";
 
 const schema = z.object({
   reason: z.string().min(1).max(500),
@@ -54,6 +55,28 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     entityId: id,
     description: `رفض القيد: ${entry.description} — السبب: ${parsed.data.reason}`,
   });
+
+  // إرسال إشعار للمحاسب الذي قدّم القيد
+  if (entry.submittedById) {
+    const submitter = await prisma.user.findUnique({
+      where: { id: entry.submittedById },
+      select: { email: true },
+    });
+    const business = await prisma.business.findUnique({
+      where: { id: session.user.businessId },
+      select: { name: true },
+    });
+    if (submitter?.email) {
+      sendJvRejectedEmail({
+        accountantEmail: submitter.email,
+        ownerName: session.user.name ?? session.user.email,
+        entryDescription: entry.description,
+        entryId: id,
+        rejectionReason: parsed.data.reason,
+        businessName: business?.name ?? "",
+      }).catch((e) => console.error("[email] JV reject notification failed:", e));
+    }
+  }
 
   return NextResponse.json({ status: updated.status });
 }
