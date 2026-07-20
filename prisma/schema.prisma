@@ -22,6 +22,8 @@ model Business {
   onboardingCompleted  Boolean   @default(false)
   invoiceNumberPrefix  String    @default("INV")
   invoiceNumberSeed    Int       @default(0)
+  logo                 String?   // base64 data URL or external URL
+  defaultPaymentTerms  String?   // e.g. "Net 30"
   plan                 String    @default("FREE_TRIAL") // FREE_TRIAL | STARTER | PRO | BUSINESS
   trialEndsAt         DateTime?
   lsSubscriptionId    String?   @unique // Lemon Squeezy subscription ID

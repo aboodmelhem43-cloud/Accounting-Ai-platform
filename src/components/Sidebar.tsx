@@ -64,7 +64,8 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
       icon: "🧾",
       children: [
         { href: "/invoices/upload", label: t("nav.upload"), icon: "⬆️" },
-        { href: "/invoices/create", label: isAr ? "إنشاء فاتورة" : "Create Invoice", icon: "📝" },
+        { href: "/invoices/create", label: isAr ? "إنشاء فاتورة مبيعات" : "Create Sales Invoice", icon: "📝" },
+        { href: "/invoices/create-purchase", label: isAr ? "إنشاء فاتورة شراء" : "Create Purchase Invoice", icon: "🛒" },
       ],
     },
     { href: "/accounts", label: isAr ? "دليل الحسابات" : "Chart of Accounts", icon: "📋" },

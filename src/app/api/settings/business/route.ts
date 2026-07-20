@@ -11,6 +11,10 @@ const schema = z.object({
   taxNumber: z.string().max(50).optional().nullable(),
   address: z.string().max(200).optional().nullable(),
   phone: z.string().max(30).optional().nullable(),
+  logo: z.string().max(500000).optional().nullable(),
+  defaultPaymentTerms: z.string().max(100).optional().nullable(),
+  invoiceNumberPrefix: z.string().min(1).max(10).regex(/^[A-Za-z0-9-]+$/).optional(),
+  invoiceNumberSeed: z.number().int().min(0).optional(),
 });
 
 export async function PATCH(req: NextRequest) {
@@ -30,6 +34,10 @@ export async function PATCH(req: NextRequest) {
         taxNumber: data.taxNumber ?? null,
         address: data.address ?? null,
         phone: data.phone ?? null,
+        ...(data.logo !== undefined && { logo: data.logo }),
+        ...(data.defaultPaymentTerms !== undefined && { defaultPaymentTerms: data.defaultPaymentTerms }),
+        ...(data.invoiceNumberPrefix && { invoiceNumberPrefix: data.invoiceNumberPrefix }),
+        ...(data.invoiceNumberSeed !== undefined && { invoiceNumberSeed: data.invoiceNumberSeed }),
       },
     });
     return NextResponse.json({ ok: true });

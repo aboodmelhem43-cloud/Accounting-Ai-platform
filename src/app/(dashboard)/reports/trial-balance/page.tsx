@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
+import * as XLSX from "xlsx";
 import type { AccountType } from "@/types";
 
 interface TrialBalanceRow {
@@ -71,6 +72,28 @@ export default function TrialBalancePage() {
   const isBalanced =
     data !== null && Math.abs(data.totalDebits - data.totalCredits) < 0.01;
 
+  function exportExcel() {
+    if (!data) return;
+    const rows = data.rows.map((row) => ({
+      [lang === "ar" ? "كود الحساب" : "Account Code"]: row.accountCode,
+      [lang === "ar" ? "اسم الحساب" : "Account Name"]: lang === "ar" ? (row.accountNameAr ?? row.accountName) : row.accountName,
+      [lang === "ar" ? "النوع" : "Type"]: row.accountType,
+      [lang === "ar" ? "مدين" : "Debit"]: getDebitCol(row) || "",
+      [lang === "ar" ? "دائن" : "Credit"]: getCreditCol(row) || "",
+    }));
+    rows.push({
+      [lang === "ar" ? "كود الحساب" : "Account Code"]: lang === "ar" ? "الإجمالي" : "Total",
+      [lang === "ar" ? "اسم الحساب" : "Account Name"]: "",
+      [lang === "ar" ? "النوع" : "Type"]: "",
+      [lang === "ar" ? "مدين" : "Debit"]: data.totalDebits,
+      [lang === "ar" ? "دائن" : "Credit"]: data.totalCredits,
+    });
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Trial Balance");
+    XLSX.writeFile(wb, `trial-balance-${asOf}.xlsx`);
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -83,7 +106,7 @@ export default function TrialBalancePage() {
       </div>
 
       <div className="card">
-        <div className="flex items-end gap-4">
+        <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
             <label className="label">{t("reports.trial_balance.as_of")}</label>
             <input
@@ -93,6 +116,11 @@ export default function TrialBalancePage() {
               onChange={(e) => setAsOf(e.target.value)}
             />
           </div>
+          {data && data.rows.length > 0 && (
+            <button onClick={exportExcel} className="btn-secondary text-sm py-1.5 px-4">
+              {lang === "ar" ? "⬇️ تصدير Excel" : "⬇️ Export Excel"}
+            </button>
+          )}
         </div>
       </div>
 

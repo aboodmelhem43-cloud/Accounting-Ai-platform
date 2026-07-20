@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
 
 type ContactType = "CUSTOMER" | "VENDOR";
@@ -249,6 +250,12 @@ export default function ContactsPage() {
                   <td className="px-4 py-3 text-gray-500">{c.phone ?? "—"}</td>
                   <td className="px-4 py-3 text-gray-500">{c.taxNumber ?? "—"}</td>
                   <td className="px-4 py-3 flex gap-2 justify-end">
+                    <Link
+                      href={`/contacts/${c.id}`}
+                      className="text-xs text-gray-500 hover:text-gray-700 font-medium"
+                    >
+                      {isAr ? "تفاصيل" : "Details"}
+                    </Link>
                     <button
                       onClick={() => openHistory(c.id)}
                       className="text-xs text-purple-600 hover:text-purple-800 font-medium"
