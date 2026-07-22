@@ -468,4 +468,205 @@ export const BLOG_POSTS: BlogPost[] = [
 <p>Reading financial reports is a skill any business owner can develop. Start with the income statement to understand your profitability, then look at the balance sheet to grasp your overall financial position. With <strong>Mohasabai</strong>, these reports are always available and updated in real time — no waiting until month end, no need to request a report from your accountant every time.</p>`,
     },
   },
+  // ─── NEW ARTICLES ───
+  {
+    slug: "بديل-quickbooks-للشركات-العربية",
+    date: "2026-01-15",
+    readMinutes: 7,
+    category: { ar: "مقارنة برامج", en: "Software Comparison" },
+    title: {
+      ar: "أفضل بديل لـ QuickBooks للشركات في السعودية ومصر والإمارات",
+      en: "Best QuickBooks Alternative for Businesses in Saudi Arabia, Egypt & UAE",
+    },
+    excerpt: {
+      ar: "هل تبحث عن بديل لـ QuickBooks يناسب بيئة العمل العربية؟ نقارن أشهر البدائل ونوضح لماذا برنامج مبني من الأساس للسوق العربي هو الخيار الأفضل.",
+      en: "Looking for a QuickBooks alternative built for the Arab business environment? We compare the top options and explain why MENA-native software wins.",
+    },
+    content: {
+      ar: `<h2>لماذا يبحث أصحاب الأعمال العرب عن بديل لـ QuickBooks؟</h2>
+<p>QuickBooks الأشهر عالمياً لكنه يعاني من مشاكل جوهرية في السوق العربي: واجهة مترجمة وليست عربية حقيقية، لا يدعم ZATCA أو ETA، وتكلفته مرتفعة بالدولار مع دعم فني بالإنجليزي فقط.</p>
+<h2>مقارنة سريعة</h2>
+<table><thead><tr><th>الميزة</th><th>QuickBooks</th><th>Zoho Books</th><th>محاسباي</th></tr></thead>
+<tbody>
+<tr><td>واجهة عربية حقيقية</td><td>❌</td><td>جزئي</td><td>✅</td></tr>
+<tr><td>فاتورة ZATCA</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>فاتورة ETA (مصر)</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>ذكاء اصطناعي لقراءة الفواتير</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>تجربة مجانية</td><td>30 يوم</td><td>14 يوم</td><td>35 يوم</td></tr>
+</tbody></table>
+<h2>الخلاصة</h2>
+<p>إذا كنت تبحث عن بديل يفهم السوق العربي فعلاً، فإن <strong>محاسباي</strong> هو الخيار الأنسب. <a href="/register">جرّبه مجاناً 35 يوماً</a>.</p>`,
+      en: `<h2>Why Arab Business Owners Seek a QuickBooks Alternative</h2>
+<p>QuickBooks is popular globally but fails Arab users: no native Arabic UI, no ZATCA/ETA compliance, USD-only pricing, English-only support.</p>
+<h2>Quick Comparison</h2>
+<table><thead><tr><th>Feature</th><th>QuickBooks</th><th>Zoho Books</th><th>MohasabAI</th></tr></thead>
+<tbody>
+<tr><td>Native Arabic UI</td><td>❌</td><td>Partial</td><td>✅</td></tr>
+<tr><td>ZATCA Invoice</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>ETA Invoice (Egypt)</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>AI Invoice Reading</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>Free Trial</td><td>30 days</td><td>14 days</td><td>35 days</td></tr>
+</tbody></table>
+<h2>Conclusion</h2>
+<p>For a QuickBooks alternative that genuinely understands the Arab market, <strong>MohasabAI</strong> is the right choice. <a href="/register">Try it free for 35 days</a>.</p>`,
+    },
+  },
+  {
+    slug: "كيف-تحسب-ضريبة-القيمة-المضافة",
+    date: "2026-02-01",
+    readMinutes: 5,
+    category: { ar: "ضرائب", en: "Tax" },
+    title: {
+      ar: "كيف تحسب ضريبة القيمة المضافة في السعودية ومصر والإمارات",
+      en: "How to Calculate VAT in Saudi Arabia, Egypt & UAE",
+    },
+    excerpt: {
+      ar: "دليل عملي لحساب ضريبة القيمة المضافة (15% في السعودية، 14% في مصر، 5% في الإمارات) مع أمثلة عملية على كل حالة.",
+      en: "A practical guide to calculating VAT across MENA — 15% in Saudi Arabia, 14% in Egypt, 5% in UAE — with worked examples.",
+    },
+    content: {
+      ar: `<h2>نسب ضريبة القيمة المضافة</h2>
+<ul><li><strong>السعودية:</strong> 15%</li><li><strong>مصر:</strong> 14%</li><li><strong>الإمارات:</strong> 5%</li><li><strong>الأردن:</strong> 16%</li><li><strong>البحرين:</strong> 10%</li></ul>
+<h2>كيف تحسب الضريبة؟</h2>
+<p><strong>الضريبة = السعر قبل الضريبة × نسبة الضريبة</strong></p>
+<p>مثال سعودي: 1,000 ريال × 15% = 150 ريال ضريبة → الإجمالي 1,150 ريال</p>
+<p>مثال مصري: 5,000 جنيه × 14% = 700 جنيه ضريبة → الإجمالي 5,700 جنيه</p>
+<h2>استخراج الضريبة من سعر شامل</h2>
+<p>الضريبة = السعر الشامل ÷ (1 + نسبة الضريبة) × نسبة الضريبة</p>
+<p>مثال: 1,150 ريال ÷ 1.15 × 0.15 = 150 ريال</p>
+<h2>محاسباي يحسبها تلقائياً</h2>
+<p>محاسباي يحسب ضريبة القيمة المضافة على كل فاتورة بناءً على دولتك ويُعدّ الإقرار الضريبي جاهزاً. <a href="/register">جرّبه مجاناً</a>.</p>`,
+      en: `<h2>VAT Rates Across MENA</h2>
+<ul><li>Saudi Arabia: 15%</li><li>Egypt: 14%</li><li>UAE: 5%</li><li>Jordan: 16%</li><li>Bahrain: 10%</li></ul>
+<h2>How to Calculate VAT</h2>
+<p>VAT = Pre-tax Price × VAT Rate</p>
+<p>Saudi example: SAR 1,000 × 15% = SAR 150 tax → Total SAR 1,150</p>
+<p>Egypt example: EGP 5,000 × 14% = EGP 700 tax → Total EGP 5,700</p>
+<h2>Extracting VAT from an Inclusive Price</h2>
+<p>VAT = Inclusive Price ÷ (1 + Rate) × Rate</p>
+<h2>MohasabAI Auto-Calculates VAT</h2>
+<p>MohasabAI calculates VAT on every invoice for your country and prepares your periodic return. <a href="/register">Try it free</a>.</p>`,
+    },
+  },
+  {
+    slug: "محاسبة-الشركات-الناشئة-دليل-المؤسسين",
+    date: "2026-02-15",
+    readMinutes: 8,
+    category: { ar: "ريادة الأعمال", en: "Entrepreneurship" },
+    title: {
+      ar: "محاسبة الشركات الناشئة — دليل كامل لكل مؤسس",
+      en: "Startup Accounting — A Complete Guide for Every Founder",
+    },
+    excerpt: {
+      ar: "لا تحتاج خبرة محاسبية لإدارة حسابات شركتك الناشئة. هذا الدليل يشرح الأساسيات: دليل الحسابات، القوائم المالية، والأخطاء الشائعة التي تُكلّف الشركات.",
+      en: "You don't need accounting expertise to manage your startup's books. This guide covers the essentials: chart of accounts, financial statements, and common costly mistakes.",
+    },
+    content: {
+      ar: `<h2>لماذا تُهمل معظم الشركات الناشئة المحاسبة؟</h2>
+<p>المستثمرون يطلبون القوائم المالية قبل أي استثمار. البنوك تطلبها للقروض. ومصلحة الضرائب لا تنتظر. تأجيل المحاسبة هو أحد أكثر الأخطاء تكلفةً في عالم الشركات الناشئة.</p>
+<h2>الأساسيات الثلاثة</h2>
+<h3>1. دليل الحسابات</h3>
+<p>قائمة منظمة بحسابات شركتك: أصول، خصوم، حقوق ملكية، إيرادات، ومصروفات.</p>
+<h3>2. القوائم المالية الثلاث</h3>
+<ul><li>قائمة الدخل: الإيرادات − المصروفات = الربح أو الخسارة</li><li>الميزانية العمومية: الأصول = الخصوم + حقوق الملكية</li><li>قائمة التدفقات النقدية</li></ul>
+<h2>أخطاء شائعة</h2>
+<ul><li>❌ خلط الأموال الشخصية بأموال الشركة</li><li>❌ الاعتماد على Excel فقط</li><li>❌ نسيان توفير مبالغ للضرائب</li></ul>
+<h2>كيف يُساعدك محاسباي؟</h2>
+<p>يُعدّ دليل الحسابات تلقائياً، يقرأ فواتيرك بالذكاء الاصطناعي، ويُنشئ القوائم المالية في أي وقت. <a href="/register">ابدأ مجاناً</a>.</p>`,
+      en: `<h2>Why Most Startups Neglect Accounting</h2>
+<p>Investors demand financials before investing. Banks require them for loans. Tax authorities don't wait. Delaying accounting is one of the most costly startup mistakes.</p>
+<h2>The Three Essentials</h2>
+<ul><li><strong>Income Statement:</strong> Revenue − Expenses = Profit or Loss</li><li><strong>Balance Sheet:</strong> Assets = Liabilities + Equity</li><li><strong>Cash Flow Statement:</strong> Money in and out</li></ul>
+<h2>Common Mistakes</h2>
+<ul><li>❌ Mixing personal and business finances</li><li>❌ Relying only on Excel</li><li>❌ Forgetting tax provisions</li></ul>
+<h2>How MohasabAI Helps</h2>
+<p>Auto-creates your chart of accounts, reads invoices with AI, generates all three statements on demand. <a href="/register">Start free</a>.</p>`,
+    },
+  },
+  {
+    slug: "الفرق-بين-المدين-والدائن",
+    date: "2026-03-01",
+    readMinutes: 5,
+    category: { ar: "محاسبة", en: "Accounting" },
+    title: {
+      ar: "الفرق بين المدين والدائن في المحاسبة — شرح مبسط",
+      en: "Debit vs Credit in Accounting — A Simple Explanation",
+    },
+    excerpt: {
+      ar: "يربك الكثير من أصحاب الأعمال الفرق بين المدين والدائن. نشرح الفكرة بأمثلة واقعية من العمليات اليومية — بدون مصطلحات معقدة.",
+      en: "Many business owners find debit vs. credit confusing. We explain it with real-world daily transaction examples — no jargon.",
+    },
+    content: {
+      ar: `<h2>القاعدة الذهبية</h2>
+<p><strong>مجموع المدين = مجموع الدائن في كل قيد دائماً.</strong></p>
+<h2>تأثير المدين والدائن على كل نوع حساب</h2>
+<table><thead><tr><th>نوع الحساب</th><th>المدين</th><th>الدائن</th></tr></thead>
+<tbody>
+<tr><td>الأصول</td><td>زيادة ↑</td><td>نقصان ↓</td></tr>
+<tr><td>الخصوم</td><td>نقصان ↓</td><td>زيادة ↑</td></tr>
+<tr><td>الإيرادات</td><td>نقصان ↓</td><td>زيادة ↑</td></tr>
+<tr><td>المصروفات</td><td>زيادة ↑</td><td>نقصان ↓</td></tr>
+</tbody></table>
+<h2>أمثلة</h2>
+<p>بيع نقدي 500 ريال: مدين النقدية 500 / دائن الإيرادات 500</p>
+<p>شراء معدات بالآجل 2,000 ريال: مدين المعدات 2,000 / دائن الدائنون 2,000</p>
+<p>دفع إيجار 1,500 ريال: مدين مصروف الإيجار 1,500 / دائن النقدية 1,500</p>
+<h2>محاسباي يتكفل بالقيود تلقائياً</h2>
+<p>الذكاء الاصطناعي يقترح القيود الصحيحة وأنت تراجع فقط. <a href="/register">جرّبه مجاناً</a>.</p>`,
+      en: `<h2>The Golden Rule</h2>
+<p><strong>Total Debits = Total Credits in every entry, always.</strong></p>
+<h2>Effect on Each Account Type</h2>
+<table><thead><tr><th>Account Type</th><th>Debit</th><th>Credit</th></tr></thead>
+<tbody>
+<tr><td>Assets</td><td>Increase ↑</td><td>Decrease ↓</td></tr>
+<tr><td>Liabilities</td><td>Decrease ↓</td><td>Increase ↑</td></tr>
+<tr><td>Revenue</td><td>Decrease ↓</td><td>Increase ↑</td></tr>
+<tr><td>Expenses</td><td>Increase ↑</td><td>Decrease ↓</td></tr>
+</tbody></table>
+<h2>Examples</h2>
+<p>Cash sale SAR 500: Debit Cash 500 / Credit Revenue 500</p>
+<p>Buy equipment on credit SAR 2,000: Debit Equipment 2,000 / Credit Payable 2,000</p>
+<p>Pay rent SAR 1,500: Debit Rent Expense 1,500 / Credit Cash 1,500</p>
+<h2>MohasabAI Suggests the Right Entries</h2>
+<p>The AI proposes journal entries automatically — you just review and confirm. <a href="/register">Try it free</a>.</p>`,
+    },
+  },
+  {
+    slug: "كيفية-عمل-ميزانية-للشركة",
+    date: "2026-03-15",
+    readMinutes: 6,
+    category: { ar: "تخطيط مالي", en: "Financial Planning" },
+    title: {
+      ar: "كيفية عمل ميزانية للشركة — دليل عملي خطوة بخطوة",
+      en: "How to Create a Business Budget — A Practical Step-by-Step Guide",
+    },
+    excerpt: {
+      ar: "الميزانية التشغيلية هي خارطة الطريق المالية لشركتك. نشرح كيف تبني ميزانية واقعية خطوة بخطوة لأي حجم عمل.",
+      en: "A business budget is your financial roadmap. We walk you through building a realistic budget step by step for any business size.",
+    },
+    content: {
+      ar: `<h2>لماذا الشركات الصغيرة تحتاج ميزانية أكثر من الكبيرة؟</h2>
+<p>هامش الخطأ لدى الشركات الصغيرة أضيق. بدون ميزانية، لا تعرف متى ستنفد السيولة ولا ما هو الحد الأدنى للمبيعات لتغطية التكاليف.</p>
+<h2>الخطوات الست</h2>
+<p><strong>1.</strong> اجمع بيانات 12 شهراً الماضية أو استخدم تقديرات السوق.</p>
+<p><strong>2.</strong> حدد التكاليف الثابتة: إيجار، رواتب، اشتراكات.</p>
+<p><strong>3.</strong> قدّر التكاليف المتغيرة: تكلفة البضاعة، تسويق، عمالة إضافية.</p>
+<p><strong>4.</strong> احسب نقطة التعادل = التكاليف الثابتة ÷ هامش المساهمة للوحدة.</p>
+<p><strong>5.</strong> ضع 3 سيناريوهات: متفائل، واقعي، متحفظ.</p>
+<p><strong>6.</strong> راجع شهرياً وقارن الفعلي بالمخطط.</p>
+<h2>كيف يُساعدك محاسباي؟</h2>
+<p>يُعدّ تقارير الإيرادات والمصروفات الشهرية تلقائياً لمقارنة الأداء بأهدافك. <a href="/register">ابدأ مجاناً</a>.</p>`,
+      en: `<h2>Why Small Businesses Need Budgets More</h2>
+<p>Their margin for error is smallest. Without a budget, you don't know when cash runs out or the minimum sales to cover costs.</p>
+<h2>Six Steps</h2>
+<p><strong>1.</strong> Gather 12 months of data or market-based estimates.</p>
+<p><strong>2.</strong> Identify fixed costs: rent, core salaries, subscriptions.</p>
+<p><strong>3.</strong> Estimate variable costs: COGS, marketing, extra labor.</p>
+<p><strong>4.</strong> Calculate break-even = Fixed Costs ÷ Contribution Margin Per Unit.</p>
+<p><strong>5.</strong> Build 3 scenarios: optimistic, realistic, conservative.</p>
+<p><strong>6.</strong> Review monthly — actual vs. planned.</p>
+<h2>How MohasabAI Helps</h2>
+<p>Auto-generates monthly revenue and expense reports so you can track actual vs. target at any time. <a href="/register">Start free</a>.</p>`,
+    },
+  },
 ];

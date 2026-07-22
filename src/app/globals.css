@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    font-family: 'Cairo', 'Noto Sans Arabic', system-ui, sans-serif;
+    font-family: var(--font-cairo), 'Noto Sans Arabic', system-ui, sans-serif;
   }
 }
 
