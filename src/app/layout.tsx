@@ -1,8 +1,23 @@
 import type { Metadata } from "next";
+import { Cairo, Inter } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { Analytics } from "@vercel/analytics/next";
 import { cookies } from "next/headers";
+
+const cairo = Cairo({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-cairo",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 const SITE_URL = "https://www.mohasabai.com";
 const SITE_NAME = "محاسباي | Mohasabai";
@@ -100,14 +115,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const dir = lang === "en" ? "ltr" : "rtl";
 
   return (
-    <html lang={lang} dir={dir}>
+    <html lang={lang} dir={dir} className={`${cairo.variable} ${inter.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
