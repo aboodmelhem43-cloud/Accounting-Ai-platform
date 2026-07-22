@@ -6,11 +6,14 @@ const BASE = "https://www.mohasabai.com";
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const staticPages: MetadataRoute.Sitemap = [
-    { url: BASE, lastModified: now, changeFrequency: "weekly", priority: 1 },
-    { url: `${BASE}/register`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
-    { url: `${BASE}/pricing`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${BASE}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${BASE}/login`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: BASE,                  lastModified: now, changeFrequency: "weekly",  priority: 1.0 },
+    { url: `${BASE}/register`,    lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/blog`,        lastModified: now, changeFrequency: "weekly",  priority: 0.9 },
+    // Country-specific landing pages — local SEO
+    { url: `${BASE}/sa`,          lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/eg`,          lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/ae`,          lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/login`,       lastModified: now, changeFrequency: "monthly", priority: 0.4 },
   ];
 
   const blogPages: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({
