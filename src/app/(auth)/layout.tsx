@@ -17,7 +17,7 @@ function FeaturePanel() {
     <div className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-800 text-white p-10 rounded-2xl min-h-[520px]">
       <div>
         <Link href="/" className="inline-block mb-8">
-          <div className="text-2xl font-bold">Mohasabai · محاسباي</div>
+          <div className="text-2xl font-bold">MohasabAi · محاسب اي</div>
           <p className="text-blue-200 text-sm mt-1">
             {isAr ? "منصة محاسبة ذكية للأعمال العربية" : "Smart accounting for Arab businesses"}
           </p>
@@ -55,7 +55,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             {/* Logo shown only on mobile (hidden when panel is visible) */}
             <div className="text-center mb-8 lg:hidden">
               <Link href="/" className="inline-block">
-                <div className="text-3xl font-bold text-blue-700">Mohasabai · محاسباي</div>
+                <div className="text-3xl font-bold text-blue-700">MohasabAi · محاسب اي</div>
                 <p className="text-gray-500 text-sm mt-1">
                   {isAr ? "منصة محاسبة ذكية للأعمال العربية" : "Smart accounting for Arab businesses"}
                 </p>

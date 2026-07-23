@@ -20,15 +20,15 @@ const inter = Inter({
 });
 
 const SITE_URL = "https://www.mohasabai.com";
-const SITE_NAME = "محاسباي | Mohasabai";
+const SITE_NAME = "محاسب اي | MohasabAi";
 const DESCRIPTION =
-  "محاسباي — برنامج محاسبة سحابي بالذكاء الاصطناعي للمشاريع الصغيرة والمتوسطة في السعودية ومصر والإمارات والأردن. قراءة الفواتير تلقائياً، قوائم مالية فورية، فاتورة ZATCA وETA وJoFotara. جرّبه 35 يوماً مجاناً.";
+  "محاسب اي — برنامج محاسبة سحابي بالذكاء الاصطناعي للمشاريع الصغيرة والمتوسطة في السعودية ومصر والإمارات والأردن. قراءة الفواتير تلقائياً، قوائم مالية فورية، فاتورة ZATCA وETA وJoFotara. جرّبه 35 يوماً مجاناً.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "محاسباي — برنامج محاسبة سحابي للمشاريع الصغيرة | نظام محاسبة ذكي",
-    template: "%s | محاسباي",
+    default: "محاسب اي — برنامج محاسبة سحابي للمشاريع الصغيرة | نظام محاسبة ذكي",
+    template: "%s | محاسب اي",
   },
   description: DESCRIPTION,
   keywords: [
@@ -74,11 +74,11 @@ export const metadata: Metadata = {
     "UAE accounting software",
     "Middle East accounting",
     "mohasabai",
-    "محاسباي",
+    "محاسب اي",
   ],
-  authors: [{ name: "Mohasabai", url: SITE_URL }],
-  creator: "Mohasabai",
-  publisher: "Mohasabai",
+  authors: [{ name: "MohasabAi", url: SITE_URL }],
+  creator: "MohasabAi",
+  publisher: "MohasabAi",
   robots: {
     index: true,
     follow: true,
@@ -90,13 +90,13 @@ export const metadata: Metadata = {
     alternateLocale: "en_US",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: "محاسباي — برنامج محاسبة ذكي للأعمال العربية",
+    title: "محاسب اي — برنامج محاسبة ذكي للأعمال العربية",
     description: DESCRIPTION,
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "محاسباي — برنامج محاسبة ذكي" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "محاسب اي — برنامج محاسبة ذكي" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "محاسباي — برنامج محاسبة ذكي للأعمال العربية",
+    title: "محاسب اي — برنامج محاسبة ذكي للأعمال العربية",
     description: DESCRIPTION,
     images: ["/og-image.png"],
   },
@@ -124,8 +124,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               {
                 "@context": "https://schema.org",
                 "@type": "SoftwareApplication",
-                name: "محاسباي | Mohasabai",
-                alternateName: ["Mohasabai", "محاسبي", "برنامج محاسباي"],
+                name: "محاسب اي | MohasabAi",
+                alternateName: ["MohasabAi", "محاسبي", "برنامج محاسب اي"],
                 url: "https://www.mohasabai.com",
                 description:
                   "برنامج محاسبة سحابي بالذكاء الاصطناعي للمشاريع الصغيرة والمتوسطة في المنطقة العربية. قراءة الفواتير تلقائياً، قوائم مالية فورية، وفاتورة إلكترونية متوافقة مع ZATCA وETA وJoFotara.",
@@ -157,7 +157,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               {
                 "@context": "https://schema.org",
                 "@type": "Organization",
-                name: "محاسباي | Mohasabai",
+                name: "محاسب اي | MohasabAi",
                 url: "https://www.mohasabai.com",
                 logo: "https://www.mohasabai.com/og-image.png",
                 contactPoint: { "@type": "ContactPoint", email: "support@mohasabai.com", contactType: "customer support", availableLanguage: ["Arabic", "English"] },
@@ -167,7 +167,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               {
                 "@context": "https://schema.org",
                 "@type": "WebSite",
-                name: "محاسباي | Mohasabai",
+                name: "محاسب اي | MohasabAi",
                 url: "https://www.mohasabai.com",
                 potentialAction: {
                   "@type": "SearchAction",
@@ -179,7 +179,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 "@context": "https://schema.org",
                 "@type": "FAQPage",
                 mainEntity: [
-                  { "@type": "Question", name: "هل بياناتي آمنة في محاسباي؟", acceptedAnswer: { "@type": "Answer", text: "نعم. كل منشأة معزولة تماماً عن الأخرى. البيانات مشفّرة وتُخزَّن في مراكز بيانات موثّقة. لا نشارك بياناتك مع أي طرف ثالث." } },
+                  { "@type": "Question", name: "هل بياناتي آمنة في محاسب اي؟", acceptedAnswer: { "@type": "Answer", text: "نعم. كل منشأة معزولة تماماً عن الأخرى. البيانات مشفّرة وتُخزَّن في مراكز بيانات موثّقة. لا نشارك بياناتك مع أي طرف ثالث." } },
                   { "@type": "Question", name: "هل أحتاج خبرة محاسبية لاستخدام المنصة؟", acceptedAnswer: { "@type": "Answer", text: "لا. الواجهة مصممة لأصحاب الأعمال غير المتخصصين. الذكاء الاصطناعي يقترح القيود، وأنت تراجع وتؤكد فقط." } },
                   { "@type": "Question", name: "هل المنصة متوافقة مع فاتورة ZATCA في السعودية؟", acceptedAnswer: { "@type": "Answer", text: "نعم، ندعم فاتورة ZATCA الإلكترونية في السعودية مع توليد رمز QR الضريبي تلقائياً، إضافةً لـ ETA في مصر وJoFotara في الأردن." } },
                   { "@type": "Question", name: "ما هي مدة التجربة المجانية؟", acceptedAnswer: { "@type": "Answer", text: "تحصل على 35 يوماً مجانية بدون بطاقة ائتمان. بعد انتهاء التجربة يمكنك اختيار خطة مدفوعة أو تصدير بياناتك." } },

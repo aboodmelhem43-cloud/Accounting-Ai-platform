@@ -204,7 +204,7 @@ export default function SupportWidget() {
                 <p className="text-white font-semibold text-sm">
                   {plan === "BUSINESS"
                     ? (isAr ? "دعم VIP" : "VIP Support")
-                    : "Mohasabai Support"}
+                    : "MohasabAi Support"}
                 </p>
                 <p className="text-white/70 text-xs flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-green-400 rounded-full inline-block" />
