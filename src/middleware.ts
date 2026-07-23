@@ -48,6 +48,17 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
+  // Trial expiry paywall — redirect expired FREE_TRIAL users to /pricing
+  // Allow /pricing, /settings, /api/* so they can upgrade or manage account
+  const PAYWALL_EXEMPT = ["/pricing", "/settings", "/currency", "/chat"];
+  const isDashboardRoute = pathname.startsWith("/") && !PAYWALL_EXEMPT.some((p) => pathname.startsWith(p));
+  if (isDashboardRoute && token.plan === "FREE_TRIAL" && token.trialEndsAt) {
+    const expired = new Date() > new Date(token.trialEndsAt as string);
+    if (expired) {
+      return NextResponse.redirect(new URL("/pricing", req.url));
+    }
+  }
+
   return NextResponse.next();
 }
 
