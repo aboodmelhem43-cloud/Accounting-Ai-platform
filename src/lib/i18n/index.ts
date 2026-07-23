@@ -1,7 +1,7 @@
 const t = {
   ar: {
     // ─── App ───
-    "app.name": "Mohasabai",
+    "app.name": "MohasabAi",
     "app.tagline": "منصة المحاسبة الذكية",
 
     // ─── Auth – Login ───
@@ -198,7 +198,7 @@ const t = {
 
   en: {
     // ─── App ───
-    "app.name": "Mohasabai",
+    "app.name": "MohasabAi",
     "app.tagline": "Smart Accounting Platform",
 
     // ─── Auth – Login ───

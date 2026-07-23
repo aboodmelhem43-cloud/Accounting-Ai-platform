@@ -33,7 +33,7 @@ export async function generateMetadata({
       url,
       type: "article",
       publishedTime: post.date,
-      authors: [isAr ? "محاسباي" : "Mohasabai"],
+      authors: [isAr ? "محاسب اي" : "MohasabAi"],
     },
     twitter: {
       card: "summary_large_image",
@@ -68,8 +68,8 @@ export default async function BlogPostPage({
     description: excerpt,
     datePublished: post.date,
     dateModified: post.date,
-    author: { "@type": "Organization", name: "محاسباي | Mohasabai", url: SITE_URL },
-    publisher: { "@type": "Organization", name: "محاسباي | Mohasabai", url: SITE_URL },
+    author: { "@type": "Organization", name: "محاسب اي | MohasabAi", url: SITE_URL },
+    publisher: { "@type": "Organization", name: "محاسب اي | MohasabAi", url: SITE_URL },
     url: `${SITE_URL}/blog/${slug}`,
     inLanguage: lang,
     articleSection: category,
@@ -86,7 +86,7 @@ export default async function BlogPostPage({
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold text-blue-700">
-            Mohasabai · محاسباي
+            MohasabAi · محاسب اي
           </Link>
           <Link href="/blog" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">
             {isAr ? "← المدونة" : "← Blog"}
@@ -129,7 +129,7 @@ export default async function BlogPostPage({
         {/* CTA */}
         <div className="mt-16 bg-blue-50 border border-blue-200 rounded-2xl p-8 text-center">
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            {isAr ? "جرّب محاسباي مجاناً" : "Try Mohasabai for free"}
+            {isAr ? "جرّب محاسب اي مجاناً" : "Try MohasabAi for free"}
           </h2>
           <p className="text-gray-500 text-sm mb-5">
             {isAr

@@ -172,7 +172,7 @@ export default function LandingPage() {
       {/* Navbar */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="text-xl font-bold text-blue-700">Mohasabai · محاسباي</div>
+          <div className="text-xl font-bold text-blue-700">MohasabAi · محاسب اي</div>
           <div className="flex items-center gap-1 md:gap-3">
             <a href="#how" className="hidden md:block text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
               {isAr ? "كيف يعمل" : "How it works"}
@@ -253,7 +253,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900">
-              {isAr ? "كيف يعمل محاسباي؟" : "How does Mohasabai work?"}
+              {isAr ? "كيف يعمل محاسب اي؟" : "How does MohasabAi work?"}
             </h2>
             <p className="text-gray-500 mt-3 text-base">
               {isAr ? "ثلاث خطوات فقط للتحكم الكامل بمحاسبتك" : "Just three steps to full control of your accounting"}
@@ -317,7 +317,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900">
-              {isAr ? "لماذا محاسباي؟" : "Why Mohasabai?"}
+              {isAr ? "لماذا محاسب اي؟" : "Why MohasabAi?"}
             </h2>
             <p className="text-gray-500 mt-3 text-base">
               {isAr ? "مقارنة مع البدائل الشائعة" : "Compared to common alternatives"}
@@ -331,7 +331,7 @@ export default function LandingPage() {
                     {isAr ? "الميزة" : "Feature"}
                   </th>
                   <th className="px-4 py-4 font-bold text-blue-700 text-center">
-                    {isAr ? "محاسباي" : "Mohasabai"}
+                    {isAr ? "محاسب اي" : "MohasabAi"}
                   </th>
                   <th className="px-4 py-4 font-semibold text-gray-400 text-center">Excel</th>
                   <th className="px-4 py-4 font-semibold text-gray-400 text-center">
@@ -548,8 +548,8 @@ export default function LandingPage() {
           </h2>
           <p className="text-blue-100 text-lg mb-2">
             {isAr
-              ? "انضم إلى أصحاب الأعمال الذين يثقون بمحاسباي لإدارة حساباتهم"
-              : "Join business owners who trust Mohasabai to manage their accounts"}
+              ? "انضم إلى أصحاب الأعمال الذين يثقون بمحاسب اي لإدارة حساباتهم"
+              : "Join business owners who trust MohasabAi to manage their accounts"}
           </p>
           <p className="text-blue-200 text-sm mb-8">
             {isAr ? "35 يوماً مجاناً — لا بطاقة ائتمان — إلغاء في أي وقت" : "35 days free — no credit card — cancel anytime"}
@@ -568,7 +568,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
-              <div className="text-white font-bold text-lg mb-2">Mohasabai · محاسباي</div>
+              <div className="text-white font-bold text-lg mb-2">MohasabAi · محاسب اي</div>
               <p className="text-sm leading-relaxed">
                 {isAr
                   ? "منصة محاسبة بمساعدة الذكاء الاصطناعي للأعمال الصغيرة والمتوسطة في المنطقة العربية."
@@ -603,7 +603,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="border-t border-gray-800 pt-6 text-center text-xs">
-            © {new Date().getFullYear()} Mohasabai. {isAr ? "جميع الحقوق محفوظة." : "All rights reserved."}
+            © {new Date().getFullYear()} MohasabAi. {isAr ? "جميع الحقوق محفوظة." : "All rights reserved."}
           </div>
         </div>
       </footer>

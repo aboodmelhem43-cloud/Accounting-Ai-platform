@@ -76,7 +76,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         عرض الفاتورة
       </a>
       <p style="color:#9ca3af;font-size:12px;margin:16px 0 0">
-        هذه رسالة تلقائية من منصة محاسباي — يرجى عدم الرد على هذا البريد.
+        هذه رسالة تلقائية من منصة محاسب اي — يرجى عدم الرد على هذا البريد.
       </p>
     </div>
   </div>

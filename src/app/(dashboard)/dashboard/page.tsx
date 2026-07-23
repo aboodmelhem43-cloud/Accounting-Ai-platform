@@ -59,7 +59,7 @@ export default async function DashboardPage() {
         <div className="card border-2 border-dashed border-blue-200 bg-blue-50/40 text-center py-12 px-6">
           <div className="text-5xl mb-4">🚀</div>
           <h2 className="text-xl font-bold text-gray-800 mb-2">
-            {lang === "ar" ? "مرحباً بك في محاسباي!" : "Welcome to Mohasabai!"}
+            {lang === "ar" ? "مرحباً بك في محاسب اي!" : "Welcome to MohasabAi!"}
           </h2>
           <p className="text-gray-500 text-sm mb-8 max-w-md mx-auto">
             {lang === "ar"

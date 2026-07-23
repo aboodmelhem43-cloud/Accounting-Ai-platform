@@ -8,16 +8,16 @@ export async function generateMetadata(): Promise<Metadata> {
   const isAr = cookieStore.get("lang")?.value !== "en";
   return {
     title: isAr
-      ? "مدونة محاسباي — نصائح محاسبية وأدلة الفاتورة الإلكترونية"
-      : "Mohasabai Blog — Accounting Tips & E-Invoice Guides",
+      ? "مدونة محاسب اي — نصائح محاسبية وأدلة الفاتورة الإلكترونية"
+      : "MohasabAi Blog — Accounting Tips & E-Invoice Guides",
     description: isAr
       ? "مقالات ونصائح عملية في المحاسبة، إدارة الفواتير، الفاتورة الإلكترونية ZATCA وETA، والتقارير المالية للمشاريع الصغيرة والمتوسطة في المنطقة العربية."
       : "Practical articles on accounting, invoice management, ZATCA & ETA e-invoicing, and financial reports for small and medium businesses in the Arab world.",
     alternates: { canonical: "https://www.mohasabai.com/blog" },
     openGraph: {
       title: isAr
-        ? "مدونة محاسباي — نصائح محاسبية عملية"
-        : "Mohasabai Blog — Practical Accounting Tips",
+        ? "مدونة محاسب اي — نصائح محاسبية عملية"
+        : "MohasabAi Blog — Practical Accounting Tips",
       description: isAr
         ? "مقالات في المحاسبة، الفاتورة الإلكترونية، والتقارير المالية للأعمال العربية"
         : "Articles on accounting, e-invoicing, and financial reports for Arab businesses",
@@ -44,7 +44,7 @@ export default async function BlogPage() {
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold text-blue-700">
-            Mohasabai · محاسباي
+            MohasabAi · محاسب اي
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/#pricing" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">
@@ -61,7 +61,7 @@ export default async function BlogPage() {
         {/* Header */}
         <div className="text-center mb-14">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            {isAr ? "مدونة محاسباي" : "Mohasabai Blog"}
+            {isAr ? "مدونة محاسب اي" : "MohasabAi Blog"}
           </h1>
           <p className="text-gray-500 text-lg max-w-xl mx-auto">
             {isAr
@@ -110,7 +110,7 @@ export default async function BlogPage() {
       {/* CTA */}
       <div className="bg-blue-50 border-t border-blue-100 py-14 text-center px-4">
         <h2 className="text-2xl font-bold text-gray-900 mb-3">
-          {isAr ? "جرّب محاسباي مجاناً لمدة 35 يوماً" : "Try Mohasabai free for 35 days"}
+          {isAr ? "جرّب محاسب اي مجاناً لمدة 35 يوماً" : "Try MohasabAi free for 35 days"}
         </h2>
         <p className="text-gray-500 mb-6 text-sm">
           {isAr ? "بدون بطاقة ائتمان — إلغاء في أي وقت" : "No credit card — cancel anytime"}

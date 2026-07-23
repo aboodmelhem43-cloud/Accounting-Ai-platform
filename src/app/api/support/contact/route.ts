@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 <body style="font-family:Arial,sans-serif;background:#f4f4f5;padding:40px 0;margin:0">
   <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
     <div style="background:#1d4ed8;padding:24px 32px">
-      <div style="color:#fff;font-size:18px;font-weight:bold">📬 رسالة دعم جديدة — Mohasabai</div>
+      <div style="color:#fff;font-size:18px;font-weight:bold">📬 رسالة دعم جديدة — MohasabAi</div>
     </div>
     <div style="padding:32px">
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
 <body style="font-family:Arial,sans-serif;background:#f4f4f5;padding:40px 0;margin:0">
   <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
     <div style="background:#1d4ed8;padding:24px 32px">
-      <div style="color:#fff;font-size:18px;font-weight:bold">Mohasabai — منصة المحاسبة الذكية</div>
+      <div style="color:#fff;font-size:18px;font-weight:bold">MohasabAi — منصة المحاسبة الذكية</div>
     </div>
     <div style="padding:32px">
       <p style="color:#374151;font-size:16px;margin:0 0 12px">مرحباً ${userName}،</p>
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
       </p>
     </div>
     <div style="background:#f9fafb;padding:16px 32px;border-top:1px solid #e5e7eb">
-      <p style="color:#9ca3af;font-size:12px;margin:0;text-align:center">Mohasabai · www.mohasabai.com</p>
+      <p style="color:#9ca3af;font-size:12px;margin:0;text-align:center">MohasabAi · www.mohasabai.com</p>
     </div>
   </div>
 </body>

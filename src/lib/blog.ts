@@ -36,10 +36,10 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>مقارنة بين الخيارات المتاحة في السوق العربي</h2>
-<p>تنقسم الخيارات المتاحة بين برامج محلية عربية وأخرى دولية معرَّبة جزئيًا. البرامج الدولية كـ QuickBooks وZoho Books توفر ميزات واسعة لكنها لا تدعم دائمًا متطلبات الفاتورة الإلكترونية المحلية. في المقابل، الحلول العربية المتخصصة كـ <strong>محاسباي</strong> تُبنى من الأساس لتلبية احتياجات السوق العربي، مع دعم كامل للغة العربية والتقويم الهجري وأنظمة الضرائب المحلية.</p>
+<p>تنقسم الخيارات المتاحة بين برامج محلية عربية وأخرى دولية معرَّبة جزئيًا. البرامج الدولية كـ QuickBooks وZoho Books توفر ميزات واسعة لكنها لا تدعم دائمًا متطلبات الفاتورة الإلكترونية المحلية. في المقابل، الحلول العربية المتخصصة كـ <strong>محاسب اي</strong> تُبنى من الأساس لتلبية احتياجات السوق العربي، مع دعم كامل للغة العربية والتقويم الهجري وأنظمة الضرائب المحلية.</p>
 
-<h3>ما يميز محاسباي عن غيره</h3>
-<p>يعتمد <strong>محاسباي</strong> على نظام القيد المزدوج لضمان دقة البيانات، مع واجهة مبسطة لا تتطلب خلفية محاسبية. يمكنك إصدار الفواتير، تتبع المصروفات، وعرض التقارير المالية في دقائق. الذكاء الاصطناعي المدمج يقرأ صور الفواتير ويقترح التصنيف المحاسبي تلقائيًا، مما يختصر وقتًا كبيرًا في الإدخال اليدوي.</p>
+<h3>ما يميز محاسب اي عن غيره</h3>
+<p>يعتمد <strong>محاسب اي</strong> على نظام القيد المزدوج لضمان دقة البيانات، مع واجهة مبسطة لا تتطلب خلفية محاسبية. يمكنك إصدار الفواتير، تتبع المصروفات، وعرض التقارير المالية في دقائق. الذكاء الاصطناعي المدمج يقرأ صور الفواتير ويقترح التصنيف المحاسبي تلقائيًا، مما يختصر وقتًا كبيرًا في الإدخال اليدوي.</p>
 
 <h2>نصائح عملية قبل الاختيار</h2>
 <ul>
@@ -50,7 +50,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>الخلاصة</h2>
-<p>اختيار برنامج المحاسبة المناسب قرار استراتيجي يؤثر على كفاءة عملك اليومي وامتثالك القانوني. قيّم احتياجاتك أولًا، ثم اختر نظام محاسبة سحابيًا يدعم لغتك وسوقك المحلي. إذا كنت في السعودية أو مصر أو الإمارات أو الأردن، فإن <strong>محاسباي</strong> مُصمَّم خصيصًا لك — ابدأ تجربتك المجانية اليوم واكتشف كيف تتحول المحاسبة من عبء إلى أداة نمو.</p>`,
+<p>اختيار برنامج المحاسبة المناسب قرار استراتيجي يؤثر على كفاءة عملك اليومي وامتثالك القانوني. قيّم احتياجاتك أولًا، ثم اختر نظام محاسبة سحابيًا يدعم لغتك وسوقك المحلي. إذا كنت في السعودية أو مصر أو الإمارات أو الأردن، فإن <strong>محاسب اي</strong> مُصمَّم خصيصًا لك — ابدأ تجربتك المجانية اليوم واكتشف كيف تتحول المحاسبة من عبء إلى أداة نمو.</p>`,
 
       en: `<h2>Why Does Your Small Business Need Accounting Software?</h2>
 <p>Whether you run a small restaurant in Riyadh, a retail shop in Cairo, or a service office in Amman, tracking income and expenses manually costs you precious hours every week. Good accounting software doesn't just replace the accountant — it gives you a clear picture of your financial position at any moment.</p>
@@ -65,10 +65,10 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>Comparing Available Options in the Arab Market</h2>
-<p>Options range from local Arabic software to partially Arabized international platforms. International tools like QuickBooks and Zoho Books offer broad features but don't always support local e-invoice requirements. Purpose-built Arabic solutions like <strong>Mohasabai</strong> are designed from the ground up for the Arab market, with full Arabic-language support, Hijri calendar compatibility, and local tax compliance.</p>
+<p>Options range from local Arabic software to partially Arabized international platforms. International tools like QuickBooks and Zoho Books offer broad features but don't always support local e-invoice requirements. Purpose-built Arabic solutions like <strong>MohasabAi</strong> are designed from the ground up for the Arab market, with full Arabic-language support, Hijri calendar compatibility, and local tax compliance.</p>
 
-<h3>What Sets Mohasabai Apart</h3>
-<p><strong>Mohasabai</strong> is built on a double-entry ledger for data accuracy, wrapped in a simplified interface that requires no accounting background. You can issue invoices, track expenses, and view financial reports in minutes. The built-in AI reads invoice images and suggests accounting classifications automatically, saving significant manual entry time.</p>
+<h3>What Sets MohasabAi Apart</h3>
+<p><strong>MohasabAi</strong> is built on a double-entry ledger for data accuracy, wrapped in a simplified interface that requires no accounting background. You can issue invoices, track expenses, and view financial reports in minutes. The built-in AI reads invoice images and suggests accounting classifications automatically, saving significant manual entry time.</p>
 
 <h2>Practical Tips Before You Choose</h2>
 <ul>
@@ -79,7 +79,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>Conclusion</h2>
-<p>Choosing the right accounting software is a strategic decision that affects your daily efficiency and legal compliance. Assess your needs first, then choose a cloud accounting system that supports your language and local market. If you're in Saudi Arabia, Egypt, the UAE, or Jordan, <strong>Mohasabai</strong> is built specifically for you — start your free trial today and discover how accounting transforms from a burden into a growth tool.</p>`,
+<p>Choosing the right accounting software is a strategic decision that affects your daily efficiency and legal compliance. Assess your needs first, then choose a cloud accounting system that supports your language and local market. If you're in Saudi Arabia, Egypt, the UAE, or Jordan, <strong>MohasabAi</strong> is built specifically for you — start your free trial today and discover how accounting transforms from a burden into a growth tool.</p>`,
     },
   },
 
@@ -121,7 +121,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>كيف تلتزم بمتطلبات ZATCA بدون صداع؟</h2>
-<p>الخطأ الشائع هو محاولة إنشاء ملفات XML يدويًا أو استخدام Excel. الحل العملي هو استخدام برنامج فوترة إلكترونية معتمد يتكفل بكل التفاصيل التقنية. <strong>محاسباي</strong> مُهيَّأ لمتطلبات ZATCA الكاملة: يُنشئ الفواتير بصيغة XML المعتمدة، يوقّعها رقميًا، ويُرسلها تلقائيًا إلى منصة ZATCA للتحقق أو الإخطار، ويحتفظ بسجل كامل قابل للمراجعة في أي وقت.</p>
+<p>الخطأ الشائع هو محاولة إنشاء ملفات XML يدويًا أو استخدام Excel. الحل العملي هو استخدام برنامج فوترة إلكترونية معتمد يتكفل بكل التفاصيل التقنية. <strong>محاسب اي</strong> مُهيَّأ لمتطلبات ZATCA الكاملة: يُنشئ الفواتير بصيغة XML المعتمدة، يوقّعها رقميًا، ويُرسلها تلقائيًا إلى منصة ZATCA للتحقق أو الإخطار، ويحتفظ بسجل كامل قابل للمراجعة في أي وقت.</p>
 
 <h3>خطوات البدء الفورية</h3>
 <ul>
@@ -133,7 +133,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>العقوبات على عدم الامتثال</h2>
-<p>المخالفات تبدأ من غرامات مالية وقد تصل إلى إيقاف النشاط التجاري في حالات التكرار. لا تنتظر حتى تأتيك مخالفة — الامتثال اليوم أرخص بكثير من الغرامات غدًا. مع <strong>محاسباي</strong>، يمكنك التحقق من امتثال كل فاتورة قبل إرسالها، مما يقضي على القلق من الأخطاء غير المقصودة.</p>
+<p>المخالفات تبدأ من غرامات مالية وقد تصل إلى إيقاف النشاط التجاري في حالات التكرار. لا تنتظر حتى تأتيك مخالفة — الامتثال اليوم أرخص بكثير من الغرامات غدًا. مع <strong>محاسب اي</strong>، يمكنك التحقق من امتثال كل فاتورة قبل إرسالها، مما يقضي على القلق من الأخطاء غير المقصودة.</p>
 
 <h2>خلاصة</h2>
 <p>نظام فاتورة ZATCA ليس خيارًا بل إلزامًا قانونيًا لكل منشأة مسجلة في ضريبة القيمة المضافة بالمملكة. الامتثال الصحيح يحميك من الغرامات ويرفع مصداقية نشاطك أمام عملائك وشركائك. ابدأ بالخطوات العملية المذكورة أعلاه، واستعن بحل تقني موثوق يريحك من التفاصيل التقنية.</p>`,
@@ -162,7 +162,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>How to Comply with ZATCA Without the Headache</h2>
-<p>A common mistake is trying to produce XML files manually or use Excel. The practical solution is a certified e-invoicing platform that handles all technical details for you. <strong>Mohasabai</strong> is fully configured for ZATCA requirements: it generates invoices in the approved XML format, digitally signs them, and automatically submits them to the ZATCA platform for clearance or reporting — keeping a complete, auditable record at all times.</p>
+<p>A common mistake is trying to produce XML files manually or use Excel. The practical solution is a certified e-invoicing platform that handles all technical details for you. <strong>MohasabAi</strong> is fully configured for ZATCA requirements: it generates invoices in the approved XML format, digitally signs them, and automatically submits them to the ZATCA platform for clearance or reporting — keeping a complete, auditable record at all times.</p>
 
 <h3>Immediate Action Steps</h3>
 <ul>
@@ -174,7 +174,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>Penalties for Non-Compliance</h2>
-<p>Violations start with financial fines and can escalate to business suspension for repeat offenders. Don't wait for a fine to arrive — compliance today is far cheaper than penalties tomorrow. With <strong>Mohasabai</strong>, every invoice is validated before submission, eliminating anxiety about accidental errors.</p>
+<p>Violations start with financial fines and can escalate to business suspension for repeat offenders. Don't wait for a fine to arrive — compliance today is far cheaper than penalties tomorrow. With <strong>MohasabAi</strong>, every invoice is validated before submission, eliminating anxiety about accidental errors.</p>
 
 <h2>Conclusion</h2>
 <p>The ZATCA e-invoice system is not optional — it is a legal obligation for every VAT-registered business in the Kingdom. Proper compliance protects you from fines and raises your credibility with customers and partners. Follow the practical steps above and use a reliable technical solution to handle the details for you.</p>`,
@@ -214,8 +214,8 @@ export const BLOG_POSTS: BlogPost[] = [
 <h2>إدارة فواتير المشتريات أيضًا</h2>
 <p>إدارة الفواتير لا تعني فقط فواتير البيع. فواتير المشتريات التي تستلمها من مورديك يجب أرشفتها أيضًا، ومطابقتها مع أوامر الشراء، والتأكد من تسجيل ضريبة القيمة المضافة المدفوعة بشكل صحيح لاسترداد ما يستحق منها.</p>
 
-<h2>كيف يساعدك محاسباي في إدارة الفواتير</h2>
-<p>يتيح لك <strong>محاسباي</strong> إنشاء فواتير احترافية بالعربية والإنجليزية في ثوانٍ، مع قوالب قابلة للتخصيص تعكس هوية علامتك التجارية. يمكنك تتبع حالة كل فاتورة في لوحة تحكم واحدة، وإرسال تذكيرات تلقائية للعملاء، ورؤية تقرير التدفق النقدي لحظيًا. الذكاء الاصطناعي يقرأ فواتير الموردين الواردة ويقترح القيد المحاسبي تلقائيًا — أنت فقط تؤكد.</p>
+<h2>كيف يساعدك محاسب اي في إدارة الفواتير</h2>
+<p>يتيح لك <strong>محاسب اي</strong> إنشاء فواتير احترافية بالعربية والإنجليزية في ثوانٍ، مع قوالب قابلة للتخصيص تعكس هوية علامتك التجارية. يمكنك تتبع حالة كل فاتورة في لوحة تحكم واحدة، وإرسال تذكيرات تلقائية للعملاء، ورؤية تقرير التدفق النقدي لحظيًا. الذكاء الاصطناعي يقرأ فواتير الموردين الواردة ويقترح القيد المحاسبي تلقائيًا — أنت فقط تؤكد.</p>
 
 <h2>نصائح سريعة لتحصيل أسرع</h2>
 <ul>
@@ -226,7 +226,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>خلاصة</h2>
-<p>إدارة الفواتير الاحترافية ليست ترفًا — هي عصب التدفق النقدي لنشاطك. النظام الصحيح يعني تحصيلًا أسرع، وامتثالًا ضريبيًا دقيقًا، وصورة أوضح عن وضعك المالي. جرّب <strong>محاسباي</strong> مجانًا وابدأ بإصدار فواتيرك الإلكترونية باحترافية من اليوم الأول.</p>`,
+<p>إدارة الفواتير الاحترافية ليست ترفًا — هي عصب التدفق النقدي لنشاطك. النظام الصحيح يعني تحصيلًا أسرع، وامتثالًا ضريبيًا دقيقًا، وصورة أوضح عن وضعك المالي. جرّب <strong>محاسب اي</strong> مجانًا وابدأ بإصدار فواتيرك الإلكترونية باحترافية من اليوم الأول.</p>`,
 
       en: `<h2>The Problem: Why Do Small Businesses Struggle with Invoice Chaos?</h2>
 <p>It usually starts simply: one invoice sent via WhatsApp, another by email, a third printed and filed in a drawer. As the business grows, invoices multiply and tracking them becomes a nightmare. Who hasn't paid? What were last month's total sales? How much VAT needs to be remitted? These are questions your data should answer — not your memory.</p>
@@ -247,8 +247,8 @@ export const BLOG_POSTS: BlogPost[] = [
 <h2>Managing Purchase Invoices Too</h2>
 <p>Invoice management is not just about sales invoices. Purchase invoices you receive from suppliers must also be archived, matched against purchase orders, and properly recorded for VAT reclaim purposes.</p>
 
-<h2>How Mohasabai Helps You Manage Invoices</h2>
-<p><strong>Mohasabai</strong> lets you create professional invoices in Arabic and English in seconds, with customizable templates that reflect your brand identity. Track every invoice's status in a single dashboard, send automatic client reminders, and view a real-time cash flow report instantly. The built-in AI reads incoming supplier invoices and suggests the accounting entry automatically — you simply confirm.</p>
+<h2>How MohasabAi Helps You Manage Invoices</h2>
+<p><strong>MohasabAi</strong> lets you create professional invoices in Arabic and English in seconds, with customizable templates that reflect your brand identity. Track every invoice's status in a single dashboard, send automatic client reminders, and view a real-time cash flow report instantly. The built-in AI reads incoming supplier invoices and suggests the accounting entry automatically — you simply confirm.</p>
 
 <h2>Quick Tips for Faster Collection</h2>
 <ul>
@@ -259,7 +259,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>Conclusion</h2>
-<p>Professional invoice management is not a luxury — it is the lifeblood of your cash flow. The right system means faster collection, accurate tax compliance, and a clearer picture of your financial position. Try <strong>Mohasabai</strong> for free and start issuing professional electronic invoices from day one.</p>`,
+<p>Professional invoice management is not a luxury — it is the lifeblood of your cash flow. The right system means faster collection, accurate tax compliance, and a clearer picture of your financial position. Try <strong>MohasabAi</strong> for free and start issuing professional electronic invoices from day one.</p>`,
     },
   },
 
@@ -304,8 +304,8 @@ export const BLOG_POSTS: BlogPost[] = [
 <p><strong>الأصول = الخصوم + حقوق الملكية</strong></p>
 <p>كل قيد يجب أن يحافظ على توازن هذه المعادلة. إذا اختلت، فهناك خطأ في مكان ما.</p>
 
-<h2>كيف يطبّق محاسباي مبدأ القيد المزدوج؟</h2>
-<p>يعتمد <strong>محاسباي</strong> على محرك قيد مزدوج داخلي كامل — لكنه يُخفي التعقيد التقني عن صاحب المشروع غير المحاسب. حين تصدر فاتورة بيع، يُسجَّل القيد تلقائيًا (مدين ذمم مدينة، دائن إيرادات). حين تدفع فاتورة مورّد، يُسجَّل القيد المقابل. وفي حالة استخدام الذكاء الاصطناعي لاقتراح قيود الفواتير المستوردة، تظهر لك شاشة مراجعة للتأكيد قبل أي حفظ — لأن دقة القيود مسؤوليتك أنت في نهاية المطاف.</p>
+<h2>كيف يطبّق محاسب اي مبدأ القيد المزدوج؟</h2>
+<p>يعتمد <strong>محاسب اي</strong> على محرك قيد مزدوج داخلي كامل — لكنه يُخفي التعقيد التقني عن صاحب المشروع غير المحاسب. حين تصدر فاتورة بيع، يُسجَّل القيد تلقائيًا (مدين ذمم مدينة، دائن إيرادات). حين تدفع فاتورة مورّد، يُسجَّل القيد المقابل. وفي حالة استخدام الذكاء الاصطناعي لاقتراح قيود الفواتير المستوردة، تظهر لك شاشة مراجعة للتأكيد قبل أي حفظ — لأن دقة القيود مسؤوليتك أنت في نهاية المطاف.</p>
 
 <h2>نصائح عملية لأصحاب المشاريع</h2>
 <ul>
@@ -316,7 +316,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>خلاصة</h2>
-<p>مبدأ القيد المزدوج ليس مجرد مصطلح أكاديمي — هو ضمانة دقة بياناتك المالية. عندما تعرف أن كل ريال في نشاطك التجاري موثق بجانبين متوازنين، تصبح ثقتك في تقاريرك المالية أعلى، وقراراتك أفضل. <strong>محاسباي</strong> يوفر لك هذا الأساس المتين مع واجهة يفهمها أي شخص.</p>`,
+<p>مبدأ القيد المزدوج ليس مجرد مصطلح أكاديمي — هو ضمانة دقة بياناتك المالية. عندما تعرف أن كل ريال في نشاطك التجاري موثق بجانبين متوازنين، تصبح ثقتك في تقاريرك المالية أعلى، وقراراتك أفضل. <strong>محاسب اي</strong> يوفر لك هذا الأساس المتين مع واجهة يفهمها أي شخص.</p>`,
 
       en: `<h2>What is Double-Entry Accounting?</h2>
 <p>The double-entry accounting principle is built on a simple idea: every financial transaction affects two sides simultaneously — the debit side (what comes in or increases in assets) and the credit side (what goes out or the source of that asset). The golden rule is that the total of debits always equals the total of credits in every journal entry.</p>
@@ -345,8 +345,8 @@ export const BLOG_POSTS: BlogPost[] = [
 <p><strong>Assets = Liabilities + Owner's Equity</strong></p>
 <p>Every entry must preserve this balance. If it breaks, there's an error somewhere.</p>
 
-<h2>How Mohasabai Applies the Double-Entry Principle</h2>
-<p><strong>Mohasabai</strong> runs a full double-entry ledger engine internally — but hides the technical complexity from the non-accountant business owner. When you issue a sales invoice, the entry is recorded automatically (debit accounts receivable, credit revenue). When you pay a supplier invoice, the corresponding entry is made. When AI suggests entries for imported invoices, a review screen appears for your confirmation before anything is saved — because the accuracy of your records is ultimately your responsibility.</p>
+<h2>How MohasabAi Applies the Double-Entry Principle</h2>
+<p><strong>MohasabAi</strong> runs a full double-entry ledger engine internally — but hides the technical complexity from the non-accountant business owner. When you issue a sales invoice, the entry is recorded automatically (debit accounts receivable, credit revenue). When you pay a supplier invoice, the corresponding entry is made. When AI suggests entries for imported invoices, a review screen appears for your confirmation before anything is saved — because the accuracy of your records is ultimately your responsibility.</p>
 
 <h2>Practical Tips for Business Owners</h2>
 <ul>
@@ -357,7 +357,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>Conclusion</h2>
-<p>The double-entry principle is not just an academic term — it is your guarantee of accurate financial data. When you know that every riyal in your business is documented on two balanced sides, your confidence in your financial reports grows and your decisions improve. <strong>Mohasabai</strong> gives you this solid foundation wrapped in an interface anyone can understand.</p>`,
+<p>The double-entry principle is not just an academic term — it is your guarantee of accurate financial data. When you know that every riyal in your business is documented on two balanced sides, your confidence in your financial reports grows and your decisions improve. <strong>MohasabAi</strong> gives you this solid foundation wrapped in an interface anyone can understand.</p>`,
     },
   },
 
@@ -415,11 +415,11 @@ export const BLOG_POSTS: BlogPost[] = [
 <h2>العلاقة بين التقريرين</h2>
 <p>صافي الربح من قائمة الدخل ينتقل إلى الميزانية العمومية ويزيد من حقوق الملكية. الخسارة تقلصها. هذا الربط هو ما يجعل نظام القيد المزدوج متسقًا ودقيقًا — لا أرقام معزولة.</p>
 
-<h2>كيف يُسهّل عليك محاسباي فهم تقاريرك المالية</h2>
-<p>يُنشئ <strong>محاسباي</strong> قائمة الدخل والميزانية العمومية تلقائيًا من القيود اليومية دون أن تُدخل أي أرقام يدويًا. لوحة التحكم تعرض مؤشرات رئيسية لحظية: الإيرادات حتى اليوم، صافي الربح، الفواتير المعلقة، والرصيد النقدي — كل ذلك في مكان واحد. يمكنك تصدير التقارير PDF لمشاركتها مع المستثمرين أو البنوك أو مكتب الضرائب بنقرة واحدة.</p>
+<h2>كيف يُسهّل عليك محاسب اي فهم تقاريرك المالية</h2>
+<p>يُنشئ <strong>محاسب اي</strong> قائمة الدخل والميزانية العمومية تلقائيًا من القيود اليومية دون أن تُدخل أي أرقام يدويًا. لوحة التحكم تعرض مؤشرات رئيسية لحظية: الإيرادات حتى اليوم، صافي الربح، الفواتير المعلقة، والرصيد النقدي — كل ذلك في مكان واحد. يمكنك تصدير التقارير PDF لمشاركتها مع المستثمرين أو البنوك أو مكتب الضرائب بنقرة واحدة.</p>
 
 <h2>خلاصة</h2>
-<p>قراءة التقارير المالية مهارة يمكن لأي صاحب مشروع اكتسابها. ابدأ بقائمة الدخل لتعرف ربحيتك، ثم انظر في الميزانية العمومية لتفهم وضعك المالي العام. مع منصة <strong>محاسباي</strong>، هذه التقارير متاحة دائمًا ومحدّثة لحظيًا — لا انتظار لنهاية الشهر ولا حاجة لطلب تقرير من محاسبك في كل مرة.</p>`,
+<p>قراءة التقارير المالية مهارة يمكن لأي صاحب مشروع اكتسابها. ابدأ بقائمة الدخل لتعرف ربحيتك، ثم انظر في الميزانية العمومية لتفهم وضعك المالي العام. مع منصة <strong>محاسب اي</strong>، هذه التقارير متاحة دائمًا ومحدّثة لحظيًا — لا انتظار لنهاية الشهر ولا حاجة لطلب تقرير من محاسبك في كل مرة.</p>`,
 
       en: `<h2>Why Do You Need to Read Financial Reports?</h2>
 <p>Many small business owners measure their success solely by their bank account balance. But the bank balance can be misleading: you might have a healthy balance because you haven't paid your suppliers yet, or your balance might be low even though you have significant profits sitting in uncollected invoices. Financial reports give you the complete truth.</p>
@@ -461,11 +461,11 @@ export const BLOG_POSTS: BlogPost[] = [
 <h2>The Connection Between the Two Reports</h2>
 <p>Net profit from the income statement flows into the balance sheet and increases owner's equity. A loss shrinks it. This linkage is what makes the double-entry system consistent and accurate — no isolated numbers.</p>
 
-<h2>How Mohasabai Makes Your Financial Reports Easy to Understand</h2>
-<p><strong>Mohasabai</strong> generates the income statement and balance sheet automatically from daily journal entries — with no manual number entry required from you. The dashboard displays real-time key indicators: revenue to date, net profit, pending invoices, and cash balance — all in one place. Export reports to PDF to share with investors, banks, or the tax authority with a single click.</p>
+<h2>How MohasabAi Makes Your Financial Reports Easy to Understand</h2>
+<p><strong>MohasabAi</strong> generates the income statement and balance sheet automatically from daily journal entries — with no manual number entry required from you. The dashboard displays real-time key indicators: revenue to date, net profit, pending invoices, and cash balance — all in one place. Export reports to PDF to share with investors, banks, or the tax authority with a single click.</p>
 
 <h2>Conclusion</h2>
-<p>Reading financial reports is a skill any business owner can develop. Start with the income statement to understand your profitability, then look at the balance sheet to grasp your overall financial position. With <strong>Mohasabai</strong>, these reports are always available and updated in real time — no waiting until month end, no need to request a report from your accountant every time.</p>`,
+<p>Reading financial reports is a skill any business owner can develop. Start with the income statement to understand your profitability, then look at the balance sheet to grasp your overall financial position. With <strong>MohasabAi</strong>, these reports are always available and updated in real time — no waiting until month end, no need to request a report from your accountant every time.</p>`,
     },
   },
   // ─── NEW ARTICLES ───
@@ -486,7 +486,7 @@ export const BLOG_POSTS: BlogPost[] = [
       ar: `<h2>لماذا يبحث أصحاب الأعمال العرب عن بديل لـ QuickBooks؟</h2>
 <p>QuickBooks الأشهر عالمياً لكنه يعاني من مشاكل جوهرية في السوق العربي: واجهة مترجمة وليست عربية حقيقية، لا يدعم ZATCA أو ETA، وتكلفته مرتفعة بالدولار مع دعم فني بالإنجليزي فقط.</p>
 <h2>مقارنة سريعة</h2>
-<table><thead><tr><th>الميزة</th><th>QuickBooks</th><th>Zoho Books</th><th>محاسباي</th></tr></thead>
+<table><thead><tr><th>الميزة</th><th>QuickBooks</th><th>Zoho Books</th><th>محاسب اي</th></tr></thead>
 <tbody>
 <tr><td>واجهة عربية حقيقية</td><td>❌</td><td>جزئي</td><td>✅</td></tr>
 <tr><td>فاتورة ZATCA</td><td>❌</td><td>❌</td><td>✅</td></tr>
@@ -495,7 +495,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <tr><td>تجربة مجانية</td><td>30 يوم</td><td>14 يوم</td><td>35 يوم</td></tr>
 </tbody></table>
 <h2>الخلاصة</h2>
-<p>إذا كنت تبحث عن بديل يفهم السوق العربي فعلاً، فإن <strong>محاسباي</strong> هو الخيار الأنسب. <a href="/register">جرّبه مجاناً 35 يوماً</a>.</p>`,
+<p>إذا كنت تبحث عن بديل يفهم السوق العربي فعلاً، فإن <strong>محاسب اي</strong> هو الخيار الأنسب. <a href="/register">جرّبه مجاناً 35 يوماً</a>.</p>`,
       en: `<h2>Why Arab Business Owners Seek a QuickBooks Alternative</h2>
 <p>QuickBooks is popular globally but fails Arab users: no native Arabic UI, no ZATCA/ETA compliance, USD-only pricing, English-only support.</p>
 <h2>Quick Comparison</h2>
@@ -534,8 +534,8 @@ export const BLOG_POSTS: BlogPost[] = [
 <h2>استخراج الضريبة من سعر شامل</h2>
 <p>الضريبة = السعر الشامل ÷ (1 + نسبة الضريبة) × نسبة الضريبة</p>
 <p>مثال: 1,150 ريال ÷ 1.15 × 0.15 = 150 ريال</p>
-<h2>محاسباي يحسبها تلقائياً</h2>
-<p>محاسباي يحسب ضريبة القيمة المضافة على كل فاتورة بناءً على دولتك ويُعدّ الإقرار الضريبي جاهزاً. <a href="/register">جرّبه مجاناً</a>.</p>`,
+<h2>محاسب اي يحسبها تلقائياً</h2>
+<p>محاسب اي يحسب ضريبة القيمة المضافة على كل فاتورة بناءً على دولتك ويُعدّ الإقرار الضريبي جاهزاً. <a href="/register">جرّبه مجاناً</a>.</p>`,
       en: `<h2>VAT Rates Across MENA</h2>
 <ul><li>Saudi Arabia: 15%</li><li>Egypt: 14%</li><li>UAE: 5%</li><li>Jordan: 16%</li><li>Bahrain: 10%</li></ul>
 <h2>How to Calculate VAT</h2>
@@ -571,7 +571,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <ul><li>قائمة الدخل: الإيرادات − المصروفات = الربح أو الخسارة</li><li>الميزانية العمومية: الأصول = الخصوم + حقوق الملكية</li><li>قائمة التدفقات النقدية</li></ul>
 <h2>أخطاء شائعة</h2>
 <ul><li>❌ خلط الأموال الشخصية بأموال الشركة</li><li>❌ الاعتماد على Excel فقط</li><li>❌ نسيان توفير مبالغ للضرائب</li></ul>
-<h2>كيف يُساعدك محاسباي؟</h2>
+<h2>كيف يُساعدك محاسب اي؟</h2>
 <p>يُعدّ دليل الحسابات تلقائياً، يقرأ فواتيرك بالذكاء الاصطناعي، ويُنشئ القوائم المالية في أي وقت. <a href="/register">ابدأ مجاناً</a>.</p>`,
       en: `<h2>Why Most Startups Neglect Accounting</h2>
 <p>Investors demand financials before investing. Banks require them for loans. Tax authorities don't wait. Delaying accounting is one of the most costly startup mistakes.</p>
@@ -611,7 +611,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <p>بيع نقدي 500 ريال: مدين النقدية 500 / دائن الإيرادات 500</p>
 <p>شراء معدات بالآجل 2,000 ريال: مدين المعدات 2,000 / دائن الدائنون 2,000</p>
 <p>دفع إيجار 1,500 ريال: مدين مصروف الإيجار 1,500 / دائن النقدية 1,500</p>
-<h2>محاسباي يتكفل بالقيود تلقائياً</h2>
+<h2>محاسب اي يتكفل بالقيود تلقائياً</h2>
 <p>الذكاء الاصطناعي يقترح القيود الصحيحة وأنت تراجع فقط. <a href="/register">جرّبه مجاناً</a>.</p>`,
       en: `<h2>The Golden Rule</h2>
 <p><strong>Total Debits = Total Credits in every entry, always.</strong></p>
@@ -654,7 +654,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <p><strong>4.</strong> احسب نقطة التعادل = التكاليف الثابتة ÷ هامش المساهمة للوحدة.</p>
 <p><strong>5.</strong> ضع 3 سيناريوهات: متفائل، واقعي، متحفظ.</p>
 <p><strong>6.</strong> راجع شهرياً وقارن الفعلي بالمخطط.</p>
-<h2>كيف يُساعدك محاسباي؟</h2>
+<h2>كيف يُساعدك محاسب اي؟</h2>
 <p>يُعدّ تقارير الإيرادات والمصروفات الشهرية تلقائياً لمقارنة الأداء بأهدافك. <a href="/register">ابدأ مجاناً</a>.</p>`,
       en: `<h2>Why Small Businesses Need Budgets More</h2>
 <p>Their margin for error is smallest. Without a budget, you don't know when cash runs out or the minimum sales to cover costs.</p>

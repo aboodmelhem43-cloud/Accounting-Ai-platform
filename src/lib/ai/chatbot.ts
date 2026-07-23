@@ -116,7 +116,7 @@ export async function chat(params: {
 
   const isAr = lang === "ar";
 
-  const systemPrompt = isAr ? `أنت مساعد مالي ومحاسبي خبير ومتكامل تعمل ضمن منصة "Mohasabai" (محاسباي) للمحاسبة.
+  const systemPrompt = isAr ? `أنت مساعد مالي ومحاسبي خبير ومتكامل تعمل ضمن منصة "MohasabAi" (محاسب اي) للمحاسبة.
 
 ## خبرتك الشاملة تشمل:
 - **المحاسبة العامة**: القيد المزدوج، دليل الحسابات، اليومية، الأستاذ، الميزانية، قائمة الدخل، التدفقات النقدية
@@ -139,7 +139,7 @@ export async function chat(params: {
 
 ## بيانات المستخدم الفعلية:
 ${financialContext}`
-  : `You are an expert financial and accounting AI assistant integrated into "Mohasabai" accounting platform.
+  : `You are an expert financial and accounting AI assistant integrated into "MohasabAi" accounting platform.
 
 ## Your comprehensive expertise includes:
 - **General Accounting**: Double-entry bookkeeping, chart of accounts, journal entries, ledger, balance sheet, income statement, cash flow

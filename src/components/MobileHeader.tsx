@@ -52,7 +52,7 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
     <>
       {/* Mobile topbar */}
       <header className="md:hidden sticky top-0 z-30 bg-white border-b border-gray-200 px-4 h-14 flex items-center justify-between">
-        <div className="text-base font-bold text-blue-700">Mohasabai · محاسباي</div>
+        <div className="text-base font-bold text-blue-700">MohasabAi · محاسب اي</div>
         <button
           onClick={() => setOpen(true)}
           aria-label="فتح القائمة"
@@ -78,7 +78,7 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
             {/* Header */}
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
               <div>
-                <div className="font-bold text-blue-700 text-sm">Mohasabai · محاسباي</div>
+                <div className="font-bold text-blue-700 text-sm">MohasabAi · محاسب اي</div>
                 <div className="text-xs text-gray-400 mt-0.5 truncate">{businessName}</div>
               </div>
               <button

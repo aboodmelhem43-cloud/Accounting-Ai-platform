@@ -15,10 +15,10 @@ export async function sendOtpEmail(
   const isAr = lang === "ar";
 
   const subject = purpose === "register"
-    ? (isAr ? "رمز التحقق لإنشاء حسابك في محاسبي" : "Verify your email — Mohasabai")
-    : (isAr ? "رمز التحقق لتسجيل الدخول في محاسبي" : "Your login code — Mohasabai");
+    ? (isAr ? "رمز التحقق لإنشاء حسابك في محاسبي" : "Verify your email — MohasabAi")
+    : (isAr ? "رمز التحقق لتسجيل الدخول في محاسبي" : "Your login code — MohasabAi");
 
-  const heading = isAr ? "Mohasabai — منصة المحاسبة الذكية" : "Mohasabai — Smart Accounting";
+  const heading = isAr ? "MohasabAi — منصة المحاسبة الذكية" : "MohasabAi — Smart Accounting";
   const intro = purpose === "register"
     ? (isAr ? "أدخل الرمز التالي لإكمال إنشاء حسابك:" : "Enter this code to complete your registration:")
     : (isAr ? "أدخل الرمز التالي لتسجيل الدخول:" : "Enter this code to sign in:");
@@ -70,13 +70,13 @@ export async function sendInviteEmail(
   const isAr = lang === "ar";
 
   const subject = isAr
-    ? `دعوة للانضمام إلى ${businessName} على محاسباي`
-    : `You're invited to join ${businessName} on Mohasabai`;
+    ? `دعوة للانضمام إلى ${businessName} على محاسب اي`
+    : `You're invited to join ${businessName} on MohasabAi`;
 
-  const heading = isAr ? "Mohasabai — منصة المحاسبة الذكية" : "Mohasabai — Smart Accounting";
+  const heading = isAr ? "MohasabAi — منصة المحاسبة الذكية" : "MohasabAi — Smart Accounting";
   const intro = isAr
-    ? `تمت دعوتك للانضمام إلى منشأة <strong>${businessName}</strong> على منصة محاسباي.`
-    : `You've been invited to join <strong>${businessName}</strong> on Mohasabai.`;
+    ? `تمت دعوتك للانضمام إلى منشأة <strong>${businessName}</strong> على منصة محاسب اي.`
+    : `You've been invited to join <strong>${businessName}</strong> on MohasabAi.`;
   const btnLabel = isAr ? "قبول الدعوة" : "Accept Invitation";
   const expiry = isAr ? "هذه الدعوة صالحة لمدة 7 أيام." : "This invitation expires in 7 days.";
   const ignore = isAr
@@ -123,7 +123,7 @@ function jvEmailWrapper(dir: string, lang: string, body: string) {
 <body style="font-family:Arial,sans-serif;background:#f4f4f5;padding:40px 0;margin:0">
   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
     <div style="background:#1d4ed8;padding:24px 32px">
-      <div style="color:#fff;font-size:20px;font-weight:bold">Mohasabai · محاسباي</div>
+      <div style="color:#fff;font-size:20px;font-weight:bold">MohasabAi · محاسب اي</div>
     </div>
     <div style="padding:32px">${body}</div>
     <div style="padding:16px 32px;background:#f9fafb;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;text-align:center">

@@ -5,12 +5,12 @@ import { authOptions } from "@/lib/auth";
 import LandingPage from "./LandingPage";
 
 export const metadata: Metadata = {
-  title: "محاسباي — برنامج محاسبة ذكي للأعمال العربية | Mohasabai",
+  title: "محاسب اي — برنامج محاسبة ذكي للأعمال العربية | MohasabAi",
   description:
     "برنامج محاسبة سحابي بالذكاء الاصطناعي. قراءة الفواتير تلقائياً، دفتر يومية مزدوج القيد، تقارير مالية فورية، ومتوافق مع ZATCA (السعودية) وETA (مصر) وJoFotara (الأردن). جرّب 35 يوماً مجاناً.",
   alternates: { canonical: "https://www.mohasabai.com" },
   openGraph: {
-    title: "محاسباي — برنامج محاسبة ذكي للأعمال العربية",
+    title: "محاسب اي — برنامج محاسبة ذكي للأعمال العربية",
     description:
       "قراءة الفواتير بالذكاء الاصطناعي، دفتر يومية مزدوج القيد، فاتورة إلكترونية متوافقة مع ZATCA/ETA/JoFotara. 35 يوماً مجاناً.",
     url: "https://www.mohasabai.com",
@@ -21,8 +21,8 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "محاسباي",
-  alternateName: "Mohasabai",
+  name: "محاسب اي",
+  alternateName: "MohasabAi",
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web",
   url: "https://www.mohasabai.com",

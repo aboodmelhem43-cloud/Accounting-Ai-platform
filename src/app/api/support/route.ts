@@ -14,7 +14,7 @@ const schema = z.object({
 });
 
 const PLATFORM_KNOWLEDGE = `
-== Mohasabai Platform — Full Feature Guide ==
+== MohasabAi Platform — Full Feature Guide ==
 
 NAVIGATION & PAGES:
 - /dashboard — Overview: revenue chart, recent invoices, quick stats
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
   ]);
 
   const systemPrompt = lang === "ar"
-    ? `أنت مساعد دعم ذكي لمنصة "Mohasabai" — منصة محاسبة للأعمال الصغيرة. متاح 24/7.
+    ? `أنت مساعد دعم ذكي لمنصة "MohasabAi" — منصة محاسبة للأعمال الصغيرة. متاح 24/7.
 تتحدث مع "${session.user.name ?? session.user.email}" — صاحب منشأة "${business?.name}" في ${business?.country}، خطة: ${business?.plan ?? "FREE_TRIAL"}.
 
 إحصائيات الحساب:
@@ -146,7 +146,7 @@ ${PLATFORM_KNOWLEDGE}
 - إذا كانت المشكلة تقنية ولا يمكن حلها هنا، وجّه المستخدم لإرسال بريد عبر تبويب "راسلنا" أو على support@mohasabai.com
 - لا تخترع أرقاماً مالية تفصيلية — وجّه لصفحة التقارير
 - كن موجزاً: أجب في 2-4 جمل ما لم يطلب تفصيلاً أكثر`
-    : `You are an intelligent 24/7 support assistant for "Mohasabai" — a small business accounting platform.
+    : `You are an intelligent 24/7 support assistant for "MohasabAi" — a small business accounting platform.
 You are talking with "${session.user.name ?? session.user.email}" — owner of "${business?.name}" in ${business?.country}, plan: ${business?.plan ?? "FREE_TRIAL"}.
 
 Account stats:
