@@ -79,12 +79,21 @@ export default function LoginPage() {
     setOtpSent(false);
     setLoading(true);
     try {
-      await fetch("/api/auth/send-otp", {
+      const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, lang }),
       });
-      setOtpSent(true);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error === "invalid_password"
+          ? (lang === "ar" ? "كلمة المرور غير صحيحة." : "Incorrect password.")
+          : t("common.error"));
+      } else {
+        setOtpSent(true);
+      }
+    } catch {
+      setError(t("common.error"));
     } finally {
       setLoading(false);
     }

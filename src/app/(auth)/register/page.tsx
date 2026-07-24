@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { SUPPORTED_COUNTRIES } from "@/compliance";
@@ -72,7 +73,20 @@ export default function RegisterPage() {
         return;
       }
 
-      router.push("/login?registered=1");
+      // Auto-login: use the login OTP returned by the register API (no second email needed)
+      const result = await signIn("credentials", {
+        email: form.email,
+        password: form.password,
+        otp: data.loginOtp,
+        redirect: false,
+      });
+
+      if (result?.ok) {
+        router.push("/dashboard");
+      } else {
+        // Fallback: send user to login manually
+        router.push("/login?registered=1");
+      }
     } catch {
       setError(t("common.error"));
     } finally {
@@ -85,12 +99,19 @@ export default function RegisterPage() {
     setOtpSent(false);
     setLoading(true);
     try {
-      await fetch("/api/register/send-otp", {
+      const res = await fetch("/api/register/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, lang }),
       });
-      setOtpSent(true);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? t("common.error"));
+      } else {
+        setOtpSent(true);
+      }
+    } catch {
+      setError(t("common.error"));
     } finally {
       setLoading(false);
     }
