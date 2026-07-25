@@ -99,7 +99,7 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                      "indent" in item ? "mr-4" : ""
+                      "indent" in item ? "ms-4" : ""
                     } ${
                       isActive
                         ? "bg-blue-50 text-blue-700"

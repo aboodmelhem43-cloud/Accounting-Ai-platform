@@ -229,12 +229,10 @@ export default function SupportWidget() {
                   📧 {isAr ? "بريد VIP" : "VIP Email"}
                 </a>
                 <a
-                  href="https://wa.me/96500000000"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="mailto:vip@mohasabai.com"
                   className="flex-1 bg-green-600 text-white text-xs py-2 px-3 rounded-lg text-center font-medium hover:bg-green-700 transition-colors"
                 >
-                  💬 WhatsApp
+                  💬 {isAr ? "راسلنا" : "Contact Us"}
                 </a>
               </div>
             </div>
