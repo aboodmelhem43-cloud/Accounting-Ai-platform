@@ -49,6 +49,7 @@ model Business {
   accountingPeriods   AccountingPeriod[]
   recurringTemplates  RecurringTemplate[]
   fixedAssets         FixedAsset[]
+  storedDocuments     StoredDocument[]
   // العملاء الذين يديرهم هذا المكتب
   practiceClients     Business[] @relation("PracticeClients")
   managedBy           Business?  @relation("PracticeClients", fields: [managedByBusinessId], references: [id])
@@ -182,6 +183,7 @@ model Invoice {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
+  pdfUrl            String?       // رابط PDF الفاتورة المولّدة
   documentType      String        @default("INVOICE") // INVOICE | CREDIT_NOTE | DEBIT_NOTE
   relatedInvoiceId  String?       // للإشارة إلى الفاتورة الأصلية في حالة إشعارات الخصم/الائتمان
 
@@ -432,4 +434,19 @@ model AssetDepreciationEntry {
   asset FixedAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
   @@unique([assetId, periodYear, periodMonth])
+}
+
+// المستندات المحفوظة في السحابة
+model StoredDocument {
+  id         String   @id @default(cuid())
+  businessId String
+  type       String   // "INVOICE_PDF" | "REPORT" | "OTHER"
+  name       String
+  fileUrl    String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, createdAt(sort: Desc)])
 }

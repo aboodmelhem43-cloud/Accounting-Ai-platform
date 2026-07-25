@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
 import * as XLSX from "xlsx";
 import type { IncomeStatement } from "@/types";
+import SavePdfButton from "@/components/SavePdfButton";
 
 export default function IncomeStatementPage() {
   const { data: session } = useSession();
@@ -90,7 +91,7 @@ export default function IncomeStatementPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div id="report-content" className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">{t("reports.income.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">
@@ -119,6 +120,15 @@ export default function IncomeStatementPage() {
             <button onClick={exportExcel} className="btn-secondary">
               ⬇ {lang === "ar" ? "تصدير Excel" : "Export Excel"}
             </button>
+          )}
+          {statement && (
+            <SavePdfButton
+              targetId="report-content"
+              fileName={`income-statement-${from}-to-${to}.pdf`}
+              documentName={`Income Statement ${from} to ${to}`}
+              label="Download PDF"
+              labelAr="تحميل PDF"
+            />
           )}
         </div>
       </div>

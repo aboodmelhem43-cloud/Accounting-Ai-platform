@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
 import * as XLSX from "xlsx";
 import type { BalanceSheet, AccountBalance } from "@/types";
+import SavePdfButton from "@/components/SavePdfButton";
 
 export default function BalanceSheetPage() {
   const { lang } = useLang();
@@ -92,7 +93,7 @@ export default function BalanceSheetPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div id="report-content" className="space-y-6 max-w-4xl">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "الميزانية العمومية" : "Balance Sheet"}
@@ -121,6 +122,15 @@ export default function BalanceSheetPage() {
           <button onClick={exportExcel} className="btn-secondary">
             ⬇ {isAr ? "تصدير Excel" : "Export Excel"}
           </button>
+        )}
+        {data && (
+          <SavePdfButton
+            targetId="report-content"
+            fileName={`balance-sheet-${asOf}.pdf`}
+            documentName={`Balance Sheet ${asOf}`}
+            label="Download PDF"
+            labelAr="تحميل PDF"
+          />
         )}
       </div>
 
