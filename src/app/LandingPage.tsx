@@ -183,6 +183,9 @@ export default function LandingPage() {
             <a href="/blog" className="hidden md:block text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
               {isAr ? "المدونة" : "Blog"}
             </a>
+            <a href="#contact" className="hidden md:block text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
+              {isAr ? "تواصل معنا" : "Contact"}
+            </a>
             <button
               onClick={toggleLang}
               className="text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
@@ -587,6 +590,56 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Contact */}
+      <section id="contact" className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {isAr ? "تواصل مع فريق الدعم" : "Contact our support team"}
+            </h2>
+            <p className="text-gray-500 mt-3 text-base">
+              {isAr ? "نرد عليك خلال ساعات — بالعربي والإنجليزي" : "We reply within hours — in Arabic and English"}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center text-xl shrink-0">📧</div>
+              <div>
+                <p className="font-semibold text-gray-900 text-sm mb-0.5">
+                  {isAr ? "الدعم العام" : "General Support"}
+                </p>
+                <a
+                  href="mailto:support@mohasabai.com"
+                  className="text-blue-600 hover:text-blue-800 font-medium text-base transition-colors"
+                >
+                  support@mohasabai.com
+                </a>
+                <p className="text-gray-400 text-xs mt-1.5">
+                  {isAr ? "لجميع الاستفسارات التقنية والمحاسبية" : "For all technical and accounting queries"}
+                </p>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center text-xl shrink-0">⭐</div>
+              <div>
+                <p className="font-semibold text-gray-900 text-sm mb-0.5">
+                  {isAr ? "دعم VIP — خطة الأعمال" : "VIP Support — Business Plan"}
+                </p>
+                <a
+                  href="mailto:vip@mohasabai.com"
+                  className="text-purple-600 hover:text-purple-800 font-medium text-base transition-colors"
+                >
+                  vip@mohasabai.com
+                </a>
+                <p className="text-gray-400 text-xs mt-1.5">
+                  {isAr ? "أولوية قصوى لعملاء خطة الأعمال" : "Top-priority response for Business plan customers"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-20 bg-gradient-to-r from-blue-700 to-indigo-700 text-white text-center">
         <div className="max-w-3xl mx-auto px-4">
@@ -631,6 +684,7 @@ export default function LandingPage() {
                 <li><Link href="/register" className="hover:text-white transition-colors">{isAr ? "إنشاء حساب" : "Create Account"}</Link></li>
                 <li><a href="#pricing" className="hover:text-white transition-colors">{isAr ? "الأسعار" : "Pricing"}</a></li>
                 <li><Link href="/blog" className="hover:text-white transition-colors">{isAr ? "المدونة" : "Blog"}</Link></li>
+                <li><a href="#contact" className="hover:text-white transition-colors">{isAr ? "تواصل معنا" : "Contact"}</a></li>
               </ul>
             </div>
             <div>
