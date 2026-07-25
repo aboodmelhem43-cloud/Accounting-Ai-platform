@@ -77,7 +77,7 @@ export default function RecurringPage() {
       ]);
       const [tData, aData] = await Promise.all([tRes.json(), aRes.json()]);
       setTemplates(tData.templates ?? []);
-      setAccounts(aData.accounts ?? []);
+      setAccounts(Array.isArray(aData) ? aData : []);
     } finally {
       setLoading(false);
     }

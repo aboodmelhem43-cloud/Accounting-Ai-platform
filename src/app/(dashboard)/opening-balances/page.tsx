@@ -53,7 +53,7 @@ export default function OpeningBalancesPage() {
         fetch("/api/opening-balances"),
       ]);
       const [aData, obData] = await Promise.all([aRes.json(), obRes.json()]);
-      const accs = aData.accounts ?? [];
+      const accs: Account[] = Array.isArray(aData) ? aData : [];
       setAccounts(accs);
 
       if (obData.existing) {
