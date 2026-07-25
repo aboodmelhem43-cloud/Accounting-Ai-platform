@@ -4,7 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_CHART_OF_ACCOUNTS } from "@/lib/accounts";
 import { SUPPORTED_COUNTRIES } from "@/compliance";
-import { verifyOtp } from "@/lib/otp";
+import { verifyOtp, createOtp } from "@/lib/otp";
 import { trialEndsAtDate } from "@/lib/plans";
 
 const schema = z.object({
@@ -73,7 +73,10 @@ export async function POST(req: NextRequest) {
       return { business, user };
     });
 
-    return NextResponse.json({ message: "تم إنشاء الحساب بنجاح", businessId: result.business.id }, { status: 201 });
+    // Create a login OTP so the client can auto-login without a second email
+    const loginOtp = await createOtp(data.email.toLowerCase(), "login");
+
+    return NextResponse.json({ message: "تم إنشاء الحساب بنجاح", businessId: result.business.id, loginOtp }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
