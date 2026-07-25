@@ -183,6 +183,9 @@ export default function LandingPage() {
             <a href="/blog" className="hidden md:block text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
               {isAr ? "المدونة" : "Blog"}
             </a>
+            <a href="#contact" className="hidden md:block text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
+              {isAr ? "تواصل معنا" : "Contact"}
+            </a>
             <button
               onClick={toggleLang}
               className="text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
@@ -312,8 +315,55 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Comparison table */}
+      {/* Testimonials */}
       <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {isAr ? "ماذا يقول عملاؤنا" : "What our customers say"}
+            </h2>
+            <p className="text-gray-500 mt-3 text-base">
+              {isAr ? "أصحاب أعمال يثقون بمحاسب اي لإدارة حساباتهم" : "Business owners who trust MohasabAi with their accounts"}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                ar: { quote: "وفّرت ساعات كل أسبوع بعد ما بدأت أرفع الفواتير بالذكاء الاصطناعي. القيود بتتسجل لحالها وما عدت أحتاج محاسب خارجي.", name: "صاحب مطعم", country: "🇸🇦 السعودية" },
+                en: { quote: "I save hours every week since I started uploading invoices with AI. Entries post themselves — I no longer need an external accountant.", name: "Restaurant Owner", country: "🇸🇦 Saudi Arabia" },
+              },
+              {
+                ar: { quote: "أخيراً برنامج محاسبة عربي يفهم فاتورة ETA ويولد القيود تلقائياً. التقارير اللي كانت تاخد يومين دلوقتي جاهزة في دقيقتين.", name: "مدير مكتب محاسبة", country: "🇪🇬 مصر" },
+                en: { quote: "Finally an Arabic accounting software that understands ETA invoices and auto-generates entries. Reports that took two days now take two minutes.", name: "Accounting Firm Manager", country: "🇪🇬 Egypt" },
+              },
+              {
+                ar: { quote: "الواجهة بسيطة جداً لأي شخص غير متخصص. المساعد الذكي يجاوب على أسئلتي المحاسبية مباشرةً بناءً على بياناتي الفعلية.", name: "صاحبة متجر إلكتروني", country: "🇦🇪 الإمارات" },
+                en: { quote: "The interface is simple enough for any non-accountant. The AI assistant answers my accounting questions directly from my real data.", name: "E-commerce Store Owner", country: "🇦🇪 UAE" },
+              },
+            ].map((t, i) => {
+              const item = isAr ? t.ar : t.en;
+              return (
+                <div key={i} className="bg-gray-50 rounded-2xl p-6 border border-gray-200 flex flex-col">
+                  <div className="text-blue-500 text-2xl mb-3">❝</div>
+                  <p className="text-gray-700 text-sm leading-relaxed flex-1">{item.quote}</p>
+                  <div className="mt-5 pt-4 border-t border-gray-200 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-base shrink-0">
+                      {i === 0 ? "🍽️" : i === 1 ? "📊" : "🛍️"}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{item.name}</p>
+                      <p className="text-xs text-gray-400">{item.country}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Comparison table */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900">
@@ -323,11 +373,11 @@ export default function LandingPage() {
               {isAr ? "مقارنة مع البدائل الشائعة" : "Compared to common alternatives"}
             </p>
           </div>
-          <div className="overflow-x-auto rounded-2xl border border-gray-200">
+          <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-right px-6 py-4 font-semibold text-gray-600 w-1/2">
+                  <th className="text-start px-6 py-4 font-semibold text-gray-600 w-1/2">
                     {isAr ? "الميزة" : "Feature"}
                   </th>
                   <th className="px-4 py-4 font-bold text-blue-700 text-center">
@@ -373,7 +423,7 @@ export default function LandingPage() {
       </section>
 
       {/* Countries */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold text-gray-900">
@@ -400,7 +450,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 bg-white">
+      <section id="pricing" className="py-20 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-900">
@@ -508,7 +558,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-3xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900">
@@ -523,7 +573,7 @@ export default function LandingPage() {
                 <div key={i} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                   <button
                     onClick={() => setOpenFaq(isOpen ? null : i)}
-                    className="w-full text-right px-6 py-4 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors"
+                    className="w-full text-start px-6 py-4 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors"
                   >
                     <span className="font-semibold text-gray-800 text-sm">{f.q}</span>
                     <span className={`text-blue-500 text-lg transition-transform flex-shrink-0 ${isOpen ? "rotate-45" : ""}`}>+</span>
@@ -536,6 +586,56 @@ export default function LandingPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {isAr ? "تواصل مع فريق الدعم" : "Contact our support team"}
+            </h2>
+            <p className="text-gray-500 mt-3 text-base">
+              {isAr ? "نرد عليك خلال ساعات — بالعربي والإنجليزي" : "We reply within hours — in Arabic and English"}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center text-xl shrink-0">📧</div>
+              <div>
+                <p className="font-semibold text-gray-900 text-sm mb-0.5">
+                  {isAr ? "الدعم العام" : "General Support"}
+                </p>
+                <a
+                  href="mailto:support@mohasabai.com"
+                  className="text-blue-600 hover:text-blue-800 font-medium text-base transition-colors"
+                >
+                  support@mohasabai.com
+                </a>
+                <p className="text-gray-400 text-xs mt-1.5">
+                  {isAr ? "لجميع الاستفسارات التقنية والمحاسبية" : "For all technical and accounting queries"}
+                </p>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center text-xl shrink-0">⭐</div>
+              <div>
+                <p className="font-semibold text-gray-900 text-sm mb-0.5">
+                  {isAr ? "دعم VIP — خطة الأعمال" : "VIP Support — Business Plan"}
+                </p>
+                <a
+                  href="mailto:vip@mohasabai.com"
+                  className="text-purple-600 hover:text-purple-800 font-medium text-base transition-colors"
+                >
+                  vip@mohasabai.com
+                </a>
+                <p className="text-gray-400 text-xs mt-1.5">
+                  {isAr ? "أولوية قصوى لعملاء خطة الأعمال" : "Top-priority response for Business plan customers"}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -566,8 +666,8 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-400 py-12">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-            <div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+            <div className="col-span-2 md:col-span-1">
               <div className="text-white font-bold text-lg mb-2">MohasabAi · محاسب اي</div>
               <p className="text-sm leading-relaxed">
                 {isAr
@@ -582,6 +682,21 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm">
                 <li><Link href="/login" className="hover:text-white transition-colors">{isAr ? "تسجيل الدخول" : "Sign In"}</Link></li>
                 <li><Link href="/register" className="hover:text-white transition-colors">{isAr ? "إنشاء حساب" : "Create Account"}</Link></li>
+                <li><a href="#pricing" className="hover:text-white transition-colors">{isAr ? "الأسعار" : "Pricing"}</a></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors">{isAr ? "المدونة" : "Blog"}</Link></li>
+                <li><a href="#contact" className="hover:text-white transition-colors">{isAr ? "تواصل معنا" : "Contact"}</a></li>
+              </ul>
+            </div>
+            <div>
+              <div className="text-white font-semibold text-sm mb-3">
+                {isAr ? "الدول المدعومة" : "Countries"}
+              </div>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/sa" className="hover:text-white transition-colors">🇸🇦 {isAr ? "السعودية" : "Saudi Arabia"}</Link></li>
+                <li><Link href="/eg" className="hover:text-white transition-colors">🇪🇬 {isAr ? "مصر" : "Egypt"}</Link></li>
+                <li><Link href="/ae" className="hover:text-white transition-colors">🇦🇪 {isAr ? "الإمارات" : "UAE"}</Link></li>
+                <li><Link href="/jo" className="hover:text-white transition-colors">🇯🇴 {isAr ? "الأردن" : "Jordan"}</Link></li>
+                <li><Link href="/kw" className="hover:text-white transition-colors">🇰🇼 {isAr ? "الكويت" : "Kuwait"}</Link></li>
               </ul>
             </div>
             <div>

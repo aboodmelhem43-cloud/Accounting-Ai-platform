@@ -45,7 +45,7 @@ SUBSCRIPTION PLANS:
 - FREE_TRIAL: 35-day free trial, all features, 1 user
 - STARTER ($69/mo): Unlimited invoices, 1 user, all core features
 - PRO ($149/mo): Everything in Starter + 3 team users + priority support email
-- BUSINESS ($199/mo): Everything in Pro + 10 team users + VIP WhatsApp/email support
+- BUSINESS ($199/mo): Everything in Pro + 10 team users + VIP email support
 
 TEAM MANAGEMENT (PRO & BUSINESS plans):
 - Owner can invite accountants via email from /settings/team

@@ -98,7 +98,7 @@ export default function FixedAssetsPage() {
       ]);
       const [aData, accData] = await Promise.all([aRes.json(), accRes.json()]);
       setAssets(aData.assets ?? []);
-      setAccounts(accData.accounts ?? []);
+      setAccounts(Array.isArray(accData) ? accData : []);
     } finally {
       setLoading(false);
     }

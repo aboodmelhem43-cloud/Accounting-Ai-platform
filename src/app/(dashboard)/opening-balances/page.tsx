@@ -53,7 +53,7 @@ export default function OpeningBalancesPage() {
         fetch("/api/opening-balances"),
       ]);
       const [aData, obData] = await Promise.all([aRes.json(), obRes.json()]);
-      const accs = aData.accounts ?? [];
+      const accs: Account[] = Array.isArray(aData) ? aData : [];
       setAccounts(accs);
 
       if (obData.existing) {
@@ -94,6 +94,69 @@ export default function OpeningBalancesPage() {
     accounts: accounts.filter((a) => a.type === type),
   }));
 
+  function downloadTemplate() {
+    const header = isAr
+      ? "كود الحساب,اسم الحساب,مدين,دائن"
+      : "account_code,account_name,debit,credit";
+    const rows = accounts.map((a) => {
+      const name = (isAr ? (a.nameAr ?? a.name) : a.name).replace(/,/g, " ");
+      return `${a.code},${name},0.00,0.00`;
+    });
+    const csv = [header, ...rows].join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "opening-balances-template.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleImportCsv(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = (ev.target?.result as string).replace(/^﻿/, ""); // strip BOM
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2) {
+        setError(isAr ? "الملف فارغ أو غير صالح" : "File is empty or invalid");
+        return;
+      }
+      // Build a code → accountId map
+      const codeMap: Record<string, string> = {};
+      for (const acc of accounts) codeMap[acc.code.trim()] = acc.id;
+
+      let imported = 0;
+      let skipped = 0;
+      const updates: Record<string, BalanceLine> = {};
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(",");
+        if (cols.length < 4) continue;
+        const code = cols[0].trim();
+        const debit = parseFloat(cols[2].trim()) || 0;
+        const credit = parseFloat(cols[3].trim()) || 0;
+        const accountId = codeMap[code];
+        if (!accountId) { skipped++; continue; }
+        if (debit > 0 || credit > 0) {
+          updates[accountId] = { accountId, debit, credit: debit > 0 ? 0 : credit };
+          imported++;
+        }
+      }
+
+      setLines((prev) => ({ ...prev, ...updates }));
+      setSuccess(
+        isAr
+          ? `تم استيراد ${imported} حساب بنجاح${skipped > 0 ? ` — ${skipped} سطر تم تجاهله` : ""}`
+          : `Imported ${imported} account${imported !== 1 ? "s" : ""}${skipped > 0 ? ` — ${skipped} row(s) skipped` : ""}`
+      );
+      setError(null);
+    };
+    reader.readAsText(file, "UTF-8");
+    e.target.value = "";
+  }
+
   async function handleSubmit() {
     if (!isBalanced) {
       setError(isAr ? `القيد غير متوازن — الفارق: ${fmt(imbalance)}` : `Entry not balanced — difference: ${fmt(imbalance)}`);
@@ -127,6 +190,39 @@ export default function OpeningBalancesPage() {
           {isAr ? "أدخل أرصدة الحسابات عند البدء بالنظام لضمان دقة التقارير" : "Enter account balances at system start to ensure accurate reports"}
         </p>
       </div>
+
+      {/* Import / Export */}
+      {!loading && accounts.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-700">
+              {isAr ? "استيراد من ملف CSV" : "Import from CSV file"}
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {isAr
+                ? "حمّل القالب، عبّئ الأرصدة، ثم ارفع الملف"
+                : "Download the template, fill in the balances, then upload"}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={downloadTemplate}
+              className="btn-secondary text-sm flex items-center gap-1.5"
+            >
+              ⬇️ {isAr ? "تحميل القالب" : "Download Template"}
+            </button>
+            <label className="btn-primary text-sm flex items-center gap-1.5 cursor-pointer">
+              ⬆️ {isAr ? "رفع CSV" : "Upload CSV"}
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                onChange={handleImportCsv}
+                className="hidden"
+              />
+            </label>
+          </div>
+        </div>
+      )}
 
       {existing && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">
