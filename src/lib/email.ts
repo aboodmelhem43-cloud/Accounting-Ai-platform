@@ -321,3 +321,119 @@ export async function sendJvRejectedEmail({
   const result = await resend.emails.send({ from: FROM_EMAIL, to: accountantEmail, subject, html });
   if (result.error) console.error("[email] JV rejected notification error:", result.error);
 }
+
+// ── Trial Lifecycle Emails ────────────────────────────────────────────────────
+
+export async function sendTrialWarningEmail({
+  email,
+  name,
+  daysLeft,
+  lang = "ar",
+}: {
+  email: string;
+  name: string;
+  daysLeft: number;
+  lang?: "ar" | "en";
+}): Promise<void> {
+  const isAr = lang === "ar";
+  const dir = isAr ? "rtl" : "ltr";
+  const upgradeUrl = `${APP_URL}/pricing`;
+
+  const subject = isAr
+    ? `⏳ تبقى ${daysLeft} أيام فقط في تجربتك المجانية — محاسب اي`
+    : `⏳ ${daysLeft} days left in your free trial — MohasabAi`;
+
+  const body = isAr ? `
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${name}،</p>
+    <p style="color:#374151;font-size:15px;margin:0 0 20px">
+      تبقّى <strong>${daysLeft} أيام</strong> فقط على انتهاء تجربتك المجانية في منصة محاسب اي.
+      بعد انتهائها لن تتمكن من الوصول إلى بياناتك أو إضافة فواتير جديدة.
+    </p>
+    <div style="background:#fffbeb;border-right:4px solid #f59e0b;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+      <div style="font-size:14px;color:#92400e;font-weight:600">لا تفقد بياناتك — اشترك الآن واستمر من حيث توقفت</div>
+    </div>
+    <a href="${upgradeUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:20px">
+      ترقية الحساب الآن
+    </a>
+    <p style="color:#9ca3af;font-size:12px;margin:0">إذا كان لديك أي سؤال، راسلنا على ${SUPPORT_EMAIL}</p>
+  ` : `
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">Hi ${name},</p>
+    <p style="color:#374151;font-size:15px;margin:0 0 20px">
+      You have <strong>${daysLeft} days</strong> left in your MohasabAi free trial.
+      After it ends, you won't be able to access your data or add new invoices.
+    </p>
+    <div style="background:#fffbeb;border-left:4px solid #f59e0b;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+      <div style="font-size:14px;color:#92400e;font-weight:600">Don't lose your data — subscribe now and pick up where you left off</div>
+    </div>
+    <a href="${upgradeUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:20px">
+      Upgrade Now
+    </a>
+    <p style="color:#9ca3af;font-size:12px;margin:0">Questions? Email us at ${SUPPORT_EMAIL}</p>
+  `;
+
+  const html = jvEmailWrapper(dir, isAr ? "ar" : "en", body);
+
+  if (!resend) {
+    console.log(`[TRIAL_WARNING] → ${email} | daysLeft: ${daysLeft}`);
+    return;
+  }
+  const r = await resend.emails.send({ from: FROM_EMAIL, to: email, subject, html });
+  if (r.error) console.error("[email] Trial warning error:", r.error);
+}
+
+export async function sendTrialExpiredEmail({
+  email,
+  name,
+  lang = "ar",
+}: {
+  email: string;
+  name: string;
+  lang?: "ar" | "en";
+}): Promise<void> {
+  const isAr = lang === "ar";
+  const dir = isAr ? "rtl" : "ltr";
+  const upgradeUrl = `${APP_URL}/pricing`;
+
+  const subject = isAr
+    ? `انتهت تجربتك المجانية في محاسب اي`
+    : `Your MohasabAi free trial has ended`;
+
+  const body = isAr ? `
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${name}،</p>
+    <p style="color:#374151;font-size:15px;margin:0 0 20px">
+      انتهت فترة تجربتك المجانية في منصة <strong>محاسب اي</strong>.
+      بياناتك محفوظة — فقط قم بالاشتراك لاستعادة الوصول الكامل.
+    </p>
+    <div style="background:#fef2f2;border-right:4px solid #dc2626;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+      <div style="font-size:14px;color:#991b1b;font-weight:600">حسابك موقوف مؤقتاً — اشترك لاستعادة الوصول</div>
+    </div>
+    <a href="${upgradeUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:20px">
+      اشترك الآن
+    </a>
+    <p style="color:#6b7280;font-size:13px;margin:0 0 8px">خططنا تبدأ من $69/شهر وتشمل جميع الميزات.</p>
+    <p style="color:#9ca3af;font-size:12px;margin:0">أي سؤال؟ راسلنا على ${SUPPORT_EMAIL}</p>
+  ` : `
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">Hi ${name},</p>
+    <p style="color:#374151;font-size:15px;margin:0 0 20px">
+      Your <strong>MohasabAi</strong> free trial has ended.
+      Your data is safe — just subscribe to regain full access.
+    </p>
+    <div style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+      <div style="font-size:14px;color:#991b1b;font-weight:600">Your account is paused — subscribe to restore access</div>
+    </div>
+    <a href="${upgradeUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:20px">
+      Subscribe Now
+    </a>
+    <p style="color:#6b7280;font-size:13px;margin:0 0 8px">Plans start at $69/month and include all features.</p>
+    <p style="color:#9ca3af;font-size:12px;margin:0">Questions? Email us at ${SUPPORT_EMAIL}</p>
+  `;
+
+  const html = jvEmailWrapper(dir, isAr ? "ar" : "en", body);
+
+  if (!resend) {
+    console.log(`[TRIAL_EXPIRED] → ${email}`);
+    return;
+  }
+  const r = await resend.emails.send({ from: FROM_EMAIL, to: email, subject, html });
+  if (r.error) console.error("[email] Trial expired error:", r.error);
+}
