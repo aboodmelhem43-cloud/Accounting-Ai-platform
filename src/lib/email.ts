@@ -438,6 +438,98 @@ export async function sendTrialExpiredEmail({
   if (r.error) console.error("[email] Trial expired error:", r.error);
 }
 
+// ── Invoice Overdue Reminder ─────────────────────────────────────────────────
+
+export async function sendInvoiceOverdueEmail({
+  email,
+  contactName,
+  businessName,
+  invoiceNumber,
+  amount,
+  currency,
+  dueDate,
+  lang = "ar",
+}: {
+  email: string;
+  contactName: string;
+  businessName: string;
+  invoiceNumber: string;
+  amount: number;
+  currency: string;
+  dueDate: Date;
+  lang?: "ar" | "en";
+}): Promise<void> {
+  const isAr = lang === "ar";
+  const dir = isAr ? "rtl" : "ltr";
+  const dueDateStr = new Date(dueDate).toLocaleDateString(isAr ? "ar" : "en", {
+    year: "numeric", month: "long", day: "numeric",
+  });
+  const fmtAmount = amount > 0
+    ? amount.toLocaleString(isAr ? "ar" : "en", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + currency
+    : "";
+
+  const subject = isAr
+    ? `تذكير: فاتورة متأخرة من ${businessName} — #${invoiceNumber}`
+    : `Payment reminder: overdue invoice from ${businessName} — #${invoiceNumber}`;
+
+  const body = isAr ? `
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${contactName}،</p>
+    <p style="color:#374151;font-size:15px;margin:0 0 20px">
+      نودّ تذكيرك بأن الفاتورة التالية من <strong>${businessName}</strong> قد تجاوزت تاريخ استحقاقها ولم يتم سدادها بعد.
+    </p>
+    <div style="background:#fef2f2;border-right:4px solid #dc2626;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:#6b7280">رقم الفاتورة</span>
+        <span style="font-size:14px;font-weight:600;color:#374151">#${invoiceNumber}</span>
+      </div>
+      ${fmtAmount ? `<div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:#6b7280">المبلغ المستحق</span>
+        <span style="font-size:14px;font-weight:600;color:#dc2626">${fmtAmount}</span>
+      </div>` : ""}
+      <div style="display:flex;justify-content:space-between">
+        <span style="font-size:13px;color:#6b7280">تاريخ الاستحقاق</span>
+        <span style="font-size:14px;font-weight:600;color:#dc2626">${dueDateStr}</span>
+      </div>
+    </div>
+    <p style="color:#374151;font-size:14px;margin:0 0 20px">
+      يرجى التواصل مع <strong>${businessName}</strong> لتسوية هذه الفاتورة في أقرب وقت ممكن.
+    </p>
+    <p style="color:#9ca3af;font-size:12px;margin:0">إذا كنت قد سددت هذه الفاتورة مسبقاً، يرجى تجاهل هذا البريد.</p>
+  ` : `
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">Dear ${contactName},</p>
+    <p style="color:#374151;font-size:15px;margin:0 0 20px">
+      This is a friendly reminder that the following invoice from <strong>${businessName}</strong> is now past due and remains unpaid.
+    </p>
+    <div style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:#6b7280">Invoice number</span>
+        <span style="font-size:14px;font-weight:600;color:#374151">#${invoiceNumber}</span>
+      </div>
+      ${fmtAmount ? `<div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:#6b7280">Amount due</span>
+        <span style="font-size:14px;font-weight:600;color:#dc2626">${fmtAmount}</span>
+      </div>` : ""}
+      <div style="display:flex;justify-content:space-between">
+        <span style="font-size:13px;color:#6b7280">Due date</span>
+        <span style="font-size:14px;font-weight:600;color:#dc2626">${dueDateStr}</span>
+      </div>
+    </div>
+    <p style="color:#374151;font-size:14px;margin:0 0 20px">
+      Please contact <strong>${businessName}</strong> to settle this invoice at your earliest convenience.
+    </p>
+    <p style="color:#9ca3af;font-size:12px;margin:0">If you have already made this payment, please disregard this email.</p>
+  `;
+
+  const html = jvEmailWrapper(dir, isAr ? "ar" : "en", body);
+
+  if (!resend) {
+    console.log(`[INVOICE_OVERDUE] → ${email} | invoice: ${invoiceNumber}`);
+    return;
+  }
+  const r = await resend.emails.send({ from: FROM_EMAIL, to: email, subject, html });
+  if (r.error) console.error("[email] Invoice overdue reminder error:", r.error);
+}
+
 // ── Re-engagement Email ───────────────────────────────────────────────────────
 
 export async function sendReEngagementEmail({
