@@ -6,6 +6,7 @@ import { getServerT } from "@/lib/i18n/server";
 import Link from "next/link";
 import { Suspense } from "react";
 import InvoiceFilters from "./InvoiceFilters";
+import InvoiceBulkTable from "@/components/InvoiceBulkTable";
 
 type ExtractedData = {
   vendorName?: string;
@@ -141,71 +142,33 @@ export default async function InvoicesPage({
           )}
         </div>
       ) : (
-        <div className="card p-0 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">
-                  {isAr ? "رقم الفاتورة" : "Invoice #"}
-                </th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">{t("invoices.vendor")}</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">{t("invoices.type")}</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">{t("invoices.amount")}</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">{t("invoices.date")}</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">{t("invoices.status")}</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {invoices.map((inv) => {
-                const d = inv.extractedData as ExtractedData | null;
-                const isCreated = inv.fileType === "created";
-                const party = isCreated
-                  ? (d?.customerName ?? "—")
-                  : (d?.vendorName ?? d?.customerName ?? "—");
-                const invoiceNum = d?.invoiceNumber ?? "—";
-                const invoiceDate = d?.invoiceDate
-                  ? new Date(d.invoiceDate).toLocaleDateString(locale)
-                  : new Date(inv.createdAt).toLocaleDateString(locale);
-                const s = statusMap[inv.status] ?? { label: inv.status, cls: "bg-gray-100 text-gray-600" };
-                return (
-                  <tr key={inv.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-mono text-gray-700 text-xs">{invoiceNum}</td>
-                    <td className="px-4 py-3 font-medium text-gray-800">{party}</td>
-                    <td className="px-4 py-3 text-gray-500">
-                      <span className="flex items-center gap-1">
-                        {isCreated && (
-                          <span className="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">
-                            {isAr ? "يدوية" : "Manual"}
-                          </span>
-                        )}
-                        {inv.invoiceType === "PURCHASE" ? t("invoices.type.purchase") : t("invoices.type.sales")}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">{d?.totalAmount ? fmt(d.totalAmount) : "—"}</td>
-                    <td className="px-4 py-3 text-gray-500">{invoiceDate}</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${s.cls}`}>
-                        {s.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      {isCreated ? (
-                        <Link href={`/invoices/${inv.id}/view`} className="text-blue-600 text-xs hover:underline">
-                          {isAr ? "عرض / طباعة" : "View / Print"}
-                        </Link>
-                      ) : inv.status === "PENDING_REVIEW" ? (
-                        <Link href={`/invoices/${inv.id}/review`} className="text-blue-600 text-xs hover:underline">
-                          {t("invoices.review")}
-                        </Link>
-                      ) : null}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <InvoiceBulkTable
+          isAr={isAr}
+          invoices={invoices.map((inv) => {
+            const d = inv.extractedData as ExtractedData | null;
+            const isCreated = inv.fileType === "created";
+            const party = isCreated
+              ? (d?.customerName ?? "—")
+              : (d?.vendorName ?? d?.customerName ?? "—");
+            const invoiceNum = d?.invoiceNumber ?? "—";
+            const invoiceDate = d?.invoiceDate
+              ? new Date(d.invoiceDate).toLocaleDateString(locale)
+              : new Date(inv.createdAt).toLocaleDateString(locale);
+            const s = statusMap[inv.status] ?? { label: inv.status, cls: "bg-gray-100 text-gray-600" };
+            return {
+              id: inv.id,
+              invoiceNum,
+              party,
+              isCreated,
+              invoiceType: inv.invoiceType === "PURCHASE" ? t("invoices.type.purchase") : t("invoices.type.sales"),
+              amount: d?.totalAmount ? fmt(d.totalAmount) : "—",
+              date: invoiceDate,
+              status: inv.status,
+              statusLabel: s.label,
+              statusCls: s.cls,
+            };
+          })}
+        />
       )}
     </div>
   );
