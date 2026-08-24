@@ -9,8 +9,13 @@ import { Suspense } from "react";
 import DashboardCharts, { ExpenseBreakdown } from "@/components/DashboardCharts";
 import UpgradedToast from "@/components/UpgradedToast";
 import UsageBanner from "@/components/UsageBanner";
+import PeriodPicker from "@/components/PeriodPicker";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
   const session = await getServerSession(authOptions);
   if (!session) return null;
 
@@ -19,9 +24,18 @@ export default async function DashboardPage() {
   const compliance = getComplianceModule(country);
   const locale = lang === "ar" ? "ar" : "en";
 
+  // Resolve period: ?month=YYYY-MM or default to current month
+  const { month: monthParam } = await searchParams;
   const now = new Date();
-  const from = new Date(now.getFullYear(), now.getMonth(), 1);
-  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  let year = now.getFullYear();
+  let month = now.getMonth(); // 0-indexed
+  if (monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
+    const [y, m] = monthParam.split("-").map(Number);
+    year = y;
+    month = m - 1;
+  }
+  const from = new Date(year, month, 1);
+  const to = new Date(year, month + 1, 0, 23, 59, 59);
 
   const [statement, invoiceCount, pendingCount, recentInvoices, cashBalance, overdueCount] = await Promise.all([
     computeIncomeStatement(businessId, from, to),
@@ -57,11 +71,14 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <Suspense><UpgradedToast /></Suspense>
       <Suspense><UsageBanner /></Suspense>
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.title")}</h1>
-        <p className="text-gray-500 text-sm mt-1">
-          {session.user.businessName} · {lang === "ar" ? compliance.countryNameAr : compliance.countryNameEn} · {monthName}
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.title")}</h1>
+          <p className="text-gray-500 text-sm mt-1">
+            {session.user.businessName} · {lang === "ar" ? compliance.countryNameAr : compliance.countryNameEn}
+          </p>
+        </div>
+        <Suspense><PeriodPicker /></Suspense>
       </div>
 
       {compliance.eInvoiceRequired && (
