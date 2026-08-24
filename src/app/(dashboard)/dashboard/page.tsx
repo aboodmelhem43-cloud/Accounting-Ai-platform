@@ -34,7 +34,7 @@ export default async function DashboardPage() {
     }),
     prisma.bankAccount.aggregate({
       where: { businessId },
-      _sum: { currentBalance: true },
+      _sum: { openingBalance: true },
     }),
     prisma.invoice.count({
       where: {
@@ -46,7 +46,7 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  const totalCash = Number(cashBalance._sum.currentBalance ?? 0);
+  const totalCash = Number(cashBalance._sum?.openingBalance ?? 0);
 
   const fmt = (n: number) =>
     n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
