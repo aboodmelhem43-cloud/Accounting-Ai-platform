@@ -210,6 +210,9 @@ export default function AdminPage() {
     ok: boolean; keyPreview?: string; error?: string; errorType?: string; response?: string; step?: string;
   } | null>(null);
 
+  const [reengageLoading, setReengageLoading] = useState(false);
+  const [reengageResult, setReengageResult] = useState<string | null>(null);
+
   const [lsTesting, setLsTesting] = useState(false);
   const [lsResult, setLsResult] = useState<{
     ok: boolean; keyPreview?: string; storeId?: string; variants?: Record<string, string>; webhookSecret?: string; step?: string; error?: string;
@@ -262,6 +265,17 @@ export default function AdminPage() {
     try {
       setLsResult(await (await fetch("/api/admin/test-lemonsqueezy", { method: "POST" })).json());
     } catch { setLsResult({ ok: false, error: "Network error" }); } finally { setLsTesting(false); }
+  }
+
+  async function sendReEngagement() {
+    setReengageLoading(true); setReengageResult(null);
+    try {
+      const res = await fetch("/api/admin/send-reengagement", { method: "POST" });
+      const data = await res.json();
+      setReengageResult(res.ok
+        ? `Sent ${data.sent} / ${data.total} emails${data.failed > 0 ? ` (${data.failed} failed)` : ""}`
+        : `Error: ${JSON.stringify(data)}`);
+    } catch { setReengageResult("Network error"); } finally { setReengageLoading(false); }
   }
 
   async function extendTrials() {
@@ -638,6 +652,18 @@ export default function AdminPage() {
                 </button>
               </div>
               {trialResult && <p className="text-sm text-amber-700">{trialResult}</p>}
+            </div>
+
+            {/* Re-engagement emails */}
+            <div className="rounded-xl p-4 border border-purple-200 bg-purple-50 space-y-3">
+              <h2 className="text-sm font-semibold text-purple-800">Re-engagement Emails</h2>
+              <p className="text-xs text-purple-600">Sends a feedback email to all FREE_TRIAL accounts with 0 journal entries and 0 invoices.</p>
+              <div className="flex gap-2 items-center">
+                <button onClick={sendReEngagement} disabled={reengageLoading} className="btn-primary text-sm px-4">
+                  {reengageLoading ? "Sending…" : "Send to All Inactive"}
+                </button>
+              </div>
+              {reengageResult && <p className="text-sm text-purple-700">{reengageResult}</p>}
             </div>
 
             {/* AI diagnostics */}
