@@ -444,79 +444,82 @@ export async function sendReEngagementEmail({
   email,
   name,
   businessName,
-  lang = "ar",
 }: {
   email: string;
   name: string;
   businessName: string;
-  lang?: "ar" | "en";
+  lang?: "ar" | "en"; // kept for API compatibility, email is always bilingual
 }): Promise<void> {
-  const isAr = lang === "ar";
-  const dir = isAr ? "rtl" : "ltr";
   const loginUrl = `${APP_URL}/login`;
-  const feedbackEmail = SUPPORT_EMAIL;
+  const feedbackEmail = "finedgepro71@gmail.com";
 
-  const subject = isAr
-    ? `كيف يمكننا مساعدتك؟ — محاسب اي`
-    : `How can we help you get started? — MohasabAi`;
+  const subject = `كيف يمكننا مساعدتك؟ / How can we help you get started? — MohasabAi`;
 
-  const body = isAr ? `
-    <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${name}،</p>
-    <p style="color:#374151;font-size:15px;margin:0 0 16px">
-      لاحظنا أنك سجّلت في <strong>محاسب اي</strong> ولكنك لم تبدأ باستخدام المنصة بعد،
-      ونحن نقدر وقتك ونريد أن نتأكد أنك حصلت على كل ما تحتاجه.
-    </p>
-    <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      هل واجهت أي صعوبة في البدء؟ هل هناك شيء ينقص في المنصة؟
-      رأيك يهمنا كثيراً ويساعدنا على التحسين.
-    </p>
-    <div style="background:#eff6ff;border-right:4px solid #1d4ed8;border-radius:8px;padding:16px 20px;margin-bottom:24px">
-      <div style="font-size:14px;color:#1e40af;font-weight:600;margin-bottom:8px">ما يمكنك فعله في محاسب اي:</div>
-      <ul style="color:#374151;font-size:14px;margin:0;padding-right:20px;line-height:2">
-        <li>رفع الفواتير وقراءتها تلقائياً بالذكاء الاصطناعي</li>
-        <li>تتبع المصروفات والإيرادات بسهولة</li>
-        <li>إصدار قوائم مالية احترافية (دخل، ميزانية)</li>
-        <li>إدارة العملاء والموردين</li>
-      </ul>
+  // Bilingual email — Arabic section followed by English section
+  const body = `
+    <!-- Arabic Section -->
+    <div dir="rtl" style="margin-bottom:32px;padding-bottom:32px;border-bottom:1px solid #e5e7eb">
+      <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${name}،</p>
+      <p style="color:#374151;font-size:15px;margin:0 0 16px">
+        لاحظنا أنك سجّلت في <strong>محاسب اي</strong> ولكنك لم تبدأ باستخدام المنصة بعد،
+        ونحن نقدر وقتك ونريد أن نتأكد أنك حصلت على كل ما تحتاجه.
+      </p>
+      <p style="color:#374151;font-size:15px;margin:0 0 20px">
+        هل واجهت أي صعوبة في البدء؟ هل هناك شيء ينقص في المنصة؟
+        رأيك يهمنا كثيراً ويساعدنا على التحسين.
+      </p>
+      <div style="background:#eff6ff;border-right:4px solid #1d4ed8;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+        <div style="font-size:14px;color:#1e40af;font-weight:600;margin-bottom:8px">ما يمكنك فعله في محاسب اي:</div>
+        <ul style="color:#374151;font-size:14px;margin:0;padding-right:20px;line-height:2">
+          <li>رفع الفواتير وقراءتها تلقائياً بالذكاء الاصطناعي</li>
+          <li>تتبع المصروفات والإيرادات بسهولة</li>
+          <li>إصدار قوائم مالية احترافية (دخل، ميزانية)</li>
+          <li>إدارة العملاء والموردين</li>
+        </ul>
+      </div>
+      <a href="${loginUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:16px">
+        ابدأ الآن — مجاناً
+      </a>
+      <p style="color:#6b7280;font-size:14px;margin:16px 0 8px">
+        أو راسلنا مباشرة وأخبرنا ما الذي يمنعك من البدء، وسنساعدك خطوة بخطوة:
+      </p>
+      <a href="mailto:${feedbackEmail}?subject=ملاحظاتي على محاسب اي — ${encodeURIComponent(businessName)}" style="color:#1d4ed8;font-size:14px;font-weight:600">${feedbackEmail}</a>
+      <p style="color:#9ca3af;font-size:12px;margin:20px 0 0">شكراً لثقتك بنا.</p>
     </div>
-    <a href="${loginUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:16px">
-      ابدأ الآن — مجاناً
-    </a>
-    <p style="color:#6b7280;font-size:14px;margin:16px 0 8px">
-      أو راسلنا مباشرة وأخبرنا ما الذي يمنعك من البدء، وسنساعدك خطوة بخطوة:
-    </p>
-    <a href="mailto:${feedbackEmail}?subject=ملاحظاتي على محاسب اي — ${encodeURIComponent(businessName)}" style="color:#1d4ed8;font-size:14px;font-weight:600">${feedbackEmail}</a>
-    <p style="color:#9ca3af;font-size:12px;margin:20px 0 0">شكراً لثقتك بنا.</p>
-  ` : `
-    <p style="color:#374151;font-size:16px;margin:0 0 16px">Hi ${name},</p>
-    <p style="color:#374151;font-size:15px;margin:0 0 16px">
-      We noticed you signed up for <strong>MohasabAi</strong> but haven't had a chance to try it yet.
-      We want to make sure you have everything you need to get started.
-    </p>
-    <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      Did you run into any trouble? Is something missing from the platform?
-      Your feedback means a lot and helps us improve.
-    </p>
-    <div style="background:#eff6ff;border-left:4px solid #1d4ed8;border-radius:8px;padding:16px 20px;margin-bottom:24px">
-      <div style="font-size:14px;color:#1e40af;font-weight:600;margin-bottom:8px">What you can do with MohasabAi:</div>
-      <ul style="color:#374151;font-size:14px;margin:0;padding-left:20px;line-height:2">
-        <li>Upload invoices and have AI extract the data automatically</li>
-        <li>Track expenses and revenue with ease</li>
-        <li>Generate professional financial reports (P&amp;L, Balance Sheet)</li>
-        <li>Manage customers and vendors</li>
-      </ul>
+
+    <!-- English Section -->
+    <div dir="ltr">
+      <p style="color:#374151;font-size:16px;margin:0 0 16px">Hi ${name},</p>
+      <p style="color:#374151;font-size:15px;margin:0 0 16px">
+        We noticed you signed up for <strong>MohasabAi</strong> but haven't had a chance to try it yet.
+        We want to make sure you have everything you need to get started.
+      </p>
+      <p style="color:#374151;font-size:15px;margin:0 0 20px">
+        Did you run into any trouble? Is something missing from the platform?
+        Your feedback means a lot and helps us improve.
+      </p>
+      <div style="background:#eff6ff;border-left:4px solid #1d4ed8;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+        <div style="font-size:14px;color:#1e40af;font-weight:600;margin-bottom:8px">What you can do with MohasabAi:</div>
+        <ul style="color:#374151;font-size:14px;margin:0;padding-left:20px;line-height:2">
+          <li>Upload invoices and have AI extract the data automatically</li>
+          <li>Track expenses and revenue with ease</li>
+          <li>Generate professional financial reports (P&amp;L, Balance Sheet)</li>
+          <li>Manage customers and vendors</li>
+        </ul>
+      </div>
+      <a href="${loginUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:16px">
+        Get Started — It's Free
+      </a>
+      <p style="color:#6b7280;font-size:14px;margin:16px 0 8px">
+        Or email us directly and let us know what's holding you back — we'll help you step by step:
+      </p>
+      <a href="mailto:${feedbackEmail}?subject=Feedback on MohasabAi — ${encodeURIComponent(businessName)}" style="color:#1d4ed8;font-size:14px;font-weight:600">${feedbackEmail}</a>
+      <p style="color:#9ca3af;font-size:12px;margin:20px 0 0">Thank you for giving us a try.</p>
     </div>
-    <a href="${loginUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:16px">
-      Get Started — It's Free
-    </a>
-    <p style="color:#6b7280;font-size:14px;margin:16px 0 8px">
-      Or reply to let us know what's holding you back — we'll help you step by step:
-    </p>
-    <a href="mailto:${feedbackEmail}?subject=Feedback on MohasabAi — ${encodeURIComponent(businessName)}" style="color:#1d4ed8;font-size:14px;font-weight:600">${feedbackEmail}</a>
-    <p style="color:#9ca3af;font-size:12px;margin:20px 0 0">Thank you for giving us a try.</p>
   `;
 
-  const html = jvEmailWrapper(dir, isAr ? "ar" : "en", body);
+  // Use ltr wrapper but content handles its own direction per section
+  const html = jvEmailWrapper("ltr", "ar", body);
 
   if (!resend) {
     console.log(`[RE_ENGAGEMENT] → ${email} | business: ${businessName}`);
