@@ -88,6 +88,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         { href: "/opening-balances", label: isAr ? "الأرصدة الافتتاحية" : "Opening Balances", icon: "⚖️" },
       ],
     },
+    { href: "/expenses", label: isAr ? "مصروف سريع" : "Quick Expense", icon: "💸" },
     { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
     { href: "/documents", label: isAr ? "المستندات" : "Documents", icon: "📄" },
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },
