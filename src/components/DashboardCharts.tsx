@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLang } from "@/components/LanguageProvider";
 
 interface MonthData {
@@ -9,6 +9,100 @@ interface MonthData {
   expenses: number;
   net: number;
 }
+
+interface ExpenseItem {
+  name: string;
+  value: number;
+}
+
+const PALETTE = [
+  "#3b82f6", "#ef4444", "#f59e0b", "#10b981", "#8b5cf6", "#ec4899", "#6b7280",
+];
+
+function ExpenseBreakdown() {
+  const { lang } = useLang();
+  const [data, setData] = useState<ExpenseItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/reports/expense-breakdown")
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return (
+    <div className="card animate-pulse">
+      <div className="h-4 bg-gray-200 rounded w-1/3 mb-4" />
+      <div className="h-40 bg-gray-100 rounded" />
+    </div>
+  );
+  if (!data.length) return null;
+
+  const total = data.reduce((s, d) => s + d.value, 0);
+  const fmt = (n: number) => n.toLocaleString(lang === "ar" ? "ar" : "en", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+  // Build SVG donut
+  const R = 60; const r = 38; const cx = 80; const cy = 80;
+  let angle = -Math.PI / 2;
+  const slices = data.map((d, i) => {
+    const sweep = (d.value / total) * 2 * Math.PI;
+    const x1 = cx + R * Math.cos(angle); const y1 = cy + R * Math.sin(angle);
+    angle += sweep;
+    const x2 = cx + R * Math.cos(angle); const y2 = cy + R * Math.sin(angle);
+    const xi1 = cx + r * Math.cos(angle - sweep); const yi1 = cy + r * Math.sin(angle - sweep);
+    const xi2 = cx + r * Math.cos(angle); const yi2 = cy + r * Math.sin(angle);
+    const large = sweep > Math.PI ? 1 : 0;
+    const path = `M${x1},${y1} A${R},${R},0,${large},1,${x2},${y2} L${xi2},${yi2} A${r},${r},0,${large},0,${xi1},${yi1} Z`;
+    return { path, color: PALETTE[i % PALETTE.length], name: d.name, value: d.value, pct: (d.value / total * 100).toFixed(1) };
+  });
+
+  return (
+    <div className="card">
+      <h2 className="font-semibold text-gray-800 mb-4">
+        {lang === "ar" ? "توزيع المصروفات — آخر 6 أشهر" : "Expense Breakdown — Last 6 Months"}
+      </h2>
+      <div className="flex flex-col sm:flex-row gap-6 items-center">
+        <svg width="160" height="160" viewBox="0 0 160 160" className="flex-shrink-0">
+          {slices.map((s, i) => (
+            <path
+              key={i} d={s.path} fill={s.color}
+              opacity={hovered === null || hovered === i ? 1 : 0.4}
+              className="cursor-pointer transition-opacity"
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+            />
+          ))}
+          <text x={cx} y={cy - 6} textAnchor="middle" fontSize="11" fill="#6b7280">
+            {lang === "ar" ? "الإجمالي" : "Total"}
+          </text>
+          <text x={cx} y={cy + 10} textAnchor="middle" fontSize="13" fontWeight="bold" fill="#111827">
+            {fmt(total)}
+          </text>
+        </svg>
+        <div className="flex-1 space-y-2 w-full">
+          {slices.map((s, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-2 cursor-pointer"
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+            >
+              <span className="w-3 h-3 rounded-sm flex-shrink-0" style={{ background: s.color, opacity: hovered === null || hovered === i ? 1 : 0.4 }} />
+              <span className="text-xs text-gray-600 truncate flex-1">{s.name}</span>
+              <span className="text-xs font-medium text-gray-800 flex-shrink-0">{s.pct}%</span>
+              <span className="text-xs text-gray-400 flex-shrink-0">{fmt(s.value)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export { ExpenseBreakdown };
 
 export default function DashboardCharts() {
   const { lang } = useLang();

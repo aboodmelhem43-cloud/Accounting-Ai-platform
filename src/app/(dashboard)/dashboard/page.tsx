@@ -6,7 +6,7 @@ import { getComplianceModule } from "@/compliance";
 import { getServerT } from "@/lib/i18n/server";
 import Link from "next/link";
 import { Suspense } from "react";
-import DashboardCharts from "@/components/DashboardCharts";
+import DashboardCharts, { ExpenseBreakdown } from "@/components/DashboardCharts";
 import UpgradedToast from "@/components/UpgradedToast";
 
 export default async function DashboardPage() {
@@ -22,7 +22,7 @@ export default async function DashboardPage() {
   const from = new Date(now.getFullYear(), now.getMonth(), 1);
   const to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-  const [statement, invoiceCount, pendingCount, recentInvoices] = await Promise.all([
+  const [statement, invoiceCount, pendingCount, recentInvoices, cashBalance, overdueCount] = await Promise.all([
     computeIncomeStatement(businessId, from, to),
     prisma.invoice.count({ where: { businessId, status: "CONFIRMED" } }),
     prisma.invoice.count({ where: { businessId, status: "PENDING_REVIEW" } }),
@@ -31,7 +31,21 @@ export default async function DashboardPage() {
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
+    prisma.bankAccount.aggregate({
+      where: { businessId },
+      _sum: { currentBalance: true },
+    }),
+    prisma.invoice.count({
+      where: {
+        businessId,
+        dueDate: { lt: now },
+        paymentStatus: { in: ["UNPAID", "PARTIALLY_PAID"] },
+        status: "CONFIRMED",
+      },
+    }),
   ]);
+
+  const totalCash = Number(cashBalance._sum.currentBalance ?? 0);
 
   const fmt = (n: number) =>
     n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -96,7 +110,7 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             <SummaryCard
               title={t("dashboard.total_revenue")}
               value={`${fmt(statement.totalRevenue)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
@@ -119,7 +133,23 @@ export default async function DashboardPage() {
               icon="💰"
             />
             <SummaryCard
-              title={lang === "ar" ? "الفواتير المعلّقة" : "Pending Invoices"}
+              title={lang === "ar" ? "الرصيد النقدي" : "Cash Balance"}
+              value={`${fmt(totalCash)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
+              sub={lang === "ar" ? "إجمالي الحسابات البنكية" : "All bank accounts"}
+              color="blue"
+              icon="🏦"
+              href="/bank-accounts"
+            />
+            <SummaryCard
+              title={lang === "ar" ? "فواتير متأخرة" : "Overdue Invoices"}
+              value={String(overdueCount)}
+              sub={lang === "ar" ? "تجاوزت تاريخ الاستحقاق" : "Past due date"}
+              color={overdueCount > 0 ? "red" : "green"}
+              icon="⚠️"
+              href="/invoices"
+            />
+            <SummaryCard
+              title={lang === "ar" ? "الفواتير المعلّقة" : "Pending Review"}
               value={String(pendingCount)}
               sub={lang === "ar" ? `من ${invoiceCount} فاتورة مؤكدة` : `of ${invoiceCount} confirmed`}
               color="yellow"
@@ -138,7 +168,10 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          <DashboardCharts />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <DashboardCharts />
+            <ExpenseBreakdown />
+          </div>
         </>
       )}
 
