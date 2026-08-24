@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
 
 interface Message {
@@ -14,13 +15,14 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [clearing, setClearing] = useState(false);
+  const [aiAtLimit, setAiAtLimit] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   const starterQuestions = lang === "ar"
     ? ["ما هو ربحي هذا الشهر؟", "ما هو أكبر مصروف لديّ؟", "كم عدد الفواتير المؤكدة؟", "ما هي إجمالي إيراداتي؟"]
     : ["What is my profit this month?", "What is my biggest expense?", "How many confirmed invoices do I have?", "What is my total revenue?"];
 
-  // Load chat history on mount
+  // Load chat history on mount + check AI limit
   useEffect(() => {
     async function loadHistory() {
       try {
@@ -33,7 +35,18 @@ export default function ChatPage() {
         setHistoryLoading(false);
       }
     }
+    async function checkLimit() {
+      try {
+        const res = await fetch("/api/usage");
+        if (res.ok) {
+          const data = await res.json();
+          const ai = data.ai;
+          if (!ai.unlimited && ai.used >= ai.limit) setAiAtLimit(true);
+        }
+      } catch { /* ignore */ }
+    }
     loadHistory();
+    checkLimit();
   }, []);
 
   useEffect(() => {
@@ -162,22 +175,38 @@ export default function ChatPage() {
         <div ref={endRef} />
       </div>
 
-      <form
-        onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
-        className="mt-4 flex gap-3"
-      >
-        <input
-          type="text"
-          className="input flex-1"
-          placeholder={t("chat.placeholder")}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          disabled={loading}
-        />
-        <button type="submit" className="btn-primary px-5" disabled={!input.trim() || loading}>
-          {t("chat.send")}
-        </button>
-      </form>
+      {aiAtLimit ? (
+        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-amber-800">
+              {lang === "ar" ? "🚨 وصلت إلى حد استفسارات الذكاء الاصطناعي هذا الشهر" : "🚨 You've reached your AI query limit for this month"}
+            </p>
+            <p className="text-xs text-amber-600 mt-0.5">
+              {lang === "ar" ? "قم بالترقية للحصول على استفسارات غير محدودة" : "Upgrade for unlimited AI queries"}
+            </p>
+          </div>
+          <Link href="/pricing" className="btn-primary flex-shrink-0 text-sm py-2 px-4">
+            {lang === "ar" ? "✨ ترقية" : "✨ Upgrade"}
+          </Link>
+        </div>
+      ) : (
+        <form
+          onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
+          className="mt-4 flex gap-3"
+        >
+          <input
+            type="text"
+            className="input flex-1"
+            placeholder={t("chat.placeholder")}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={loading}
+          />
+          <button type="submit" className="btn-primary px-5" disabled={!input.trim() || loading}>
+            {t("chat.send")}
+          </button>
+        </form>
+      )}
     </div>
   );
 }

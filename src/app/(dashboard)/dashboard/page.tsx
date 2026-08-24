@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import DashboardCharts, { ExpenseBreakdown } from "@/components/DashboardCharts";
 import UpgradedToast from "@/components/UpgradedToast";
+import UsageBanner from "@/components/UsageBanner";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -55,6 +56,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <Suspense><UpgradedToast /></Suspense>
+      <Suspense><UsageBanner /></Suspense>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">
