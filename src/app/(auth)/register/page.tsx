@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SUPPORTED_COUNTRIES } from "@/compliance";
 import { useLang } from "@/components/LanguageProvider";
@@ -10,8 +10,10 @@ type Step = "form" | "otp";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t, toggleLang, lang } = useLang();
   const [step, setStep] = useState<Step>("form");
+  const [refCode, setRefCode] = useState("");
   const [form, setForm] = useState({
     businessName: "",
     email: "",
@@ -23,6 +25,11 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) setRefCode(ref.toUpperCase());
+  }, [searchParams]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -64,7 +71,7 @@ export default function RegisterPage() {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, otp }),
+        body: JSON.stringify({ ...form, otp, refCode: refCode || undefined }),
       });
 
       const data = await res.json();
@@ -254,6 +261,24 @@ export default function RegisterPage() {
             autoComplete="new-password"
           />
           <p className="text-xs text-gray-400 mt-1">{t("register.password_hint")}</p>
+        </div>
+
+        {/* Referral code (optional) */}
+        <div>
+          <label className="label">
+            {lang === "ar" ? "كود الإحالة (اختياري)" : "Referral Code (optional)"}
+          </label>
+          <input
+            className="input"
+            placeholder={lang === "ar" ? "أدخل الكود إن وُجد" : "Enter code if you have one"}
+            value={refCode}
+            onChange={(e) => setRefCode(e.target.value.toUpperCase())}
+          />
+          {refCode && (
+            <p className="text-xs text-green-600 mt-1">
+              🎁 {lang === "ar" ? "سيحصل كلاكما على 30 يومًا إضافية مجانية!" : "You and your referrer both get 30 extra free days!"}
+            </p>
+          )}
         </div>
 
         {error && <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}

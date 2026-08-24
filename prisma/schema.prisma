@@ -32,6 +32,9 @@ model Business {
   lsCurrentPeriodEnd  DateTime? // when current billing period ends
   // مكتب المحاسبة — إذا كانت هذه المنشأة عميلاً يُدار من قِبَل مكتب
   managedByBusinessId String?
+  referralCode        String?   @unique
+  referredByCode      String?
+  referralCount       Int       @default(0)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
