@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { sendJvSubmittedEmail } from "@/lib/email";
+import { isEmailEnabled } from "@/lib/email-prefs";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -45,13 +46,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // إرسال إشعار بالبريد الإلكتروني للمالك
   const owner = await prisma.user.findFirst({
     where: { businessId: session.user.businessId, role: "OWNER" },
-    select: { email: true },
+    select: { id: true, email: true },
   });
   const business = await prisma.business.findUnique({
     where: { id: session.user.businessId },
     select: { name: true },
   });
-  if (owner?.email) {
+  if (owner?.email && await isEmailEnabled(owner.id, "jvSubmitted")) {
     sendJvSubmittedEmail({
       ownerEmail: owner.email,
       accountantName: session.user.name ?? session.user.email,
