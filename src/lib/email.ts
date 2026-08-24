@@ -451,7 +451,7 @@ export async function sendReEngagementEmail({
   lang?: "ar" | "en"; // kept for API compatibility, email is always bilingual
 }): Promise<void> {
   const loginUrl = `${APP_URL}/login`;
-  const feedbackEmail = "finedgepro71@gmail.com";
+  const feedbackEmail = SUPPORT_EMAIL;
 
   const subject = `كيف يمكننا مساعدتك؟ / How can we help you get started? — MohasabAi`;
 
