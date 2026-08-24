@@ -43,6 +43,7 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
     { href: "/expenses", label: isAr ? "مصروف سريع" : "Quick Expense", icon: "💸" },
     { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
     { href: "/documents", label: isAr ? "المستندات" : "Documents", icon: "📄" },
+    { href: "/import", label: isAr ? "استيراد البيانات" : "Data Import", icon: "📥" },
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },
     { href: "/audit-log", label: isAr ? "سجل المراجعة" : "Audit Trail", icon: "🗂️" },
     { href: "/settings", label: isAr ? "الإعدادات" : "Settings", icon: "⚙️" },
