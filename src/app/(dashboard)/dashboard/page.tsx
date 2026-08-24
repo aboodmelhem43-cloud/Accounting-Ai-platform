@@ -162,6 +162,7 @@ export default async function DashboardPage() {
             <h2 className="font-semibold text-gray-800 mb-4">{t("dashboard.quick_actions")}</h2>
             <div className="flex flex-wrap gap-3">
               <Link href="/invoices/upload" className="btn-primary">⬆️ {t("dashboard.upload_invoice")}</Link>
+              <Link href="/expenses" className="btn-primary">💸 {lang === "ar" ? "تسجيل مصروف" : "Log Expense"}</Link>
               <Link href="/reports/income" className="btn-secondary">📊 {t("nav.income")}</Link>
               <Link href="/chat" className="btn-secondary">🤖 {t("dashboard.ask_ai")}</Link>
               <Link href="/journal" className="btn-secondary">📒 {t("nav.journal")}</Link>
