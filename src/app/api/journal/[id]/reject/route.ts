@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { sendJvRejectedEmail } from "@/lib/email";
+import { isEmailEnabled } from "@/lib/email-prefs";
 
 const schema = z.object({
   reason: z.string().min(1).max(500),
@@ -60,13 +61,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (entry.submittedById) {
     const submitter = await prisma.user.findUnique({
       where: { id: entry.submittedById },
-      select: { email: true },
+      select: { id: true, email: true },
     });
     const business = await prisma.business.findUnique({
       where: { id: session.user.businessId },
       select: { name: true },
     });
-    if (submitter?.email) {
+    if (submitter?.email && await isEmailEnabled(submitter.id, "jvRejected")) {
       sendJvRejectedEmail({
         accountantEmail: submitter.email,
         ownerName: session.user.name ?? session.user.email,

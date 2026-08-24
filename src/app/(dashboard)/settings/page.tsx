@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
 import { SUPPORTED_COUNTRIES } from "@/compliance";
 
-type Tab = "business" | "invoice" | "profile" | "security" | "referral";
+type Tab = "business" | "invoice" | "profile" | "security" | "referral" | "notifications";
 
 export default function SettingsPage() {
   const { data: session, update: updateSession } = useSession();
@@ -37,6 +37,20 @@ export default function SettingsPage() {
   const [pName, setPName] = useState(session?.user?.name ?? "");
   const [pSaving, setPSaving] = useState(false);
   const [pMsg, setPMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  // Notification prefs state
+  type PrefKey = "jvSubmitted" | "jvApproved" | "jvRejected" | "trialWarning" | "trialExpired";
+  const [notifPrefs, setNotifPrefs] = useState<Record<PrefKey, boolean>>({
+    jvSubmitted: true,
+    jvApproved: true,
+    jvRejected: true,
+    trialWarning: true,
+    trialExpired: true,
+  });
+  const [notifRole, setNotifRole] = useState<"OWNER" | "ACCOUNTANT">("OWNER");
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifSaving, setNotifSaving] = useState(false);
+  const [notifMsg, setNotifMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   // Referral state
   const [referralCode, setReferralCode] = useState("");
@@ -196,6 +210,41 @@ export default function SettingsPage() {
   }
 
   useEffect(() => {
+    if (tab !== "notifications") return;
+    setNotifLoading(true);
+    fetch("/api/notifications/preferences")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.prefs) setNotifPrefs(d.prefs as Record<PrefKey, boolean>);
+        if (d.role) setNotifRole(d.role);
+      })
+      .catch(() => {})
+      .finally(() => setNotifLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
+
+  async function saveNotifPrefs() {
+    setNotifSaving(true);
+    setNotifMsg(null);
+    try {
+      const res = await fetch("/api/notifications/preferences", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(notifPrefs),
+      });
+      if (res.ok) {
+        setNotifMsg({ ok: true, text: isAr ? "تم حفظ تفضيلات الإشعارات" : "Notification preferences saved" });
+      } else {
+        setNotifMsg({ ok: false, text: isAr ? "خطأ في الحفظ" : "Error saving" });
+      }
+    } catch {
+      setNotifMsg({ ok: false, text: isAr ? "خطأ في الاتصال" : "Connection error" });
+    } finally {
+      setNotifSaving(false);
+    }
+  }
+
+  useEffect(() => {
     if (tab !== "referral") return;
     setReferralLoading(true);
     fetch("/api/referral")
@@ -225,6 +274,7 @@ export default function SettingsPage() {
     { id: "profile", label: t("settings.tab.profile") },
     { id: "security", label: t("settings.tab.security") },
     { id: "referral", label: isAr ? "الإحالة" : "Referral" },
+    { id: "notifications", label: isAr ? "الإشعارات" : "Notifications" },
   ];
 
   return (
@@ -514,6 +564,142 @@ export default function SettingsPage() {
               </div>
             </>
           )}
+        </div>
+      )}
+      {/* Notifications Tab */}
+      {tab === "notifications" && (
+        <div className="card space-y-6">
+          <div>
+            <h2 className="font-semibold text-gray-800 text-lg">
+              🔔 {isAr ? "تفضيلات البريد الإلكتروني" : "Email Notification Preferences"}
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              {isAr
+                ? "اختر الإشعارات التي تريد تلقّيها عبر البريد الإلكتروني"
+                : "Choose which notifications you want to receive by email"}
+            </p>
+          </div>
+
+          {notifLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-14 bg-gray-100 rounded-lg animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {([
+                {
+                  key: "jvSubmitted" as const,
+                  icon: "📋",
+                  label: isAr ? "تقديم قيد للمراجعة" : "Journal entry submitted for review",
+                  desc: isAr
+                    ? "عندما يقدّم محاسب قيداً يحتاج موافقتك"
+                    : "When an accountant submits a journal entry for your approval",
+                  roles: ["OWNER"],
+                },
+                {
+                  key: "jvApproved" as const,
+                  icon: "✅",
+                  label: isAr ? "الموافقة على قيدي" : "My journal entry approved",
+                  desc: isAr
+                    ? "عندما يوافق المالك على قيد قدّمته"
+                    : "When the owner approves a journal entry you submitted",
+                  roles: ["ACCOUNTANT"],
+                },
+                {
+                  key: "jvRejected" as const,
+                  icon: "❌",
+                  label: isAr ? "رفض قيدي" : "My journal entry rejected",
+                  desc: isAr
+                    ? "عندما يرفض المالك قيداً قدّمته"
+                    : "When the owner rejects a journal entry you submitted",
+                  roles: ["ACCOUNTANT"],
+                },
+                {
+                  key: "trialWarning" as const,
+                  icon: "⏳",
+                  label: isAr ? "تحذير انتهاء التجربة المجانية" : "Trial expiry warning",
+                  desc: isAr
+                    ? "تنبيه قبل انتهاء فترة التجربة المجانية"
+                    : "Reminder a few days before your free trial ends",
+                  roles: ["OWNER"],
+                },
+                {
+                  key: "trialExpired" as const,
+                  icon: "🔔",
+                  label: isAr ? "انتهاء التجربة المجانية" : "Trial expired",
+                  desc: isAr
+                    ? "إشعار عند انتهاء فترة التجربة"
+                    : "Notification when your free trial has ended",
+                  roles: ["OWNER"],
+                },
+              ] as { key: PrefKey; icon: string; label: string; desc: string; roles: string[] }[]).map(
+                ({ key, icon, label, desc, roles }) => {
+                  const relevant = roles.includes(notifRole);
+                  return (
+                    <label
+                      key={key}
+                      className={`flex items-start gap-4 p-4 rounded-lg border cursor-pointer transition-colors ${
+                        notifPrefs[key]
+                          ? "border-blue-200 bg-blue-50/40"
+                          : "border-gray-200 bg-white"
+                      } ${!relevant ? "opacity-50" : ""}`}
+                    >
+                      <div className="flex-shrink-0 mt-0.5">
+                        <div className={`relative w-11 h-6 rounded-full transition-colors ${
+                          notifPrefs[key] ? "bg-blue-600" : "bg-gray-300"
+                        }`}>
+                          <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                            notifPrefs[key] ? "translate-x-5" : "translate-x-0.5"
+                          }`} />
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={notifPrefs[key]}
+                            disabled={!relevant}
+                            onChange={(e) =>
+                              setNotifPrefs((prev) => ({ ...prev, [key]: e.target.checked }))
+                            }
+                          />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span>{icon}</span>
+                          <span className="font-medium text-gray-800 text-sm">{label}</span>
+                          {!relevant && (
+                            <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                              {roles.includes("OWNER")
+                                ? (isAr ? "للمالك فقط" : "Owner only")
+                                : (isAr ? "للمحاسب فقط" : "Accountant only")}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
+                      </div>
+                    </label>
+                  );
+                }
+              )}
+            </div>
+          )}
+
+          {notifMsg && (
+            <p className={`text-sm ${notifMsg.ok ? "text-green-600" : "text-red-600"}`}>
+              {notifMsg.text}
+            </p>
+          )}
+
+          <button
+            onClick={saveNotifPrefs}
+            disabled={notifSaving || notifLoading}
+            className="btn-primary"
+          >
+            {notifSaving
+              ? (isAr ? "جاري الحفظ..." : "Saving...")
+              : (isAr ? "حفظ التفضيلات" : "Save Preferences")}
+          </button>
         </div>
       )}
     </div>

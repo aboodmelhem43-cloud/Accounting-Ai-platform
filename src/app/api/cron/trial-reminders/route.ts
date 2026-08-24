@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendTrialWarningEmail, sendTrialExpiredEmail } from "@/lib/email";
+import { isEmailEnabledByEmail } from "@/lib/email-prefs";
 
 // Vercel calls this daily at 08:00 UTC (configured in vercel.json).
 // Secured with CRON_SECRET so only Vercel's scheduler can trigger it.
@@ -39,6 +40,7 @@ export async function GET(req: NextRequest) {
   for (const biz of warningBusinesses) {
     const owner = biz.users[0];
     if (!owner) continue;
+    if (!await isEmailEnabledByEmail(owner.email, "trialWarning")) continue;
     const daysLeft = biz.trialEndsAt
       ? Math.ceil((new Date(biz.trialEndsAt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
       : 3;
@@ -51,6 +53,7 @@ export async function GET(req: NextRequest) {
   for (const biz of expiredBusinesses) {
     const owner = biz.users[0];
     if (!owner) continue;
+    if (!await isEmailEnabledByEmail(owner.email, "trialExpired")) continue;
     await sendTrialExpiredEmail({ email: owner.email, name: owner.name ?? owner.email }).catch(
       (e) => console.error(`[cron] expired email failed for ${owner.email}:`, e)
     );
