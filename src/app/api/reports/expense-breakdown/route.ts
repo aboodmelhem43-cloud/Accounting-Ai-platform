@@ -13,7 +13,7 @@ export async function GET() {
   const from = new Date(now.getFullYear(), now.getMonth() - 5, 1); // last 6 months
 
   // Get all EXPENSE account lines in the period
-  const lines = await prisma.journalEntryLine.findMany({
+  const lines = await prisma.journalLine.findMany({
     where: {
       journalEntry: {
         businessId,

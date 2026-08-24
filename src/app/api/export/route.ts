@@ -14,7 +14,7 @@ export async function GET(_req: NextRequest) {
     prisma.account.findMany({
       where: { businessId },
       orderBy: { code: "asc" },
-      select: { code: true, name: true, type: true, isActive: true, createdAt: true },
+      select: { code: true, name: true, nameAr: true, type: true, isSystem: true, createdAt: true },
     }),
     prisma.journalEntry.findMany({
       where: { businessId },
@@ -23,8 +23,8 @@ export async function GET(_req: NextRequest) {
       select: {
         date: true,
         description: true,
-        reference: true,
         status: true,
+        sourceType: true,
         lines: {
           select: {
             debit: true,
@@ -39,25 +39,23 @@ export async function GET(_req: NextRequest) {
       orderBy: { createdAt: "desc" },
       take: 5000,
       select: {
-        number: true,
-        type: true,
+        invoiceType: true,
         status: true,
-        issueDate: true,
+        paymentStatus: true,
         dueDate: true,
-        total: true,
-        currency: true,
-        contactName: true,
-        notes: true,
+        createdAt: true,
+        extractedData: true,
+        contact: { select: { name: true } },
       },
     }),
     prisma.contact.findMany({
       where: { businessId },
       orderBy: { name: "asc" },
-      select: { name: true, type: true, email: true, phone: true, address: true, taxNumber: true },
+      select: { name: true, type: true, email: true, phone: true, address: true, taxNumber: true, notes: true },
     }),
     prisma.bankAccount.findMany({
       where: { businessId },
-      select: { name: true, bankName: true, accountNumber: true, currency: true, currentBalance: true },
+      select: { name: true, bankName: true, accountNumber: true, iban: true, currency: true, openingBalance: true },
     }),
   ]);
 
@@ -67,8 +65,9 @@ export async function GET(_req: NextRequest) {
   const accountRows = accounts.map((a) => ({
     Code: a.code,
     Name: a.name,
+    "Name (AR)": a.nameAr ?? "",
     Type: a.type,
-    Active: a.isActive ? "Yes" : "No",
+    "System Account": a.isSystem ? "Yes" : "No",
     "Created At": new Date(a.createdAt).toLocaleDateString(),
   }));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(accountRows), "Chart of Accounts");
@@ -80,8 +79,8 @@ export async function GET(_req: NextRequest) {
       jeRows.push({
         Date: new Date(je.date).toLocaleDateString(),
         Description: je.description,
-        Reference: je.reference ?? "",
         Status: je.status,
+        Source: je.sourceType,
         "Account Code": line.account.code,
         "Account Name": line.account.name,
         Debit: Number(line.debit),
@@ -89,21 +88,29 @@ export async function GET(_req: NextRequest) {
       });
     }
   }
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(jeRows), "Journal Entries");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(jeRows.length ? jeRows : [{}]), "Journal Entries");
 
-  // Sheet 3: Invoices
-  const invoiceRows = invoices.map((inv) => ({
-    Number: inv.number,
-    Type: inv.type,
-    Status: inv.status,
-    "Issue Date": inv.issueDate ? new Date(inv.issueDate).toLocaleDateString() : "",
-    "Due Date": inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : "",
-    Total: Number(inv.total),
-    Currency: inv.currency,
-    Contact: inv.contactName ?? "",
-    Notes: inv.notes ?? "",
-  }));
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(invoiceRows), "Invoices");
+  // Sheet 3: Invoices — use extractedData for numbers since Invoice stores data as JSON
+  const invoiceRows = invoices.map((inv) => {
+    const extracted = inv.extractedData as {
+      invoiceNumber?: string;
+      totalAmount?: number;
+      vendorName?: string;
+      invoiceDate?: string;
+    } | null;
+    return {
+      "Invoice Number": extracted?.invoiceNumber ?? "",
+      Type: inv.invoiceType,
+      Status: inv.status,
+      "Payment Status": inv.paymentStatus,
+      "Invoice Date": extracted?.invoiceDate ?? new Date(inv.createdAt).toLocaleDateString(),
+      "Due Date": inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : "",
+      Total: extracted?.totalAmount ?? "",
+      Contact: inv.contact?.name ?? extracted?.vendorName ?? "",
+      "Created At": new Date(inv.createdAt).toLocaleDateString(),
+    };
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(invoiceRows.length ? invoiceRows : [{}]), "Invoices");
 
   // Sheet 4: Contacts
   const contactRows = contacts.map((c) => ({
@@ -113,18 +120,20 @@ export async function GET(_req: NextRequest) {
     Phone: c.phone ?? "",
     Address: c.address ?? "",
     "Tax Number": c.taxNumber ?? "",
+    Notes: c.notes ?? "",
   }));
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(contactRows), "Contacts");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(contactRows.length ? contactRows : [{}]), "Contacts");
 
   // Sheet 5: Bank Accounts
   const bankRows = bankAccounts.map((b) => ({
     Name: b.name,
-    Bank: b.bankName ?? "",
+    Bank: b.bankName,
     "Account Number": b.accountNumber ?? "",
+    IBAN: b.iban ?? "",
     Currency: b.currency,
-    Balance: Number(b.currentBalance),
+    "Opening Balance": Number(b.openingBalance),
   }));
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bankRows), "Bank Accounts");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bankRows.length ? bankRows : [{}]), "Bank Accounts");
 
   const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
 
