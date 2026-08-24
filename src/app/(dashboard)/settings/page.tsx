@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
 import { SUPPORTED_COUNTRIES } from "@/compliance";
 
-type Tab = "business" | "invoice" | "profile" | "security";
+type Tab = "business" | "invoice" | "profile" | "security" | "referral";
 
 export default function SettingsPage() {
   const { data: session, update: updateSession } = useSession();
@@ -37,6 +37,13 @@ export default function SettingsPage() {
   const [pName, setPName] = useState(session?.user?.name ?? "");
   const [pSaving, setPSaving] = useState(false);
   const [pMsg, setPMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  // Referral state
+  const [referralCode, setReferralCode] = useState("");
+  const [referralLink, setReferralLink] = useState("");
+  const [referralCount, setReferralCount] = useState(0);
+  const [referralLoading, setReferralLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Password form
   const [pwCurrent, setPwCurrent] = useState("");
@@ -188,11 +195,36 @@ export default function SettingsPage() {
     }
   }
 
+  useEffect(() => {
+    if (tab !== "referral") return;
+    setReferralLoading(true);
+    fetch("/api/referral")
+      .then((r) => r.json())
+      .then((d) => {
+        setReferralCode(d.code ?? "");
+        setReferralLink(d.link ?? "");
+        setReferralCount(d.count ?? 0);
+      })
+      .catch(() => {})
+      .finally(() => setReferralLoading(false));
+  }, [tab]);
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(referralLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback: select the text
+    }
+  }
+
   const TABS: { id: Tab; label: string }[] = [
     { id: "business", label: t("settings.tab.business") },
     { id: "invoice", label: isAr ? "إعدادات الفاتورة" : "Invoice" },
     { id: "profile", label: t("settings.tab.profile") },
     { id: "security", label: t("settings.tab.security") },
+    { id: "referral", label: isAr ? "الإحالة" : "Referral" },
   ];
 
   return (
@@ -393,6 +425,95 @@ export default function SettingsPage() {
           <button onClick={changePassword} disabled={pwSaving || !pwCurrent || !pwNew || !pwConfirm} className="btn-primary">
             {pwSaving ? (isAr ? "جاري التغيير..." : "Changing...") : t("settings.password.save")}
           </button>
+        </div>
+      )}
+
+      {/* Referral Tab */}
+      {tab === "referral" && (
+        <div className="card space-y-6">
+          <div>
+            <h2 className="font-semibold text-gray-800 text-lg">
+              🎁 {isAr ? "أدعُ أصدقاءك — كلاكما يربح!" : "Invite Friends — You Both Win!"}
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              {isAr
+                ? "لكل شخص يسجّل باستخدام رابطك، تحصل أنت و هو على 30 يومًا إضافية مجانية."
+                : "For every person who signs up using your link, you both get 30 extra free days."}
+            </p>
+          </div>
+
+          {referralLoading ? (
+            <div className="h-20 animate-pulse bg-gray-100 rounded-xl" />
+          ) : (
+            <>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">
+                  {isAr ? "كودك الخاص" : "Your Referral Code"}
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-2xl font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded-xl px-6 py-3 tracking-widest">
+                    {referralCode}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">
+                  {isAr ? "رابط الإحالة" : "Referral Link"}
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    readOnly
+                    value={referralLink}
+                    className="input text-sm font-mono text-gray-600 flex-1"
+                    onFocus={(e) => e.target.select()}
+                  />
+                  <button
+                    onClick={copyLink}
+                    className="btn-secondary text-sm px-4 py-2 flex-shrink-0"
+                  >
+                    {copied
+                      ? (isAr ? "✅ تم النسخ" : "✅ Copied!")
+                      : (isAr ? "📋 نسخ" : "📋 Copy")}
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                <div className="text-3xl font-bold text-green-700">{referralCount}</div>
+                <div className="text-sm text-green-600 mt-0.5">
+                  {isAr
+                    ? referralCount === 1 ? "إحالة ناجحة" : "إحالة ناجحة"
+                    : referralCount === 1 ? "successful referral" : "successful referrals"}
+                </div>
+                <div className="text-xs text-green-500 mt-2">
+                  {isAr
+                    ? `حصلت على ${referralCount * 30} يومًا مجانيًا بفضل الإحالات`
+                    : `You've earned ${referralCount * 30} free days through referrals`}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-100 pt-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">
+                  {isAr ? "كيف يعمل؟" : "How it works"}
+                </h3>
+                <ol className="space-y-2">
+                  {[
+                    isAr ? "أرسل رابطك لصديق أو زميل" : "Share your link with a friend or colleague",
+                    isAr ? "يسجّل باستخدام رابطك" : "They sign up using your link",
+                    isAr ? "يحصل كلاكما فورًا على 30 يومًا إضافية مجانية" : "You both instantly get 30 extra free days",
+                  ].map((step, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
+                      <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                        {i + 1}
+                      </span>
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
