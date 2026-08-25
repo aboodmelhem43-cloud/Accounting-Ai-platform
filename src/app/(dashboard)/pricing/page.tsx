@@ -68,7 +68,7 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" dir={isAr ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">{isAr ? "خطط الاشتراك" : "Pricing Plans"}</h1>
         <p className="text-gray-500 text-sm mt-1">
@@ -76,7 +76,22 @@ export default function PricingPage() {
         </p>
         {currentPlan === "FREE_TRIAL" && !expired && (
           <div className="mt-2 inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 text-sm px-3 py-1.5 rounded-lg">
-            ⏳ {isAr ? `تبقى ${daysLeft} أيام من تجربتك المجانية` : `${daysLeft} days left in your free trial`}
+            ⏳{" "}
+            {isAr
+              ? daysLeft === 1
+                ? "تبقى يوم واحد من تجربتك المجانية"
+                : daysLeft === 2
+                ? "تبقى يومان من تجربتك المجانية"
+                : `تبقى ${daysLeft} أيام من تجربتك المجانية`
+              : `${daysLeft} ${daysLeft === 1 ? "day" : "days"} left in your free trial`}
+          </div>
+        )}
+        {currentPlan === "FREE_TRIAL" && expired && (
+          <div className="mt-2 flex items-center gap-2 bg-red-50 border border-red-200 text-red-800 text-sm px-3 py-2 rounded-lg">
+            🔒{" "}
+            {isAr
+              ? "انتهت فترة التجربة المجانية. اختر خطة للاستمرار."
+              : "Your free trial has expired. Choose a plan to continue."}
           </div>
         )}
         {error && (
@@ -115,7 +130,7 @@ export default function PricingPage() {
         {PLAN_ORDER.map((planId) => {
           const plan = PLANS[planId];
           const features = FEATURES[planId];
-          const isCurrent = currentPlan === planId;
+          const isCurrent = currentPlan === planId && !(planId === "FREE_TRIAL" && expired);
           const isPro = planId === "PRO";
           const isFreeTrial = planId === "FREE_TRIAL";
           const isLoadingThis = loading === planId;
