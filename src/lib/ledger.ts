@@ -18,7 +18,7 @@ export async function createJournalEntry(params: {
   userId: string;
   date: Date;
   description: string;
-  sourceType: "MANUAL" | "AI_INVOICE";
+  sourceType: "MANUAL" | "AI_INVOICE" | "AI_SALES";
   status?: "DRAFT" | "PENDING_REVIEW" | "POSTED";
   lines: { accountId: string; debit: number; credit: number; description?: string; foreignCurrency?: string; foreignAmount?: number; exchangeRate?: number }[];
   invoiceId?: string;
