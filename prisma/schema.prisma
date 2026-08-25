@@ -53,6 +53,8 @@ model Business {
   recurringTemplates  RecurringTemplate[]
   fixedAssets         FixedAsset[]
   storedDocuments     StoredDocument[]
+  salesIntegrations   SalesIntegration[]
+  salesEvents         SalesEvent[]
   // العملاء الذين يديرهم هذا المكتب
   practiceClients     Business[] @relation("PracticeClients")
   managedBy           Business?  @relation("PracticeClients", fields: [managedByBusinessId], references: [id])
@@ -106,6 +108,9 @@ model Account {
 
   business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
   journalLines JournalLine[]
+  salesIntegrationsRevenue SalesIntegration[] @relation("IntegrationRevenue")
+  salesIntegrationsVAT     SalesIntegration[] @relation("IntegrationVAT")
+  salesIntegrationsCash    SalesIntegration[] @relation("IntegrationCash")
 
   @@unique([businessId, code])
 }
@@ -146,13 +151,15 @@ model JournalEntry {
   updater   User?         @relation("JournalUpdater",   fields: [updatedById],   references: [id])
   submitter User?         @relation("JournalSubmitter", fields: [submittedById], references: [id])
   reviewer  User?         @relation("JournalReviewer",  fields: [reviewedById],  references: [id])
-  lines     JournalLine[]
-  invoice   Invoice?
+  lines      JournalLine[]
+  invoice    Invoice?
+  salesEvent SalesEvent?
 }
 
 enum JournalSourceType {
   MANUAL
   AI_INVOICE
+  AI_SALES
 }
 
 // سطور القيد — لازم مجموع debit = مجموع credit لكل قيد
@@ -453,4 +460,60 @@ model StoredDocument {
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId, createdAt(sort: Desc)])
+}
+
+// تكاملات أنظمة المبيعات الخارجية
+model SalesIntegration {
+  id               String   @id @default(cuid())
+  businessId       String
+  platform         String   // "shopify" | "salla" | "zid" | "foodics" | "generic"
+  name             String
+  status           String   @default("ACTIVE") // "ACTIVE" | "PAUSED" | "ERROR"
+  config           Json     // { webhookSecret?, apiKey?, storeUrl? }
+  revenueAccountId String?
+  vatAccountId     String?
+  cashAccountId    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  business       Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  revenueAccount Account?     @relation("IntegrationRevenue", fields: [revenueAccountId], references: [id])
+  vatAccount     Account?     @relation("IntegrationVAT",     fields: [vatAccountId],     references: [id])
+  cashAccount    Account?     @relation("IntegrationCash",    fields: [cashAccountId],    references: [id])
+  salesEvents    SalesEvent[]
+
+  @@index([businessId])
+}
+
+// أحداث المبيعات الواردة من الأنظمة الخارجية — تنتظر مراجعة وترحيل
+model SalesEvent {
+  id              String   @id @default(cuid())
+  integrationId   String
+  businessId      String
+  platform        String
+  externalId      String
+  orderNumber     String
+  occurredAt      DateTime
+  subtotal        Float
+  vatAmount       Float
+  total           Float
+  currency        String
+  paymentMethod   String
+  customerName    String?
+  lineItems       Json
+  status          String   @default("PENDING") // "PENDING" | "APPROVED" | "REJECTED"
+  rawData         Json
+  suggestedEntry  Json?
+  journalEntryId  String?  @unique
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  integration  SalesIntegration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  business     Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  journalEntry JournalEntry?    @relation(fields: [journalEntryId], references: [id])
+
+  @@unique([integrationId, externalId])
+  @@index([businessId, status])
+  @@index([businessId, occurredAt(sort: Desc)])
 }

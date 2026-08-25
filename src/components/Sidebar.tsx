@@ -88,6 +88,11 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         { href: "/opening-balances", label: isAr ? "الأرصدة الافتتاحية" : "Opening Balances", icon: "⚖️" },
       ],
     },
+    {
+      href: "/sales-sync",
+      label: isAr ? "مزامنة المبيعات" : "Sales Sync",
+      icon: "🛍️",
+    },
     { href: "/expenses", label: isAr ? "مصروف سريع" : "Quick Expense", icon: "💸" },
     { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
     { href: "/documents", label: isAr ? "المستندات" : "Documents", icon: "📄" },
@@ -101,6 +106,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
       children: (() => {
         if (isViewingClientBiz) return undefined;
         const sub = [];
+        sub.push({ href: "/settings/integrations", label: isAr ? "تكاملات المبيعات" : "Integrations", icon: "🔌" });
         if (session?.user?.plan === "PRO" || session?.user?.plan === "BUSINESS") {
           sub.push({ href: "/settings/team", label: isAr ? "الفريق" : "Team", icon: "👤" });
         }
