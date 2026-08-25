@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
+import MarkdownMessage from "@/components/MarkdownMessage";
 
 interface Message {
   role: "user" | "assistant";
@@ -67,9 +68,28 @@ export default function ChatPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages, message: text, lang }),
       });
-      const data = await res.json();
-      const reply = res.ok ? data.reply : (data.reply ?? t("common.error"));
-      setMessages((m) => [...m, { role: "assistant", content: reply }]);
+
+      if (!res.ok || !res.body) {
+        const data = await res.json().catch(() => ({}));
+        setMessages((m) => [...m, { role: "assistant", content: data.reply ?? t("common.error") }]);
+        return;
+      }
+
+      // Stream the response progressively
+      setMessages((m) => [...m, { role: "assistant", content: "" }]);
+      setLoading(false);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulated += decoder.decode(value, { stream: true });
+        const text = accumulated;
+        setMessages((m) => [...m.slice(0, -1), { role: "assistant", content: text }]);
+      }
     } catch {
       setMessages((m) => [...m, { role: "assistant", content: t("common.error") }]);
     } finally {
@@ -147,16 +167,18 @@ export default function ChatPage() {
         {!historyLoading && messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
-              className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
+              className={`max-w-[80%] px-4 py-3 rounded-2xl leading-relaxed ${
                 msg.role === "user"
-                  ? "bg-blue-600 text-white rounded-bl-sm"
+                  ? "bg-blue-600 text-white text-sm rounded-bl-sm whitespace-pre-wrap"
                   : "bg-gray-100 text-gray-800 rounded-br-sm"
               }`}
             >
               {msg.role === "assistant" && (
                 <span className="text-xs text-gray-400 block mb-1">🤖 {t("app.name")}</span>
               )}
-              {msg.content}
+              {msg.role === "assistant"
+                ? <MarkdownMessage content={msg.content} />
+                : msg.content}
             </div>
           </div>
         ))}

@@ -38,18 +38,21 @@ export default async function DashboardPage({
   const to = new Date(year, month + 1, 0, 23, 59, 59);
 
   const [statement, invoiceCount, pendingCount, recentInvoices, cashBalance, overdueCount] = await Promise.all([
-    computeIncomeStatement(businessId, from, to),
-    prisma.invoice.count({ where: { businessId, status: "CONFIRMED" } }),
-    prisma.invoice.count({ where: { businessId, status: "PENDING_REVIEW" } }),
+    computeIncomeStatement(businessId, from, to).catch(() => ({
+      totalRevenue: 0, totalExpenses: 0, netProfit: 0, revenue: [], expenses: [],
+      period: { from: from.toISOString(), to: to.toISOString() }, currency: currency,
+    })),
+    prisma.invoice.count({ where: { businessId, status: "CONFIRMED" } }).catch(() => 0),
+    prisma.invoice.count({ where: { businessId, status: "PENDING_REVIEW" } }).catch(() => 0),
     prisma.invoice.findMany({
       where: { businessId },
       orderBy: { createdAt: "desc" },
       take: 5,
-    }),
+    }).catch(() => []),
     prisma.bankAccount.aggregate({
       where: { businessId },
       _sum: { openingBalance: true },
-    }),
+    }).catch(() => ({ _sum: { openingBalance: null } })),
     prisma.invoice.count({
       where: {
         businessId,
@@ -57,7 +60,7 @@ export default async function DashboardPage({
         paymentStatus: { in: ["UNPAID", "PARTIALLY_PAID"] },
         status: "CONFIRMED",
       },
-    }),
+    }).catch(() => 0),
   ]);
 
   const totalCash = Number(cashBalance._sum?.openingBalance ?? 0);

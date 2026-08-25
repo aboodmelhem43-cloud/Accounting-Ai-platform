@@ -51,6 +51,11 @@ export default function OnboardingPage() {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
 
+  // Step 3 — opening balances (optional)
+  const [cashBalance, setCashBalance] = useState("");
+  const [arBalance, setArBalance] = useState("");
+  const [apBalance, setApBalance] = useState("");
+
   const isAr = lang === "ar";
 
   async function saveStep1() {
@@ -87,7 +92,7 @@ export default function OnboardingPage() {
       if (!res.ok) throw new Error();
       // تحديث جلسة NextAuth لتعكس اكتمال الـ onboarding
       await update();
-      setStep(3);
+      setStep(4);
     } catch {
       setError(isAr ? "حدث خطأ، حاول مرة أخرى" : "Something went wrong, try again");
     } finally {
@@ -99,7 +104,7 @@ export default function OnboardingPage() {
     <div className="max-w-2xl mx-auto px-4 pb-12">
       {/* شريط التقدم */}
       <div className="flex items-center justify-center gap-2 mb-8">
-        {[1, 2, 3].map((s) => (
+        {[1, 2, 3, 4].map((s) => (
           <div key={s} className="flex items-center gap-2">
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
@@ -112,7 +117,7 @@ export default function OnboardingPage() {
             >
               {step > s ? "✓" : s}
             </div>
-            {s < 3 && (
+            {s < 4 && (
               <div className={`w-16 h-1 rounded ${step > s ? "bg-green-400" : "bg-gray-200"}`} />
             )}
           </div>
@@ -228,6 +233,89 @@ export default function OnboardingPage() {
             <button onClick={() => setStep(1)} className="btn-secondary">
               {isAr ? "→ رجوع" : "← Back"}
             </button>
+            <button onClick={() => setStep(3)} className="btn-primary flex-1">
+              {isAr ? "التالي ←" : "Next →"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* الخطوة 3: أرصدة افتتاحية (اختياري) */}
+      {step === 3 && (
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {isAr ? "الأرصدة الافتتاحية 💰" : "Opening Balances 💰"}
+            </h1>
+            <p className="text-gray-500 text-sm mt-1">
+              {isAr
+                ? "إذا كان لديك بيانات مالية سابقة، يمكنك إدخال الأرصدة الافتتاحية الآن (اختياري — يمكنك تخطي هذه الخطوة)."
+                : "If you have prior financial data, enter your opening balances now (optional — you can skip this step)."}
+            </p>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800">
+            {isAr
+              ? "💡 الأرصدة الافتتاحية تمثل قيمة أصولك والتزاماتك في بداية استخدام المنصة. إذا كنت تبدأ من الصفر فتجاهل هذه الخطوة."
+              : "💡 Opening balances represent the value of your assets and liabilities when you start using the platform. Skip this step if you're starting fresh."}
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="label">{isAr ? "النقدية والبنوك (1100)" : "Cash & Banks (1100)"}</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                className="input"
+                value={cashBalance}
+                onChange={(e) => setCashBalance(e.target.value)}
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <label className="label">{isAr ? "المدينون / ذمم مدينة (1200)" : "Accounts Receivable (1200)"}</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                className="input"
+                value={arBalance}
+                onChange={(e) => setArBalance(e.target.value)}
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <label className="label">{isAr ? "الدائنون / ذمم دائنة (2100)" : "Accounts Payable (2100)"}</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                className="input"
+                value={apBalance}
+                onChange={(e) => setApBalance(e.target.value)}
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <p className="text-xs text-gray-400">
+            {isAr
+              ? "يمكنك إضافة أرصدة افتتاحية لبقية الحسابات لاحقًا من قسم اليومية."
+              : "You can add opening balances for other accounts later from the Journal section."}
+          </p>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">{error}</div>
+          )}
+
+          <div className="flex gap-3">
+            <button onClick={() => setStep(2)} className="btn-secondary">
+              {isAr ? "→ رجوع" : "← Back"}
+            </button>
+            <button onClick={completeOnboarding} disabled={saving} className="btn-secondary flex-1">
+              {isAr ? "تخطي" : "Skip"}
+            </button>
             <button onClick={completeOnboarding} disabled={saving} className="btn-primary flex-1">
               {saving ? (isAr ? "جاري الإعداد..." : "Setting up...") : (isAr ? "تأكيد والمتابعة ←" : "Confirm & Continue →")}
             </button>
@@ -235,8 +323,7 @@ export default function OnboardingPage() {
         </div>
       )}
 
-      {/* الخطوة 3: جاهز! */}
-      {step === 3 && (
+      {step === 4 && (
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 text-center space-y-6">
           <div className="text-6xl">🎉</div>
           <div>

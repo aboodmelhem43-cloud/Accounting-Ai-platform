@@ -530,6 +530,58 @@ export async function sendInvoiceOverdueEmail({
   if (r.error) console.error("[email] Invoice overdue reminder error:", r.error);
 }
 
+// ── Password Reset Email ─────────────────────────────────────────────────────
+
+export async function sendPasswordResetEmail(
+  email: string,
+  resetUrl: string,
+  lang: "ar" | "en" = "ar"
+): Promise<void> {
+  const isAr = lang === "ar";
+  const dir = isAr ? "rtl" : "ltr";
+
+  const subject = isAr
+    ? "إعادة تعيين كلمة المرور — محاسب اي"
+    : "Reset your password — MohasabAi";
+
+  const body = isAr ? `
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً،</p>
+    <p style="color:#374151;font-size:15px;margin:0 0 20px">
+      تلقّينا طلباً لإعادة تعيين كلمة المرور لحسابك في <strong>محاسب اي</strong>.
+      اضغط على الزر أدناه لإنشاء كلمة مرور جديدة.
+    </p>
+    <a href="${resetUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:24px">
+      إعادة تعيين كلمة المرور
+    </a>
+    <p style="color:#6b7280;font-size:14px;margin:0 0 8px">هذا الرابط صالح لمدة ساعة واحدة فقط.</p>
+    <p style="color:#9ca3af;font-size:12px;margin:0">
+      إذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذا البريد بأمان.
+    </p>
+  ` : `
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">Hello,</p>
+    <p style="color:#374151;font-size:15px;margin:0 0 20px">
+      We received a request to reset the password for your <strong>MohasabAi</strong> account.
+      Click the button below to create a new password.
+    </p>
+    <a href="${resetUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:24px">
+      Reset Password
+    </a>
+    <p style="color:#6b7280;font-size:14px;margin:0 0 8px">This link is valid for 1 hour.</p>
+    <p style="color:#9ca3af;font-size:12px;margin:0">
+      If you didn't request a password reset, you can safely ignore this email.
+    </p>
+  `;
+
+  const html = jvEmailWrapper(dir, isAr ? "ar" : "en", body);
+
+  if (!resend) {
+    console.log(`[PASSWORD_RESET] → ${email} | url: ${resetUrl}`);
+    return;
+  }
+  const r = await resend.emails.send({ from: FROM_EMAIL, to: email, subject, html });
+  if (r.error) console.error("[email] Password reset error:", r.error);
+}
+
 // ── Re-engagement Email ───────────────────────────────────────────────────────
 
 export async function sendReEngagementEmail({
