@@ -207,7 +207,6 @@ export default function LoginPage() {
             </Link>
           )}
         </div>
-        </button>
         {error && <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
         <button type="submit" className="btn-primary w-full" disabled={loading}>
           {loading ? t("login.sending") : t("login.send_otp")}

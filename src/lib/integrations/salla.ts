@@ -37,9 +37,7 @@ export function normalizeSallaOrder(payload: Record<string, any>): NormalizedSal
 
   const customer = data.customer ?? {};
   const customerName =
-    customer.name ??
-    [customer.first_name, customer.last_name].filter(Boolean).join(" ") ||
-    undefined;
+    (customer.name ?? [customer.first_name, customer.last_name].filter(Boolean).join(" ")) || undefined;
 
   const pm = (data.payment_method ?? "").toLowerCase();
   const paymentMethod = pm.includes("cash") ? "cash" : pm.includes("cod") ? "cod" : "card";

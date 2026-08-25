@@ -94,7 +94,7 @@ export async function POST(
     suggestedEntry = await mapSaleToJournalEntry(
       sale,
       accounts.map((a) => ({ ...a, type: a.type.toString() })),
-      integration.business?.baseCurrency ?? sale.currency,
+      sale.currency,
       {
         revenueAccountId: integration.revenueAccountId,
         vatAccountId: integration.vatAccountId,
@@ -120,9 +120,9 @@ export async function POST(
       currency: sale.currency,
       paymentMethod: sale.paymentMethod,
       customerName: sale.customerName ?? null,
-      lineItems: sale.lineItems,
-      rawData: sale.rawData,
-      suggestedEntry: suggestedEntry ?? undefined,
+      lineItems: sale.lineItems as object[],
+      rawData: sale.rawData as object,
+      suggestedEntry: suggestedEntry ? (suggestedEntry as object) : undefined,
     },
   });
 

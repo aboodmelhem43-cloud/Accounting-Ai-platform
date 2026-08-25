@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 const updateSchema = z.object({
@@ -32,16 +33,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { name, status, webhookSecret, revenueAccountId, vatAccountId, cashAccountId } = parsed.data;
 
   const currentConfig = existing.config as Record<string, unknown>;
-  const newConfig = webhookSecret !== undefined
+  const newConfig: Record<string, unknown> = webhookSecret !== undefined
     ? { ...currentConfig, webhookSecret }
-    : currentConfig;
+    : { ...currentConfig };
 
   const updated = await prisma.salesIntegration.update({
     where: { id },
     data: {
       ...(name ? { name } : {}),
       ...(status ? { status } : {}),
-      config: newConfig,
+      config: newConfig as Prisma.InputJsonValue,
       ...(revenueAccountId !== undefined ? { revenueAccountId } : {}),
       ...(vatAccountId !== undefined ? { vatAccountId } : {}),
       ...(cashAccountId !== undefined ? { cashAccountId } : {}),
