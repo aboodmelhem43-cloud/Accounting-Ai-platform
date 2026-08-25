@@ -50,11 +50,15 @@ export default function LedgerPage() {
   useEffect(() => {
     fetch("/api/accounts")
       .then((r) => r.json())
-      .then((d: Account[]) => {
-        setAccounts(Array.isArray(d) ? d : []);
-        if (d.length > 0) setSelectedAccountId(d[0].id);
+      .then((d) => {
+        const list: Account[] = Array.isArray(d) ? d : (d.accounts ?? []);
+        setAccounts(list);
+        if (list.length > 0) setSelectedAccountId(list[0].id);
       })
-      .catch(() => {});
+      .catch(() => {
+        setError(isAr ? "تعذر تحميل قائمة الحسابات" : "Failed to load accounts");
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const load = useCallback(async () => {
@@ -72,6 +76,8 @@ export default function LedgerPage() {
     }
   }, [selectedAccountId, from, to, isAr]);
 
+  useEffect(() => { load(); }, [load]);
+
   function exportCSV() {
     if (!data) return;
     let balance = 0;
@@ -84,7 +90,7 @@ export default function LedgerPage() {
       const credit = Number(l.credit);
       balance += debit - credit;
       return [
-        new Date(l.journalEntry.date).toLocaleDateString("en"),
+        new Date(l.journalEntry.date).toLocaleDateString(isAr ? "ar" : "en"),
         l.journalEntry.description.replace(/,/g, " "),
         debit.toFixed(2),
         credit.toFixed(2),
@@ -114,7 +120,7 @@ export default function LedgerPage() {
       const credit = Number(l.credit);
       balance += debit - credit;
       rows.push([
-        new Date(l.journalEntry.date).toLocaleDateString("en"),
+        new Date(l.journalEntry.date).toLocaleDateString(isAr ? "ar" : "en"),
         l.journalEntry.description,
         debit || "",
         credit || "",
@@ -149,7 +155,7 @@ export default function LedgerPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "دفتر الأستاذ العام" : "General Ledger"}
@@ -234,11 +240,11 @@ export default function LedgerPage() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200 sticky top-0">
                   <tr>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "التاريخ" : "Date"}</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "البيان" : "Description"}</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "مدين" : "Debit"}</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "دائن" : "Credit"}</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "الرصيد" : "Balance"}</th>
+                    <th className="text-start px-4 py-3 font-medium text-gray-600">{isAr ? "التاريخ" : "Date"}</th>
+                    <th className="text-start px-4 py-3 font-medium text-gray-600">{isAr ? "البيان" : "Description"}</th>
+                    <th className="text-end px-4 py-3 font-medium text-gray-600">{isAr ? "مدين" : "Debit"}</th>
+                    <th className="text-end px-4 py-3 font-medium text-gray-600">{isAr ? "دائن" : "Credit"}</th>
+                    <th className="text-end px-4 py-3 font-medium text-gray-600">{isAr ? "الرصيد" : "Balance"}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -257,13 +263,13 @@ export default function LedgerPage() {
                             <div className="text-xs text-gray-400">{line.description}</div>
                           )}
                         </td>
-                        <td className="px-4 py-2 text-right font-mono text-gray-700">
+                        <td className="px-4 py-2 text-end font-mono text-gray-700">
                           {debit > 0 ? fmt(debit) : ""}
                         </td>
-                        <td className="px-4 py-2 text-right font-mono text-gray-700">
+                        <td className="px-4 py-2 text-end font-mono text-gray-700">
                           {credit > 0 ? fmt(credit) : ""}
                         </td>
-                        <td className={`px-4 py-2 text-right font-mono font-semibold ${runningBalance >= 0 ? "text-gray-800" : "text-red-600"}`}>
+                        <td className={`px-4 py-2 text-end font-mono font-semibold ${runningBalance >= 0 ? "text-gray-800" : "text-red-600"}`}>
                           {fmt(runningBalance)}
                         </td>
                       </tr>

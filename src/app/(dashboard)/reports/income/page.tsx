@@ -1,13 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
 import * as XLSX from "xlsx";
 import type { IncomeStatement } from "@/types";
 import SavePdfButton from "@/components/SavePdfButton";
 
 export default function IncomeStatementPage() {
-  const { data: session } = useSession();
   const { t, lang } = useLang();
   const locale = lang === "ar" ? "ar" : "en";
 
@@ -20,13 +18,17 @@ export default function IncomeStatementPage() {
   );
   const [statement, setStatement] = useState<IncomeStatement | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function fetchStatement() {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/reports/income?from=${from}&to=${to}`);
-      const data = await res.json();
-      setStatement(data);
+      if (!res.ok) throw new Error("Failed");
+      setStatement(await res.json());
+    } catch {
+      setError(lang === "ar" ? "خطأ في تحميل قائمة الدخل" : "Failed to load income statement");
     } finally {
       setLoading(false);
     }
@@ -91,7 +93,7 @@ export default function IncomeStatementPage() {
   }
 
   return (
-    <div id="report-content" className="space-y-6">
+    <div id="report-content" className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">{t("reports.income.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">
@@ -140,6 +142,10 @@ export default function IncomeStatementPage() {
         </div>
       )}
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4">{error}</div>
+      )}
+
       {statement && !loading && (
         <div className="space-y-4">
           <div className="card">
@@ -158,7 +164,7 @@ export default function IncomeStatementPage() {
                       <span className="text-sm text-gray-800">
                         {lang === "ar" ? (acc.accountNameAr ?? acc.accountName) : acc.accountName}
                       </span>
-                      <span className="text-xs text-gray-400 mr-2">{acc.accountCode}</span>
+                      <span className="text-xs text-gray-400 ms-2">{acc.accountCode}</span>
                     </div>
                     <span className="font-medium text-green-700">{fmt(acc.balance)}</span>
                   </div>

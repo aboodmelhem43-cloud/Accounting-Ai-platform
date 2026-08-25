@@ -1,4 +1,6 @@
+"use client";
 import Link from "next/link";
+import { useLang } from "@/components/LanguageProvider";
 
 const REPORTS = [
   {
@@ -67,12 +69,17 @@ const colorMap: Record<string, string> = {
 };
 
 export default function ReportsPage() {
+  const { lang } = useLang();
+  const isAr = lang === "ar";
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">التقارير المالية / Financial Reports</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          {isAr ? "التقارير المالية" : "Financial Reports"}
+        </h1>
         <p className="text-gray-500 text-sm mt-1">
-          اختر التقرير الذي تريده — Select a report to view
+          {isAr ? "اختر التقرير الذي تريده" : "Select a report to view"}
         </p>
       </div>
 
@@ -89,13 +96,15 @@ export default function ReportsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-gray-900 group-hover:text-blue-700 transition-colors">
-                  {r.titleAr}
+                  {isAr ? r.titleAr : r.titleEn}
                 </h3>
-                <p className="text-sm text-gray-500 mt-0.5">{r.titleEn}</p>
-                <p className="text-xs text-gray-400 mt-2">{r.descAr}</p>
-                <p className="text-xs text-gray-400">{r.descEn}</p>
+                <p className="text-xs text-gray-400 mt-2">
+                  {isAr ? r.descAr : r.descEn}
+                </p>
               </div>
-              <span className="text-gray-300 group-hover:text-blue-400 transition-colors text-xl flex-shrink-0">→</span>
+              <span className="text-gray-300 group-hover:text-blue-400 transition-colors text-xl flex-shrink-0">
+                {isAr ? "←" : "→"}
+              </span>
             </div>
           </Link>
         ))}

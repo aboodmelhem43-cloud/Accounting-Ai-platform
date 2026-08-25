@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
 import * as XLSX from "xlsx";
 
@@ -14,20 +13,24 @@ interface AgingRow {
 }
 
 export default function AgingPage() {
-  const { data: session } = useSession();
   const { t, lang } = useLang();
   const locale = lang === "ar" ? "ar" : "en";
 
   const [agingType, setAgingType] = useState<"AR" | "AP">("AR");
   const [rows, setRows] = useState<AgingRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function fetchData() {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/reports/aging?type=${agingType}`);
+      if (!res.ok) throw new Error("Failed");
       const json = await res.json();
       setRows(json.rows ?? []);
+    } catch {
+      setError(lang === "ar" ? "خطأ في تحميل تقرير التقادم" : "Failed to load aging report");
     } finally {
       setLoading(false);
     }
@@ -82,7 +85,7 @@ export default function AgingPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">{t("reports.aging.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">
@@ -123,6 +126,10 @@ export default function AgingPage() {
           )}
         </div>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4">{error}</div>
+      )}
 
       {loading && (
         <div className="text-center py-8 text-gray-500">

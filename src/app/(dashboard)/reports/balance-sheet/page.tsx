@@ -5,6 +5,38 @@ import * as XLSX from "xlsx";
 import type { BalanceSheet, AccountBalance } from "@/types";
 import SavePdfButton from "@/components/SavePdfButton";
 
+function AccountsTable({
+  accounts,
+  isAr,
+}: {
+  accounts: AccountBalance[];
+  isAr: boolean;
+}) {
+  return (
+    <div>
+      {accounts.length === 0 ? (
+        <p className="text-gray-400 text-sm py-2">{isAr ? "لا توجد أرصدة" : "No balances"}</p>
+      ) : (
+        <table className="w-full text-sm">
+          <tbody className="divide-y divide-gray-100">
+            {accounts.map((a) => (
+              <tr key={a.accountId}>
+                <td className="py-1.5 text-gray-600">
+                  <span className="text-gray-400 text-xs me-1">{a.accountCode}</span>
+                  {isAr ? (a.accountNameAr ?? a.accountName) : a.accountName}
+                </td>
+                <td className="py-1.5 text-end font-mono text-gray-800">
+                  {a.balance.toLocaleString(isAr ? "ar" : "en", { minimumFractionDigits: 2 })}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
 export default function BalanceSheetPage() {
   const { lang } = useLang();
   const isAr = lang === "ar";
@@ -29,33 +61,6 @@ export default function BalanceSheetPage() {
   }, [asOf, isAr]);
 
   useEffect(() => { load(); }, [load]);
-
-  function AccountsTable({ accounts, title }: { accounts: AccountBalance[]; title: string }) {
-    return (
-      <div>
-        <h3 className="font-semibold text-gray-700 mb-2">{title}</h3>
-        {accounts.length === 0 ? (
-          <p className="text-gray-400 text-sm py-2">{isAr ? "لا توجد أرصدة" : "No balances"}</p>
-        ) : (
-          <table className="w-full text-sm">
-            <tbody className="divide-y divide-gray-100">
-              {accounts.map((a) => (
-                <tr key={a.accountId}>
-                  <td className="py-1.5 text-gray-600">
-                    <span className="text-gray-400 text-xs me-1">{a.accountCode}</span>
-                    {isAr ? (a.accountNameAr ?? a.accountName) : a.accountName}
-                  </td>
-                  <td className="py-1.5 text-right font-mono text-gray-800">
-                    {a.balance.toLocaleString(isAr ? "ar" : "en", { minimumFractionDigits: 2 })}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    );
-  }
 
   const fmt = (n: number) => n.toLocaleString(isAr ? "ar" : "en", { minimumFractionDigits: 2 });
 
@@ -82,7 +87,11 @@ export default function BalanceSheetPage() {
       rows.push([a.accountCode, isAr ? (a.accountNameAr ?? a.accountName) : a.accountName, a.balance]);
     }
     if (data.netProfit !== 0) {
-      rows.push([isAr ? "صافي الربح" : "Net Profit", "", data.netProfit]);
+      rows.push([
+        data.netProfit >= 0 ? (isAr ? "صافي الربح" : "Net Profit") : (isAr ? "صافي الخسارة" : "Net Loss"),
+        "",
+        data.netProfit,
+      ]);
     }
     rows.push([isAr ? "إجمالي حقوق الملكية" : "Total Equity", "", data.totalEquity]);
     const ws = XLSX.utils.aoa_to_sheet(rows);
@@ -93,7 +102,7 @@ export default function BalanceSheetPage() {
   }
 
   return (
-    <div id="report-content" className="space-y-6 max-w-4xl">
+    <div id="report-content" className="space-y-6 max-w-4xl" dir={isAr ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "الميزانية العمومية" : "Balance Sheet"}
@@ -103,7 +112,6 @@ export default function BalanceSheetPage() {
         </p>
       </div>
 
-      {/* أدوات التحكم */}
       <div className="card flex items-end gap-4 flex-wrap">
         <div>
           <label className="label">{isAr ? "التاريخ" : "As Of Date"}</label>
@@ -147,7 +155,7 @@ export default function BalanceSheetPage() {
 
       {!loading && data && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* الأصول */}
+          {/* Assets */}
           <div className="card">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-gray-800">{isAr ? "الأصول" : "Assets"}</h2>
@@ -155,18 +163,18 @@ export default function BalanceSheetPage() {
                 {data.currency}
               </span>
             </div>
-            <AccountsTable accounts={data.assets} title="" />
+            <AccountsTable accounts={data.assets} isAr={isAr} />
             <div className="border-t-2 border-gray-800 pt-3 mt-3 flex justify-between font-bold text-gray-900">
               <span>{isAr ? "إجمالي الأصول" : "Total Assets"}</span>
               <span className="font-mono">{fmt(data.totalAssets)}</span>
             </div>
           </div>
 
-          {/* الخصوم وحقوق الملكية */}
+          {/* Liabilities + Equity */}
           <div className="space-y-4">
             <div className="card">
               <h2 className="text-lg font-bold text-gray-800 mb-4">{isAr ? "الخصوم" : "Liabilities"}</h2>
-              <AccountsTable accounts={data.liabilities} title="" />
+              <AccountsTable accounts={data.liabilities} isAr={isAr} />
               <div className="border-t border-gray-300 pt-2 mt-2 flex justify-between font-semibold text-gray-700">
                 <span>{isAr ? "إجمالي الخصوم" : "Total Liabilities"}</span>
                 <span className="font-mono">{fmt(data.totalLiabilities)}</span>
@@ -175,10 +183,14 @@ export default function BalanceSheetPage() {
 
             <div className="card">
               <h2 className="text-lg font-bold text-gray-800 mb-4">{isAr ? "حقوق الملكية" : "Equity"}</h2>
-              <AccountsTable accounts={data.equity} title="" />
+              <AccountsTable accounts={data.equity} isAr={isAr} />
               {data.netProfit !== 0 && (
                 <div className="flex justify-between text-sm py-1.5 text-gray-600">
-                  <span>{isAr ? "صافي الربح" : "Net Profit"}</span>
+                  <span>
+                    {data.netProfit >= 0
+                      ? (isAr ? "صافي الربح" : "Net Profit")
+                      : (isAr ? "صافي الخسارة" : "Net Loss")}
+                  </span>
                   <span className={`font-mono font-medium ${data.netProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
                     {fmt(data.netProfit)}
                   </span>
@@ -190,7 +202,6 @@ export default function BalanceSheetPage() {
               </div>
             </div>
 
-            {/* التحقق */}
             <div className={`rounded-xl p-4 text-sm font-medium text-center ${
               Math.abs(data.totalAssets - (data.totalLiabilities + data.totalEquity)) < 0.01
                 ? "bg-green-50 text-green-700 border border-green-200"

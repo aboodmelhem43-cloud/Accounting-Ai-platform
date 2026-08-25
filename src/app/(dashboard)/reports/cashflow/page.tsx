@@ -3,6 +3,49 @@ import { useState, useEffect, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
 import * as XLSX from "xlsx";
 import type { CashFlowStatement } from "@/types";
+import SavePdfButton from "@/components/SavePdfButton";
+
+function Section({
+  title,
+  activities,
+  net,
+  color,
+  isAr,
+  fmt,
+}: {
+  title: string;
+  activities: { description: string; amount: number }[];
+  net: number;
+  color: string;
+  isAr: boolean;
+  fmt: (n: number) => string;
+}) {
+  return (
+    <div className="card">
+      <h3 className={`font-bold text-lg mb-3 ${color}`}>{title}</h3>
+      {activities.length === 0 ? (
+        <p className="text-gray-400 text-sm">{isAr ? "لا توجد حركات" : "No activities"}</p>
+      ) : (
+        <table className="w-full text-sm">
+          <tbody className="divide-y divide-gray-100">
+            {activities.map((a, i) => (
+              <tr key={i}>
+                <td className="py-1.5 text-gray-600 truncate max-w-xs">{a.description}</td>
+                <td className={`py-1.5 text-end font-mono ${a.amount >= 0 ? "text-green-600" : "text-red-500"}`}>
+                  {fmt(a.amount)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <div className="border-t-2 border-gray-800 pt-3 mt-3 flex justify-between font-bold">
+        <span className="text-gray-700">{isAr ? "الصافي" : "Net"}</span>
+        <span className={`font-mono ${net >= 0 ? "text-green-700" : "text-red-600"}`}>{fmt(net)}</span>
+      </div>
+    </div>
+  );
+}
 
 export default function CashFlowPage() {
   const { lang } = useLang();
@@ -71,46 +114,8 @@ export default function CashFlowPage() {
     XLSX.writeFile(wb, `cashflow-${from.substring(0, 7)}.xlsx`);
   }
 
-  function Section({
-    title,
-    activities,
-    net,
-    color,
-  }: {
-    title: string;
-    activities: { description: string; amount: number }[];
-    net: number;
-    color: string;
-  }) {
-    return (
-      <div className="card">
-        <h3 className={`font-bold text-lg mb-3 ${color}`}>{title}</h3>
-        {activities.length === 0 ? (
-          <p className="text-gray-400 text-sm">{isAr ? "لا توجد حركات" : "No activities"}</p>
-        ) : (
-          <table className="w-full text-sm">
-            <tbody className="divide-y divide-gray-100">
-              {activities.map((a, i) => (
-                <tr key={i}>
-                  <td className="py-1.5 text-gray-600 truncate max-w-xs">{a.description}</td>
-                  <td className={`py-1.5 text-right font-mono ${a.amount >= 0 ? "text-green-600" : "text-red-500"}`}>
-                    {fmt(a.amount)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        <div className="border-t-2 border-gray-800 pt-3 mt-3 flex justify-between font-bold">
-          <span className="text-gray-700">{isAr ? "الصافي" : "Net"}</span>
-          <span className={`font-mono ${net >= 0 ? "text-green-700" : "text-red-600"}`}>{fmt(net)}</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div id="report-content" className="space-y-6 max-w-3xl" dir={isAr ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "قائمة التدفقات النقدية" : "Cash Flow Statement"}
@@ -120,7 +125,6 @@ export default function CashFlowPage() {
         </p>
       </div>
 
-      {/* أدوات */}
       <div className="card flex items-end gap-4 flex-wrap">
         <div>
           <label className="label">{isAr ? "من" : "From"}</label>
@@ -137,6 +141,15 @@ export default function CashFlowPage() {
           <button onClick={exportExcel} className="btn-secondary">
             ⬇ {isAr ? "تصدير Excel" : "Export Excel"}
           </button>
+        )}
+        {data && (
+          <SavePdfButton
+            targetId="report-content"
+            fileName={`cashflow-${from}-to-${to}.pdf`}
+            documentName={`Cash Flow Statement ${from} to ${to}`}
+            label="Download PDF"
+            labelAr="تحميل PDF"
+          />
         )}
       </div>
 
@@ -158,21 +171,26 @@ export default function CashFlowPage() {
             activities={data.operatingActivities}
             net={data.netOperating}
             color="text-blue-700"
+            isAr={isAr}
+            fmt={fmt}
           />
           <Section
             title={isAr ? "أنشطة الاستثمار" : "Investing Activities"}
             activities={data.investingActivities}
             net={data.netInvesting}
             color="text-green-700"
+            isAr={isAr}
+            fmt={fmt}
           />
           <Section
             title={isAr ? "أنشطة التمويل" : "Financing Activities"}
             activities={data.financingActivities}
             net={data.netFinancing}
             color="text-purple-700"
+            isAr={isAr}
+            fmt={fmt}
           />
 
-          {/* الصافي الإجمالي */}
           <div className={`card border-2 ${data.netChange >= 0 ? "border-green-300 bg-green-50" : "border-red-300 bg-red-50"}`}>
             <div className="flex justify-between items-center">
               <span className="font-bold text-gray-800 text-lg">

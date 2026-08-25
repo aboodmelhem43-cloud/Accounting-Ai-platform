@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
 import * as XLSX from "xlsx";
 import type { AccountType } from "@/types";
@@ -41,20 +40,23 @@ function getCreditCol(row: TrialBalanceRow): number {
 }
 
 export default function TrialBalancePage() {
-  const { data: session } = useSession();
   const { t, lang } = useLang();
   const locale = lang === "ar" ? "ar" : "en";
 
   const [asOf, setAsOf] = useState(new Date().toISOString().split("T")[0]);
   const [data, setData] = useState<TrialBalanceData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function fetchData() {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/reports/trial-balance?asOf=${asOf}`);
-      const json = await res.json();
-      setData(json);
+      if (!res.ok) throw new Error("Failed");
+      setData(await res.json());
+    } catch {
+      setError(lang === "ar" ? "خطأ في تحميل ميزان المراجعة" : "Failed to load trial balance");
     } finally {
       setLoading(false);
     }
@@ -70,7 +72,9 @@ export default function TrialBalancePage() {
   const fmtCell = (n: number) => (n === 0 ? "" : fmt(n));
 
   const isBalanced =
-    data !== null && Math.abs(data.totalDebits - data.totalCredits) < 0.01;
+    data !== null &&
+    data.rows.length > 0 &&
+    Math.abs(data.totalDebits - data.totalCredits) < 0.01;
 
   function exportExcel() {
     if (!data) return;
@@ -95,7 +99,7 @@ export default function TrialBalancePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">{t("reports.trial_balance.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">
@@ -131,6 +135,10 @@ export default function TrialBalancePage() {
         </div>
       )}
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4">{error}</div>
+      )}
+
       {data && !loading && (
         <div className="space-y-4">
           {data.rows.length === 0 ? (
@@ -138,6 +146,7 @@ export default function TrialBalancePage() {
               {t("reports.trial_balance.empty")}
             </div>
           ) : (
+            <>
             <div className="card overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -203,22 +212,22 @@ export default function TrialBalancePage() {
                 </tfoot>
               </table>
             </div>
+            <div
+              className={`rounded-xl p-4 text-sm font-medium flex items-center gap-2 ${
+                isBalanced
+                  ? "bg-green-50 border border-green-200 text-green-700"
+                  : "bg-red-50 border border-red-200 text-red-700"
+              }`}
+            >
+              <span>{isBalanced ? "✓" : "⚠️"}</span>
+              <span>
+                {isBalanced
+                  ? t("reports.trial_balance.balanced")
+                  : t("reports.trial_balance.imbalanced")}
+              </span>
+            </div>
+            </>
           )}
-
-          <div
-            className={`rounded-xl p-4 text-sm font-medium flex items-center gap-2 ${
-              isBalanced
-                ? "bg-green-50 border border-green-200 text-green-700"
-                : "bg-red-50 border border-red-200 text-red-700"
-            }`}
-          >
-            <span>{isBalanced ? "✓" : "⚠️"}</span>
-            <span>
-              {isBalanced
-                ? t("reports.trial_balance.balanced")
-                : t("reports.trial_balance.imbalanced")}
-            </span>
-          </div>
         </div>
       )}
     </div>
