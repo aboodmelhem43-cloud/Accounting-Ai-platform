@@ -28,7 +28,7 @@ export async function GET() {
     });
   }
 
-  const appUrl = process.env.NEXTAUTH_URL ?? "https://mohasabai.com";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://mohasabai.com";
   return NextResponse.json({
     code: business.referralCode,
     link: `${appUrl}/register?ref=${business.referralCode}`,
