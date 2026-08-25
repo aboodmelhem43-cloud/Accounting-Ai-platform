@@ -278,7 +278,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-2xl space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <h1 className="text-2xl font-bold text-gray-900">{t("settings.title")}</h1>
 
       {/* Tabs */}
@@ -533,7 +533,7 @@ export default function SettingsPage() {
                 <div className="text-3xl font-bold text-green-700">{referralCount}</div>
                 <div className="text-sm text-green-600 mt-0.5">
                   {isAr
-                    ? referralCount === 1 ? "إحالة ناجحة" : "إحالة ناجحة"
+                    ? referralCount === 1 ? "إحالة ناجحة واحدة" : referralCount === 2 ? "إحالتان ناجحتان" : `${referralCount} إحالات ناجحة`
                     : referralCount === 1 ? "successful referral" : "successful referrals"}
                 </div>
                 <div className="text-xs text-green-500 mt-2">
