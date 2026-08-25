@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useLang } from "@/components/LanguageProvider";
 
 interface AccountOption {
   id: string;
@@ -22,13 +23,16 @@ interface Integration {
 
 const PLATFORMS = [
   { value: "shopify", label: "Shopify", icon: "🛒" },
-  { value: "salla", label: "سلة", icon: "🛍️" },
-  { value: "zid", label: "زد", icon: "🏪" },
+  { value: "salla", label: "سلة / Salla", icon: "🛍️" },
+  { value: "zid", label: "زد / Zid", icon: "🏪" },
   { value: "foodics", label: "Foodics", icon: "🍔" },
-  { value: "generic", label: "عام (Generic Webhook)", icon: "🔗" },
+  { value: "generic", label: "Generic Webhook", icon: "🔗" },
 ];
 
 export default function IntegrationsPage() {
+  const { lang } = useLang();
+  const ar = lang === "ar";
+
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [accounts, setAccounts] = useState<AccountOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,12 +115,12 @@ export default function IntegrationsPage() {
       );
 
       if (res.ok) {
-        showToast(editId ? "تم التحديث" : "تم إنشاء التكامل", true);
+        showToast(editId ? (ar ? "تم التحديث" : "Updated") : (ar ? "تم إنشاء التكامل" : "Integration created"), true);
         setShowForm(false);
         fetchData();
       } else {
         const data = await res.json();
-        showToast(data.error ?? "حدث خطأ", false);
+        showToast(data.error ?? (ar ? "حدث خطأ" : "An error occurred"), false);
       }
     } finally {
       setSaving(false);
@@ -130,18 +134,16 @@ export default function IntegrationsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
     });
-    if (res.ok) {
-      fetchData();
-    }
+    if (res.ok) fetchData();
   }
 
   async function deleteIntegration(id: string) {
-    if (!confirm("هل أنت متأكد من حذف هذا التكامل؟")) return;
+    if (!confirm(ar ? "هل أنت متأكد من حذف هذا التكامل؟" : "Are you sure you want to delete this integration?")) return;
     setDeletingId(id);
     try {
       const res = await fetch(`/api/integrations/${id}`, { method: "DELETE" });
       if (res.ok) {
-        showToast("تم الحذف", true);
+        showToast(ar ? "تم الحذف" : "Deleted", true);
         fetchData();
       }
     } finally {
@@ -155,13 +157,13 @@ export default function IntegrationsPage() {
   }
 
   function copyUrl(url: string) {
-    navigator.clipboard.writeText(url).then(() => showToast("تم نسخ الرابط", true));
+    navigator.clipboard.writeText(url).then(() => showToast(ar ? "تم نسخ الرابط" : "Link copied", true));
   }
 
   const platformInfo = (p: string) => PLATFORMS.find((pl) => pl.value === p);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6" dir="rtl">
+    <div className="max-w-4xl mx-auto p-6 space-y-6" dir={ar ? "rtl" : "ltr"}>
       {toast && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium ${toast.ok ? "bg-green-600" : "bg-red-600"}`}>
           {toast.msg}
@@ -170,28 +172,36 @@ export default function IntegrationsPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">تكاملات المبيعات</h1>
-          <p className="text-gray-500 mt-1 text-sm">اربط متجرك أو نظام نقاط البيع لاستيراد المبيعات تلقائيًا</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {ar ? "تكاملات المبيعات" : "Sales Integrations"}
+          </h1>
+          <p className="text-gray-500 mt-1 text-sm">
+            {ar
+              ? "اربط متجرك أو نظام نقاط البيع لاستيراد المبيعات تلقائيًا"
+              : "Connect your store or POS system to automatically import sales"}
+          </p>
         </div>
         <button
           onClick={openNew}
           className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700"
         >
-          + إضافة تكامل
+          {ar ? "+ إضافة تكامل" : "+ Add Integration"}
         </button>
       </div>
 
       {/* Form modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-4" dir={ar ? "rtl" : "ltr"}>
             <h2 className="text-lg font-bold text-gray-900">
-              {editId ? "تعديل التكامل" : "تكامل جديد"}
+              {editId ? (ar ? "تعديل التكامل" : "Edit Integration") : (ar ? "تكامل جديد" : "New Integration")}
             </h2>
 
             {!editId && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">المنصة</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {ar ? "المنصة" : "Platform"}
+                </label>
                 <select
                   value={form.platform}
                   onChange={(e) => setForm({ ...form, platform: e.target.value })}
@@ -205,64 +215,79 @@ export default function IntegrationsPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">الاسم</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {ar ? "الاسم" : "Name"}
+              </label>
               <input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="مثال: متجر سلة الرئيسي"
+                placeholder={ar ? "مثال: متجر سلة الرئيسي" : "e.g. Main Shopify Store"}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Webhook Secret <span className="text-gray-400 text-xs">(اختياري — لتأمين الربط)</span>
+                Webhook Secret{" "}
+                <span className="text-gray-400 text-xs">
+                  {ar ? "(اختياري — لتأمين الربط)" : "(optional — to secure the connection)"}
+                </span>
               </label>
               <input
                 type="password"
                 value={form.webhookSecret}
                 onChange={(e) => setForm({ ...form, webhookSecret: e.target.value })}
-                placeholder={editId ? "اتركه فارغًا للإبقاء على الحالي" : "أدخل السر إن وجد"}
+                placeholder={
+                  editId
+                    ? (ar ? "اتركه فارغًا للإبقاء على الحالي" : "Leave blank to keep current")
+                    : (ar ? "أدخل السر إن وجد" : "Enter secret if applicable")
+                }
                 className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-mono"
               />
             </div>
 
             <div className="grid grid-cols-1 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">حساب الإيرادات</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {ar ? "حساب الإيرادات" : "Revenue Account"}
+                </label>
                 <select
                   value={form.revenueAccountId}
                   onChange={(e) => setForm({ ...form, revenueAccountId: e.target.value })}
                   className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm"
                 >
-                  <option value="">تلقائي (AI يختار)</option>
+                  <option value="">{ar ? "تلقائي (AI يختار)" : "Auto (AI chooses)"}</option>
                   {accounts.filter((a) => a.code.startsWith("4")).map((a) => (
                     <option key={a.id} value={a.id}>{a.code} — {a.name}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">حساب ضريبة القيمة المضافة</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {ar ? "حساب ضريبة القيمة المضافة" : "VAT Account"}
+                </label>
                 <select
                   value={form.vatAccountId}
                   onChange={(e) => setForm({ ...form, vatAccountId: e.target.value })}
                   className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm"
                 >
-                  <option value="">تلقائي (AI يختار)</option>
+                  <option value="">{ar ? "تلقائي (AI يختار)" : "Auto (AI chooses)"}</option>
                   {accounts.filter((a) => a.code.startsWith("2")).map((a) => (
                     <option key={a.id} value={a.id}>{a.code} — {a.name}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">حساب النقدية/البنك</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {ar ? "حساب النقدية/البنك" : "Cash / Bank Account"}
+                </label>
                 <select
                   value={form.cashAccountId}
                   onChange={(e) => setForm({ ...form, cashAccountId: e.target.value })}
                   className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm"
                 >
-                  <option value="">تلقائي (AI يختار)</option>
+                  <option value="">{ar ? "تلقائي (AI يختار)" : "Auto (AI chooses)"}</option>
                   {accounts.filter((a) => a.code.startsWith("1")).map((a) => (
                     <option key={a.id} value={a.id}>{a.code} — {a.name}</option>
                   ))}
@@ -276,13 +301,13 @@ export default function IntegrationsPage() {
                 disabled={saving || !form.name}
                 className="flex-1 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
               >
-                {saving ? "جارٍ الحفظ..." : "حفظ"}
+                {saving ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ" : "Save")}
               </button>
               <button
                 onClick={() => setShowForm(false)}
                 className="flex-1 py-2 border border-gray-200 text-gray-600 rounded-xl text-sm hover:bg-gray-50"
               >
-                إلغاء
+                {ar ? "إلغاء" : "Cancel"}
               </button>
             </div>
           </div>
@@ -291,11 +316,13 @@ export default function IntegrationsPage() {
 
       {/* List */}
       {loading ? (
-        <div className="text-center py-12 text-gray-400">جاري التحميل...</div>
+        <div className="text-center py-12 text-gray-400">
+          {ar ? "جاري التحميل..." : "Loading..."}
+        </div>
       ) : integrations.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <div className="text-4xl mb-3">🔌</div>
-          <p>لا يوجد تكاملات بعد — أضف أول تكامل للبدء</p>
+          <p>{ar ? "لا يوجد تكاملات بعد — أضف أول تكامل للبدء" : "No integrations yet — add your first one to get started"}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -311,9 +338,9 @@ export default function IntegrationsPage() {
                       <span className="font-semibold text-gray-900">{int.name}</span>
                       <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{pl?.label ?? int.platform}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${int.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                        {int.status === "ACTIVE" ? "نشط" : "موقوف"}
+                        {int.status === "ACTIVE" ? (ar ? "نشط" : "Active") : (ar ? "موقوف" : "Paused")}
                       </span>
-                      {int.hasSecret && <span className="text-xs text-blue-600">🔐 محمي</span>}
+                      {int.hasSecret && <span className="text-xs text-blue-600">🔐 {ar ? "محمي" : "Secured"}</span>}
                     </div>
 
                     <div className="mt-2 flex items-center gap-2">
@@ -324,15 +351,15 @@ export default function IntegrationsPage() {
                         onClick={() => copyUrl(url)}
                         className="flex-shrink-0 px-2 py-1.5 text-xs text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50"
                       >
-                        نسخ
+                        {ar ? "نسخ" : "Copy"}
                       </button>
                     </div>
 
                     <div className="mt-2 flex flex-wrap gap-4 text-xs text-gray-500">
-                      <span>{int._count.salesEvents} حدث مبيعات</span>
-                      {int.revenueAccount && <span>إيرادات: {int.revenueAccount.code} {int.revenueAccount.name}</span>}
-                      {int.vatAccount && <span>ضريبة: {int.vatAccount.code}</span>}
-                      {int.cashAccount && <span>صندوق: {int.cashAccount.code}</span>}
+                      <span>{int._count.salesEvents} {ar ? "حدث مبيعات" : "sales events"}</span>
+                      {int.revenueAccount && <span>{ar ? "إيرادات:" : "Revenue:"} {int.revenueAccount.code} {int.revenueAccount.name}</span>}
+                      {int.vatAccount && <span>{ar ? "ضريبة:" : "VAT:"} {int.vatAccount.code}</span>}
+                      {int.cashAccount && <span>{ar ? "صندوق:" : "Cash:"} {int.cashAccount.code}</span>}
                     </div>
                   </div>
 
@@ -341,20 +368,20 @@ export default function IntegrationsPage() {
                       onClick={() => openEdit(int)}
                       className="px-3 py-1 text-xs text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50"
                     >
-                      تعديل
+                      {ar ? "تعديل" : "Edit"}
                     </button>
                     <button
                       onClick={() => toggleStatus(int)}
                       className={`px-3 py-1 text-xs rounded-lg border ${int.status === "ACTIVE" ? "text-amber-600 border-amber-200 hover:bg-amber-50" : "text-green-600 border-green-200 hover:bg-green-50"}`}
                     >
-                      {int.status === "ACTIVE" ? "إيقاف" : "تفعيل"}
+                      {int.status === "ACTIVE" ? (ar ? "إيقاف" : "Pause") : (ar ? "تفعيل" : "Activate")}
                     </button>
                     <button
                       onClick={() => deleteIntegration(int.id)}
                       disabled={deletingId === int.id}
                       className="px-3 py-1 text-xs text-red-500 border border-red-100 rounded-lg hover:bg-red-50 disabled:opacity-50"
                     >
-                      حذف
+                      {ar ? "حذف" : "Delete"}
                     </button>
                   </div>
                 </div>
@@ -365,8 +392,11 @@ export default function IntegrationsPage() {
       )}
 
       <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
-        <strong>كيفية الربط:</strong> انسخ رابط الـ Webhook الخاص بالتكامل وأضفه في إعدادات المنصة (Shopify / سلة / زد / Foodics).
-        عند ورود طلب مباع جديد، سيرسله النظام تلقائيًا وتظهر في قائمة &quot;مزامنة المبيعات&quot; لمراجعتها.
+        <strong>{ar ? "كيفية الربط:" : "How to connect:"}</strong>{" "}
+        {ar
+          ? <>انسخ رابط الـ Webhook الخاص بالتكامل وأضفه في إعدادات المنصة (Shopify / سلة / زد / Foodics). عند ورود طلب مباع جديد، سيرسله النظام تلقائيًا وتظهر في قائمة &quot;مزامنة المبيعات&quot; لمراجعتها.</>
+          : <>Copy the webhook URL for your integration and paste it into the platform settings (Shopify / Salla / Zid / Foodics). When a new order arrives, it will appear in &quot;Sales Sync&quot; for your review.</>
+        }
       </div>
     </div>
   );
