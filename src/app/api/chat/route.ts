@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { chat } from "@/lib/ai/chatbot";
+import { buildFinancialContext, buildSystemPrompt } from "@/lib/ai/chatbot";
 import { checkAiLimit } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
+import Anthropic from "@anthropic-ai/sdk";
 
 const schema = z.object({
   messages: z.array(
@@ -17,43 +18,112 @@ const schema = z.object({
   lang: z.enum(["ar", "en"]).optional(),
 });
 
+function jsonError(reply: string, status: number) {
+  return NextResponse.json({ error: "error", reply }, { status });
+}
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+  if (!session) return jsonError("غير مصرح", 401);
 
   try {
     const limitCheck = await checkAiLimit(session.user.businessId);
     if (!limitCheck.allowed) {
-      return NextResponse.json({
-        error: "plan_limit",
-        reply: limitCheck.limit === 0
+      return jsonError(
+        limitCheck.limit === 0
           ? "انتهت فترة التجربة المجانية. يرجى الترقية للاستمرار. /pricing"
           : `وصلت للحد الأقصى (${limitCheck.limit} سؤال/شهر). يرجى الترقية. /pricing`,
-      }, { status: 403 });
+        403
+      );
     }
 
     const body = await req.json();
     const data = schema.parse(body);
+    const lang = data.lang ?? "ar";
 
-    const reply = await chat({
-      businessId: session.user.businessId,
-      messages: data.messages,
-      newMessage: data.message,
-      lang: data.lang ?? "ar",
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return jsonError("⚠️ المساعد الذكي غير متاح حالياً — يرجى التواصل مع الدعم. (API key not configured)", 500);
+    }
+
+    let financialContext: string;
+    try {
+      financialContext = await buildFinancialContext(session.user.businessId);
+    } catch (err) {
+      console.error("[chat] buildFinancialContext error:", err);
+      financialContext = lang === "ar" ? "(تعذّر تحميل البيانات المالية)" : "(financial data unavailable)";
+    }
+
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const systemPrompt = buildSystemPrompt(financialContext, lang);
+    const claudeMessages: Anthropic.MessageParam[] = [
+      ...data.messages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
+      { role: "user" as const, content: data.message },
+    ];
+
+    const anthropicStream = client.messages.stream({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1500,
+      system: systemPrompt,
+      messages: claudeMessages,
     });
 
-    // Persist both the user message and the AI reply
-    await prisma.chatMessage.createMany({
-      data: [
-        { businessId: session.user.businessId, role: "user", content: data.message },
-        { businessId: session.user.businessId, role: "assistant", content: reply },
-      ],
+    const businessId = session.user.businessId;
+    const userMessage = data.message;
+
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        let fullText = "";
+        const encoder = new TextEncoder();
+        try {
+          for await (const event of anthropicStream) {
+            if (
+              event.type === "content_block_delta" &&
+              event.delta.type === "text_delta"
+            ) {
+              const chunk = event.delta.text;
+              fullText += chunk;
+              controller.enqueue(encoder.encode(chunk));
+            }
+          }
+        } catch (err) {
+          console.error("[chat] stream error:", err);
+          const fallback = lang === "ar"
+            ? "عذراً، حدث خطأ في الخادم. يرجى المحاولة مرة أخرى بعد قليل."
+            : "Sorry, a server error occurred. Please try again.";
+          if (!fullText) {
+            controller.enqueue(encoder.encode(fallback));
+            fullText = fallback;
+          }
+        } finally {
+          // Persist both messages after streaming completes
+          try {
+            await prisma.chatMessage.createMany({
+              data: [
+                { businessId, role: "user", content: userMessage },
+                { businessId, role: "assistant", content: fullText },
+              ],
+            });
+          } catch (dbErr) {
+            console.error("[chat] persistence error:", dbErr);
+          }
+          controller.close();
+        }
+      },
+      cancel() {
+        anthropicStream.abort();
+      },
     });
 
-    return NextResponse.json({ reply });
+    return new Response(readableStream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no",
+      },
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
+      return jsonError(error.errors[0].message, 400);
     }
     const msg = error instanceof Error ? error.message : String(error);
     const name = error instanceof Error ? error.constructor.name : "UnknownError";
@@ -62,15 +132,16 @@ export async function POST(req: NextRequest) {
     const isAuthError = msg.includes("401") || msg.includes("authentication") || msg.includes("API key") || msg.includes("x-api-key") || name === "AuthenticationError";
     const isBillingError = msg.includes("credit balance") || msg.includes("billing") || msg.includes("quota") || msg.includes("insufficient");
     const isDbError = name.includes("Prisma") || msg.includes("Prisma") || msg.startsWith("P2");
-    return NextResponse.json({
-      error: "server_error",
-      reply: isBillingError
+
+    return jsonError(
+      isBillingError
         ? "⚠️ رصيد Anthropic API منتهٍ — يرجى إضافة رصيد من لوحة تحكم Anthropic. (Insufficient API credits)"
         : isAuthError
           ? "⚠️ المساعد الذكي غير متاح حالياً — يرجى التواصل مع الدعم. (API key not configured)"
           : isDbError
             ? "⚠️ خطأ في قاعدة البيانات — يرجى التواصل مع الدعم. (DB error)"
             : "عذراً، حدث خطأ في الخادم. يرجى المحاولة مرة أخرى بعد قليل.",
-    }, { status: 500 });
+      500
+    );
   }
 }

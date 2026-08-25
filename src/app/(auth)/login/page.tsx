@@ -191,14 +191,22 @@ export default function LoginPage() {
             />
           </div>
         )}
-        <button
-          type="button"
-          onClick={() => { setPasswordless((v) => !v); setPassword(""); setError(""); }}
-          className="text-xs text-blue-600 hover:underline w-full text-start"
-        >
-          {passwordless
-            ? (lang === "ar" ? "← تسجيل الدخول بكلمة المرور" : "← Login with password instead")
-            : (lang === "ar" ? "تسجيل الدخول بدون كلمة مرور (رمز التحقق فقط)" : "Login without password (OTP only)")}
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => { setPasswordless((v) => !v); setPassword(""); setError(""); }}
+            className="text-xs text-blue-600 hover:underline text-start"
+          >
+            {passwordless
+              ? (lang === "ar" ? "← تسجيل الدخول بكلمة المرور" : "← Login with password instead")
+              : (lang === "ar" ? "تسجيل الدخول بدون كلمة مرور (رمز التحقق فقط)" : "Login without password (OTP only)")}
+          </button>
+          {!passwordless && (
+            <Link href="/forgot-password" className="text-xs text-gray-400 hover:text-blue-600">
+              {lang === "ar" ? "نسيت كلمة المرور؟" : "Forgot password?"}
+            </Link>
+          )}
+        </div>
         </button>
         {error && <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
         <button type="submit" className="btn-primary w-full" disabled={loading}>
