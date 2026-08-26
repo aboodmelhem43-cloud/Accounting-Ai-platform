@@ -61,6 +61,7 @@ export default function TeamPage() {
   const [cancelingId, setCancelingId] = useState<string | null>(null);
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [cancelBkId, setCancelBkId] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   const fetchTeam = useCallback(async () => {
     try {
@@ -123,19 +124,23 @@ export default function TeamPage() {
     }
   }
 
-  async function handleRemoveUser(userId: string) {
-    if (!confirm(isAr ? "هل تريد إزالة هذا المستخدم؟" : "Remove this user from your team?")) return;
-    setRemovingId(userId);
-    try {
-      const res = await fetch(`/api/team/users/${userId}`, { method: "DELETE" });
-      if (res.ok) await fetchTeam();
-      else {
-        const d = await res.json();
-        setMsg({ ok: false, text: d.error ?? "Error" });
-      }
-    } finally {
-      setRemovingId(null);
-    }
+  function handleRemoveUser(userId: string) {
+    setConfirmModal({
+      message: isAr ? "هل تريد إزالة هذا المستخدم؟" : "Remove this user from your team?",
+      onConfirm: async () => {
+        setRemovingId(userId);
+        try {
+          const res = await fetch(`/api/team/users/${userId}`, { method: "DELETE" });
+          if (res.ok) await fetchTeam();
+          else {
+            const d = await res.json();
+            setMsg({ ok: false, text: d.error ?? "Error" });
+          }
+        } finally {
+          setRemovingId(null);
+        }
+      },
+    });
   }
 
   async function handleCancelInvite(inviteId: string) {
@@ -148,15 +153,19 @@ export default function TeamPage() {
     }
   }
 
-  async function handleRevokeBookkeeper(accessId: string) {
-    if (!confirm(isAr ? "هل تريد إلغاء وصول هذا المحاسب؟" : "Revoke this bookkeeper's access?")) return;
-    setRevokingId(accessId);
-    try {
-      const res = await fetch(`/api/team/bookkeepers/${accessId}`, { method: "DELETE" });
-      if (res.ok) await fetchTeam();
-    } finally {
-      setRevokingId(null);
-    }
+  function handleRevokeBookkeeper(accessId: string) {
+    setConfirmModal({
+      message: isAr ? "هل تريد إلغاء وصول هذا المحاسب؟" : "Revoke this bookkeeper's access?",
+      onConfirm: async () => {
+        setRevokingId(accessId);
+        try {
+          const res = await fetch(`/api/team/bookkeepers/${accessId}`, { method: "DELETE" });
+          if (res.ok) await fetchTeam();
+        } finally {
+          setRevokingId(null);
+        }
+      },
+    });
   }
 
   async function handleCancelBkInvite(inviteId: string) {
@@ -454,6 +463,25 @@ export default function TeamPage() {
           </p>
         )}
       </div>
+
+      {confirmModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+            <p className="text-gray-800 text-sm">{confirmModal.message}</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setConfirmModal(null)} className="btn-secondary text-sm px-4">
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                onClick={() => { confirmModal.onConfirm(); setConfirmModal(null); }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+              >
+                {isAr ? "تأكيد" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -67,6 +67,7 @@ export default function DocumentsPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function loadDocuments() {
@@ -125,15 +126,19 @@ export default function DocumentsPage() {
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm(isAr ? "هل تريد حذف هذا المستند؟" : "Delete this document?")) return;
-    try {
-      const res = await fetch(`/api/documents/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
-      setDocuments((prev) => prev.filter((d) => d.id !== id));
-    } catch {
-      alert(isAr ? "فشل حذف المستند" : "Failed to delete document");
-    }
+  function handleDelete(id: string) {
+    setConfirmModal({
+      message: isAr ? "هل تريد حذف هذا المستند؟" : "Delete this document?",
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/documents/${id}`, { method: "DELETE" });
+          if (!res.ok) throw new Error();
+          setDocuments((prev) => prev.filter((d) => d.id !== id));
+        } catch {
+          alert(isAr ? "فشل حذف المستند" : "Failed to delete document");
+        }
+      },
+    });
   }
 
   return (
@@ -268,7 +273,7 @@ export default function DocumentsPage() {
         <h2 className="text-base font-semibold text-gray-800 mb-4">
           {isAr ? "المستندات المحفوظة" : "Saved Documents"}
           {documents.length > 0 && (
-            <span className="ml-2 text-xs font-normal text-gray-400">
+            <span className="ms-2 text-xs font-normal text-gray-400">
               ({documents.length})
             </span>
           )}
@@ -332,6 +337,25 @@ export default function DocumentsPage() {
           </div>
         )}
       </div>
+
+      {confirmModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+            <p className="text-gray-800 text-sm">{confirmModal.message}</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setConfirmModal(null)} className="btn-secondary text-sm px-4">
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                onClick={() => { confirmModal.onConfirm(); setConfirmModal(null); }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+              >
+                {isAr ? "تأكيد" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

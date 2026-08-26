@@ -41,6 +41,7 @@ export default function IntegrationsPage() {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   const [form, setForm] = useState({
     platform: "shopify",
@@ -137,18 +138,22 @@ export default function IntegrationsPage() {
     if (res.ok) fetchData();
   }
 
-  async function deleteIntegration(id: string) {
-    if (!confirm(ar ? "هل أنت متأكد من حذف هذا التكامل؟" : "Are you sure you want to delete this integration?")) return;
-    setDeletingId(id);
-    try {
-      const res = await fetch(`/api/integrations/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        showToast(ar ? "تم الحذف" : "Deleted", true);
-        fetchData();
-      }
-    } finally {
-      setDeletingId(null);
-    }
+  function deleteIntegration(id: string) {
+    setConfirmModal({
+      message: ar ? "هل أنت متأكد من حذف هذا التكامل؟" : "Are you sure you want to delete this integration?",
+      onConfirm: async () => {
+        setDeletingId(id);
+        try {
+          const res = await fetch(`/api/integrations/${id}`, { method: "DELETE" });
+          if (res.ok) {
+            showToast(ar ? "تم الحذف" : "Deleted", true);
+            fetchData();
+          }
+        } finally {
+          setDeletingId(null);
+        }
+      },
+    });
   }
 
   function webhookUrl(int: Integration) {
@@ -398,6 +403,25 @@ export default function IntegrationsPage() {
           : <>Copy the webhook URL for your integration and paste it into the platform settings (Shopify / Salla / Zid / Foodics). When a new order arrives, it will appear in &quot;Sales Sync&quot; for your review.</>
         }
       </div>
+
+      {confirmModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+            <p className="text-gray-800 text-sm">{confirmModal.message}</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setConfirmModal(null)} className="btn-secondary text-sm px-4">
+                {ar ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                onClick={() => { confirmModal.onConfirm(); setConfirmModal(null); }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+              >
+                {ar ? "تأكيد" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

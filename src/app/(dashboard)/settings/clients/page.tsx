@@ -36,6 +36,7 @@ export default function PracticeClientsPage() {
   const [createMsg, setCreateMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [switchingId, setSwitchingId] = useState<string | null>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   // New client form state
   const [newName, setNewName] = useState("");
@@ -98,18 +99,22 @@ export default function PracticeClientsPage() {
     setSwitchingId(null);
   }
 
-  async function handleRemove(clientId: string, clientName: string) {
-    if (!confirm(isAr ? `هل تريد إزالة ${clientName} من قائمة عملائك؟` : `Remove ${clientName} from your client list?`)) return;
-    setRemovingId(clientId);
-    try {
-      const res = await fetch(`/api/practice/clients/${clientId}`, { method: "DELETE" });
-      if (res.ok) {
-        await fetchClients();
-        await update({});
-      }
-    } finally {
-      setRemovingId(null);
-    }
+  function handleRemove(clientId: string, clientName: string) {
+    setConfirmModal({
+      message: isAr ? `هل تريد إزالة ${clientName} من قائمة عملائك؟` : `Remove ${clientName} from your client list?`,
+      onConfirm: async () => {
+        setRemovingId(clientId);
+        try {
+          const res = await fetch(`/api/practice/clients/${clientId}`, { method: "DELETE" });
+          if (res.ok) {
+            await fetchClients();
+            await update({});
+          }
+        } finally {
+          setRemovingId(null);
+        }
+      },
+    });
   }
 
   const isPracticeOwner = session?.user?.role === "OWNER";
@@ -322,6 +327,25 @@ export default function PracticeClientsPage() {
           <li>{isAr ? "• عملاؤك يمكنهم الوصول لحساباتهم بشكل مستقل إذا أردت" : "Clients can independently access their own account if needed"}</li>
         </ul>
       </div>
+
+      {confirmModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+            <p className="text-gray-800 text-sm">{confirmModal.message}</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setConfirmModal(null)} className="btn-secondary text-sm px-4">
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                onClick={() => { confirmModal.onConfirm(); setConfirmModal(null); }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+              >
+                {isAr ? "تأكيد" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
