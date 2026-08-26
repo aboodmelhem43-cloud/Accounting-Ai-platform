@@ -25,6 +25,7 @@ export default function ExpensesPage() {
   const [paymentAccounts, setPaymentAccounts] = useState<Account[]>([]);
   const [recent, setRecent] = useState<ExpenseEntry[]>([]);
   const [loadingAccounts, setLoadingAccounts] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Form state
   const [amount, setAmount] = useState("");
@@ -50,6 +51,7 @@ export default function ExpensesPage() {
           if (defaultPayment) setPaymentAccountId(defaultPayment.id);
         }
       })
+      .catch(() => setLoadError(isAr ? "فشل تحميل الحسابات" : "Failed to load accounts"))
       .finally(() => setLoadingAccounts(false));
 
     loadRecent();
@@ -109,7 +111,13 @@ export default function ExpensesPage() {
     n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-2xl" dir={isAr ? "rtl" : "ltr"}>
+      {loadError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
+          <span>{loadError}</span>
+          <button onClick={() => setLoadError(null)}>✕</button>
+        </div>
+      )}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "تسجيل مصروف سريع" : "Quick Expense Entry"}

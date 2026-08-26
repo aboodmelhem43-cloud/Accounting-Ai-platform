@@ -128,7 +128,7 @@ export default function ReviewInvoicePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">مراجعة الفاتورة</h1>
         <p className="text-gray-500 text-sm mt-1">
@@ -216,22 +216,22 @@ export default function ReviewInvoicePage() {
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-right pb-2 font-medium text-gray-500">الحساب</th>
-                    <th className="text-left pb-2 font-medium text-gray-500">مدين</th>
-                    <th className="text-left pb-2 font-medium text-gray-500">دائن</th>
+                    <th className="text-end pb-2 font-medium text-gray-500">الحساب</th>
+                    <th className="text-end pb-2 font-medium text-gray-500">مدين</th>
+                    <th className="text-end pb-2 font-medium text-gray-500">دائن</th>
                   </tr>
                 </thead>
                 <tbody>
                   {suggestion.lines.map((line, i) => (
                     <tr key={i} className="border-b border-gray-50">
                       <td className="py-1.5">
-                        <span className="text-gray-400 ml-1">{line.accountCode}</span>
+                        <span className="text-gray-400 ms-1">{line.accountCode}</span>
                         {line.accountName}
                       </td>
-                      <td className="py-1.5 text-left">
+                      <td className="py-1.5 text-end">
                         {line.debit > 0 ? line.debit.toLocaleString("ar") : "—"}
                       </td>
-                      <td className="py-1.5 text-left">
+                      <td className="py-1.5 text-end">
                         {line.credit > 0 ? line.credit.toLocaleString("ar") : "—"}
                       </td>
                     </tr>

@@ -131,22 +131,22 @@ export default function InvoiceBulkTable({ invoices, isAr }: Props) {
                   />
                 )}
               </th>
-              <th className="text-right px-4 py-3 font-medium text-gray-600">
+              <th className="text-end px-4 py-3 font-medium text-gray-600">
                 {isAr ? "رقم الفاتورة" : "Invoice #"}
               </th>
-              <th className="text-right px-4 py-3 font-medium text-gray-600">
+              <th className="text-end px-4 py-3 font-medium text-gray-600">
                 {isAr ? "الطرف" : "Party"}
               </th>
-              <th className="text-right px-4 py-3 font-medium text-gray-600">
+              <th className="text-end px-4 py-3 font-medium text-gray-600">
                 {isAr ? "النوع" : "Type"}
               </th>
-              <th className="text-right px-4 py-3 font-medium text-gray-600">
+              <th className="text-end px-4 py-3 font-medium text-gray-600">
                 {isAr ? "المبلغ" : "Amount"}
               </th>
-              <th className="text-right px-4 py-3 font-medium text-gray-600">
+              <th className="text-end px-4 py-3 font-medium text-gray-600">
                 {isAr ? "التاريخ" : "Date"}
               </th>
-              <th className="text-right px-4 py-3 font-medium text-gray-600">
+              <th className="text-end px-4 py-3 font-medium text-gray-600">
                 {isAr ? "الحالة" : "Status"}
               </th>
               <th className="px-4 py-3" />

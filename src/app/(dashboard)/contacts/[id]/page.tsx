@@ -98,7 +98,7 @@ export default function ContactDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20 text-gray-400">
-        <div className="animate-spin text-3xl mr-3">⚙️</div>
+        <div className="animate-spin text-3xl me-3">⚙️</div>
         <span>{isAr ? "جاري التحميل..." : "Loading..."}</span>
       </div>
     );
@@ -124,7 +124,7 @@ export default function ContactDetailPage() {
   );
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl" dir={isAr ? "rtl" : "ltr"}>
       {/* Back + header */}
       <div>
         <button

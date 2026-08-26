@@ -290,7 +290,7 @@ export default function CreateInvoicePage() {
               <p className="text-gray-500 font-medium mt-0.5">{compliance.invoiceTitleEn}</p>
               <p className="text-gray-400 text-sm mt-1">#{invoiceNumber}</p>
             </div>
-            <div className="text-right text-sm text-gray-600 space-y-1">
+            <div className="text-end text-sm text-gray-600 space-y-1">
               <p><span className="font-medium">{isAr ? "التاريخ:" : "Date:"}</span> {invoiceDate}</p>
               {dueDate && <p><span className="font-medium">{isAr ? "الاستحقاق:" : "Due:"}</span> {dueDate}</p>}
             </div>
@@ -330,16 +330,16 @@ export default function CreateInvoicePage() {
           <table className="w-full text-sm mb-6">
             <thead>
               <tr className="border-b-2 border-gray-800">
-                <th className="text-left py-2 font-semibold text-gray-700 w-5/12">
+                <th className="text-end py-2 font-semibold text-gray-700 w-5/12">
                   {isAr ? "الوصف / Description" : "Description"}
                 </th>
-                <th className="text-right py-2 font-semibold text-gray-700 w-2/12">
+                <th className="text-end py-2 font-semibold text-gray-700 w-2/12">
                   {isAr ? "الكمية" : "Qty"}
                 </th>
-                <th className="text-right py-2 font-semibold text-gray-700 w-2/12">
+                <th className="text-end py-2 font-semibold text-gray-700 w-2/12">
                   {isAr ? "سعر الوحدة" : "Unit Price"}
                 </th>
-                <th className="text-right py-2 font-semibold text-gray-700 w-3/12">
+                <th className="text-end py-2 font-semibold text-gray-700 w-3/12">
                   {isAr ? "الإجمالي" : "Total"}
                 </th>
               </tr>
@@ -348,11 +348,11 @@ export default function CreateInvoicePage() {
               {lineItems.map((item, i) => (
                 <tr key={i} className="border-b border-gray-100">
                   <td className="py-2 text-gray-800">{item.description || "—"}</td>
-                  <td className="py-2 text-right font-mono text-gray-600">{item.quantity}</td>
-                  <td className="py-2 text-right font-mono text-gray-600">
+                  <td className="py-2 text-end font-mono text-gray-600">{item.quantity}</td>
+                  <td className="py-2 text-end font-mono text-gray-600">
                     {fmt(item.unitPrice)} {currencyDisplay}
                   </td>
-                  <td className="py-2 text-right font-mono text-gray-800 font-medium">
+                  <td className="py-2 text-end font-mono text-gray-800 font-medium">
                     {fmt(item.quantity * item.unitPrice)} {currencyDisplay}
                   </td>
                 </tr>
@@ -415,7 +415,7 @@ export default function CreateInvoicePage() {
 
   // ── Form view ──
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl" dir={isAr ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "إنشاء فاتورة" : "Create Invoice"}

@@ -125,7 +125,7 @@ export default async function InvoiceViewPage({
               <p className="text-xs text-gray-400 mt-1">{d.eInvoiceSystem}</p>
             )}
           </div>
-          <div className="text-right">
+          <div className="text-end">
             <p className="text-sm text-gray-500">{isAr ? "رقم الفاتورة" : "Invoice #"}</p>
             <p className="text-lg font-mono font-semibold text-gray-800">
               {d?.invoiceNumber ?? "—"}
@@ -184,7 +184,7 @@ export default async function InvoiceViewPage({
         <table className="w-full text-sm mb-6">
           <thead>
             <tr className="border-b-2 border-gray-200">
-              <th className="text-right py-2 font-semibold text-gray-600">
+              <th className="text-end py-2 font-semibold text-gray-600">
                 {isAr ? "الوصف" : "Description"}
               </th>
               <th className="text-center py-2 font-semibold text-gray-600 w-20">

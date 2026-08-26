@@ -1,13 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// POST — called during registration when a ref code is provided.
+// POST — called after registration when a ref code is provided.
 // Extends trial by 30 days for both the new business and the referrer.
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { businessId, code } = await req.json() as { businessId: string; code: string };
 
   if (!businessId || !code) {
     return NextResponse.json({ error: "businessId and code are required" }, { status: 400 });
+  }
+
+  if (session.user.businessId !== businessId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const normalizedCode = code.toUpperCase();

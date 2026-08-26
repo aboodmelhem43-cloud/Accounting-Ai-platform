@@ -60,7 +60,7 @@ export default function UploadInvoicePage() {
   ];
 
   return (
-    <div className="max-w-xl mx-auto space-y-6">
+    <div className="max-w-xl mx-auto space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">{t("invoices.upload.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">
