@@ -108,7 +108,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-7rem)]">
+    <div className="flex flex-col h-[calc(100vh-7rem)]" dir={lang === "ar" ? "rtl" : "ltr"}>
       <div className="mb-4 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t("chat.title")}</h1>

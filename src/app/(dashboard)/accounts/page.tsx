@@ -104,6 +104,8 @@ export default function AccountsPage() {
       const res = await fetch("/api/accounts");
       const data = await res.json();
       setAccounts(Array.isArray(data) ? data : []);
+    } catch {
+      setAccounts([]);
     } finally {
       setLoading(false);
     }
@@ -173,13 +175,17 @@ export default function AccountsPage() {
 
   async function deleteAccount(id: string) {
     if (!confirm(isAr ? "هل تريد حذف هذا الحساب؟" : "Delete this account?")) return;
-    const res = await fetch(`/api/accounts/${id}`, { method: "DELETE" });
-    if (!res.ok) {
-      const d = await res.json() as { error?: string };
-      alert(d.error ?? (isAr ? "فشل الحذف" : "Delete failed"));
-      return;
+    try {
+      const res = await fetch(`/api/accounts/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const d = await res.json() as { error?: string };
+        alert(d.error ?? (isAr ? "فشل الحذف" : "Delete failed"));
+        return;
+      }
+      load();
+    } catch {
+      alert(isAr ? "خطأ في الاتصال" : "Connection error");
     }
-    load();
   }
 
   const grouped = TYPE_ORDER.reduce<Record<AccountType, Account[]>>(
@@ -191,7 +197,7 @@ export default function AccountsPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
@@ -355,7 +361,7 @@ export default function AccountsPage() {
                         <td className="px-4 py-2.5 text-gray-400 text-xs hidden sm:table-cell">
                           {isAr ? acc.name : (acc.nameAr ?? "")}
                         </td>
-                        <td className="px-4 py-2.5 w-20 text-right">
+                        <td className="px-4 py-2.5 w-20 text-end">
                           {acc.isSystem ? (
                             <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
                               {isAr ? "نظام" : "System"}

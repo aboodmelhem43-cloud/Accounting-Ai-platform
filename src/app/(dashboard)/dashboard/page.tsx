@@ -71,7 +71,7 @@ export default async function DashboardPage({
   const monthName = now.toLocaleDateString(locale, { month: "long", year: "numeric" });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
       <Suspense><UpgradedToast /></Suspense>
       <Suspense><UsageBanner /></Suspense>
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -113,7 +113,7 @@ export default async function DashboardPage({
               🤖 {lang === "ar" ? "اسأل المساعد الذكي" : "Ask AI Assistant"}
             </Link>
           </div>
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-right">
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-end">
             {[
               { step: "1", icon: "🧾", title: lang === "ar" ? "أضف فاتورتك الأولى" : "Add your first invoice", desc: lang === "ar" ? "أنشئ أو ارفع فاتورة مبيعات أو مشتريات" : "Create or upload a sales or purchase invoice" },
               { step: "2", icon: "📒", title: lang === "ar" ? "راجع القيود التلقائية" : "Review auto-posted entries", desc: lang === "ar" ? "يُنشئ النظام قيود مزدوجة القيد تلقائياً" : "The system creates double-entry journal entries automatically" },

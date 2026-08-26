@@ -69,6 +69,8 @@ export default function OpeningBalancesPage() {
         for (const a of accs) { init[a.id] = { accountId: a.id, debit: 0, credit: 0 }; }
         setLines(init);
       }
+    } catch {
+      setAccounts([]);
     } finally {
       setLoading(false);
     }
@@ -162,10 +164,14 @@ export default function OpeningBalancesPage() {
       setError(isAr ? `القيد غير متوازن — الفارق: ${fmt(imbalance)}` : `Entry not balanced — difference: ${fmt(imbalance)}`);
       return;
     }
+    const payload = Object.values(lines).filter((l) => l.debit > 0 || l.credit > 0);
+    if (payload.length === 0) {
+      setError(isAr ? "يرجى إدخال رصيد افتتاحي لحساب واحد على الأقل" : "Please enter an opening balance for at least one account");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
-      const payload = Object.values(lines).filter((l) => l.debit > 0 || l.credit > 0);
       const res = await fetch("/api/opening-balances", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -183,7 +189,7 @@ export default function OpeningBalancesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">{isAr ? "الأرصدة الافتتاحية" : "Opening Balances"}</h1>
         <p className="text-gray-500 text-sm mt-1">
@@ -268,7 +274,7 @@ export default function OpeningBalancesPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-100">
-                      <th className="text-right py-2 px-4 font-medium text-gray-500 text-xs">{isAr ? "الحساب" : "Account"}</th>
+                      <th className="text-end py-2 px-4 font-medium text-gray-500 text-xs">{isAr ? "الحساب" : "Account"}</th>
                       <th className="py-2 px-4 font-medium text-gray-500 text-xs w-36">{isAr ? "مدين" : "Debit"}</th>
                       <th className="py-2 px-4 font-medium text-gray-500 text-xs w-36">{isAr ? "دائن" : "Credit"}</th>
                     </tr>
@@ -279,7 +285,7 @@ export default function OpeningBalancesPage() {
                       return (
                         <tr key={acc.id} className="border-b border-gray-50 hover:bg-gray-50">
                           <td className="py-2 px-4">
-                            <span className="text-gray-400 text-xs mr-1">{acc.code}</span>
+                            <span className="text-gray-400 text-xs me-1">{acc.code}</span>
                             <span className="text-gray-700">{isAr ? (acc.nameAr ?? acc.name) : acc.name}</span>
                           </td>
                           <td className="py-1.5 px-4">
@@ -289,7 +295,7 @@ export default function OpeningBalancesPage() {
                               step="0.01"
                               value={line.debit || ""}
                               onChange={(e) => setDebit(acc.id, parseFloat(e.target.value) || 0)}
-                              className="input w-full text-xs text-right font-mono"
+                              className="input w-full text-xs text-end font-mono"
                               placeholder="0.00"
                             />
                           </td>
@@ -300,7 +306,7 @@ export default function OpeningBalancesPage() {
                               step="0.01"
                               value={line.credit || ""}
                               onChange={(e) => setCredit(acc.id, parseFloat(e.target.value) || 0)}
-                              className="input w-full text-xs text-right font-mono"
+                              className="input w-full text-xs text-end font-mono"
                               placeholder="0.00"
                             />
                           </td>
@@ -319,7 +325,7 @@ export default function OpeningBalancesPage() {
         <div className="flex justify-end">
           <button
             onClick={handleSubmit}
-            disabled={submitting || !isBalanced}
+            disabled={submitting || !isBalanced || (totalDebit === 0 && totalCredit === 0)}
             className="btn-primary"
           >
             {submitting ? (isAr ? "جاري الحفظ..." : "Saving...") : (isAr ? "حفظ الأرصدة الافتتاحية" : "Save Opening Balances")}

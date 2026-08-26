@@ -39,6 +39,7 @@ export default function EditJournalEntryPage() {
 
   useEffect(() => {
     async function load() {
+      try {
       const [accountsRes, entryRes] = await Promise.all([
         fetch("/api/accounts"),
         fetch(`/api/journal/${id}`),
@@ -86,9 +87,13 @@ export default function EditJournalEntryPage() {
         }))
       );
       setLoadingEntry(false);
+      } catch {
+        setError(lang === "ar" ? "فشل تحميل القيد" : "Failed to load entry");
+        setLoadingEntry(false);
+      }
     }
     load();
-  }, [id, router]);
+  }, [id, router, lang]);
 
   const groupedAccounts = accounts.reduce<Record<string, Account[]>>((acc, acct) => {
     if (!acc[acct.type]) acc[acct.type] = [];
@@ -180,7 +185,7 @@ export default function EditJournalEntryPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl" dir={lang === "ar" ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           {lang === "ar" ? "تعديل قيد اليومية" : "Edit Journal Entry"}
@@ -224,16 +229,16 @@ export default function EditJournalEntryPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="pb-2 text-right font-medium text-gray-600 text-xs w-5/12">
+                  <th className="pb-2 text-end font-medium text-gray-600 text-xs w-5/12">
                     {lang === "ar" ? "الحساب" : "Account"}
                   </th>
-                  <th className="pb-2 text-right font-medium text-gray-600 text-xs w-2/12">
+                  <th className="pb-2 text-end font-medium text-gray-600 text-xs w-2/12">
                     {lang === "ar" ? "مدين" : "Debit"}{currency ? ` (${currency})` : ""}
                   </th>
-                  <th className="pb-2 text-right font-medium text-gray-600 text-xs w-2/12">
+                  <th className="pb-2 text-end font-medium text-gray-600 text-xs w-2/12">
                     {lang === "ar" ? "دائن" : "Credit"}{currency ? ` (${currency})` : ""}
                   </th>
-                  <th className="pb-2 text-right font-medium text-gray-600 text-xs w-2/12">
+                  <th className="pb-2 text-end font-medium text-gray-600 text-xs w-2/12">
                     {lang === "ar" ? "بيان" : "Note"}
                   </th>
                   <th className="pb-2 w-1/12" />
@@ -314,27 +319,27 @@ export default function EditJournalEntryPage() {
 
           <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="flex justify-end gap-8 text-sm">
-              <div className="text-right">
+              <div className="text-end">
                 <div className="text-gray-500 text-xs">{lang === "ar" ? "مجموع المدين" : "Total Debit"}</div>
                 <div className="font-mono font-semibold text-gray-800">
                   {fmt(totalDebit)} <span className="text-xs text-gray-400">{currency}</span>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="text-end">
                 <div className="text-gray-500 text-xs">{lang === "ar" ? "مجموع الدائن" : "Total Credit"}</div>
                 <div className="font-mono font-semibold text-gray-800">
                   {fmt(totalCredit)} <span className="text-xs text-gray-400">{currency}</span>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="text-end">
                 <div className="text-gray-500 text-xs">{lang === "ar" ? "الفرق" : "Diff"}</div>
-                <div className={`font-mono font-semibold ${isBalanced ? "text-green-600" : "text-red-500"}`}>
-                  {fmt(diff)}{isBalanced && " ✓"}
+                <div className={`font-mono font-semibold ${isBalanced && totalDebit > 0 ? "text-green-600" : totalDebit > 0 ? "text-red-500" : "text-gray-400"}`}>
+                  {fmt(diff)}{isBalanced && totalDebit > 0 && " ✓"}
                 </div>
               </div>
             </div>
             {!isBalanced && totalDebit > 0 && (
-              <p className="text-xs text-red-500 mt-2 text-right">
+              <p className="text-xs text-red-500 mt-2 text-end">
                 {lang === "ar"
                   ? "القيد غير متوازن — مجموع المدين يجب أن يساوي مجموع الدائن"
                   : "Entry is unbalanced — total debit must equal total credit"}

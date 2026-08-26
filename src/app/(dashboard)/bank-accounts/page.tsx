@@ -105,15 +105,19 @@ export default function BankAccountsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm(isAr ? "هل تريد حذف هذا الحساب؟" : "Delete this bank account?")) return;
-    await fetch(`/api/bank-accounts/${id}`, { method: "DELETE" });
-    load();
+    try {
+      await fetch(`/api/bank-accounts/${id}`, { method: "DELETE" });
+      load();
+    } catch {
+      alert(isAr ? "خطأ في الاتصال" : "Connection error");
+    }
   }
 
   const fmt = (n: number, currency: string) =>
     n.toLocaleString(isAr ? "ar" : "en", { style: "currency", currency, minimumFractionDigits: 2 });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">

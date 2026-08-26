@@ -95,7 +95,7 @@ export default async function InvoicesPage({
   const hasFilters = !!(q || status || period);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t("invoices.title")}</h1>

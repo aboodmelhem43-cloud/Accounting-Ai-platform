@@ -167,7 +167,11 @@ export default function ContactsPage() {
 
   async function confirmDelete() {
     if (!deleteId) return;
-    await fetch(`/api/contacts/${deleteId}`, { method: "DELETE" });
+    try {
+      await fetch(`/api/contacts/${deleteId}`, { method: "DELETE" });
+    } catch {
+      // ignore network errors — proceed with local state cleanup
+    }
     setDeleteId(null);
     load();
   }
@@ -176,7 +180,7 @@ export default function ContactsPage() {
     `${n.toLocaleString(isAr ? "ar-EG" : "en-US", { minimumFractionDigits: 2 })} ${currency}`;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       {/* العنوان */}
       <div className="flex items-center justify-between">
         <div>
@@ -235,10 +239,10 @@ export default function ContactsPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "الاسم" : "Name"}</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "البريد" : "Email"}</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "الهاتف" : "Phone"}</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "الرقم الضريبي" : "Tax No."}</th>
+                <th className="text-end px-4 py-3 font-medium text-gray-600">{isAr ? "الاسم" : "Name"}</th>
+                <th className="text-end px-4 py-3 font-medium text-gray-600">{isAr ? "البريد" : "Email"}</th>
+                <th className="text-end px-4 py-3 font-medium text-gray-600">{isAr ? "الهاتف" : "Phone"}</th>
+                <th className="text-end px-4 py-3 font-medium text-gray-600">{isAr ? "الرقم الضريبي" : "Tax No."}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -348,7 +352,7 @@ export default function ContactsPage() {
                                 </span>
                               )}
                             </div>
-                            <div className="text-right">
+                            <div className="text-end">
                               <div className="font-medium text-gray-800">
                                 {fmt(inv.total, historyContact.summary.currency)}
                               </div>

@@ -78,6 +78,8 @@ export default function RecurringPage() {
       const [tData, aData] = await Promise.all([tRes.json(), aRes.json()]);
       setTemplates(tData.templates ?? []);
       setAccounts(Array.isArray(aData) ? aData : []);
+    } catch {
+      setTemplates([]);
     } finally {
       setLoading(false);
     }
@@ -169,6 +171,8 @@ export default function RecurringPage() {
         body: JSON.stringify({ isActive: !t.isActive }),
       });
       await load();
+    } catch {
+      setError(isAr ? "خطأ في الاتصال" : "Connection error");
     } finally {
       setTogglingId(null);
     }
@@ -180,6 +184,8 @@ export default function RecurringPage() {
     try {
       await fetch(`/api/recurring/${id}`, { method: "DELETE" });
       await load();
+    } catch {
+      setError(isAr ? "خطأ في الاتصال" : "Connection error");
     } finally {
       setDeletingId(null);
     }
@@ -190,7 +196,7 @@ export default function RecurringPage() {
   const isBalanced = Math.abs(totalDebit - totalCredit) < 0.001;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4">
@@ -262,7 +268,7 @@ export default function RecurringPage() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-xs font-medium text-gray-500">{isAr ? "سطور القيد" : "Journal lines"}</label>
-              <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${isBalanced ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+              <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${isBalanced && totalDebit > 0 ? "bg-green-100 text-green-700" : totalDebit > 0 ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-500"}`}>
                 {isAr ? `مدين: ${fmt(totalDebit)} | دائن: ${fmt(totalCredit)}` : `Dr: ${fmt(totalDebit)} | Cr: ${fmt(totalCredit)}`}
               </span>
             </div>
@@ -330,7 +336,7 @@ export default function RecurringPage() {
                     {t.endDate && ` · ${isAr ? "ينتهي:" : "Ends:"} ${new Date(t.endDate).toLocaleDateString(locale)}`}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                <div className="flex items-center gap-2 ms-4 flex-shrink-0">
                   <button
                     onClick={() => handleRun(t.id)}
                     disabled={!t.isActive || runningId === t.id}
@@ -359,9 +365,9 @@ export default function RecurringPage() {
                 <table className="text-xs w-full">
                   <thead>
                     <tr className="text-gray-400">
-                      <th className="text-right pb-1 font-medium">{isAr ? "الحساب" : "Account"}</th>
-                      <th className="text-right pb-1 font-medium">{isAr ? "مدين" : "Debit"}</th>
-                      <th className="text-right pb-1 font-medium">{isAr ? "دائن" : "Credit"}</th>
+                      <th className="text-end pb-1 font-medium">{isAr ? "الحساب" : "Account"}</th>
+                      <th className="text-end pb-1 font-medium">{isAr ? "مدين" : "Debit"}</th>
+                      <th className="text-end pb-1 font-medium">{isAr ? "دائن" : "Credit"}</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -72,7 +72,7 @@ export default function JournalPage() {
         setEntries(data.entries ?? []);
         setTotal(data.total ?? 0);
       } catch {
-        // keep existing on error
+        setActionError(lang === "ar" ? "فشل تحميل القيود" : "Failed to load entries");
       } finally {
         setLoading(false);
       }
@@ -164,7 +164,7 @@ export default function JournalPage() {
     new Date(d).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
       {/* Reject modal */}
       {rejectId && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -223,7 +223,7 @@ export default function JournalPage() {
       {actionError && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
           <span>{actionError}</span>
-          <button onClick={() => setActionError(null)} className="text-red-400 hover:text-red-600 ml-2">✕</button>
+          <button onClick={() => setActionError(null)} className="text-red-400 hover:text-red-600 ms-2">✕</button>
         </div>
       )}
 
@@ -418,22 +418,22 @@ export default function JournalPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="text-right pb-2 font-medium text-gray-500 text-xs">{t("journal.account")}</th>
-                <th className="text-left pb-2 font-medium text-gray-500 text-xs">{t("journal.debit")}</th>
-                <th className="text-left pb-2 font-medium text-gray-500 text-xs">{t("journal.credit")}</th>
+                <th className="text-end pb-2 font-medium text-gray-500 text-xs">{t("journal.account")}</th>
+                <th className="text-end pb-2 font-medium text-gray-500 text-xs">{t("journal.debit")}</th>
+                <th className="text-end pb-2 font-medium text-gray-500 text-xs">{t("journal.credit")}</th>
               </tr>
             </thead>
             <tbody>
               {entry.lines.map((line) => (
                 <tr key={line.id} className="border-b border-gray-50 last:border-0">
                   <td className="py-1.5">
-                    <span className="text-gray-400 text-xs ml-1">{line.account.code}</span>
+                    <span className="text-gray-400 text-xs ms-1">{line.account.code}</span>
                     {lang === "ar" ? (line.account.nameAr ?? line.account.name) : line.account.name}
                   </td>
-                  <td className="py-1.5 text-left font-mono text-xs">
+                  <td className="py-1.5 text-end font-mono text-xs">
                     {Number(line.debit) > 0 ? Number(line.debit).toLocaleString(locale) : ""}
                   </td>
-                  <td className="py-1.5 text-left font-mono text-xs">
+                  <td className="py-1.5 text-end font-mono text-xs">
                     {Number(line.credit) > 0 ? Number(line.credit).toLocaleString(locale) : ""}
                   </td>
                 </tr>

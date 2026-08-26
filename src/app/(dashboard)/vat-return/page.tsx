@@ -70,7 +70,7 @@ export default function VatReturnPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">{isAr ? "إقرار ضريبة القيمة المضافة" : "VAT Return"}</h1>
         <p className="text-gray-500 text-sm mt-1">
@@ -160,10 +160,10 @@ export default function VatReturnPage() {
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-right py-2 px-4 font-medium text-gray-500 text-xs">{isAr ? "التاريخ" : "Date"}</th>
-                      <th className="text-right py-2 px-4 font-medium text-gray-500 text-xs">{isAr ? "البيان" : "Description"}</th>
-                      <th className="text-right py-2 px-4 font-medium text-gray-500 text-xs">{isAr ? "ضريبة المخرجات" : "Output VAT"}</th>
-                      <th className="text-right py-2 px-4 font-medium text-gray-500 text-xs">{isAr ? "ضريبة المدخلات" : "Input VAT"}</th>
+                      <th className="text-end py-2 px-4 font-medium text-gray-500 text-xs">{isAr ? "التاريخ" : "Date"}</th>
+                      <th className="text-end py-2 px-4 font-medium text-gray-500 text-xs">{isAr ? "البيان" : "Description"}</th>
+                      <th className="text-end py-2 px-4 font-medium text-gray-500 text-xs">{isAr ? "ضريبة المخرجات" : "Output VAT"}</th>
+                      <th className="text-end py-2 px-4 font-medium text-gray-500 text-xs">{isAr ? "ضريبة المدخلات" : "Input VAT"}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -180,10 +180,10 @@ export default function VatReturnPage() {
                               : (isAr ? "✏️ يدوي" : "✏️ Manual")}
                           </div>
                         </td>
-                        <td className="py-2 px-4 text-right font-mono text-xs text-blue-700">
+                        <td className="py-2 px-4 text-end font-mono text-xs text-blue-700">
                           {line.outputVat > 0 ? fmt(line.outputVat) : "—"}
                         </td>
-                        <td className="py-2 px-4 text-right font-mono text-xs text-green-700">
+                        <td className="py-2 px-4 text-end font-mono text-xs text-green-700">
                           {line.inputVat > 0 ? fmt(line.inputVat) : "—"}
                         </td>
                       </tr>
@@ -191,11 +191,11 @@ export default function VatReturnPage() {
                   </tbody>
                   <tfoot className="bg-gray-50 font-semibold border-t-2 border-gray-200">
                     <tr>
-                      <td colSpan={2} className="py-2 px-4 text-right text-xs text-gray-600">
+                      <td colSpan={2} className="py-2 px-4 text-end text-xs text-gray-600">
                         {isAr ? "الإجمالي" : "Total"}
                       </td>
-                      <td className="py-2 px-4 text-right font-mono text-xs text-blue-700">{fmt(data.outputVat)}</td>
-                      <td className="py-2 px-4 text-right font-mono text-xs text-green-700">{fmt(data.inputVat)}</td>
+                      <td className="py-2 px-4 text-end font-mono text-xs text-blue-700">{fmt(data.outputVat)}</td>
+                      <td className="py-2 px-4 text-end font-mono text-xs text-green-700">{fmt(data.inputVat)}</td>
                     </tr>
                   </tfoot>
                 </table>

@@ -35,6 +35,8 @@ export default function PeriodsPage() {
       const data = await res.json();
       setPeriods(data.periods ?? []);
       setCountMap(data.countMap ?? {});
+    } catch {
+      setPeriods([]);
     } finally {
       setLoading(false);
     }
@@ -71,7 +73,7 @@ export default function PeriodsPage() {
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       {confirmAction && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4">
