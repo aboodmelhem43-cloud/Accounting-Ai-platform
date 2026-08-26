@@ -68,6 +68,8 @@ model ChatMessage {
   createdAt  DateTime @default(now())
 
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, createdAt(sort: Desc)])
 }
 
 // المستخدم — مرتبط بمنشأة واحدة
@@ -154,6 +156,9 @@ model JournalEntry {
   lines      JournalLine[]
   invoice    Invoice?
   salesEvent SalesEvent?
+
+  @@index([businessId, date(sort: Desc)])
+  @@index([businessId, status])
 }
 
 enum JournalSourceType {
@@ -176,6 +181,9 @@ model JournalLine {
 
   journalEntry JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
   account      Account      @relation(fields: [accountId], references: [id])
+
+  @@index([journalEntryId])
+  @@index([accountId])
 }
 
 // الفواتير المرفوعة
@@ -202,6 +210,9 @@ model Invoice {
   journalEntry JournalEntry?    @relation(fields: [journalEntryId], references: [id])
   contact      Contact?         @relation(fields: [contactId], references: [id])
   payments     InvoicePayment[]
+
+  @@index([businessId, status])
+  @@index([businessId, createdAt(sort: Desc)])
 }
 
 // دفعات الفاتورة — لتتبع الدفعات الجزئية
@@ -243,6 +254,9 @@ model Contact {
 
   business    Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
   invoices    Invoice[]
+
+  @@index([businessId, type])
+  @@index([businessId, createdAt(sort: Desc)])
 }
 
 enum ContactType {
@@ -291,6 +305,8 @@ model BankTransaction {
   journalEntryId  String?  // القيد المرتبط بعد المطابقة
 
   statement BankStatement @relation(fields: [statementId], references: [id], onDelete: Cascade)
+
+  @@index([statementId])
 }
 
 enum JournalEntryStatus {

@@ -144,9 +144,9 @@ export default function CurrencyPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200 sticky top-0">
                 <tr>
-                  <th className="text-right px-4 py-2 font-medium text-gray-600">{isAr ? "العملة" : "Currency"}</th>
-                  <th className="text-right px-4 py-2 font-medium text-gray-600">{isAr ? "السعر" : "Rate"}</th>
-                  <th className="text-right px-4 py-2 font-medium text-gray-600">
+                  <th className="text-end px-4 py-2 font-medium text-gray-600">{isAr ? "العملة" : "Currency"}</th>
+                  <th className="text-end px-4 py-2 font-medium text-gray-600">{isAr ? "السعر" : "Rate"}</th>
+                  <th className="text-end px-4 py-2 font-medium text-gray-600">
                     {isAr ? `${parsedAmount} ${fromCurrency} =` : `${parsedAmount} ${fromCurrency} =`}
                   </th>
                 </tr>

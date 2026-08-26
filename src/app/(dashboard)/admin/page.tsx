@@ -625,7 +625,7 @@ export default function AdminPage() {
       <div className="rounded-2xl border border-gray-200 overflow-hidden">
         <button
           onClick={() => setToolsOpen((o) => !o)}
-          className="w-full flex items-center justify-between px-5 py-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-4 bg-gray-50 hover:bg-gray-100 transition-colors text-start"
         >
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-gray-700">Tools & Diagnostics</span>

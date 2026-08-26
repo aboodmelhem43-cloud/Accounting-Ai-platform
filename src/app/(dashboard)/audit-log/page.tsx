@@ -119,11 +119,11 @@ export default function AuditLogPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
-                  <th className="text-right py-2.5 px-4 font-medium text-gray-500 text-xs">{isAr ? "التاريخ" : "Date"}</th>
-                  <th className="text-right py-2.5 px-4 font-medium text-gray-500 text-xs">{isAr ? "الإجراء" : "Action"}</th>
-                  <th className="text-right py-2.5 px-4 font-medium text-gray-500 text-xs">{isAr ? "الكيان" : "Entity"}</th>
-                  <th className="text-right py-2.5 px-4 font-medium text-gray-500 text-xs">{isAr ? "المستخدم" : "User"}</th>
-                  <th className="text-right py-2.5 px-4 font-medium text-gray-500 text-xs">{isAr ? "البيان" : "Description"}</th>
+                  <th className="text-end py-2.5 px-4 font-medium text-gray-500 text-xs">{isAr ? "التاريخ" : "Date"}</th>
+                  <th className="text-end py-2.5 px-4 font-medium text-gray-500 text-xs">{isAr ? "الإجراء" : "Action"}</th>
+                  <th className="text-end py-2.5 px-4 font-medium text-gray-500 text-xs">{isAr ? "الكيان" : "Entity"}</th>
+                  <th className="text-end py-2.5 px-4 font-medium text-gray-500 text-xs">{isAr ? "المستخدم" : "User"}</th>
+                  <th className="text-end py-2.5 px-4 font-medium text-gray-500 text-xs">{isAr ? "البيان" : "Description"}</th>
                   <th className="py-2.5 px-4 w-8"></th>
                 </tr>
               </thead>

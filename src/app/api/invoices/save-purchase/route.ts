@@ -85,14 +85,19 @@ export async function POST(req: NextRequest) {
 
       const journalLines: { accountId: string; debit: number; credit: number; description: string }[] = [];
 
-      // Debit: selected expense account
+      // Debit: selected expense account (verify it belongs to this business)
       if (data.expenseAccountId) {
-        journalLines.push({
-          accountId: data.expenseAccountId,
-          debit: data.subtotal,
-          credit: 0,
-          description: `${isArabic(data.supplierName) ? "مشتريات" : "Purchase"} — ${data.supplierName}`,
+        const expenseAccount = await prisma.account.findFirst({
+          where: { id: data.expenseAccountId, businessId },
         });
+        if (expenseAccount) {
+          journalLines.push({
+            accountId: expenseAccount.id,
+            debit: data.subtotal,
+            credit: 0,
+            description: `${isArabic(data.supplierName) ? "مشتريات" : "Purchase"} — ${data.supplierName}`,
+          });
+        }
       }
 
       // Debit: VAT input if applicable

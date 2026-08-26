@@ -71,6 +71,12 @@ export async function POST(
     return NextResponse.json({ entryId: entry.id, nextRunDate: nextRun });
   } catch (err) {
     const message = err instanceof Error ? err.message : "خطأ في الخادم";
+    try {
+      const nextRun = advanceDate(template.nextRunDate, template.frequency, template.dayOfMonth);
+      await prisma.recurringTemplate.update({ where: { id }, data: { nextRunDate: nextRun } });
+    } catch {
+      // best-effort advance to prevent stuck template
+    }
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

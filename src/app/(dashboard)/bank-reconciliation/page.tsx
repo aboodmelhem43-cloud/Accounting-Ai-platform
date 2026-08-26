@@ -256,11 +256,11 @@ export default function BankReconciliationPage() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "التاريخ" : "Date"}</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "البيان" : "Description"}</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "المبلغ" : "Amount"}</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "النوع" : "Type"}</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">{isAr ? "الرصيد" : "Balance"}</th>
+                    <th className="text-end px-4 py-3 font-medium text-gray-600">{isAr ? "التاريخ" : "Date"}</th>
+                    <th className="text-end px-4 py-3 font-medium text-gray-600">{isAr ? "البيان" : "Description"}</th>
+                    <th className="text-end px-4 py-3 font-medium text-gray-600">{isAr ? "المبلغ" : "Amount"}</th>
+                    <th className="text-end px-4 py-3 font-medium text-gray-600">{isAr ? "النوع" : "Type"}</th>
+                    <th className="text-end px-4 py-3 font-medium text-gray-600">{isAr ? "الرصيد" : "Balance"}</th>
                     <th className="px-4 py-3 font-medium text-gray-600">{isAr ? "الحالة" : "Status"}</th>
                   </tr>
                 </thead>

@@ -35,6 +35,7 @@ export default function BankAccountsPage() {
   const [form, setForm] = useState(emptyForm());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -103,14 +104,18 @@ export default function BankAccountsPage() {
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm(isAr ? "هل تريد حذف هذا الحساب؟" : "Delete this bank account?")) return;
-    try {
-      await fetch(`/api/bank-accounts/${id}`, { method: "DELETE" });
-      load();
-    } catch {
-      alert(isAr ? "خطأ في الاتصال" : "Connection error");
-    }
+  function handleDelete(id: string) {
+    setConfirmModal({
+      message: isAr ? "هل تريد حذف هذا الحساب؟" : "Delete this bank account?",
+      onConfirm: async () => {
+        try {
+          await fetch(`/api/bank-accounts/${id}`, { method: "DELETE" });
+          load();
+        } catch {
+          alert(isAr ? "خطأ في الاتصال" : "Connection error");
+        }
+      },
+    });
   }
 
   const fmt = (n: number, currency: string) =>
@@ -200,6 +205,25 @@ export default function BankAccountsPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {confirmModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+            <p className="text-gray-800 text-sm">{confirmModal.message}</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setConfirmModal(null)} className="btn-secondary text-sm px-4">
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                onClick={() => { confirmModal.onConfirm(); setConfirmModal(null); }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+              >
+                {isAr ? "تأكيد" : "Confirm"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

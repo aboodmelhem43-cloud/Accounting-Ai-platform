@@ -380,9 +380,9 @@ export default function FixedAssetsPage() {
                       <table className="w-full text-xs">
                         <thead>
                           <tr className="border-b border-gray-100">
-                            <th className="text-right pb-1 font-medium text-gray-500">{isAr ? "الفترة" : "Period"}</th>
-                            <th className="text-right pb-1 font-medium text-gray-500">{isAr ? "المبلغ" : "Amount"}</th>
-                            <th className="text-right pb-1 font-medium text-gray-500">{isAr ? "القيد" : "Entry"}</th>
+                            <th className="text-end pb-1 font-medium text-gray-500">{isAr ? "الفترة" : "Period"}</th>
+                            <th className="text-end pb-1 font-medium text-gray-500">{isAr ? "المبلغ" : "Amount"}</th>
+                            <th className="text-end pb-1 font-medium text-gray-500">{isAr ? "القيد" : "Entry"}</th>
                           </tr>
                         </thead>
                         <tbody>

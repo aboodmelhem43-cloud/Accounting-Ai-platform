@@ -4,6 +4,24 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+const CORE_ACCOUNTS = [
+  { code: "1100", name: "Cash & Banks",              nameAr: "النقدية والبنوك",                    type: "ASSET",     isSystem: true },
+  { code: "1200", name: "Accounts Receivable",        nameAr: "المدينون والعملاء",                  type: "ASSET",     isSystem: true },
+  { code: "1500", name: "Fixed Assets",               nameAr: "الأصول الثابتة",                     type: "ASSET",     isSystem: true },
+  { code: "1600", name: "Accumulated Depreciation",   nameAr: "مجمع الاهتلاك",                       type: "ASSET",     isSystem: true },
+  { code: "2100", name: "Accounts Payable",           nameAr: "الدائنون والموردون",                  type: "LIABILITY", isSystem: true },
+  { code: "2200", name: "VAT Payable",                nameAr: "ضريبة القيمة المضافة المستحقة",      type: "LIABILITY", isSystem: true },
+  { code: "3100", name: "Owner Equity",               nameAr: "حقوق الملكية",                        type: "EQUITY",    isSystem: true },
+  { code: "3120", name: "Retained Earnings",          nameAr: "الأرباح المبقّاة",                    type: "EQUITY",    isSystem: true },
+  { code: "4100", name: "Sales Revenue",              nameAr: "إيرادات المبيعات",                    type: "REVENUE",   isSystem: true },
+  { code: "4200", name: "Service Revenue",            nameAr: "إيرادات الخدمات",                     type: "REVENUE",   isSystem: true },
+  { code: "5100", name: "Cost of Goods Sold",         nameAr: "تكلفة البضاعة المباعة",              type: "EXPENSE",   isSystem: true },
+  { code: "5200", name: "Operating Expenses",         nameAr: "المصروفات التشغيلية",                 type: "EXPENSE",   isSystem: true },
+  { code: "5400", name: "Salaries & Wages",           nameAr: "الرواتب والأجور",                     type: "EXPENSE",   isSystem: true },
+  { code: "5500", name: "Rent",                       nameAr: "الإيجار",                              type: "EXPENSE",   isSystem: true },
+  { code: "5600", name: "Depreciation",               nameAr: "اهتلاك الأصول",                       type: "EXPENSE",   isSystem: true },
+] as const;
+
 // GET — list all client businesses managed by this practice
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -60,6 +78,12 @@ export async function POST(req: NextRequest) {
     select: {
       id: true, name: true, country: true, baseCurrency: true, plan: true, createdAt: true,
     },
+  });
+
+  // Seed core chart of accounts for the new client business
+  await prisma.account.createMany({
+    data: CORE_ACCOUNTS.map((a) => ({ ...a, businessId: client.id })),
+    skipDuplicates: true,
   });
 
   return NextResponse.json({ client }, { status: 201 });

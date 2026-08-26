@@ -97,6 +97,7 @@ export default function AccountsPage() {
   const [customNameEn, setCustomNameEn] = useState("");
   const [customType, setCustomType] = useState<AccountType>("ASSET");
   const [savingCustom, setSavingCustom] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -173,19 +174,23 @@ export default function AccountsPage() {
     }
   }
 
-  async function deleteAccount(id: string) {
-    if (!confirm(isAr ? "هل تريد حذف هذا الحساب؟" : "Delete this account?")) return;
-    try {
-      const res = await fetch(`/api/accounts/${id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const d = await res.json() as { error?: string };
-        alert(d.error ?? (isAr ? "فشل الحذف" : "Delete failed"));
-        return;
-      }
-      load();
-    } catch {
-      alert(isAr ? "خطأ في الاتصال" : "Connection error");
-    }
+  function deleteAccount(id: string) {
+    setConfirmModal({
+      message: isAr ? "هل تريد حذف هذا الحساب؟" : "Delete this account?",
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/accounts/${id}`, { method: "DELETE" });
+          if (!res.ok) {
+            const d = await res.json() as { error?: string };
+            alert(d.error ?? (isAr ? "فشل الحذف" : "Delete failed"));
+            return;
+          }
+          load();
+        } catch {
+          alert(isAr ? "خطأ في الاتصال" : "Connection error");
+        }
+      },
+    });
   }
 
   const grouped = TYPE_ORDER.reduce<Record<AccountType, Account[]>>(
@@ -382,6 +387,24 @@ export default function AccountsPage() {
               </div>
             );
           })}
+        </div>
+      )}
+      {confirmModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+            <p className="text-gray-800 text-sm">{confirmModal.message}</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setConfirmModal(null)} className="btn-secondary text-sm px-4">
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                onClick={() => { confirmModal.onConfirm(); setConfirmModal(null); }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+              >
+                {isAr ? "تأكيد" : "Confirm"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
