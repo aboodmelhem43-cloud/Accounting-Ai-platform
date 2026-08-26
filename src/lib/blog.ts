@@ -468,7 +468,250 @@ export const BLOG_POSTS: BlogPost[] = [
 <p>Reading financial reports is a skill any business owner can develop. Start with the income statement to understand your profitability, then look at the balance sheet to grasp your overall financial position. With <strong>MohasabAi</strong>, these reports are always available and updated in real time — no waiting until month end, no need to request a report from your accountant every time.</p>`,
     },
   },
-  // ─── NEW ARTICLES ───
+  // ─── ENGLISH-SLUG ARTICLES (target English search keywords) ───
+  {
+    slug: "ai-accounting-software-middle-east",
+    date: "2026-07-01",
+    readMinutes: 7,
+    category: { ar: "ذكاء اصطناعي", en: "AI & Technology" },
+    title: {
+      ar: "أفضل برنامج محاسبة بالذكاء الاصطناعي للشرق الأوسط",
+      en: "Best AI Accounting Software for Middle East Businesses in 2026",
+    },
+    excerpt: {
+      ar: "كيف تستخدم الشركات في السعودية ومصر والإمارات الذكاء الاصطناعي لأتمتة المحاسبة وتوفير الوقت وتقليل الأخطاء.",
+      en: "How businesses across Saudi Arabia, Egypt, and UAE are using AI accounting software to automate bookkeeping, save time, and reduce costly errors.",
+    },
+    content: {
+      ar: `<h2>الذكاء الاصطناعي في المحاسبة — ليس مستقبلاً بل حاضراً</h2>
+<p>باتت برامج المحاسبة بالذكاء الاصطناعي توفر على الشركات الصغيرة والمتوسطة في منطقة الشرق الأوسط ساعات عمل أسبوعية كانت تُهدر في الإدخال اليدوي. تقرأ الفواتير تلقائياً، تقترح القيود المحاسبية، وتُعدّ التقارير المالية في ثوانٍ.</p>
+<h2>ما الذي يفعله الذكاء الاصطناعي في المحاسبة؟</h2>
+<ul>
+<li><strong>قراءة الفواتير:</strong> تحميل صورة أو PDF وتستخرج البيانات تلقائياً</li>
+<li><strong>تصنيف المعاملات:</strong> يُعرف نمط إنفاقك ويصنفه بدقة</li>
+<li><strong>اقتراح القيود:</strong> يقترح القيد المحاسبي الصحيح — أنت تؤكد فقط</li>
+<li><strong>الإجابة على الأسئلة المالية:</strong> اسأله "ما هو صافي ربحي هذا الشهر؟" واحصل على الجواب فوراً</li>
+</ul>
+<h2>لماذا محاسب اي؟</h2>
+<p>مبني من الأساس للسوق العربي مع دعم ZATCA وETA وJoFotara. جرّب 35 يوماً مجاناً.</p>`,
+      en: `<h2>AI Accounting Is No Longer the Future — It's Now</h2>
+<p>Businesses across Saudi Arabia, Egypt, UAE, and Jordan are saving 5–10 hours per week by switching to AI-powered accounting software. Instead of typing invoice data manually, uploading a photo is enough. Instead of asking your accountant for a profit figure, you ask the chatbot. The technology has matured — and the results are measurable.</p>
+
+<h2>What Does AI Actually Do in Accounting Software?</h2>
+<ul>
+  <li><strong>Invoice reading (OCR + AI):</strong> Upload a photo or PDF of any invoice — the software extracts supplier name, date, line items, VAT, and total automatically.</li>
+  <li><strong>Transaction classification:</strong> The AI learns your spending patterns and classifies new transactions against your chart of accounts with high accuracy.</li>
+  <li><strong>Journal entry suggestions:</strong> Instead of deciding which accounts to debit and credit, the AI proposes the entry — you review and confirm.</li>
+  <li><strong>Financial Q&A:</strong> Ask "what is my gross margin this quarter?" or "show me overdue invoices over SAR 10,000" in plain language and get an immediate answer.</li>
+  <li><strong>Anomaly detection:</strong> Flags unusual transactions, duplicate invoices, and amounts that break your historical patterns before they become a problem.</li>
+</ul>
+
+<h2>Why Middle East Businesses Need AI Accounting — Not Generic Software</h2>
+<p>Most AI accounting tools on the market are built for the US or Europe. They don't handle Arabic right-to-left text, they lack ZATCA e-invoice integration for Saudi Arabia, and they have no support for Egypt's ETA system or Jordan's JoFotara. An AI accounting tool built for the MENA market handles all of this natively.</p>
+
+<h2>Key Features to Look for in AI Accounting Software</h2>
+<table>
+<thead><tr><th>Feature</th><th>Why It Matters</th></tr></thead>
+<tbody>
+<tr><td>Native Arabic UI</td><td>Accounting terms must be accurate in Arabic — partial translations cause confusion</td></tr>
+<tr><td>Local tax compliance</td><td>ZATCA / ETA / JoFotara built-in, not an add-on</td></tr>
+<tr><td>AI invoice scanning</td><td>Eliminates manual data entry — the #1 time sink for small teams</td></tr>
+<tr><td>Double-entry ledger engine</td><td>Ensures financial reports are always accurate and balanced</td></tr>
+<tr><td>Real-time financial statements</td><td>Income statement and balance sheet updated with every transaction</td></tr>
+<tr><td>Cloud-based access</td><td>Work from any device — no software installation</td></tr>
+</tbody>
+</table>
+
+<h2>How MohasabAI Uses AI Across the Platform</h2>
+<p><strong>MohasabAI</strong> integrates Claude AI (Anthropic) throughout the accounting workflow:</p>
+<ul>
+  <li>The invoice scanner reads Arabic and English invoices with high accuracy, handling handwritten amounts in many cases.</li>
+  <li>The AI assistant answers financial questions in both Arabic and English, pulling live data from your ledger.</li>
+  <li>Journal entry suggestions appear automatically when you upload a document, with a review screen before anything is posted — the AI assists, you decide.</li>
+  <li>Recurring entries are detected and automated after the first manual entry.</li>
+</ul>
+
+<h2>ROI of AI Accounting Software: A Real Example</h2>
+<p>A small trading company in Riyadh with 200 invoices per month spent roughly 20 hours on manual data entry. With AI invoice scanning, this dropped to under 3 hours — a 85% reduction. At SAR 50/hour for a bookkeeper, that's SAR 850 saved monthly — more than the software subscription cost.</p>
+
+<h2>Getting Started</h2>
+<p>If you're evaluating AI accounting software for your Middle East business, start with a free trial. MohasabAI offers 35 days free — no credit card required — with full access to AI invoice scanning, the financial assistant, and all reports. <a href="/register">Start your free trial today</a>.</p>`,
+    },
+  },
+  {
+    slug: "cloud-accounting-software-saudi-arabia",
+    date: "2026-07-10",
+    readMinutes: 6,
+    category: { ar: "محاسبة سحابية", en: "Cloud Accounting" },
+    title: {
+      ar: "أفضل برامج المحاسبة السحابية للشركات في السعودية 2026",
+      en: "Best Cloud Accounting Software for Saudi Arabia Businesses in 2026",
+    },
+    excerpt: {
+      ar: "مقارنة بين أفضل برامج المحاسبة السحابية المتاحة للشركات في المملكة العربية السعودية مع التركيز على دعم فاتورة ZATCA.",
+      en: "A practical comparison of cloud accounting software options available to Saudi businesses — with real focus on ZATCA compliance, Arabic support, and local pricing.",
+    },
+    content: {
+      ar: `<h2>لماذا المحاسبة السحابية ضرورة في السعودية 2026؟</h2>
+<p>مع تطبيق المرحلة الثانية من نظام ZATCA التي تشترط الربط الإلكتروني المباشر مع منصة فاتورة، أصبح برنامج المحاسبة السحابي ضرورة تشغيلية لا خياراً. البرامج المحلية غير المتصلة لا تلبي هذه المتطلبات.</p>
+<h2>المعايير الأساسية</h2>
+<ul>
+<li>دعم ZATCA المرحلة الأولى والثانية</li>
+<li>واجهة عربية حقيقية</li>
+<li>تسعير بالريال السعودي أو الدولار بسعر معقول</li>
+<li>دعم فني باللغة العربية</li>
+</ul>
+<h2>محاسب اي للسوق السعودي</h2>
+<p>مُصمَّم من الأساس لمتطلبات السوق السعودي. <a href="/sa">تعرف على خصائص نسخة السعودية</a> أو <a href="/register">ابدأ تجربتك المجانية</a>.</p>`,
+      en: `<h2>Why Cloud Accounting Is Now a Requirement in Saudi Arabia</h2>
+<p>With ZATCA's Phase 2 e-invoicing rollout mandating real-time electronic integration between business systems and the Fatoora platform, cloud accounting software has moved from a convenience to an operational necessity. A desktop system or a spreadsheet simply cannot fulfill these requirements.</p>
+
+<h2>What to Look for in Cloud Accounting Software for Saudi Arabia</h2>
+<ul>
+  <li><strong>ZATCA Phase 1 & 2 compliance:</strong> The software must generate properly signed XML invoices and submit them to ZATCA's Fatoora platform automatically.</li>
+  <li><strong>Native Arabic interface:</strong> Not a translated English UI — a purpose-built Arabic interface with correct accounting terminology.</li>
+  <li><strong>VAT calculation at 15%:</strong> Automatic VAT calculation on every invoice and a VAT return summary.</li>
+  <li><strong>Arabic customer support:</strong> When something goes wrong with a tax filing, you need support in your language — fast.</li>
+  <li><strong>Saudi Riyal pricing:</strong> Avoid software priced only in USD, which creates unnecessary currency exposure.</li>
+</ul>
+
+<h2>Top Options Compared</h2>
+<table>
+<thead><tr><th>Software</th><th>ZATCA Support</th><th>Arabic UI</th><th>AI Features</th><th>Trial</th></tr></thead>
+<tbody>
+<tr><td><strong>MohasabAI</strong></td><td>✅ Full Phase 1 & 2</td><td>✅ Native</td><td>✅ Invoice scanning + chat</td><td>35 days free</td></tr>
+<tr><td>QuickBooks</td><td>❌</td><td>❌ Translated</td><td>Limited</td><td>30 days</td></tr>
+<tr><td>Zoho Books</td><td>Partial</td><td>Partial</td><td>Limited</td><td>14 days</td></tr>
+<tr><td>Odoo</td><td>Via module</td><td>✅</td><td>Limited</td><td>Free tier</td></tr>
+</tbody>
+</table>
+
+<h2>Why Saudi Small Businesses Prefer MohasabAI</h2>
+<p>MohasabAI was built from the ground up for the Arab market — Saudi Arabia, Egypt, UAE, and Jordan — not adapted from a foreign product. This means ZATCA compliance is native (not a plugin), Arabic is the primary language (not an afterthought), and support is provided in Arabic during Gulf business hours.</p>
+<p>The AI invoice scanner reads Arabic supplier invoices with high accuracy, automatically extracting VAT amounts, supplier tax numbers, and line items — eliminating the most time-consuming part of bookkeeping for most Saudi SMEs.</p>
+
+<h2>Free Trial — No Credit Card Required</h2>
+<p>MohasabAI offers a 35-day free trial with full access to all features including ZATCA invoicing, the AI assistant, financial reports, and bank reconciliation. <a href="/register">Start your Saudi Arabia free trial today</a> or <a href="/sa">learn more about MohasabAI for Saudi Arabia</a>.</p>`,
+    },
+  },
+  {
+    slug: "accounting-software-for-startups-mena",
+    date: "2026-07-20",
+    readMinutes: 6,
+    category: { ar: "ريادة الأعمال", en: "Entrepreneurship" },
+    title: {
+      ar: "برنامج المحاسبة الأنسب للشركات الناشئة في الشرق الأوسط",
+      en: "Best Accounting Software for MENA Startups in 2026",
+    },
+    excerpt: {
+      ar: "ما الذي تحتاجه الشركات الناشئة في السعودية ومصر والإمارات من برنامج محاسبة؟ وكيف تختار الأداة المناسبة في مراحل النمو المختلفة؟",
+      en: "What do MENA startups actually need from accounting software? How to choose the right tool at each growth stage — from pre-revenue to Series A.",
+    },
+    content: {
+      ar: `<h2>الشركات الناشئة تختلف عن الشركات الراسخة في احتياجاتها المحاسبية</h2>
+<p>عندما تكون في المرحلة الأولى، لا تحتاج إلى نظام معقد — تحتاج إلى شيء سريع، رخيص، وسهل يتيح لك التركيز على المنتج لا على الإدارة.</p>
+<h2>محاسب اي للشركات الناشئة</h2>
+<p>يبدأ مجانياً، يكبر معك، ولا يحتاج محاسباً متخصصاً لتشغيله. <a href="/register">ابدأ مجاناً</a>.</p>`,
+      en: `<h2>What MENA Startups Actually Need from Accounting Software</h2>
+<p>A startup's accounting needs are fundamentally different from an established business. You need speed over comprehensiveness, simplicity over power, and flexibility over rigid processes. The wrong choice at the early stage creates technical debt that's expensive to unwind later.</p>
+
+<h2>Stage-by-Stage Guide</h2>
+
+<h3>Pre-Revenue / Idea Stage</h3>
+<p>At this stage you need: expense tracking, basic invoicing, and a clean record for potential investors. You don't need payroll, multi-currency consolidation, or complex inventory. A simple cloud accounting tool with a free tier covers you here. Focus on keeping clean books from day one — investors will ask for at least 12 months of financial history before writing a check.</p>
+
+<h3>Early Revenue (First 20 Customers)</h3>
+<p>Now you need: professional invoicing, accounts receivable tracking, basic P&L, and local tax compliance. In Saudi Arabia this means ZATCA invoicing; in Egypt, ETA invoicing. Most international accounting tools fail here — they don't support these requirements without expensive add-ons.</p>
+
+<h3>Growth Stage (50–200 Customers)</h3>
+<p>At this stage you need: multi-user access (founder + accountant), bank reconciliation, proper financial statements for your Series A data room, and reliable historical data. This is also when an AI accounting tool pays for itself — 200+ invoices per month is too much for manual entry.</p>
+
+<h2>Why MENA Startups Specifically Need Local Accounting Software</h2>
+<ul>
+  <li><strong>Tax authority integration:</strong> Saudi ZATCA, Egyptian ETA, and Jordanian JoFotara are non-negotiable for any revenue-stage startup. Building workarounds costs engineering time you don't have.</li>
+  <li><strong>Arabic financial statements:</strong> When presenting to local investors or banks, Arabic-language reports are often required or strongly preferred.</li>
+  <li><strong>Regional investor expectations:</strong> MENA VCs and angels are familiar with local accounting standards — your books should match what they expect to see.</li>
+  <li><strong>Support timezone:</strong> If your books break on a Sunday (a workday in the Gulf), you need support that responds on Sunday.</li>
+</ul>
+
+<h2>MohasabAI for MENA Startups</h2>
+<p><strong>MohasabAI</strong> is designed precisely for this use case: an Arab-market startup that needs professional accounting without a full-time CFO. Features that matter most to founders:</p>
+<ul>
+  <li>Start on the free trial — no credit card, no commitment</li>
+  <li>AI invoice scanner eliminates manual data entry from day one</li>
+  <li>Financial statements always available for investor due diligence</li>
+  <li>ZATCA / ETA / JoFotara compliance built in</li>
+  <li>Scales from 1 user to a full team without data migration</li>
+  <li>Arabic + English — present to any audience</li>
+</ul>
+
+<h2>Pricing for Startups</h2>
+<p>MohasabAI's Starter plan covers everything most pre-Series A startups need. The 35-day free trial gives enough time to properly evaluate the platform before committing. <a href="/pricing">See pricing</a> or <a href="/register">start your free trial now</a>.</p>`,
+    },
+  },
+  {
+    slug: "small-business-accounting-uae-egypt",
+    date: "2026-08-01",
+    readMinutes: 5,
+    category: { ar: "محاسبة", en: "Accounting" },
+    title: {
+      ar: "نظام محاسبة للشركات الصغيرة في الإمارات ومصر",
+      en: "Small Business Accounting Software for UAE and Egypt",
+    },
+    excerpt: {
+      ar: "ما الفرق بين متطلبات المحاسبة في الإمارات ومصر؟ وما هو أفضل برنامج يدعم البلدين معاً؟",
+      en: "What's different about accounting for UAE vs. Egypt businesses — and which software handles both correctly out of the box?",
+    },
+    content: {
+      ar: `<h2>الإمارات ومصر — نفس الحاجة، لوائح مختلفة</h2>
+<p>الشركات التي تعمل في البلدين تحتاج إلى برنامج يفهم متطلبات كل دولة بشكل منفصل.</p>
+<h2>الإمارات: ضريبة قيمة مضافة 5%</h2>
+<p>ضريبة القيمة المضافة في الإمارات 5% وتُسدَّد كل ربع سنة. الفوترة الإلكترونية إلزامية للشركات الكبيرة.</p>
+<h2>مصر: منظومة ETA</h2>
+<p>منظومة الفاتورة الإلكترونية المصرية (ETA) إلزامية للشركات المسجلة في ضريبة القيمة المضافة. نسبة الضريبة 14%.</p>
+<h2>محاسب اي يدعم البلدين</h2>
+<p>نسخة واحدة، دعم كامل لمتطلبات UAE وETA مصر. <a href="/register">ابدأ مجاناً</a>.</p>`,
+      en: `<h2>UAE and Egypt: Same Need, Different Rules</h2>
+<p>Running a business in the UAE and Egypt — whether separately or as part of a regional operation — means navigating two different tax systems, two different e-invoicing requirements, and two different VAT rates. Most international accounting software handles neither correctly.</p>
+
+<h2>UAE Accounting Requirements</h2>
+<ul>
+  <li><strong>VAT rate:</strong> 5% (since January 2018)</li>
+  <li><strong>VAT filing:</strong> Quarterly, submitted to the Federal Tax Authority (FTA)</li>
+  <li><strong>E-invoicing:</strong> Mandatory rollout in progress — businesses should implement now</li>
+  <li><strong>Currency:</strong> AED (UAE Dirham)</li>
+  <li><strong>Language:</strong> English is primary for business, Arabic required on tax documents</li>
+</ul>
+
+<h2>Egypt Accounting Requirements</h2>
+<ul>
+  <li><strong>VAT rate:</strong> 14% (standard rate)</li>
+  <li><strong>E-invoicing:</strong> ETA (Egyptian Tax Authority) mandate — required for all VAT-registered businesses</li>
+  <li><strong>Currency:</strong> EGP (Egyptian Pound)</li>
+  <li><strong>Language:</strong> Arabic is required on official documents</li>
+  <li><strong>Fiscal year:</strong> Can be calendar year or a 12-month fiscal year starting any month</li>
+</ul>
+
+<h2>What Good Multi-Country Accounting Software Should Do</h2>
+<p>If your business operates in both UAE and Egypt (or serves clients in both), your accounting software should:</p>
+<ul>
+  <li>Support both ETA and UAE FTA requirements natively</li>
+  <li>Handle multi-currency transactions between AED and EGP</li>
+  <li>Generate compliant invoices for each jurisdiction automatically</li>
+  <li>Produce financial statements in both Arabic and English</li>
+  <li>Separate business entities cleanly if you have separate legal entities</li>
+</ul>
+
+<h2>MohasabAI for UAE and Egypt</h2>
+<p><strong>MohasabAI</strong> handles both markets in one platform. When you set up a business, you select your country — UAE or Egypt — and the platform automatically applies the correct VAT rate, invoicing format, and tax authority integration. If you're an accounting firm managing clients in both countries, the practice mode lets you manage each client's entity independently from one login.</p>
+
+<p>The AI invoice scanner reads Arabic invoices (common in both markets) with high accuracy, cutting data entry time dramatically for businesses that receive large volumes of supplier invoices.</p>
+
+<h2>Start Free — UAE or Egypt</h2>
+<p>MohasabAI offers a 35-day free trial with no credit card required. Choose your country at setup and get a fully configured accounting environment for your market. <a href="/ae">MohasabAI for UAE</a> · <a href="/eg">MohasabAI for Egypt</a> · <a href="/register">Start your free trial</a>.</p>`,
+    },
+  },
+  // ─── ARABIC-SLUG ARTICLES ───
   {
     slug: "بديل-quickbooks-للشركات-العربية",
     date: "2026-01-15",
