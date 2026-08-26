@@ -74,6 +74,7 @@ export default function DocumentsPage() {
     fetch("/api/documents")
       .then((r) => r.json())
       .then((data) => setDocuments(data.documents ?? []))
+      .catch(() => setDocuments([]))
       .finally(() => setLoading(false));
   }
 
@@ -126,12 +127,17 @@ export default function DocumentsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm(isAr ? "هل تريد حذف هذا المستند؟" : "Delete this document?")) return;
-    await fetch(`/api/documents/${id}`, { method: "DELETE" });
-    setDocuments((prev) => prev.filter((d) => d.id !== id));
+    try {
+      const res = await fetch(`/api/documents/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setDocuments((prev) => prev.filter((d) => d.id !== id));
+    } catch {
+      alert(isAr ? "فشل حذف المستند" : "Failed to delete document");
+    }
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>

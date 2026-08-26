@@ -14,7 +14,8 @@ function verifyResetToken(token: string): { email: string; valid: boolean } {
   if (parts.length !== 3) return { email: "", valid: false };
   const [encodedEmail, expiryStr, sig] = parts;
   const payload = `${encodedEmail}.${expiryStr}`;
-  const secret = process.env.NEXTAUTH_SECRET ?? "fallback-secret";
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret) throw new Error("NEXTAUTH_SECRET is not configured");
   const expectedSig = createHmac("sha256", secret).update(payload).digest("base64url");
   if (sig !== expectedSig) return { email: "", valid: false };
   const expiry = parseInt(expiryStr, 10);

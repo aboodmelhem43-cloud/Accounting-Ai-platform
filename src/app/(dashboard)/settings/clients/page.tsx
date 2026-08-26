@@ -45,12 +45,17 @@ export default function PracticeClientsPage() {
   const selectedCountry = SUPPORTED_COUNTRIES.find((c) => c.code === newCountry);
 
   const fetchClients = useCallback(async () => {
-    const res = await fetch("/api/practice/clients");
-    if (res.ok) {
-      const d = await res.json();
-      setClients(d.clients);
+    try {
+      const res = await fetch("/api/practice/clients");
+      if (res.ok) {
+        const d = await res.json();
+        setClients(d.clients);
+      }
+    } catch {
+      // fail silently — empty list shown
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => { fetchClients(); }, [fetchClients]);
@@ -120,7 +125,7 @@ export default function PracticeClientsPage() {
   }
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-3xl space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">

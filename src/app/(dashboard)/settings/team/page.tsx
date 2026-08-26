@@ -183,7 +183,7 @@ export default function TeamPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-2xl space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "إدارة الفريق" : "Team Management"}

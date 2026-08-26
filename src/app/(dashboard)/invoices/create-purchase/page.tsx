@@ -128,7 +128,7 @@ export default function CreatePurchaseInvoicePage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl" dir={isAr ? "rtl" : "ltr"}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

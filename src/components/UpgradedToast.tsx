@@ -21,13 +21,13 @@ export default function UpgradedToast() {
   if (!show) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium animate-in slide-in-from-top-2">
+    <div className="fixed top-4 end-4 z-50 bg-green-600 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium animate-in slide-in-from-top-2">
       <span className="text-lg">🎉</span>
       <div>
         <div>تم ترقية اشتراكك بنجاح!</div>
         <div className="text-green-200 text-xs font-normal">Your subscription has been upgraded.</div>
       </div>
-      <button onClick={() => setShow(false)} className="ml-2 text-green-200 hover:text-white">✕</button>
+      <button onClick={() => setShow(false)} className="ms-2 text-green-200 hover:text-white">✕</button>
     </div>
   );
 }

@@ -191,7 +191,7 @@ export default function JournalEntryPage() {
   const canDelete = entry.status !== "POSTED" && !entry.isLocked;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6" dir={isAr ? "rtl" : "ltr"}>
       {/* Reject modal */}
       {showRejectModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">

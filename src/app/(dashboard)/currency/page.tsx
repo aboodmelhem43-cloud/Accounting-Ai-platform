@@ -52,7 +52,7 @@ export default function CurrencyPage() {
   const quickTargets = ["USD", "EUR", "KWD", "SAR", "GBP"].filter((c) => c !== fromCurrency);
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl" dir={isAr ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "محوّل العملات" : "Currency Converter"}

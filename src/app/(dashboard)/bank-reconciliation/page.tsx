@@ -66,14 +66,14 @@ export default function BankReconciliationPage() {
         setBankAccounts(Array.isArray(data) ? data : []);
         if (data.length > 0) setSelectedBankAccountId(data[0].id);
       })
-      .catch(() => {});
+      .catch(() => setBankAccounts([]));
 
     fetch("/api/accounts")
       .then((r) => r.json())
       .then((data: LedgerAccount[]) => {
         setLedgerAccounts(Array.isArray(data) ? data : []);
       })
-      .catch(() => {});
+      .catch(() => setLedgerAccounts([]));
   }, []);
 
   async function handleUpload(e: React.FormEvent) {
@@ -159,7 +159,7 @@ export default function BankReconciliationPage() {
   const accountName = (a: LedgerAccount) => (isAr && a.nameAr ? a.nameAr : a.name);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "التسوية البنكية" : "Bank Reconciliation"}

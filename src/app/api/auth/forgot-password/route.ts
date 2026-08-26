@@ -9,9 +9,24 @@ const schema = z.object({
   lang: z.enum(["ar", "en"]).optional(),
 });
 
+// Simple in-memory rate limiter: max 3 requests per email per 15 minutes
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+function isRateLimited(email: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(email);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(email, { count: 1, resetAt: now + 15 * 60 * 1000 });
+    return false;
+  }
+  if (entry.count >= 3) return true;
+  entry.count++;
+  return false;
+}
+
 function createResetToken(email: string): string {
   const expiry = Date.now() + 3_600_000; // 1 hour
-  const secret = process.env.NEXTAUTH_SECRET ?? "fallback-secret";
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret) throw new Error("NEXTAUTH_SECRET is not configured");
   const payload = `${Buffer.from(email).toString("base64url")}.${expiry}`;
   const sig = createHmac("sha256", secret).update(payload).digest("base64url");
   return `${payload}.${sig}`;
@@ -25,6 +40,10 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ ok: true }); // don't leak validation errors
 
   const { email, lang = "ar" } = parsed.data;
+
+  if (isRateLimited(email)) {
+    return NextResponse.json({ ok: true }); // return 200 so we don't leak rate-limit status
+  }
 
   // Always return 200 to avoid leaking whether an email exists
   const user = await prisma.user.findUnique({ where: { email } }).catch(() => null);

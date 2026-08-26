@@ -44,6 +44,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "الملف مطلوب" }, { status: 400 });
   }
 
+  if (file.size > 10 * 1024 * 1024) {
+    return NextResponse.json({ error: "حجم الملف يتجاوز 10 ميغابايت" }, { status: 413 });
+  }
+
   // التحقق من ملكية حساب البنك
   if (bankAccountId) {
     const bankAcc = await prisma.bankAccount.findFirst({

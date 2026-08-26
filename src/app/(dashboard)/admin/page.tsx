@@ -704,7 +704,7 @@ export default function AdminPage() {
                     <div className="mt-1 space-y-0.5">
                       <div><b>Variants:</b></div>
                       {Object.entries(lsResult.variants).map(([plan, id]) => (
-                        <div key={plan} className="ml-2">
+                        <div key={plan} className="ms-2">
                           {plan}: <span className={id === "NOT SET" ? "text-red-600" : ""}>{id}</span>
                         </div>
                       ))}
