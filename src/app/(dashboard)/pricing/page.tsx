@@ -201,7 +201,14 @@ export default function PricingPage() {
                 <div className="w-full text-center py-2.5 rounded-xl bg-green-50 text-green-700 font-medium text-sm border border-green-200">
                   {isAr ? "خطتك الحالية" : "Your Current Plan"}
                 </div>
-              ) : isFreeTrial ? null : (
+              ) : isFreeTrial ? (
+                <a
+                  href="/register"
+                  className="block w-full text-center py-2.5 rounded-xl font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                >
+                  {isAr ? "ابدأ مجاناً ←" : "Start Free →"}
+                </a>
+              ) : (
                 <button
                   disabled={isLoadingThis || !!loading}
                   className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${

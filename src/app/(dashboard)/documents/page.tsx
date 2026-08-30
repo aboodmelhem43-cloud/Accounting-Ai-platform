@@ -67,6 +67,7 @@ export default function DocumentsPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -101,7 +102,7 @@ export default function DocumentsPage() {
       setUploadType("OTHER");
       loadDocuments();
     } catch {
-      alert(isAr ? "فشل رفع الملف" : "Upload failed");
+      setActionError(isAr ? "فشل رفع الملف" : "Upload failed");
     } finally {
       setUploading(false);
     }
@@ -120,7 +121,7 @@ export default function DocumentsPage() {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      alert(isAr ? "فشل تصدير البيانات" : "Export failed");
+      setActionError(isAr ? "فشل تصدير البيانات" : "Export failed");
     } finally {
       setExporting(false);
     }
@@ -135,7 +136,7 @@ export default function DocumentsPage() {
           if (!res.ok) throw new Error();
           setDocuments((prev) => prev.filter((d) => d.id !== id));
         } catch {
-          alert(isAr ? "فشل حذف المستند" : "Failed to delete document");
+          setActionError(isAr ? "فشل حذف المستند" : "Failed to delete document");
         }
       },
     });
@@ -143,6 +144,12 @@ export default function DocumentsPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
+      {actionError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
+          <span>{actionError}</span>
+          <button onClick={() => setActionError(null)}>✕</button>
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>

@@ -98,6 +98,7 @@ export default function AccountsPage() {
   const [customType, setCustomType] = useState<AccountType>("ASSET");
   const [savingCustom, setSavingCustom] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
+  const [actionError, setActionError] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -182,12 +183,12 @@ export default function AccountsPage() {
           const res = await fetch(`/api/accounts/${id}`, { method: "DELETE" });
           if (!res.ok) {
             const d = await res.json() as { error?: string };
-            alert(d.error ?? (isAr ? "فشل الحذف" : "Delete failed"));
+            setActionError(d.error ?? (isAr ? "فشل الحذف" : "Delete failed"));
             return;
           }
           load();
         } catch {
-          alert(isAr ? "خطأ في الاتصال" : "Connection error");
+          setActionError(isAr ? "خطأ في الاتصال" : "Connection error");
         }
       },
     });
@@ -213,6 +214,13 @@ export default function AccountsPage() {
           </p>
         </div>
       </div>
+
+      {actionError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
+          <span>{actionError}</span>
+          <button onClick={() => setActionError("")}>✕</button>
+        </div>
+      )}
 
       {/* إضافة حساب من القائمة */}
       <div className="card space-y-4">

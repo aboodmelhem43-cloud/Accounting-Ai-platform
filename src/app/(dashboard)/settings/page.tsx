@@ -282,7 +282,7 @@ export default function SettingsPage() {
       <h1 className="text-2xl font-bold text-gray-900">{t("settings.title")}</h1>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-200">
+      <div className="flex gap-1 border-b border-gray-200 overflow-x-auto scrollbar-hide">
         {TABS.map((tb) => (
           <button
             key={tb.id}

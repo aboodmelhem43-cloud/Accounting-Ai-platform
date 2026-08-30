@@ -36,6 +36,7 @@ export default function ExpensesPage() {
   const [reference, setReference] = useState("");
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/accounts")
@@ -101,7 +102,7 @@ export default function ExpensesPage() {
       setTimeout(() => setSuccess(false), 3000);
       loadRecent();
     } catch {
-      alert(isAr ? "فشل تسجيل المصروف" : "Failed to save expense");
+      setSaveError(isAr ? "فشل تسجيل المصروف" : "Failed to save expense");
     } finally {
       setSaving(false);
     }
@@ -116,6 +117,12 @@ export default function ExpensesPage() {
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
           <span>{loadError}</span>
           <button onClick={() => setLoadError(null)}>✕</button>
+        </div>
+      )}
+      {saveError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
+          <span>{saveError}</span>
+          <button onClick={() => setSaveError(null)}>✕</button>
         </div>
       )}
       <div>

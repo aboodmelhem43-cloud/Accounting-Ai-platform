@@ -112,7 +112,7 @@ export default function BankAccountsPage() {
           await fetch(`/api/bank-accounts/${id}`, { method: "DELETE" });
           load();
         } catch {
-          alert(isAr ? "خطأ في الاتصال" : "Connection error");
+          setError(isAr ? "خطأ في الاتصال" : "Connection error");
         }
       },
     });

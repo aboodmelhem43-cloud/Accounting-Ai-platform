@@ -198,7 +198,7 @@ export default function RegisterPage() {
           <select name="country" className="input" value={form.country} onChange={handleChange} required>
             {SUPPORTED_COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>
-                {c.nameAr} — {c.currency}
+                {lang === "ar" ? c.nameAr : c.nameEn} — {c.currency}
               </option>
             ))}
           </select>
