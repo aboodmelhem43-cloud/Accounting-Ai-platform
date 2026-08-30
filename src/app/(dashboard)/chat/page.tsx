@@ -75,20 +75,24 @@ export default function ChatPage() {
         return;
       }
 
-      // Stream the response progressively
-      setMessages((m) => [...m, { role: "assistant", content: "" }]);
-      setLoading(false);
-
+      // Stream the response — add bubble only when first content arrives so the
+      // loading dots stay visible until there is something to show
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let accumulated = "";
+      let bubbleAdded = false;
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         accumulated += decoder.decode(value, { stream: true });
-        const text = accumulated;
-        setMessages((m) => [...m.slice(0, -1), { role: "assistant", content: text }]);
+        if (!bubbleAdded) {
+          setMessages((m) => [...m, { role: "assistant", content: accumulated }]);
+          setLoading(false);
+          bubbleAdded = true;
+        } else {
+          setMessages((m) => [...m.slice(0, -1), { role: "assistant", content: accumulated }]);
+        }
       }
     } catch {
       setMessages((m) => [...m, { role: "assistant", content: t("common.error") }]);

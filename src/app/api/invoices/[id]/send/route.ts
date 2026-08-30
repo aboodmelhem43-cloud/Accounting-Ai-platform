@@ -32,8 +32,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "لا يمكن إرسال فاتورة لم تتم مراجعتها بعد" }, { status: 400 });
   }
 
-  const body = await req.json();
-  const { to, subject, message } = sendSchema.parse(body);
+  const body = await req.json().catch(() => ({}));
+  let parsed: { to: string; subject?: string; message?: string };
+  try {
+    parsed = sendSchema.parse(body);
+  } catch {
+    return NextResponse.json({ error: "بريد إلكتروني غير صالح" }, { status: 400 });
+  }
+  const { to, subject, message } = parsed;
 
   const extracted = invoice.extractedData as ExtractedInvoiceData | null;
   const businessName = session.user.businessName;

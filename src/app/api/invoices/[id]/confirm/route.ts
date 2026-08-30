@@ -22,7 +22,7 @@ const confirmSchema = z.object({
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+  if (!session || !session.user.id) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const { id } = await params;
 
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const journalEntry = await createJournalEntry({
       businessId: session.user.businessId,
-      userId: session.user.id ?? session.user.email,
+      userId: session.user.id,
       date: new Date(data.date),
       description: data.description,
       sourceType: "AI_INVOICE",

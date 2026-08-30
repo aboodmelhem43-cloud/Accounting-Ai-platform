@@ -295,7 +295,7 @@ export default function InvoiceActions({
                 <div className="text-4xl">✅</div>
                 <p className="text-green-700 font-medium">{isAr ? "تم إصدار الإشعار الدائن بنجاح" : "Credit note issued successfully"}</p>
                 <div className="flex gap-3">
-                  <a href={`/invoices/${creditNoteId}`} className="btn-primary flex-1 text-center text-sm">
+                  <a href={`/invoices/${creditNoteId}/view`} className="btn-primary flex-1 text-center text-sm">
                     {isAr ? "عرض الإشعار" : "View Credit Note"}
                   </a>
                   <button onClick={() => { setShowCreditNote(false); setCreditNoteId(null); setCreditAmount(""); setCreditReason(""); }} className="btn-secondary flex-1 text-sm">

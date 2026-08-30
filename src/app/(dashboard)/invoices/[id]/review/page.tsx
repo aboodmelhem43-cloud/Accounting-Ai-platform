@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useLang } from "@/components/LanguageProvider";
 import type { ExtractedInvoiceData, SuggestedJournalEntry } from "@/types";
 
 interface Invoice {
@@ -27,6 +28,8 @@ interface Suggestion extends SuggestedJournalEntry {
 export default function ReviewInvoicePage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { lang } = useLang();
+  const isAr = lang === "ar";
 
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
@@ -128,11 +131,15 @@ export default function ReviewInvoicePage() {
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">مراجعة الفاتورة</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          {isAr ? "مراجعة الفاتورة" : "Review Invoice"}
+        </h1>
         <p className="text-gray-500 text-sm mt-1">
-          راجع البيانات المستخرجة وعدّلها إذا لزم، ثم أكّد لترحيل القيد
+          {isAr
+            ? "راجع البيانات المستخرجة وعدّلها إذا لزم، ثم أكّد لترحيل القيد"
+            : "Review the extracted data, edit if needed, then confirm to post the journal entry"}
         </p>
       </div>
 

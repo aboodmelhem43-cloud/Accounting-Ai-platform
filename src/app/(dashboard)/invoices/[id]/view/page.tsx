@@ -57,7 +57,7 @@ export default async function InvoiceViewPage({
 
   if (!invoice) notFound();
   if (invoice.businessId !== session.user.businessId) notFound();
-  if (invoice.fileType !== "created") redirect(`/invoices/${id}/review`);
+  if (invoice.status === "PENDING_REVIEW") redirect(`/invoices/${id}/review`);
 
   const d = invoice.extractedData as ExtractedData | null;
   const lineItems: LineItem[] = d?.lineItems ?? [];
