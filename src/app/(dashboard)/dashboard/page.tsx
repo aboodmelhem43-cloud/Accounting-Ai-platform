@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { computeIncomeStatement } from "@/lib/ledger";
+import { computeIncomeStatement, computeCashBalance } from "@/lib/ledger";
 import { getComplianceModule } from "@/compliance";
 import { getServerT } from "@/lib/i18n/server";
 import Link from "next/link";
@@ -49,10 +49,7 @@ export default async function DashboardPage({
       orderBy: { createdAt: "desc" },
       take: 5,
     }).catch(() => []),
-    prisma.bankAccount.aggregate({
-      where: { businessId },
-      _sum: { openingBalance: true },
-    }).catch(() => ({ _sum: { openingBalance: null } })),
+    computeCashBalance(businessId).catch(() => 0),
     prisma.invoice.count({
       where: {
         businessId,
@@ -63,7 +60,7 @@ export default async function DashboardPage({
     }).catch(() => 0),
   ]);
 
-  const totalCash = Number(cashBalance._sum?.openingBalance ?? 0);
+  const totalCash = cashBalance;
 
   const fmt = (n: number) =>
     n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });

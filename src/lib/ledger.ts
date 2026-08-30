@@ -83,6 +83,46 @@ export async function createJournalEntry(params: {
   return entry;
 }
 
+// رصيد النقدية الجارية — مجموع حركات حسابات النقدية والبنوك (1100-1199) من دفتر القيود
+export async function computeCashBalance(businessId: string): Promise<number> {
+  const cashAccounts = await prisma.account.findMany({
+    where: { businessId, type: "ASSET", code: { startsWith: "11" } },
+    select: { id: true },
+  });
+
+  if (cashAccounts.length === 0) {
+    // لا توجد حسابات نقدية في دليل الحسابات — نرجع مجموع الأرصدة الافتتاحية للبنوك
+    const fallback = await prisma.bankAccount.aggregate({
+      where: { businessId },
+      _sum: { openingBalance: true },
+    });
+    return Number(fallback._sum.openingBalance ?? 0);
+  }
+
+  const result = await prisma.journalLine.aggregate({
+    where: {
+      accountId: { in: cashAccounts.map((a) => a.id) },
+      journalEntry: { businessId, status: "POSTED" },
+    },
+    _sum: { debit: true, credit: true },
+  });
+
+  const totalDebit = Number(result._sum.debit ?? 0);
+  const totalCredit = Number(result._sum.credit ?? 0);
+  const ledgerBalance = totalDebit - totalCredit;
+
+  // إذا لم تكن هناك أي قيود مُرحَّلة، نرجع الأرصدة الافتتاحية
+  if (totalDebit === 0 && totalCredit === 0) {
+    const fallback = await prisma.bankAccount.aggregate({
+      where: { businessId },
+      _sum: { openingBalance: true },
+    });
+    return Number(fallback._sum.openingBalance ?? 0);
+  }
+
+  return ledgerBalance;
+}
+
 // حساب رصيد حساب معين في فترة زمنية
 export async function getAccountBalance(
   accountId: string,

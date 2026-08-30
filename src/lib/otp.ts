@@ -4,7 +4,9 @@ import { prisma } from "./prisma";
 const OTP_EXPIRY_MINUTES = 10;
 
 export function generateOtpCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  return String(100000 + (buf[0] % 900000));
 }
 
 export async function createOtp(email: string, purpose: string): Promise<string> {
