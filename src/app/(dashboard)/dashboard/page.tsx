@@ -68,7 +68,7 @@ export default async function DashboardPage({
   const fmt = (n: number) =>
     n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  const monthName = now.toLocaleDateString(locale, { month: "long", year: "numeric" });
+  const monthName = from.toLocaleDateString(locale, { month: "long", year: "numeric" });
 
   return (
     <div className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>

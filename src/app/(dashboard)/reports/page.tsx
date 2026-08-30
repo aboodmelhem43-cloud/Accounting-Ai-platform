@@ -41,7 +41,7 @@ const REPORTS = [
   },
   {
     href: "/reports/trial-balance",
-    icon: "⚖️",
+    icon: "🔢",
     titleAr: "ميزان المراجعة",
     titleEn: "Trial Balance",
     descAr: "أرصدة جميع الحسابات في تاريخ محدد للتحقق من توازن القيود",
@@ -57,6 +57,15 @@ const REPORTS = [
     descEn: "Receivables and payables grouped by invoice age buckets",
     color: "red",
   },
+  {
+    href: "/vat-return",
+    icon: "🧾",
+    titleAr: "الإقرار الضريبي (VAT)",
+    titleEn: "VAT Return",
+    descAr: "احتساب ضريبة القيمة المضافة المستحقة وتحضير الإقرار الضريبي",
+    descEn: "Calculate VAT payable and prepare your tax return",
+    color: "yellow",
+  },
 ];
 
 const colorMap: Record<string, string> = {
@@ -66,6 +75,7 @@ const colorMap: Record<string, string> = {
   orange: "bg-orange-100 text-orange-600",
   teal: "bg-teal-100 text-teal-600",
   red: "bg-red-100 text-red-600",
+  yellow: "bg-yellow-100 text-yellow-600",
 };
 
 export default function ReportsPage() {

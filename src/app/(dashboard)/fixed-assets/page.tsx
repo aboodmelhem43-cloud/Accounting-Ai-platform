@@ -304,7 +304,7 @@ export default function FixedAssetsPage() {
       )}
 
       {loading ? (
-        <div className="text-center py-12 text-gray-400"><div className="animate-spin text-3xl">⚙️</div></div>
+        <div className="text-center py-12 text-gray-400"><div className="spinner-lg" /></div>
       ) : assets.length === 0 ? (
         <div className="card text-center py-12 text-gray-400">
           <div className="text-5xl mb-3">🏗️</div>

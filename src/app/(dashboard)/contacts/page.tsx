@@ -219,7 +219,7 @@ export default function ContactsPage() {
       <div className="card p-0 overflow-hidden">
         {loading ? (
           <div className="text-center py-12 text-gray-400">
-            <div className="animate-spin text-2xl mb-2">⚙️</div>
+            <div className="spinner mb-2" />
             <p>{isAr ? "جاري التحميل..." : "Loading..."}</p>
           </div>
         ) : contacts.length === 0 ? (
@@ -301,7 +301,7 @@ export default function ContactsPage() {
 
             {historyLoading && (
               <div className="text-center py-12 text-gray-400">
-                <div className="animate-spin text-2xl mb-2">⚙️</div>
+                <div className="spinner mb-2" />
               </div>
             )}
 
@@ -392,6 +392,9 @@ export default function ContactsPage() {
               <h3 className="text-lg font-semibold text-gray-900">
                 {isAr ? "حذف الاتصال؟" : "Delete Contact?"}
               </h3>
+              <p className="text-sm font-medium text-gray-800 mt-1">
+                {contacts.find((c) => c.id === deleteId)?.name}
+              </p>
               <p className="text-sm text-gray-500 mt-1">
                 {isAr
                   ? "سيتم حذف هذا الاتصال نهائيًا. هذا الإجراء لا يمكن التراجع عنه."
@@ -404,7 +407,7 @@ export default function ContactsPage() {
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+                className="btn-danger flex-1 text-sm"
               >
                 {isAr ? "حذف" : "Delete"}
               </button>

@@ -333,7 +333,7 @@ export default function AccountsPage() {
       {/* الحسابات الحالية مجمّعة حسب النوع */}
       {loading ? (
         <div className="text-center py-12 text-gray-400">
-          <div className="animate-spin text-2xl mb-2">⚙️</div>
+          <div className="spinner mb-2" />
           <p>{isAr ? "جاري التحميل..." : "Loading..."}</p>
         </div>
       ) : accounts.length === 0 ? (

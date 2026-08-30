@@ -137,7 +137,7 @@ export default function IncomeStatementPage() {
 
       {loading && (
         <div className="text-center py-8 text-gray-500">
-          <div className="animate-spin text-2xl mb-2">⚙️</div>
+          <div className="spinner mb-2" />
           <p>{t("reports.income.loading")}</p>
         </div>
       )}

@@ -87,7 +87,12 @@ export default function OnboardingPage() {
       const res = await fetch("/api/onboarding", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ step: 3 }),
+        body: JSON.stringify({
+          step: 3,
+          cashBalance: cashBalance ? Number(cashBalance) : 0,
+          arBalance: arBalance ? Number(arBalance) : 0,
+          apBalance: apBalance ? Number(apBalance) : 0,
+        }),
       });
       if (!res.ok) throw new Error();
       // تحديث جلسة NextAuth لتعكس اكتمال الـ onboarding
@@ -184,7 +189,7 @@ export default function OnboardingPage() {
           )}
 
           <button onClick={saveStep1} disabled={saving} className="btn-primary w-full">
-            {saving ? (isAr ? "جاري الحفظ..." : "Saving...") : (isAr ? "التالي ←" : "Next →")}
+            {saving ? (isAr ? "جاري الحفظ..." : "Saving...") : (isAr ? "التالي →" : "Next →")}
           </button>
         </div>
       )}
@@ -231,10 +236,10 @@ export default function OnboardingPage() {
 
           <div className="flex gap-3">
             <button onClick={() => setStep(1)} className="btn-secondary">
-              {isAr ? "→ رجوع" : "← Back"}
+              {isAr ? "← رجوع" : "← Back"}
             </button>
             <button onClick={() => setStep(3)} className="btn-primary flex-1">
-              {isAr ? "التالي ←" : "Next →"}
+              {isAr ? "التالي →" : "Next →"}
             </button>
           </div>
         </div>
@@ -311,13 +316,13 @@ export default function OnboardingPage() {
 
           <div className="flex gap-3">
             <button onClick={() => setStep(2)} className="btn-secondary">
-              {isAr ? "→ رجوع" : "← Back"}
+              {isAr ? "← رجوع" : "← Back"}
             </button>
             <button onClick={completeOnboarding} disabled={saving} className="btn-secondary flex-1">
               {isAr ? "تخطي" : "Skip"}
             </button>
             <button onClick={completeOnboarding} disabled={saving} className="btn-primary flex-1">
-              {saving ? (isAr ? "جاري الإعداد..." : "Setting up...") : (isAr ? "تأكيد والمتابعة ←" : "Confirm & Continue →")}
+              {saving ? (isAr ? "جاري الإعداد..." : "Setting up...") : (isAr ? "تأكيد والمتابعة →" : "Confirm & Continue →")}
             </button>
           </div>
         </div>

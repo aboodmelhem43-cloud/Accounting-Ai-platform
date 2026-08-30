@@ -116,7 +116,7 @@ export default function ReviewInvoicePage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin text-3xl mb-2">⚙️</div>
+          <div className="spinner-lg mb-2" />
           <p className="text-gray-500">جاري التحميل...</p>
         </div>
       </div>

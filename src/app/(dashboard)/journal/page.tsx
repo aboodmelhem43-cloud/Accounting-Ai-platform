@@ -267,7 +267,7 @@ export default function JournalPage() {
 
       {loading && (
         <div className="text-center py-8 text-gray-500">
-          <div className="animate-spin text-2xl mb-2">⚙️</div>
+          <div className="spinner mb-2" />
           <p>{t("common.loading")}</p>
         </div>
       )}

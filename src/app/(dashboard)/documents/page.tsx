@@ -281,7 +281,7 @@ export default function DocumentsPage() {
 
         {loading && (
           <div className="text-center py-8 text-gray-400">
-            <div className="animate-spin text-2xl mb-2">⚙️</div>
+            <div className="spinner mb-2" />
             <p>{isAr ? "جارٍ التحميل..." : "Loading..."}</p>
           </div>
         )}

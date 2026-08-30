@@ -98,7 +98,7 @@ export default function ContactDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20 text-gray-400">
-        <div className="animate-spin text-3xl me-3">⚙️</div>
+        <div className="spinner-lg me-3" />
         <span>{isAr ? "جاري التحميل..." : "Loading..."}</span>
       </div>
     );

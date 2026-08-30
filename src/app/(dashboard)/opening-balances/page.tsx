@@ -258,7 +258,7 @@ export default function OpeningBalancesPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-gray-400"><div className="animate-spin text-3xl">⚙️</div></div>
+        <div className="text-center py-12 text-gray-400"><div className="spinner-lg" /></div>
       ) : (
         <div className="space-y-4">
           {grouped.map(({ type, accounts: accs }) => {

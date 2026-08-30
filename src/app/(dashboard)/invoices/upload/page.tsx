@@ -130,7 +130,7 @@ export default function UploadInvoicePage() {
 
       {isLoading && (
         <div className="card bg-blue-50 border-blue-200 text-center py-6">
-          <div className="animate-spin text-3xl mb-2">⚙️</div>
+          <div className="spinner-lg mb-2" />
           <p className="text-blue-700 font-medium">
             {status === "uploading"
               ? (lang === "ar" ? "جاري رفع الملف..." : "Uploading file...")

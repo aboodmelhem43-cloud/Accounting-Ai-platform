@@ -24,6 +24,19 @@
   .label {
     @apply block text-sm font-medium text-gray-700 mb-1;
   }
+  .btn-danger {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .spinner {
+    @apply inline-block rounded-full border-2 border-gray-200 border-t-blue-600 animate-spin;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .spinner-lg {
+    @apply inline-block rounded-full border-2 border-gray-200 border-t-blue-600 animate-spin;
+    width: 2rem;
+    height: 2rem;
+  }
 }
 
 @media print {

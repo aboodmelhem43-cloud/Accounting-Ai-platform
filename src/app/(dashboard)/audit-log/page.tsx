@@ -105,7 +105,7 @@ export default function AuditLogPage() {
 
       {loading ? (
         <div className="text-center py-12 text-gray-400">
-          <div className="animate-spin text-3xl mb-2">⚙️</div>
+          <div className="spinner-lg mb-2" />
         </div>
       ) : logs.length === 0 ? (
         <div className="card text-center py-12 text-gray-400">

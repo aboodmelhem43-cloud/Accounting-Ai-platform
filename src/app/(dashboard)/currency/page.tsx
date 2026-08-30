@@ -111,7 +111,7 @@ export default function CurrencyPage() {
 
         {loading && (
           <div className="mt-4 text-center text-gray-400 text-sm">
-            <span className="animate-spin inline-block">⚙️</span>{" "}
+            <span className="spinner" />{" "}
             {isAr ? "جاري التحميل..." : "Loading..."}
           </div>
         )}

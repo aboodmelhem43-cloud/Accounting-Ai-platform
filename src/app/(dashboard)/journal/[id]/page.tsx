@@ -166,7 +166,7 @@ export default function JournalEntryPage() {
   if (loading) {
     return (
       <div className="text-center py-20 text-gray-400">
-        <div className="animate-spin text-3xl mb-3">⚙️</div>
+        <div className="spinner-lg mb-3" />
         <p>{t("common.loading")}</p>
       </div>
     );

@@ -129,6 +129,7 @@ export default function CreateInvoicePage() {
   const [business, setBusiness] = useState<BusinessInfo | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [customers, setCustomers] = useState<CustomerContact[]>([]);
   const [selectedContactId, setSelectedContactId] = useState("");
 
@@ -234,12 +235,12 @@ export default function CreateInvoicePage() {
         }),
       });
       if (res.ok) {
-        const data = await res.json();
         setSaved(true);
+        setSaveError("");
         setTimeout(() => router.push("/invoices"), 1200);
       } else {
         const err = await res.json();
-        alert(err.message ?? (isAr ? "فشل الحفظ" : "Save failed"));
+        setSaveError(err.message ?? (isAr ? "فشل الحفظ" : "Save failed"));
       }
     } finally {
       setSaving(false);
@@ -269,6 +270,11 @@ export default function CreateInvoicePage() {
                 : (isAr ? "💾 حفظ الفاتورة" : "💾 Save Invoice")}
           </button>
         </div>
+        {saveError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+            {saveError}
+          </div>
+        )}
 
         {/* Printable invoice */}
         <div id="invoice-print" className="bg-white border border-gray-200 rounded-xl p-8 max-w-3xl mx-auto print:border-0 print:rounded-none print:p-6">

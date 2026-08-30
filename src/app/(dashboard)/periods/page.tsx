@@ -156,7 +156,7 @@ export default function PeriodsPage() {
 
       {loading ? (
         <div className="text-center py-12 text-gray-400">
-          <div className="animate-spin text-3xl mb-2">⚙️</div>
+          <div className="spinner-lg mb-2" />
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">

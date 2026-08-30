@@ -144,7 +144,7 @@ export default function BalanceSheetPage() {
 
       {loading && (
         <div className="text-center py-12 text-gray-400">
-          <div className="animate-spin text-2xl mb-2">⚙️</div>
+          <div className="spinner mb-2" />
           <p>{isAr ? "جاري الحساب..." : "Calculating..."}</p>
         </div>
       )}
