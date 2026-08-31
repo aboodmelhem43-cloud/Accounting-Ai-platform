@@ -26,8 +26,14 @@ export async function POST(req: NextRequest) {
       where: { email: email.toLowerCase() },
     });
 
+    // Always do bcrypt work so response timing is constant regardless of account existence
     if (!user) {
-      return NextResponse.json({ error: "no_account" }, { status: 404 });
+      if (password && password.trim() && !isSuperAdmin(email)) {
+        // Dummy compare to match timing of the real path
+        await bcrypt.compare(password, "$2b$12$dummyhashplaceholderfortimingXX");
+      }
+      // Return sent:true — do not reveal whether the account exists
+      return NextResponse.json({ sent: true });
     }
 
     // If password is provided, verify it; skip for super-admins (OTP-only)

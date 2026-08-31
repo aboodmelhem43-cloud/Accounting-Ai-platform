@@ -25,8 +25,8 @@ function isRateLimited(email: string): boolean {
 
 function createResetToken(email: string, passwordHash: string): string {
   const expiry = Date.now() + 3_600_000; // 1 hour
-  const secret = process.env.NEXTAUTH_SECRET;
-  if (!secret) throw new Error("NEXTAUTH_SECRET is not configured");
+  const secret = process.env.PASSWORD_RESET_SECRET ?? process.env.NEXTAUTH_SECRET;
+  if (!secret) throw new Error("PASSWORD_RESET_SECRET is not configured");
   // Bind token to the current password hash so it is automatically invalidated
   // after a successful reset (or any other password change)
   const pwFingerprint = createHmac("sha256", secret).update(passwordHash).digest("hex").slice(0, 8);

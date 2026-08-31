@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
 import { SUPPORTED_COUNTRIES } from "@/compliance";
 
@@ -197,6 +197,8 @@ export default function SettingsPage() {
       if (res.ok) {
         setPwMsg({ ok: true, text: t("settings.password.saved") });
         setPwCurrent(""); setPwNew(""); setPwConfirm("");
+        // Force sign-out so the new password takes effect immediately
+        setTimeout(() => signOut({ callbackUrl: "/login" }), 1500);
       } else {
         const d = await res.json();
         const txt = d.error === "wrong_current" ? t("settings.password.error.wrong_current") : (d.error ?? "Error");

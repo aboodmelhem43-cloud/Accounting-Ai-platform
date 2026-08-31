@@ -49,13 +49,16 @@ export async function POST(
   const config = integration.config as Record<string, string>;
   const secret = config.webhookSecret ?? "";
 
-  if (secret) {
-    const signatureHeader = getSignatureHeader(platform);
-    const signature = req.headers.get(signatureHeader) ?? "";
-    const { valid, reason } = verifyWebhookSignature(platform, rawBody, signature, secret);
-    if (!valid) {
-      return NextResponse.json({ error: reason ?? "Signature mismatch" }, { status: 401 });
-    }
+  // Always require a configured secret — reject unauthenticated events
+  if (!secret) {
+    return NextResponse.json({ error: "Webhook secret not configured for this integration" }, { status: 401 });
+  }
+
+  const signatureHeader = getSignatureHeader(platform);
+  const signature = req.headers.get(signatureHeader) ?? "";
+  const { valid, reason } = verifyWebhookSignature(platform, rawBody, signature, secret);
+  if (!valid) {
+    return NextResponse.json({ error: reason ?? "Signature mismatch" }, { status: 401 });
   }
 
   let payload: Record<string, unknown>;

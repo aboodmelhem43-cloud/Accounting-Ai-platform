@@ -26,8 +26,8 @@ function verifyResetToken(token: string, passwordHash: string): boolean {
   if (parts.length !== 4) return false;
   const [encodedEmail, expiryStr, pwFingerprint, sig] = parts;
 
-  const secret = process.env.NEXTAUTH_SECRET;
-  if (!secret) throw new Error("NEXTAUTH_SECRET is not configured");
+  const secret = process.env.PASSWORD_RESET_SECRET ?? process.env.NEXTAUTH_SECRET;
+  if (!secret) throw new Error("PASSWORD_RESET_SECRET is not configured");
 
   const payload = `${encodedEmail}.${expiryStr}.${pwFingerprint}`;
   const expectedSig = createHmac("sha256", secret).update(payload).digest("base64url");

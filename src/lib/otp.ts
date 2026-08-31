@@ -3,6 +3,13 @@ import { prisma } from "./prisma";
 
 const OTP_EXPIRY_MINUTES = 10;
 
+// Brute-force protection: track failed attempts per email+purpose in memory.
+// After MAX_ATTEMPTS failures the OTP record is deleted and the key is locked
+// for LOCKOUT_MS. Resets on successful verification or on a new OTP creation.
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MS = 15 * 60 * 1000;
+const otpAttempts = new Map<string, { attempts: number; lockedUntil: number | null }>();
+
 export function generateOtpCode(): string {
   const buf = new Uint32Array(1);
   crypto.getRandomValues(buf);
@@ -14,6 +21,8 @@ export function generateOtpCode(): string {
 const AUTO_LOGIN_EXPIRY_SECONDS = 90;
 
 export async function createOtp(email: string, purpose: string): Promise<string> {
+  // Clear any lockout state when a fresh OTP is issued
+  otpAttempts.delete(`${email.toLowerCase()}:${purpose}`);
   await prisma.otpCode.deleteMany({ where: { email: email.toLowerCase(), purpose } });
 
   const code = generateOtpCode();
@@ -31,6 +40,13 @@ export async function createOtp(email: string, purpose: string): Promise<string>
 }
 
 export async function verifyOtp(email: string, code: string, purpose: string): Promise<boolean> {
+  const key = `${email.toLowerCase()}:${purpose}`;
+  const now = Date.now();
+  const state = otpAttempts.get(key);
+
+  // Reject immediately while locked out
+  if (state?.lockedUntil && now < state.lockedUntil) return false;
+
   const records = await prisma.otpCode.findMany({
     where: {
       email: email.toLowerCase(),
@@ -48,7 +64,16 @@ export async function verifyOtp(email: string, code: string, purpose: string): P
 
   if (isValid) {
     await prisma.otpCode.delete({ where: { id: record.id } });
+    otpAttempts.delete(key);
+  } else {
+    const newAttempts = (state?.attempts ?? 0) + 1;
+    if (newAttempts >= MAX_ATTEMPTS) {
+      // Delete the OTP and lock the key; further guesses are rejected instantly
+      await prisma.otpCode.deleteMany({ where: { email: email.toLowerCase(), purpose } });
+      otpAttempts.set(key, { attempts: newAttempts, lockedUntil: now + LOCKOUT_MS });
+    } else {
+      otpAttempts.set(key, { attempts: newAttempts, lockedUntil: null });
+    }
   }
-
   return isValid;
 }

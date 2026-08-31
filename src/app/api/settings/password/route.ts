@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
   currentPassword: z.string().min(1),
@@ -27,7 +28,18 @@ export async function POST(req: NextRequest) {
     const hash = await bcrypt.hash(data.newPassword, 12);
     await prisma.user.update({ where: { id: session.user.id }, data: { passwordHash: hash } });
 
-    return NextResponse.json({ ok: true });
+    // Audit trail + signal client to sign out (existing JWT remains valid until expiry,
+    // but sign-out forces immediate re-authentication with the new password)
+    await logAudit({
+      businessId: session.user.businessId,
+      userId: session.user.id,
+      userEmail: session.user.email,
+      action: "PASSWORD_CHANGED",
+      entity: "User",
+      entityId: session.user.id,
+    });
+
+    return NextResponse.json({ ok: true, signOut: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
