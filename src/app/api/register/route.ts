@@ -107,8 +107,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Create a login OTP so the client can auto-login without a second email
-    const loginOtp = await createOtp(data.email.toLowerCase(), "login");
+    // Create a short-lived auto-login token (90s) to avoid a second email send.
+    // Uses purpose "register-autologin" so it cannot be replayed as a regular login OTP.
+    const loginOtp = await createOtp(data.email.toLowerCase(), "register-autologin");
 
     return NextResponse.json({ message: "تم إنشاء الحساب بنجاح", businessId: result.business.id, loginOtp }, { status: 201 });
   } catch (error) {

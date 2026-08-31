@@ -11,7 +11,8 @@ const schema = z.object({
   taxNumber: z.string().max(50).optional().nullable(),
   address: z.string().max(200).optional().nullable(),
   phone: z.string().max(30).optional().nullable(),
-  logo: z.string().max(500000).optional().nullable(),
+  logo: z.string().max(500000).optional().nullable()
+    .refine((v) => !v || !v.startsWith("data:image/svg"), { message: "SVG logos are not allowed" }),
   defaultPaymentTerms: z.string().max(100).optional().nullable(),
   invoiceNumberPrefix: z.string().min(1).max(10).regex(/^[A-Za-z0-9-]+$/).optional(),
   invoiceNumberSeed: z.number().int().min(0).optional(),

@@ -14,7 +14,7 @@ export async function logAudit(params: {
 }) {
   try {
     await prisma.auditLog.create({ data: params });
-  } catch {
-    // audit log failures must never break the main flow
+  } catch (err) {
+    console.error("[audit] Failed to write audit log:", err);
   }
 }

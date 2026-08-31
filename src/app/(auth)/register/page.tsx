@@ -93,6 +93,7 @@ function RegisterForm() {
         email: form.email,
         password: form.password,
         otp: data.loginOtp,
+        otpPurpose: "register-autologin",
         redirect: false,
       });
 

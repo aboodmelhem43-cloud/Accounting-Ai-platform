@@ -23,11 +23,14 @@ function isRateLimited(email: string): boolean {
   return false;
 }
 
-function createResetToken(email: string): string {
+function createResetToken(email: string, passwordHash: string): string {
   const expiry = Date.now() + 3_600_000; // 1 hour
   const secret = process.env.NEXTAUTH_SECRET;
   if (!secret) throw new Error("NEXTAUTH_SECRET is not configured");
-  const payload = `${Buffer.from(email).toString("base64url")}.${expiry}`;
+  // Bind token to the current password hash so it is automatically invalidated
+  // after a successful reset (or any other password change)
+  const pwFingerprint = createHmac("sha256", secret).update(passwordHash).digest("hex").slice(0, 8);
+  const payload = `${Buffer.from(email).toString("base64url")}.${expiry}.${pwFingerprint}`;
   const sig = createHmac("sha256", secret).update(payload).digest("base64url");
   return `${payload}.${sig}`;
 }
@@ -49,7 +52,7 @@ export async function POST(req: NextRequest) {
   const user = await prisma.user.findUnique({ where: { email } }).catch(() => null);
   if (!user) return NextResponse.json({ ok: true });
 
-  const token = createResetToken(email);
+  const token = createResetToken(email, user.passwordHash);
   const appUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
   const resetUrl = `${appUrl}/reset-password?token=${token}`;
 

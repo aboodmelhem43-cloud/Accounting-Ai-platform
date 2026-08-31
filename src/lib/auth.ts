@@ -28,6 +28,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "البريد الإلكتروني", type: "email" },
         password: { label: "كلمة المرور", type: "password" },
         otp: { label: "رمز التحقق", type: "text" },
+        otpPurpose: { label: "OTP Purpose", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.otp) return null;
@@ -65,7 +66,9 @@ export const authOptions: NextAuthOptions = {
           if (!isValid) return null;
         }
 
-        const otpValid = await verifyOtp(credentials.email, credentials.otp, "login");
+        // Accept either a regular login OTP or the short-lived register-autologin token
+        const otpPurpose = (credentials.otpPurpose === "register-autologin") ? "register-autologin" : "login";
+        const otpValid = await verifyOtp(credentials.email, credentials.otp, otpPurpose);
         if (!otpValid) return null;
 
         const trialEnd = effectiveTrialEnd(

@@ -9,12 +9,19 @@ export function generateOtpCode(): string {
   return String(100000 + (buf[0] % 900000));
 }
 
+// Register auto-login tokens expire in 90 seconds — they travel in a response body
+// and must be consumed immediately; a short window limits log-capture risk
+const AUTO_LOGIN_EXPIRY_SECONDS = 90;
+
 export async function createOtp(email: string, purpose: string): Promise<string> {
   await prisma.otpCode.deleteMany({ where: { email: email.toLowerCase(), purpose } });
 
   const code = generateOtpCode();
   const codeHash = await bcrypt.hash(code, 10);
-  const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
+  const ttlMs = purpose === "register-autologin"
+    ? AUTO_LOGIN_EXPIRY_SECONDS * 1000
+    : OTP_EXPIRY_MINUTES * 60 * 1000;
+  const expiresAt = new Date(Date.now() + ttlMs);
 
   await prisma.otpCode.create({
     data: { email: email.toLowerCase(), code: codeHash, purpose, expiresAt },
