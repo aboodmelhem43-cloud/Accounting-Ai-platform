@@ -59,6 +59,14 @@ export default function SettingsPage() {
   const [referralLoading, setReferralLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Email change form
+  const [emailChangeOpen, setEmailChangeOpen] = useState(false);
+  const [emailNew, setEmailNew] = useState("");
+  const [emailOtp, setEmailOtp] = useState("");
+  const [emailStep, setEmailStep] = useState<"input" | "otp">("input");
+  const [emailMsg, setEmailMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [emailSaving, setEmailSaving] = useState(false);
+
   // Password form
   const [pwCurrent, setPwCurrent] = useState("");
   const [pwNew, setPwNew] = useState("");
@@ -174,6 +182,60 @@ export default function SettingsPage() {
       setPMsg({ ok: false, text: isAr ? "خطأ في الاتصال" : "Connection error" });
     } finally {
       setPSaving(false);
+    }
+  }
+
+  async function sendEmailOtp() {
+    setEmailSaving(true);
+    setEmailMsg(null);
+    try {
+      const res = await fetch("/api/settings/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newEmail: emailNew, lang }),
+      });
+      if (res.ok) {
+        setEmailStep("otp");
+        setEmailMsg({ ok: true, text: isAr ? "تم إرسال رمز التحقق إلى البريد الجديد" : "Verification code sent to your new email" });
+      } else {
+        const d = await res.json();
+        const errMap: Record<string, string> = {
+          same_email: isAr ? "هذا هو بريدك الحالي" : "This is already your current email",
+          email_taken: isAr ? "هذا البريد مستخدم بالفعل" : "Email already in use",
+        };
+        setEmailMsg({ ok: false, text: errMap[d.error] ?? (d.error ?? "Error") });
+      }
+    } catch {
+      setEmailMsg({ ok: false, text: isAr ? "خطأ في الاتصال" : "Connection error" });
+    } finally {
+      setEmailSaving(false);
+    }
+  }
+
+  async function verifyEmailOtp() {
+    setEmailSaving(true);
+    setEmailMsg(null);
+    try {
+      const res = await fetch("/api/settings/email/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newEmail: emailNew, otp: emailOtp }),
+      });
+      if (res.ok) {
+        setEmailMsg({ ok: true, text: isAr ? "تم تغيير البريد الإلكتروني بنجاح — سيتم تسجيل الخروج" : "Email changed successfully — signing you out" });
+        setTimeout(() => signOut({ callbackUrl: "/login" }), 1500);
+      } else {
+        const d = await res.json();
+        const errMap: Record<string, string> = {
+          invalid_otp: isAr ? "رمز التحقق غير صحيح أو منتهي الصلاحية" : "Invalid or expired verification code",
+          email_taken: isAr ? "هذا البريد مستخدم بالفعل" : "Email already in use",
+        };
+        setEmailMsg({ ok: false, text: errMap[d.error] ?? (d.error ?? "Error") });
+      }
+    } catch {
+      setEmailMsg({ ok: false, text: isAr ? "خطأ في الاتصال" : "Connection error" });
+    } finally {
+      setEmailSaving(false);
     }
   }
 
@@ -449,8 +511,107 @@ export default function SettingsPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t("settings.profile.email")}</label>
             <input className="input bg-gray-50 cursor-not-allowed" value={session?.user?.email ?? ""} readOnly />
-            <p className="text-xs text-gray-400 mt-1">{t("settings.profile.email_hint")}</p>
+            {!emailChangeOpen && (
+              <button
+                onClick={() => { setEmailChangeOpen(true); setEmailStep("input"); setEmailNew(""); setEmailOtp(""); setEmailMsg(null); }}
+                className="text-xs text-blue-600 hover:underline mt-1"
+              >
+                {isAr ? "تغيير البريد الإلكتروني" : "Change email address"}
+              </button>
+            )}
           </div>
+
+          {emailChangeOpen && (
+            <div className="border border-blue-100 bg-blue-50/30 rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-gray-700">
+                  {isAr ? "تغيير البريد الإلكتروني" : "Change Email Address"}
+                </p>
+                <button
+                  onClick={() => { setEmailChangeOpen(false); setEmailMsg(null); }}
+                  className="text-xs text-gray-400 hover:text-gray-600"
+                >
+                  {isAr ? "إلغاء" : "Cancel"}
+                </button>
+              </div>
+
+              {emailStep === "input" && (
+                <>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {isAr ? "البريد الجديد" : "New email address"}
+                    </label>
+                    <input
+                      type="email"
+                      className="input"
+                      value={emailNew}
+                      onChange={(e) => setEmailNew(e.target.value)}
+                      placeholder={isAr ? "البريد الإلكتروني الجديد..." : "new@example.com"}
+                      autoComplete="email"
+                    />
+                  </div>
+                  {emailMsg && (
+                    <p className={`text-xs ${emailMsg.ok ? "text-green-600" : "text-red-600"}`}>{emailMsg.text}</p>
+                  )}
+                  <button
+                    onClick={sendEmailOtp}
+                    disabled={emailSaving || !emailNew.trim()}
+                    className="btn-primary text-sm py-2"
+                  >
+                    {emailSaving
+                      ? (isAr ? "جاري الإرسال..." : "Sending...")
+                      : (isAr ? "إرسال رمز التحقق" : "Send Verification Code")}
+                  </button>
+                </>
+              )}
+
+              {emailStep === "otp" && (
+                <>
+                  <p className="text-xs text-gray-500">
+                    {isAr
+                      ? `تم إرسال رمز مكون من 6 أرقام إلى ${emailNew}`
+                      : `A 6-digit code was sent to ${emailNew}`}
+                  </p>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {isAr ? "رمز التحقق" : "Verification code"}
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      className="input font-mono text-lg tracking-widest text-center"
+                      value={emailOtp}
+                      onChange={(e) => setEmailOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      placeholder="000000"
+                      autoComplete="one-time-code"
+                    />
+                  </div>
+                  {emailMsg && (
+                    <p className={`text-xs ${emailMsg.ok ? "text-green-600" : "text-red-600"}`}>{emailMsg.text}</p>
+                  )}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={verifyEmailOtp}
+                      disabled={emailSaving || emailOtp.length !== 6}
+                      className="btn-primary text-sm py-2 flex-1"
+                    >
+                      {emailSaving
+                        ? (isAr ? "جاري التحقق..." : "Verifying...")
+                        : (isAr ? "تأكيد التغيير" : "Confirm Change")}
+                    </button>
+                    <button
+                      onClick={() => { setEmailStep("input"); setEmailOtp(""); setEmailMsg(null); }}
+                      className="btn-secondary text-sm py-2 px-3"
+                    >
+                      {isAr ? "رجوع" : "Back"}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
           {pMsg && <p className={`text-sm ${pMsg.ok ? "text-green-600" : "text-red-600"}`}>{pMsg.text}</p>}
           <button onClick={saveProfile} disabled={pSaving || !pName.trim()} className="btn-primary">
             {pSaving ? (isAr ? "جاري الحفظ..." : "Saving...") : t("settings.profile.save")}

@@ -40,8 +40,8 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
   // Track which parent items are manually expanded
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-  const adminEmails = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS ?? "aboodmelhem43@gmail.com")
-    .split(",").map((e) => e.trim().toLowerCase());
+  const adminEmails = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS ?? "")
+    .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
   const showAdmin = isAdmin || adminEmails.includes((session?.user?.email ?? "").toLowerCase());
 
   const clientBusinesses = session?.user?.clientBusinesses ?? [];

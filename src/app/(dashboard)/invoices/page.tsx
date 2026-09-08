@@ -8,6 +8,8 @@ import { Suspense } from "react";
 import InvoiceFilters from "./InvoiceFilters";
 import InvoiceBulkTable from "@/components/InvoiceBulkTable";
 
+const PAGE_SIZE = 25;
+
 type ExtractedData = {
   vendorName?: string;
   customerName?: string;
@@ -42,7 +44,7 @@ function getPeriodRange(period: string): { from: Date; to: Date } | null {
 export default async function InvoicesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; period?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; period?: string; page?: string }>;
 }) {
   const session = await getServerSession(authOptions);
   if (!session) return null;
@@ -53,35 +55,52 @@ export default async function InvoicesPage({
   const compliance = getComplianceModule(session.user.country);
   const { businessId } = session.user;
 
-  const { q = "", status = "", period = "" } = await searchParams;
+  const { q = "", status = "", period = "", page: pageStr = "1" } = await searchParams;
+  const page = Math.max(1, parseInt(pageStr, 10) || 1);
   const periodRange = getPeriodRange(period);
-
-  const allInvoices = await prisma.invoice.findMany({
-    where: {
-      businessId,
-      ...(status ? { status: status as "PENDING_REVIEW" | "CONFIRMED" | "REJECTED" } : {}),
-      ...(periodRange ? { createdAt: { gte: periodRange.from, lte: periodRange.to } } : {}),
-    },
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  });
-
-  // Text search over JSON fields in memory
   const needle = q.trim().toLowerCase();
-  const invoices = needle
-    ? allInvoices.filter((inv) => {
-        const d = inv.extractedData as ExtractedData | null;
-        const haystack = [
-          d?.invoiceNumber,
-          d?.vendorName,
-          d?.customerName,
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        return haystack.includes(needle);
-      })
-    : allInvoices;
+
+  const where = {
+    businessId,
+    ...(status ? { status: status as "PENDING_REVIEW" | "CONFIRMED" | "REJECTED" } : {}),
+    ...(periodRange ? { createdAt: { gte: periodRange.from, lte: periodRange.to } } : {}),
+  };
+
+  let invoices: Awaited<ReturnType<typeof prisma.invoice.findMany>>;
+  let total: number;
+  let totalPages: number;
+
+  if (needle) {
+    // Text search is over JSON extractedData fields — fetch recent 200 and filter in memory.
+    // For full-text search across all records, add an indexed invoiceNumber column in a future migration.
+    const all = await prisma.invoice.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      take: 200,
+    });
+    invoices = all.filter((inv) => {
+      const d = inv.extractedData as ExtractedData | null;
+      const haystack = [d?.invoiceNumber, d?.vendorName, d?.customerName]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(needle);
+    });
+    total = invoices.length;
+    totalPages = 1; // all results shown at once when searching
+  } else {
+    // Proper DB pagination when not searching
+    [invoices, total] = await Promise.all([
+      prisma.invoice.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * PAGE_SIZE,
+        take: PAGE_SIZE,
+      }),
+      prisma.invoice.count({ where }),
+    ]);
+    totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  }
 
   const fmt = (n: number) =>
     `${n.toLocaleString(locale, { minimumFractionDigits: 2 })} ${isAr ? compliance.currencySymbol : compliance.currencySymbolEn}`;
@@ -94,13 +113,28 @@ export default async function InvoicesPage({
 
   const hasFilters = !!(q || status || period);
 
+  function buildPageUrl(p: number) {
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (status) params.set("status", status);
+    if (period) params.set("period", period);
+    if (p > 1) params.set("page", String(p));
+    const qs = params.toString();
+    return `/invoices${qs ? `?${qs}` : ""}`;
+  }
+
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t("invoices.title")}</h1>
           <p className="text-gray-500 text-sm mt-1">
-            {invoices.length}{hasFilters ? ` ${isAr ? "نتيجة" : "results"}` : ` ${isAr ? "فاتورة" : "invoices"}`}
+            {total}{hasFilters ? ` ${isAr ? "نتيجة" : "results"}` : ` ${isAr ? "فاتورة" : "invoices"}`}
+            {!needle && total > PAGE_SIZE && (
+              <span className="text-gray-400">
+                {" "}— {isAr ? `صفحة ${page} من ${totalPages}` : `page ${page} of ${totalPages}`}
+              </span>
+            )}
           </p>
         </div>
         <div className="flex gap-2">
@@ -117,6 +151,14 @@ export default async function InvoicesPage({
       <Suspense fallback={null}>
         <InvoiceFilters />
       </Suspense>
+
+      {needle && total >= 200 && (
+        <p className="text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+          {isAr
+            ? "نتائج البحث محدودة بـ 200 فاتورة — يمكن تضييق النتائج بإضافة فلتر أو كلمة أدق"
+            : "Search results are limited to 200 invoices — refine with a more specific term or add a filter"}
+        </p>
+      )}
 
       {invoices.length === 0 ? (
         <div className="card text-center py-12">
@@ -142,33 +184,60 @@ export default async function InvoicesPage({
           )}
         </div>
       ) : (
-        <InvoiceBulkTable
-          isAr={isAr}
-          invoices={invoices.map((inv) => {
-            const d = inv.extractedData as ExtractedData | null;
-            const isCreated = inv.fileType === "created";
-            const party = isCreated
-              ? (d?.customerName ?? "—")
-              : (d?.vendorName ?? d?.customerName ?? "—");
-            const invoiceNum = d?.invoiceNumber ?? "—";
-            const invoiceDate = d?.invoiceDate
-              ? new Date(d.invoiceDate).toLocaleDateString(locale)
-              : new Date(inv.createdAt).toLocaleDateString(locale);
-            const s = statusMap[inv.status] ?? { label: inv.status, cls: "bg-gray-100 text-gray-600" };
-            return {
-              id: inv.id,
-              invoiceNum,
-              party,
-              isCreated,
-              invoiceType: inv.invoiceType === "PURCHASE" ? t("invoices.type.purchase") : t("invoices.type.sales"),
-              amount: d?.totalAmount ? fmt(d.totalAmount) : "—",
-              date: invoiceDate,
-              status: inv.status,
-              statusLabel: s.label,
-              statusCls: s.cls,
-            };
-          })}
-        />
+        <>
+          <InvoiceBulkTable
+            isAr={isAr}
+            invoices={invoices.map((inv) => {
+              const d = inv.extractedData as ExtractedData | null;
+              const isCreated = inv.fileType === "created";
+              const party = isCreated
+                ? (d?.customerName ?? "—")
+                : (d?.vendorName ?? d?.customerName ?? "—");
+              const invoiceNum = d?.invoiceNumber ?? "—";
+              const invoiceDate = d?.invoiceDate
+                ? new Date(d.invoiceDate).toLocaleDateString(locale)
+                : new Date(inv.createdAt).toLocaleDateString(locale);
+              const s = statusMap[inv.status] ?? { label: inv.status, cls: "bg-gray-100 text-gray-600" };
+              return {
+                id: inv.id,
+                invoiceNum,
+                party,
+                isCreated,
+                invoiceType: inv.invoiceType === "PURCHASE" ? t("invoices.type.purchase") : t("invoices.type.sales"),
+                amount: d?.totalAmount ? fmt(d.totalAmount) : "—",
+                date: invoiceDate,
+                status: inv.status,
+                statusLabel: s.label,
+                statusCls: s.cls,
+              };
+            })}
+          />
+
+          {/* Pagination controls (only shown when not searching) */}
+          {!needle && totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-2">
+              {page > 1 && (
+                <Link
+                  href={buildPageUrl(page - 1)}
+                  className="btn-secondary text-sm px-4"
+                >
+                  {isAr ? "→ السابق" : "← Prev"}
+                </Link>
+              )}
+              <span className="text-sm text-gray-500 px-2">
+                {isAr ? `${page} / ${totalPages}` : `${page} / ${totalPages}`}
+              </span>
+              {page < totalPages && (
+                <Link
+                  href={buildPageUrl(page + 1)}
+                  className="btn-secondary text-sm px-4"
+                >
+                  {isAr ? "← التالي" : "Next →"}
+                </Link>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -15,6 +15,8 @@ export default function InvoiceFilters() {
       const params = new URLSearchParams(sp.toString());
       if (value) params.set(key, value);
       else params.delete(key);
+      // Reset to page 1 whenever a filter changes
+      params.delete("page");
       router.push(`/invoices?${params.toString()}`);
     },
     [router, sp]
