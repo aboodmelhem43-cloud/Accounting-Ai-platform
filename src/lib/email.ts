@@ -410,7 +410,7 @@ export async function sendTrialExpiredEmail({
     <a href="${upgradeUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:20px">
       اشترك الآن
     </a>
-    <p style="color:#6b7280;font-size:13px;margin:0 0 8px">خططنا تبدأ من $69/شهر وتشمل جميع الميزات.</p>
+    <p style="color:#6b7280;font-size:13px;margin:0 0 8px">خططنا تبدأ من $15/شهر وتشمل جميع الميزات.</p>
     <p style="color:#9ca3af;font-size:12px;margin:0">أي سؤال؟ راسلنا على ${SUPPORT_EMAIL}</p>
   ` : `
     <p style="color:#374151;font-size:16px;margin:0 0 16px">Hi ${name},</p>
@@ -424,7 +424,7 @@ export async function sendTrialExpiredEmail({
     <a href="${upgradeUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:20px">
       Subscribe Now
     </a>
-    <p style="color:#6b7280;font-size:13px;margin:0 0 8px">Plans start at $69/month and include all features.</p>
+    <p style="color:#6b7280;font-size:13px;margin:0 0 8px">Plans start at $15/month and include all features.</p>
     <p style="color:#9ca3af;font-size:12px;margin:0">Questions? Email us at ${SUPPORT_EMAIL}</p>
   `;
 

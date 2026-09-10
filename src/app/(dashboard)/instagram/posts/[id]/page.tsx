@@ -18,6 +18,94 @@ interface Post {
   createdAt: string;
 }
 
+interface Insights {
+  engagement: number;
+  impressions: number;
+  reach: number;
+  saved: number;
+  video_views?: number;
+  _fetchedAt?: number;
+}
+
+function InsightsPanel({ postId }: { postId: string }) {
+  const [insights, setInsights] = useState<Insights | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch(`/api/instagram/posts/${postId}/insights`)
+      .then((r) => r.json())
+      .then((d: { insights?: Insights; error?: string }) => {
+        if (d.insights) setInsights(d.insights);
+        else setError(d.error ?? "لا توجد بيانات");
+      })
+      .catch(() => setError("تعذر تحميل البيانات"))
+      .finally(() => setLoading(false));
+  }, [postId]);
+
+  if (loading) {
+    return (
+      <div className="card animate-pulse">
+        <div className="h-4 bg-gray-200 rounded w-32 mb-3" />
+        <div className="grid grid-cols-4 gap-3">
+          {Array(4).fill(0).map((_, i) => <div key={i} className="h-12 bg-gray-200 rounded-lg" />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !insights) {
+    return (
+      <div className="card text-sm text-gray-400 text-center py-4">
+        📊 {error || "لا توجد إحصائيات بعد"}
+      </div>
+    );
+  }
+
+  const metrics = [
+    { label: "الوصول", value: insights.reach, icon: "👁️" },
+    { label: "التفاعل", value: insights.engagement, icon: "❤️" },
+    { label: "الانطباعات", value: insights.impressions, icon: "📺" },
+    { label: "المحفوظات", value: insights.saved, icon: "🔖" },
+    ...(insights.video_views != null
+      ? [{ label: "مشاهدات الفيديو", value: insights.video_views, icon: "▶️" }]
+      : []),
+  ];
+
+  const engRate = insights.reach > 0
+    ? ((insights.engagement / insights.reach) * 100).toFixed(1)
+    : "0.0";
+
+  return (
+    <div className="card">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-semibold text-gray-800">📊 إحصائيات المنشور</h2>
+        <span className="text-xs text-gray-400">
+          {insights._fetchedAt
+            ? `آخر تحديث: ${new Date(insights._fetchedAt).toLocaleTimeString("ar")}`
+            : ""}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {metrics.map((m) => (
+          <div key={m.label} className="bg-gray-50 rounded-xl p-3 text-center">
+            <div className="text-lg mb-0.5">{m.icon}</div>
+            <div className="text-xl font-bold text-gray-900 tabular-nums">
+              {m.value.toLocaleString("ar")}
+            </div>
+            <div className="text-xs text-gray-500">{m.label}</div>
+          </div>
+        ))}
+        <div className="bg-blue-50 rounded-xl p-3 text-center">
+          <div className="text-lg mb-0.5">📈</div>
+          <div className="text-xl font-bold text-blue-700 tabular-nums">{engRate}%</div>
+          <div className="text-xs text-gray-500">معدل التفاعل</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const STATUS_BADGE: Record<PostStatus, { label: string; cls: string }> = {
   DRAFT:     { label: "مسودة",  cls: "bg-gray-100 text-gray-600" },
   SCHEDULED: { label: "مجدول", cls: "bg-blue-100 text-blue-700" },
@@ -309,6 +397,9 @@ export default function EditPostPage() {
           className="w-full text-sm border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none disabled:bg-gray-50"
         />
       </div>
+
+      {/* Insights panel — only for PUBLISHED posts */}
+      {post.status === "PUBLISHED" && <InsightsPanel postId={post.id} />}
 
       {!isReadonly && (
         <div className="space-y-2">

@@ -149,9 +149,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 applicationSubCategory: "Accounting Software",
                 operatingSystem: "Web, iOS, Android",
                 offers: [
-                  { "@type": "Offer", name: "Starter", price: "69", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" } },
-                  { "@type": "Offer", name: "Pro", price: "149", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" } },
-                  { "@type": "Offer", name: "Business", price: "199", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" } },
+                  { "@type": "Offer", name: "Starter", price: "15", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" } },
+                  { "@type": "Offer", name: "Pro", price: "35", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" } },
+                  { "@type": "Offer", name: "Business", price: "69", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" } },
                 ],
                 featureList: [
                   "قراءة الفواتير بالذكاء الاصطناعي",

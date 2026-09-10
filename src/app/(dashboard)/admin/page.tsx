@@ -48,9 +48,9 @@ type Period = "week" | "month" | "year";
 
 const PLAN_META: Record<string, { label: string; badge: string; bar: string }> = {
   FREE_TRIAL: { label: "Free Trial",       badge: "bg-gray-100 text-gray-600",     bar: "#9CA3AF" },
-  STARTER:    { label: "Starter ($69)",    badge: "bg-blue-100 text-blue-700",     bar: "#3B82F6" },
-  PRO:        { label: "Pro ($149)",       badge: "bg-violet-100 text-violet-700", bar: "#8B5CF6" },
-  BUSINESS:   { label: "Business ($199)", badge: "bg-emerald-100 text-emerald-700", bar: "#10B981" },
+  STARTER:    { label: "Starter ($15)",   badge: "bg-blue-100 text-blue-700",     bar: "#3B82F6" },
+  PRO:        { label: "Pro ($35)",       badge: "bg-violet-100 text-violet-700", bar: "#8B5CF6" },
+  BUSINESS:   { label: "Business ($69)", badge: "bg-emerald-100 text-emerald-700", bar: "#10B981" },
 };
 
 const COUNTRY_NAMES: Record<string, string> = {
