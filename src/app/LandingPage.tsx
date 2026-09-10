@@ -3,6 +3,16 @@ import { useState } from "react";
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
 
+type PricingPlan = {
+  id: string;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  localHint: { monthly: { ar: string; en: string }; yearly: { ar: string; en: string } };
+  ar: { name: string; desc: string; features: string[] };
+  en: { name: string; desc: string; features: string[] };
+  highlight: boolean;
+};
+
 const FEATURES = [
   {
     icon: "🤖",
@@ -88,44 +98,6 @@ const COMPARE = [
   },
 ];
 
-const PRICING = [
-  {
-    id: "STARTER",
-    monthlyPrice: 15,
-    yearlyPrice: 120,
-    localHint: {
-      monthly: { ar: "≈ 56 ر.س / 750 ج.م", en: "≈ SAR 56 / EGP 750" },
-      yearly: { ar: "≈ 450 ر.س / 6,000 ج.م", en: "≈ SAR 450 / EGP 6,000" },
-    },
-    ar: { name: "المبتدئ", desc: "للأعمال الناشئة", features: ["50 فاتورة/شهر", "50 سؤال AI/شهر", "رفع وإنشاء الفواتير", "دفتر اليومية", "تقارير أساسية", "دعم عملاء"] },
-    en: { name: "Starter", desc: "For new businesses", features: ["50 invoices/month", "50 AI queries/month", "Upload & create invoices", "Journal ledger", "Basic reports", "Customer support"] },
-    highlight: false,
-  },
-  {
-    id: "PRO",
-    monthlyPrice: 35,
-    yearlyPrice: 280,
-    localHint: {
-      monthly: { ar: "≈ 131 ر.س / 1,750 ج.م", en: "≈ SAR 131 / EGP 1,750" },
-      yearly: { ar: "≈ 1,050 ر.س / 14,000 ج.م", en: "≈ SAR 1,050 / EGP 14,000" },
-    },
-    ar: { name: "الاحترافي", desc: "للأعمال النامية", features: ["500 فاتورة/شهر", "AI غير محدود", "كل مميزات المبتدئ", "3 مستخدمين", "تقارير متقدمة", "دعم أولوية"] },
-    en: { name: "Pro", desc: "For growing businesses", features: ["500 invoices/month", "Unlimited AI", "Everything in Starter", "3 users", "Advanced reports", "Priority support"] },
-    highlight: true,
-  },
-  {
-    id: "BUSINESS",
-    monthlyPrice: 69,
-    yearlyPrice: 549,
-    localHint: {
-      monthly: { ar: "≈ 259 ر.س / 3,450 ج.م", en: "≈ SAR 259 / EGP 3,450" },
-      yearly: { ar: "≈ 2,059 ر.س / 27,500 ج.م", en: "≈ SAR 2,059 / EGP 27,500" },
-    },
-    ar: { name: "الأعمال", desc: "للشركات المتوسطة", features: ["فواتير غير محدودة", "AI غير محدود", "كل مميزات الاحترافي", "10 مستخدمين", "API access", "دعم VIP"] },
-    en: { name: "Business", desc: "For mid-size companies", features: ["Unlimited invoices", "Unlimited AI", "Everything in Pro", "10 users", "API access", "VIP support"] },
-    highlight: false,
-  },
-];
 
 const COUNTRIES = [
   { flag: "🇯🇴", ar: "الأردن", en: "Jordan", system: "JoFotara" },
@@ -161,7 +133,7 @@ const FAQS = [
   },
 ];
 
-export default function LandingPage() {
+export default function LandingPage({ pricingData }: { pricingData: PricingPlan[] }) {
   const { lang, toggleLang } = useLang();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
@@ -487,7 +459,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {PRICING.map((plan) => {
+            {pricingData.map((plan) => {
               const p = isAr ? plan.ar : plan.en;
               const price = billing === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;
               const period = billing === "monthly" ? (isAr ? "/شهر" : "/mo") : (isAr ? "/سنة" : "/yr");
