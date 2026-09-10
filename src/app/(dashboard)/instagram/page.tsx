@@ -9,11 +9,15 @@ export default async function InstagramDashboardPage() {
 
   const { businessId } = session.user;
 
-  const [total, drafts, scheduled, published] = await Promise.all([
+  const [total, drafts, scheduled, published, igProfile] = await Promise.all([
     prisma.instagramPost.count({ where: { businessId } }),
     prisma.instagramPost.count({ where: { businessId, status: "DRAFT" } }),
     prisma.instagramPost.count({ where: { businessId, status: "SCHEDULED" } }),
     prisma.instagramPost.count({ where: { businessId, status: "PUBLISHED" } }),
+    prisma.instagramProfile.findUnique({
+      where: { businessId },
+      select: { username: true, profilePicUrl: true, followersCount: true, tokenExpiresAt: true },
+    }),
   ]);
 
   // Next 3 scheduled posts
@@ -49,6 +53,35 @@ export default async function InstagramDashboardPage() {
           ✏️ منشور جديد
         </Link>
       </div>
+
+      {/* Connection status banner */}
+      {igProfile ? (
+        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+          {igProfile.profilePicUrl ? (
+            <img src={igProfile.profilePicUrl} alt="" className="w-9 h-9 rounded-full" />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600" />
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-green-800">@{igProfile.username}</p>
+            <p className="text-xs text-green-600">{igProfile.followersCount.toLocaleString("ar")} متابع · متصل</p>
+          </div>
+          <Link href="/instagram/connect" className="text-xs text-green-700 border border-green-300 px-3 py-1.5 rounded-lg hover:bg-green-100">
+            إدارة الربط
+          </Link>
+        </div>
+      ) : (
+        <div className="flex items-center gap-3 bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3">
+          <span className="text-2xl">📵</span>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-yellow-800">لم يتم ربط حساب إنستغرام</p>
+            <p className="text-xs text-yellow-600">اربط حسابك للنشر المباشر</p>
+          </div>
+          <Link href="/instagram/connect" className="text-xs bg-yellow-600 text-white px-3 py-1.5 rounded-lg hover:bg-yellow-700">
+            ربط الآن
+          </Link>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -105,6 +138,7 @@ export default async function InstagramDashboardPage() {
               { href: "/instagram/posts",       icon: "📋", label: "جميع المنشورات" },
               { href: "/instagram/calendar",    icon: "📅", label: "التقويم" },
               { href: "/instagram/settings",    icon: "🏷", label: "مجموعات الهاشتاقات" },
+              { href: "/instagram/connect",     icon: "🔗", label: "ربط الحساب" },
             ].map((item) => (
               <Link
                 key={item.href}

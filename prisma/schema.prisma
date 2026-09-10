@@ -583,12 +583,14 @@ model InstagramProfile {
   id             String    @id @default(cuid())
   businessId     String    @unique
   business       Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  instagramId    String
+  instagramId    String    // IG Business Account ID
   username       String
-  accessToken    String
+  accessToken    String    // Long-lived page access token (60-day expiry)
   tokenExpiresAt DateTime?
   profilePicUrl  String?
   followersCount Int       @default(0)
+  pageId         String?   // Facebook Page ID linked to the IG account
+  scope          String?   // Comma-separated OAuth scopes granted
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }

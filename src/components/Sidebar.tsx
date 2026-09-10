@@ -151,6 +151,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
             { href: "/instagram/posts",        label: isAr ? "المنشورات" : "Posts",    icon: "📋" },
             { href: "/instagram/calendar",     label: isAr ? "التقويم" : "Calendar",   icon: "📅" },
             { href: "/instagram/settings",     label: isAr ? "الهاشتاقات" : "Hashtags", icon: "🏷" },
+            { href: "/instagram/connect",      label: isAr ? "ربط الحساب" : "Connect", icon: "🔗" },
           ],
         },
       ],

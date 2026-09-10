@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 type Tone = "professional" | "casual" | "witty" | "promotional";
@@ -44,8 +44,20 @@ export default function CreatePostPage() {
   const [status, setStatus] = useState<"DRAFT" | "SCHEDULED">("DRAFT");
   const [scheduledAt, setScheduledAt] = useState("");
 
+  // IG connection
+  const [igConnected, setIgConnected] = useState(false);
+  useEffect(() => {
+    fetch("/api/instagram/profile").then(async (r) => {
+      if (r.ok) {
+        const { profile } = await r.json() as { profile: unknown };
+        setIgConnected(!!profile);
+      }
+    }).catch(() => { /* ignore */ });
+  }, []);
+
   // Save
   const [saving, setSaving] = useState(false);
+  const [publishingNow, setPublishingNow] = useState(false);
   const [error, setError] = useState("");
 
   /* ---- Upload ---- */
@@ -164,6 +176,39 @@ export default function CreatePostPage() {
       setError(e ?? "فشل الحفظ");
     }
     setSaving(false);
+  };
+
+  /* ---- Publish Now ---- */
+  const publishNow = async () => {
+    if (mediaUrls.length === 0) { setError("أضف صورة أو فيديو قبل النشر"); return; }
+    setPublishingNow(true); setError("");
+    // Save as DRAFT first to get an ID, then publish immediately
+    const saveRes = await fetch("/api/instagram/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mediaUrls,
+        caption:     caption.trim() || null,
+        hashtags,
+        status:      "DRAFT",
+        aiGenerated: caption !== "",
+      }),
+    });
+    if (!saveRes.ok) {
+      const { error: e } = await saveRes.json() as { error: string };
+      setError(e ?? "فشل الحفظ");
+      setPublishingNow(false);
+      return;
+    }
+    const { post } = await saveRes.json() as { post: { id: string } };
+    const pubRes = await fetch(`/api/instagram/posts/${post.id}/publish`, { method: "POST" });
+    if (pubRes.ok) {
+      router.push(`/instagram/posts/${post.id}`);
+    } else {
+      const { message } = await pubRes.json() as { message?: string };
+      setError(message ?? "فشل النشر");
+    }
+    setPublishingNow(false);
   };
 
   const totalChars = caption.length + (hashtags.length ? hashtags.map((h) => `#${h}`).join(" ").length + 1 : 0);
@@ -457,9 +502,18 @@ export default function CreatePostPage() {
 
             {/* Actions */}
             <div className="mt-4 space-y-2">
+              {igConnected && (
+                <button
+                  onClick={() => void publishNow()}
+                  disabled={publishingNow || saving}
+                  className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-pink-500 hover:opacity-90 disabled:opacity-50 text-white text-sm font-medium rounded-xl transition-opacity"
+                >
+                  {publishingNow ? "جارٍ النشر…" : "🚀 نشر الآن"}
+                </button>
+              )}
               <button
                 onClick={() => void save(false)}
-                disabled={saving}
+                disabled={saving || publishingNow}
                 className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-xl transition-colors"
               >
                 {saving ? "جارٍ الحفظ…" : status === "SCHEDULED" ? "جدولة المنشور" : "حفظ كمسودة"}
@@ -467,11 +521,19 @@ export default function CreatePostPage() {
               {status !== "DRAFT" && (
                 <button
                   onClick={() => void save(true)}
-                  disabled={saving}
+                  disabled={saving || publishingNow}
                   className="w-full py-2 border text-sm text-gray-600 rounded-xl hover:bg-gray-50 disabled:opacity-50"
                 >
                   حفظ كمسودة فقط
                 </button>
+              )}
+              {!igConnected && (
+                <a
+                  href="/instagram/connect"
+                  className="block text-center text-xs text-gray-400 hover:text-blue-600 mt-1"
+                >
+                  ربط حساب إنستغرام للنشر المباشر
+                </a>
               )}
             </div>
           </div>

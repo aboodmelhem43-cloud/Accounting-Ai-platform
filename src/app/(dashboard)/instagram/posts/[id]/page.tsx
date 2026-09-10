@@ -41,18 +41,23 @@ export default function EditPostPage() {
   const [scheduledAt, setScheduledAt] = useState("");
   const [notes, setNotes] = useState("");
 
-  const [uploading, setUploading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [saved, setSaved] = useState(false);
+  const [igConnected, setIgConnected] = useState(false);
+  const [uploading, setUploading]   = useState(false);
+  const [saving, setSaving]         = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [error, setError]           = useState("");
+  const [saved, setSaved]           = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const load = async () => {
-      const res = await fetch(`/api/instagram/posts/${id}`);
-      if (res.status === 404) { setNotFound(true); setLoading(false); return; }
-      if (res.ok) {
-        const { post: p } = await res.json() as { post: Post };
+      const [postRes, profileRes] = await Promise.all([
+        fetch(`/api/instagram/posts/${id}`),
+        fetch("/api/instagram/profile"),
+      ]);
+      if (postRes.status === 404) { setNotFound(true); setLoading(false); return; }
+      if (postRes.ok) {
+        const { post: p } = await postRes.json() as { post: Post };
         setPost(p);
         setMediaUrls(p.mediaUrls);
         setCaption(p.caption ?? "");
@@ -60,6 +65,10 @@ export default function EditPostPage() {
         setStatus(p.status === "SCHEDULED" ? "SCHEDULED" : "DRAFT");
         setScheduledAt(p.scheduledAt ? p.scheduledAt.slice(0, 16) : "");
         setNotes(p.notes ?? "");
+      }
+      if (profileRes.ok) {
+        const { profile } = await profileRes.json() as { profile: unknown };
+        setIgConnected(!!profile);
       }
       setLoading(false);
     };
@@ -100,6 +109,23 @@ export default function EditPostPage() {
     if (!tag) return;
     if (!hashtags.includes(tag)) setHashtags((prev) => [...prev, tag].slice(0, 30));
     setHashtagInput("");
+  };
+
+  const handlePublishNow = async () => {
+    if (!post) return;
+    setPublishing(true); setError("");
+    // Save first to capture edits
+    await handleSave();
+    const res = await fetch(`/api/instagram/posts/${post.id}/publish`, { method: "POST" });
+    if (res.ok) {
+      // Refresh post state
+      const r = await fetch(`/api/instagram/posts/${post.id}`);
+      if (r.ok) { const { post: p } = await r.json() as { post: Post }; setPost(p); }
+    } else {
+      const { message } = await res.json() as { message?: string };
+      setError(message ?? "فشل النشر");
+    }
+    setPublishing(false);
   };
 
   const handleSave = async () => {
@@ -285,13 +311,29 @@ export default function EditPostPage() {
       </div>
 
       {!isReadonly && (
-        <button
-          onClick={() => void handleSave()}
-          disabled={saving}
-          className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-xl transition-colors"
-        >
-          {saving ? "جارٍ الحفظ…" : "حفظ التغييرات"}
-        </button>
+        <div className="space-y-2">
+          {igConnected && (
+            <button
+              onClick={() => void handlePublishNow()}
+              disabled={publishing || saving}
+              className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 hover:opacity-90 disabled:opacity-50 text-white font-medium rounded-xl transition-opacity"
+            >
+              {publishing ? "جارٍ النشر…" : "🚀 نشر الآن على إنستغرام"}
+            </button>
+          )}
+          <button
+            onClick={() => void handleSave()}
+            disabled={saving || publishing}
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-xl transition-colors"
+          >
+            {saving ? "جارٍ الحفظ…" : "حفظ التغييرات"}
+          </button>
+          {!igConnected && (
+            <a href="/instagram/connect" className="block text-center text-xs text-gray-400 hover:text-blue-600">
+              ربط حساب إنستغرام للنشر المباشر
+            </a>
+          )}
+        </div>
       )}
     </div>
   );

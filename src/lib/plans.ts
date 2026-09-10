@@ -25,16 +25,16 @@ export const PLANS: Record<PlanId, {
   STARTER: {
     nameEn: "Starter",
     nameAr: "المبتدئ",
-    price: 69,
+    price: 15,
     currency: "USD",
     invoicesPerMonth: 50,
-    aiQueriesPerMonth: 20,
+    aiQueriesPerMonth: 50,
     maxUsers: 1,
   },
   PRO: {
     nameEn: "Pro",
     nameAr: "المحترف",
-    price: 149,
+    price: 35,
     currency: "USD",
     invoicesPerMonth: 500,
     aiQueriesPerMonth: -1,
@@ -43,7 +43,7 @@ export const PLANS: Record<PlanId, {
   BUSINESS: {
     nameEn: "Business",
     nameAr: "الأعمال",
-    price: 199,
+    price: 69,
     currency: "USD",
     invoicesPerMonth: -1,
     aiQueriesPerMonth: -1,
