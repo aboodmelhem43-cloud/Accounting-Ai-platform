@@ -140,6 +140,22 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
       ],
     },
     {
+      label: isAr ? "التسويق" : "Marketing",
+      items: [
+        {
+          href: "/instagram",
+          label: isAr ? "إنستغرام" : "Instagram",
+          icon: "📸",
+          children: [
+            { href: "/instagram/posts/create", label: isAr ? "منشور جديد" : "New Post", icon: "✏️" },
+            { href: "/instagram/posts",        label: isAr ? "المنشورات" : "Posts",    icon: "📋" },
+            { href: "/instagram/calendar",     label: isAr ? "التقويم" : "Calendar",   icon: "📅" },
+            { href: "/instagram/settings",     label: isAr ? "الهاشتاقات" : "Hashtags", icon: "🏷" },
+          ],
+        },
+      ],
+    },
+    {
       label: isAr ? "أدوات" : "Tools",
       items: [
         { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },

@@ -41,6 +41,7 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
     { href: "/periods", label: isAr ? "الفترات المحاسبية" : "Accounting Periods", icon: "🔒", indent: true },
     { href: "/opening-balances", label: isAr ? "الأرصدة الافتتاحية" : "Opening Balances", icon: "⚖️", indent: true },
     { href: "/expenses", label: isAr ? "مصروف سريع" : "Quick Expense", icon: "💸" },
+    { href: "/instagram", label: isAr ? "إنستغرام" : "Instagram", icon: "📸" },
     { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
     { href: "/documents", label: isAr ? "المستندات" : "Documents", icon: "📄" },
     { href: "/import", label: isAr ? "استيراد البيانات" : "Data Import", icon: "📥" },

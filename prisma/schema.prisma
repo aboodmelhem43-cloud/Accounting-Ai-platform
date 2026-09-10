@@ -55,6 +55,9 @@ model Business {
   storedDocuments     StoredDocument[]
   salesIntegrations   SalesIntegration[]
   salesEvents         SalesEvent[]
+  instagramPosts      InstagramPost[]
+  instagramHashtagSets InstagramHashtagSet[]
+  instagramProfile    InstagramProfile?
   // العملاء الذين يديرهم هذا المكتب
   practiceClients     Business[] @relation("PracticeClients")
   managedBy           Business?  @relation("PracticeClients", fields: [managedByBusinessId], references: [id])
@@ -532,4 +535,60 @@ model SalesEvent {
   @@unique([integrationId, externalId])
   @@index([businessId, status])
   @@index([businessId, occurredAt(sort: Desc)])
+}
+
+// ==================== Instagram Content Planner ====================
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  FAILED
+}
+
+model InstagramPost {
+  id               String     @id @default(cuid())
+  businessId       String
+  business         Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  mediaUrls        String[]
+  caption          String?    @db.Text
+  hashtags         String[]
+  status           PostStatus @default(DRAFT)
+  scheduledAt      DateTime?
+  publishedAt      DateTime?
+  instagramMediaId String?
+  insights         Json?
+  aiGenerated      Boolean    @default(false)
+  notes            String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([businessId, status])
+  @@index([businessId, scheduledAt])
+  @@index([businessId, createdAt(sort: Desc)])
+}
+
+model InstagramHashtagSet {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name       String
+  hashtags   String[]
+  createdAt  DateTime @default(now())
+
+  @@index([businessId])
+}
+
+model InstagramProfile {
+  id             String    @id @default(cuid())
+  businessId     String    @unique
+  business       Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  instagramId    String
+  username       String
+  accessToken    String
+  tokenExpiresAt DateTime?
+  profilePicUrl  String?
+  followersCount Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
