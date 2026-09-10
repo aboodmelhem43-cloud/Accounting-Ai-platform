@@ -43,9 +43,9 @@ NAVIGATION & PAGES:
 
 SUBSCRIPTION PLANS:
 - FREE_TRIAL: 35-day free trial, all features, 1 user
-- STARTER ($69/mo): Unlimited invoices, 1 user, all core features
-- PRO ($149/mo): Everything in Starter + 3 team users + priority support email
-- BUSINESS ($199/mo): Everything in Pro + 10 team users + VIP email support
+- STARTER ($15/mo): 50 invoices/month, 50 AI queries, all core features, 1 user
+- PRO ($35/mo): 500 invoices/month, unlimited AI, 3 users, Instagram AI
+- BUSINESS ($69/mo): Unlimited invoices, unlimited AI, 10 users, API access, VIP support
 
 TEAM MANAGEMENT (PRO & BUSINESS plans):
 - Owner can invite accountants via email from /settings/team

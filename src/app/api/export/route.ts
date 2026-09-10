@@ -19,7 +19,7 @@ export async function GET(_req: NextRequest) {
     prisma.journalEntry.findMany({
       where: { businessId },
       orderBy: { date: "desc" },
-      take: 5000,
+      take: 2000,
       select: {
         date: true,
         description: true,
@@ -37,7 +37,7 @@ export async function GET(_req: NextRequest) {
     prisma.invoice.findMany({
       where: { businessId },
       orderBy: { createdAt: "desc" },
-      take: 5000,
+      take: 2000,
       select: {
         invoiceType: true,
         status: true,

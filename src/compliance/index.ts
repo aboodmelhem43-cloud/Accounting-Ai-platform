@@ -22,9 +22,9 @@ const COMPLIANCE_MODULES: Record<string, ComplianceModule> = {
 
 // جلب وحدة الامتثال لدولة معينة
 export function getComplianceModule(countryCode: string): ComplianceModule {
-  const module = COMPLIANCE_MODULES[countryCode.toUpperCase()];
+  const module = COMPLIANCE_MODULES[countryCode?.toUpperCase()];
   if (!module) {
-    // fallback — يُعاد egypt كافتراضي لو الدولة غير مدعومة
+    console.warn(`[compliance] Unsupported country code: "${countryCode}" — falling back to Egypt (EG)`);
     return egypt;
   }
   return module;

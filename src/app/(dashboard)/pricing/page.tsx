@@ -11,23 +11,23 @@ const FEATURES: Record<PlanId, { ar: string[]; en: string[] }> = {
     en: ["20 invoices", "10 AI queries", "Dashboard", "Income report", "35 days free"],
   },
   STARTER: {
-    ar: ["50 فاتورة/شهر", "20 سؤال AI/شهر", "رفع فواتير بالذكاء الاصطناعي", "إنشاء فواتير مبيعات", "دفتر اليومية", "دعم عملاء"],
-    en: ["50 invoices/month", "20 AI queries/month", "AI invoice scanning", "Sales invoice creation", "Journal ledger", "Customer support"],
+    ar: ["50 فاتورة/شهر", "50 سؤال AI/شهر", "رفع فواتير بالذكاء الاصطناعي", "إنشاء فواتير مبيعات وشراء", "دفتر اليومية والتقارير", "دعم عملاء"],
+    en: ["50 invoices/month", "50 AI queries/month", "AI invoice scanning", "Sales & purchase invoices", "Journal & financial reports", "Customer support"],
   },
   PRO: {
-    ar: ["500 فاتورة/شهر", "AI غير محدود", "كل مميزات Starter", "3 مستخدمين", "تقارير متقدمة", "دعم عملاء"],
-    en: ["500 invoices/month", "Unlimited AI", "All Starter features", "3 users", "Advanced reports", "Customer support"],
+    ar: ["500 فاتورة/شهر", "AI غير محدود", "كل مميزات Starter", "3 مستخدمين", "تقارير متقدمة + تسوية بنكية", "إنستغرام AI"],
+    en: ["500 invoices/month", "Unlimited AI", "All Starter features", "3 users", "Advanced reports + bank reconciliation", "Instagram AI"],
   },
   BUSINESS: {
-    ar: ["فواتير غير محدودة", "AI غير محدود", "كل مميزات Pro", "10 مستخدمين", "API access", "دعم VIP"],
-    en: ["Unlimited invoices", "Unlimited AI", "All Pro features", "10 users", "API access", "VIP support"],
+    ar: ["فواتير غير محدودة", "AI غير محدود", "كل مميزات Pro", "10 مستخدمين", "API access + تكامل متاجر", "دعم VIP"],
+    en: ["Unlimited invoices", "Unlimited AI", "All Pro features", "10 users", "API access + store integrations", "VIP support"],
   },
 };
 
 const YEARLY_PRICES: Record<string, number> = {
-  STARTER: 690,
-  PRO: 1490,
-  BUSINESS: 1990,
+  STARTER: 120,  // $10/mo billed annually (save $60 vs monthly)
+  PRO: 280,      // ~$23/mo billed annually (save $140 vs monthly)
+  BUSINESS: 549, // ~$46/mo billed annually (save $279 vs monthly)
 };
 
 const PLAN_ORDER: PlanId[] = ["FREE_TRIAL", "STARTER", "PRO", "BUSINESS"];

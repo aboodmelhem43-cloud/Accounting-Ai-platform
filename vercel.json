@@ -27,6 +27,14 @@
     {
       "path": "/api/cron/invoice-reminders",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/instagram-publish",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/instagram-insights",
+      "schedule": "0 * * * *"
     }
   ]
 }

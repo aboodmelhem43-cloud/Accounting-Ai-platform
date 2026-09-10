@@ -60,6 +60,9 @@ export default function DocumentsPage() {
   const locale = isAr ? "ar" : "en";
 
   const [documents, setDocuments] = useState<StoredDocument[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadName, setUploadName] = useState("");
@@ -71,16 +74,21 @@ export default function DocumentsPage() {
   const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function loadDocuments() {
+  function loadDocuments(p = page) {
     setLoading(true);
-    fetch("/api/documents")
+    fetch(`/api/documents?page=${p}`)
       .then((r) => r.json())
-      .then((data) => setDocuments(data.documents ?? []))
+      .then((data) => {
+        setDocuments(data.documents ?? []);
+        setTotal(data.total ?? 0);
+        setTotalPages(data.pages ?? 1);
+        setPage(p);
+      })
       .catch(() => setDocuments([]))
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => { loadDocuments(); }, []);
+  useEffect(() => { loadDocuments(1); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleFileSelect(file: File) {
     setSelectedFile(file);
@@ -100,7 +108,7 @@ export default function DocumentsPage() {
       setSelectedFile(null);
       setUploadName("");
       setUploadType("OTHER");
-      loadDocuments();
+      loadDocuments(1);
     } catch {
       setActionError(isAr ? "فشل رفع الملف" : "Upload failed");
     } finally {
@@ -279,9 +287,9 @@ export default function DocumentsPage() {
       <div className="card">
         <h2 className="text-base font-semibold text-gray-800 mb-4">
           {isAr ? "المستندات المحفوظة" : "Saved Documents"}
-          {documents.length > 0 && (
+          {total > 0 && (
             <span className="ms-2 text-xs font-normal text-gray-400">
-              ({documents.length})
+              ({total})
             </span>
           )}
         </h2>
@@ -306,7 +314,7 @@ export default function DocumentsPage() {
 
         {!loading && documents.length > 0 && (
           <div className="divide-y divide-gray-100">
-            {documents.map((doc) => (
+            {documents.map((doc, _i) => (
               <div key={doc.id} className="flex items-center justify-between py-3 gap-4">
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="text-2xl flex-shrink-0">{fileIcon(doc.name)}</span>
@@ -341,6 +349,30 @@ export default function DocumentsPage() {
                 </div>
               </div>
             ))}
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 pt-4">
+                {page > 1 && (
+                  <button
+                    onClick={() => loadDocuments(page - 1)}
+                    className="btn-secondary text-sm px-4"
+                  >
+                    {isAr ? "→ السابق" : "← Prev"}
+                  </button>
+                )}
+                <span className="text-sm text-gray-500">
+                  {isAr ? `${page} / ${totalPages}` : `${page} / ${totalPages}`}
+                </span>
+                {page < totalPages && (
+                  <button
+                    onClick={() => loadDocuments(page + 1)}
+                    className="btn-secondary text-sm px-4"
+                  >
+                    {isAr ? "← التالي" : "Next →"}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

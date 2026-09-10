@@ -40,8 +40,8 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
   // Track which parent items are manually expanded
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-  const adminEmails = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS ?? "aboodmelhem43@gmail.com")
-    .split(",").map((e) => e.trim().toLowerCase());
+  const adminEmails = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS ?? "")
+    .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
   const showAdmin = isAdmin || adminEmails.includes((session?.user?.email ?? "").toLowerCase());
 
   const clientBusinesses = session?.user?.clientBusinesses ?? [];
@@ -135,6 +135,24 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
           icon: "📊",
           children: [
             { href: "/vat-return", label: isAr ? "إقرار ضريبة القيمة المضافة" : "VAT Return", icon: "🧮" },
+          ],
+        },
+      ],
+    },
+    {
+      label: isAr ? "التسويق" : "Marketing",
+      items: [
+        {
+          href: "/instagram",
+          label: isAr ? "إنستغرام" : "Instagram",
+          icon: "📸",
+          children: [
+            { href: "/instagram/posts/create", label: isAr ? "منشور جديد" : "New Post",   icon: "✏️" },
+            { href: "/instagram/posts",        label: isAr ? "المنشورات" : "Posts",      icon: "📋" },
+            { href: "/instagram/analytics",    label: isAr ? "التحليلات" : "Analytics",  icon: "📊" },
+            { href: "/instagram/calendar",     label: isAr ? "التقويم" : "Calendar",     icon: "📅" },
+            { href: "/instagram/settings",     label: isAr ? "الهاشتاقات" : "Hashtags",  icon: "🏷" },
+            { href: "/instagram/connect",      label: isAr ? "ربط الحساب" : "Connect",   icon: "🔗" },
           ],
         },
       ],

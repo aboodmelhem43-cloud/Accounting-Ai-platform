@@ -19,8 +19,8 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
   const isAr = lang === "ar";
   const { data: session } = useSession();
 
-  const adminEmails = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS ?? "aboodmelhem43@gmail.com")
-    .split(",").map((e) => e.trim().toLowerCase());
+  const adminEmails = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS ?? "")
+    .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
   const showAdmin = isAdmin || adminEmails.includes((session?.user?.email ?? "").toLowerCase());
 
   const NAV = [
@@ -41,6 +41,7 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
     { href: "/periods", label: isAr ? "الفترات المحاسبية" : "Accounting Periods", icon: "🔒", indent: true },
     { href: "/opening-balances", label: isAr ? "الأرصدة الافتتاحية" : "Opening Balances", icon: "⚖️", indent: true },
     { href: "/expenses", label: isAr ? "مصروف سريع" : "Quick Expense", icon: "💸" },
+    { href: "/instagram", label: isAr ? "إنستغرام" : "Instagram", icon: "📸" },
     { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
     { href: "/documents", label: isAr ? "المستندات" : "Documents", icon: "📄" },
     { href: "/import", label: isAr ? "استيراد البيانات" : "Data Import", icon: "📥" },
