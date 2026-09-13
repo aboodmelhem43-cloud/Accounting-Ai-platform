@@ -1,3 +1,7 @@
+# local audit/debug scripts
+audit-*.mjs
+audit-*.js
+
 # dependencies
 /node_modules
 /.pnp
