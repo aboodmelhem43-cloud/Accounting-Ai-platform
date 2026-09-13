@@ -137,7 +137,7 @@ export default async function InvoicesPage({
             )}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link href="/invoices/create" className="btn-primary">
             ✏️ {isAr ? "إنشاء فاتورة" : "Create Invoice"}
           </Link>
@@ -153,7 +153,7 @@ export default async function InvoicesPage({
       </Suspense>
 
       {needle && total >= 200 && (
-        <p className="text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+        <p className="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
           {isAr
             ? "نتائج البحث محدودة بـ 200 فاتورة — يمكن تضييق النتائج بإضافة فلتر أو كلمة أدق"
             : "Search results are limited to 200 invoices — refine with a more specific term or add a filter"}

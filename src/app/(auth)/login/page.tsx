@@ -127,7 +127,7 @@ export default function LoginPage() {
               autoFocus
               autoComplete="one-time-code"
             />
-            <p className="text-xs text-gray-400 mt-1 text-center">{t("otp.expiry")}</p>
+            <p className="text-xs text-gray-500 mt-1 text-center">{t("otp.expiry")}</p>
           </div>
 
           {otpSent && !error && (
@@ -202,7 +202,7 @@ export default function LoginPage() {
               : (lang === "ar" ? "تسجيل الدخول بدون كلمة مرور (رمز التحقق فقط)" : "Login without password (OTP only)")}
           </button>
           {!passwordless && (
-            <Link href="/forgot-password" className="text-xs text-gray-400 hover:text-blue-600">
+            <Link href="/forgot-password" className="text-xs text-gray-500 hover:text-blue-600">
               {lang === "ar" ? "نسيت كلمة المرور؟" : "Forgot password?"}
             </Link>
           )}

@@ -129,7 +129,7 @@ export default async function DashboardPage({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <SummaryCard
               title={t("dashboard.total_revenue")}
               value={`${fmt(statement.totalRevenue)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
@@ -216,7 +216,7 @@ export default async function DashboardPage({
                     <p className="text-sm font-medium text-gray-800">
                       {extracted?.vendorName ?? (lang === "ar" ? "فاتورة" : "Invoice")}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-500">
                       {new Date(inv.createdAt).toLocaleDateString(locale)}
                     </p>
                   </div>
@@ -259,8 +259,8 @@ function SummaryCard({
     <div className={`rounded-xl border p-5 ${colors[color] ?? colors.blue}`}>
       <div className="text-2xl mb-2">{icon}</div>
       <div className="text-sm font-medium text-gray-600">{title}</div>
-      <div className="text-xl font-bold text-gray-900 mt-1 truncate">{value}</div>
-      <div className="text-xs text-gray-400 mt-1">{sub}</div>
+      <div className="text-xl font-bold text-gray-900 mt-1 break-all leading-tight">{value}</div>
+      <div className="text-xs text-gray-500 mt-1">{sub}</div>
     </div>
   );
 
