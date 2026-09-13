@@ -5,13 +5,16 @@ import { getToken } from "next-auth/jwt";
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Allow public files, SEO routes, invite pages, and blog without auth
+  // Allow public files, SEO routes, invite pages, blog, and marketing pages without auth
   if (
     pathname === "/sitemap.xml" ||
     pathname === "/robots.txt" ||
     pathname.startsWith("/google") ||
     pathname.startsWith("/invite") ||
-    pathname.startsWith("/blog")
+    pathname.startsWith("/blog") ||
+    pathname === "/pricing" ||
+    pathname === "/forgot-password" ||
+    pathname.startsWith("/reset-password")
   ) {
     return NextResponse.next();
   }
