@@ -19,9 +19,7 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
   const isAr = lang === "ar";
   const { data: session } = useSession();
 
-  const adminEmails = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS ?? "")
-    .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
-  const showAdmin = isAdmin || adminEmails.includes((session?.user?.email ?? "").toLowerCase());
+  const showAdmin = isAdmin;
 
   const NAV = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: "🏠" },

@@ -19,11 +19,14 @@ export async function ensureAdminAccount(email: string): Promise<void> {
   // Random password hash — admin always logs in via OTP, not password
   const passwordHash = await bcrypt.hash(crypto.randomUUID(), 10);
 
+  const adminCountry = process.env.ADMIN_COUNTRY ?? "SA";
+  const adminCurrency = process.env.ADMIN_CURRENCY ?? "SAR";
+
   await prisma.business.create({
     data: {
       name: "Platform Admin",
-      country: "EG",
-      baseCurrency: "EGP",
+      country: adminCountry,
+      baseCurrency: adminCurrency,
       onboardingCompleted: true,
       plan: "BUSINESS",
       users: {
