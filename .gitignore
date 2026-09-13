@@ -1,6 +1,8 @@
 # local audit/debug scripts
 audit-*.mjs
 audit-*.js
+screenshot-*.mjs
+screenshot-*.js
 
 # dependencies
 /node_modules
