@@ -75,8 +75,10 @@ function groupIntoEntries(rawLines: RawLine[]): EntryGroup[] {
   for (const raw of rawLines) {
     const key = `${raw.date}||${raw.description}`;
     if (!map.has(key)) {
+      const parsed = new Date(raw.date);
+      if (isNaN(parsed.getTime())) continue; // skip rows with invalid dates
       map.set(key, {
-        date: new Date(raw.date),
+        date: parsed,
         description: raw.description || "Imported entry",
         lines: [],
         balanced: false,

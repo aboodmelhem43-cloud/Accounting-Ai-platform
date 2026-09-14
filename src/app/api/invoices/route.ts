@@ -7,6 +7,7 @@ import { checkInvoiceLimit } from "@/lib/plans";
 import path from "path";
 import fs from "fs/promises";
 import { put } from "@vercel/blob";
+import { randomBytes } from "crypto";
 
 const ALLOWED_TYPES: Record<string, "image/jpeg" | "image/png" | "image/webp" | "application/pdf"> = {
   "image/jpeg": "image/jpeg",
@@ -58,7 +59,7 @@ export async function POST(req: NextRequest) {
       "application/pdf": "pdf",
     };
     const ext = ALLOWED_EXTS[file.type] ?? "bin";
-    const filename = `${session.user.businessId}-${Date.now()}.${ext}`;
+    const filename = `${randomBytes(16).toString("hex")}.${ext}`;
     let fileUrl: string;
 
     if (!process.env.BLOB_READ_WRITE_TOKEN) {

@@ -78,14 +78,16 @@ export async function sendInviteEmail(
 ): Promise<void> {
   const isAr = lang === "ar";
 
+  const safeName = escapeHtml(businessName).replace(/[\r\n]/g, " ");
+
   const subject = isAr
-    ? `دعوة للانضمام إلى ${businessName} على محاسب اي`
-    : `You're invited to join ${businessName} on MohasabAi`;
+    ? `دعوة للانضمام إلى ${safeName} على محاسب اي`
+    : `You're invited to join ${safeName} on MohasabAi`;
 
   const heading = isAr ? "MohasabAi — منصة المحاسبة الذكية" : "MohasabAi — Smart Accounting";
   const intro = isAr
-    ? `تمت دعوتك للانضمام إلى منشأة <strong>${businessName}</strong> على منصة محاسب اي.`
-    : `You've been invited to join <strong>${businessName}</strong> on MohasabAi.`;
+    ? `تمت دعوتك للانضمام إلى منشأة <strong>${safeName}</strong> على منصة محاسب اي.`
+    : `You've been invited to join <strong>${safeName}</strong> on MohasabAi.`;
   const btnLabel = isAr ? "قبول الدعوة" : "Accept Invitation";
   const expiry = isAr ? "هذه الدعوة صالحة لمدة 7 أيام." : "This invitation expires in 7 days.";
   const ignore = isAr

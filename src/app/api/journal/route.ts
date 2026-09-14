@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { createJournalEntry } from "@/lib/ledger";
+import { checkActivePlan } from "@/lib/plans";
 import { JournalEntryStatus } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
@@ -61,6 +62,10 @@ const createJournalSchema = z.object({
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+
+  if (!await checkActivePlan(session.user.businessId)) {
+    return NextResponse.json({ error: "plan_expired", message: "انتهت فترة التجربة المجانية. يرجى الترقية للاستمرار." }, { status: 403 });
+  }
 
   let body: unknown;
   try {

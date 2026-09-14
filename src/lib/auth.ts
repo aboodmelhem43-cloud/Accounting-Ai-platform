@@ -60,8 +60,12 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) return null;
 
-        // Super-admins always use OTP-only; regular users verify password if supplied
-        if (!isSuperAdmin(credentials.email) && credentials.password && credentials.password.trim()) {
+        // Super-admins are OTP-only — reject any attempt that includes a password
+        if (isSuperAdmin(credentials.email) && credentials.password?.trim()) {
+          return null;
+        }
+        // Regular users must pass the password check when one is supplied
+        if (!isSuperAdmin(credentials.email) && credentials.password?.trim()) {
           const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
           if (!isValid) return null;
         }
@@ -117,7 +121,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 3600 }, // 1-hour tokens — limits stale plan/subscription data window
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (trigger === "update" && session) {
@@ -210,6 +214,22 @@ export const authOptions: NextAuthOptions = {
         token.trialEndsAt = u.trialEndsAt;
         token.clientBusinesses = u.clientBusinesses;
         token.isPractice = u.isPractice;
+        // Embed passwordChangedAt so we can detect out-of-band password changes
+        const freshUser = await prisma.user.findUnique({
+          where: { id: user.id as string },
+          select: { passwordChangedAt: true },
+        });
+        token.passwordChangedAt = freshUser?.passwordChangedAt?.toISOString() ?? null;
+      } else if (token.sub) {
+        // On every token refresh, compare passwordChangedAt against DB — force re-auth if changed
+        const liveUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { passwordChangedAt: true },
+        });
+        const liveTs = liveUser?.passwordChangedAt?.toISOString() ?? null;
+        if (liveTs !== (token.passwordChangedAt ?? null)) {
+          return null as never; // invalidates the session
+        }
       }
       return token;
     },

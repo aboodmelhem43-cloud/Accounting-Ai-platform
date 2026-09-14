@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import path from "path";
 import fs from "fs/promises";
 import { put } from "@vercel/blob";
+import { randomBytes } from "crypto";
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = new Set(["application/pdf", "image/jpeg", "image/png", "image/webp"]);
@@ -33,9 +34,14 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     // حفظ الملف — Vercel Blob في الإنتاج، محلي في بيئة التطوير
-    const rawExt = (file.name.split(".").pop() ?? "").toLowerCase();
-    const ext = ALLOWED_EXTS.has(rawExt) ? rawExt : "pdf";
-    const filename = `docs-${businessId}-${Date.now()}.${ext}`;
+    const MIME_TO_EXT: Record<string, string> = {
+      "application/pdf": "pdf",
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/webp": "webp",
+    };
+    const ext = MIME_TO_EXT[file.type] ?? "pdf";
+    const filename = `${randomBytes(16).toString("hex")}.${ext}`;
     let fileUrl: string;
 
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
