@@ -9,7 +9,7 @@ const createBankAccountSchema = z.object({
   bankName: z.string().min(1),
   accountNumber: z.string().optional().nullable(),
   iban: z.string().optional().nullable(),
-  currency: z.string().default("EGP"),
+  currency: z.string().optional(),
   openingBalance: z.number().default(0),
 });
 
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
     data: {
       businessId: session.user.businessId,
       ...parsed.data,
+      currency: parsed.data.currency ?? (session.user as { currency?: string }).currency ?? "SAR",
     },
   });
 

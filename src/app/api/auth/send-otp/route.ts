@@ -26,22 +26,20 @@ export async function POST(req: NextRequest) {
       where: { email: email.toLowerCase() },
     });
 
-    // Always do bcrypt work so response timing is constant regardless of account existence
-    if (!user) {
-      if (password && password.trim() && !isSuperAdmin(email)) {
-        // Dummy compare to match timing of the real path
-        await bcrypt.compare(password, "$2b$12$dummyhashplaceholderfortimingXX");
-      }
-      // Return sent:true — do not reveal whether the account exists
-      return NextResponse.json({ sent: true });
-    }
-
-    // If password is provided, verify it; skip for super-admins (OTP-only)
+    // If password provided, validate it — use the same error regardless of whether account
+    // exists to prevent email enumeration (timing is equalized via dummy bcrypt compare)
     if (password && password.trim() && !isSuperAdmin(email)) {
+      if (!user) {
+        await bcrypt.compare(password, "$2b$12$dummyhashplaceholderfortimingXX");
+        return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
+      }
       const isValid = await bcrypt.compare(password, user.passwordHash);
       if (!isValid) {
-        return NextResponse.json({ error: "invalid_password" }, { status: 401 });
+        return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
       }
+    } else if (!user) {
+      // No password provided and no account — silently ignore (OTP-only flow)
+      return NextResponse.json({ sent: true });
     }
 
     const code = await createOtp(email, "login");

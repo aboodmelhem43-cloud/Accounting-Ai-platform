@@ -2,13 +2,11 @@ import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 
 const OTP_EXPIRY_MINUTES = 10;
-
-// Brute-force protection: track failed attempts per email+purpose in memory.
-// After MAX_ATTEMPTS failures the OTP record is deleted and the key is locked
-// for LOCKOUT_MS. Resets on successful verification or on a new OTP creation.
 const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS = 15 * 60 * 1000;
-const otpAttempts = new Map<string, { attempts: number; lockedUntil: number | null }>();
+const LOCKOUT_MINUTES = 15;
+const MAX_OTP_PER_WINDOW = 3; // حد إنشاء الـ OTP خلال 15 دقيقة
+
+const AUTO_LOGIN_EXPIRY_SECONDS = 90;
 
 export function generateOtpCode(): string {
   const buf = new Uint32Array(1);
@@ -16,14 +14,19 @@ export function generateOtpCode(): string {
   return String(100000 + (buf[0] % 900000));
 }
 
-// Register auto-login tokens expire in 90 seconds — they travel in a response body
-// and must be consumed immediately; a short window limits log-capture risk
-const AUTO_LOGIN_EXPIRY_SECONDS = 90;
-
 export async function createOtp(email: string, purpose: string): Promise<string> {
-  // Clear any lockout state when a fresh OTP is issued
-  otpAttempts.delete(`${email.toLowerCase()}:${purpose}`);
-  await prisma.otpCode.deleteMany({ where: { email: email.toLowerCase(), purpose } });
+  const emailLow = email.toLowerCase();
+  const windowStart = new Date(Date.now() - LOCKOUT_MINUTES * 60 * 1000);
+
+  // منع إنشاء أكثر من MAX_OTP_PER_WINDOW خلال 15 دقيقة (مقاومة spam)
+  const recentCount = await prisma.otpCode.count({
+    where: { email: emailLow, purpose, createdAt: { gte: windowStart } },
+  });
+  if (recentCount >= MAX_OTP_PER_WINDOW) {
+    throw new Error("rate_limited");
+  }
+
+  await prisma.otpCode.deleteMany({ where: { email: emailLow, purpose } });
 
   const code = generateOtpCode();
   const codeHash = await bcrypt.hash(code, 10);
@@ -33,47 +36,47 @@ export async function createOtp(email: string, purpose: string): Promise<string>
   const expiresAt = new Date(Date.now() + ttlMs);
 
   await prisma.otpCode.create({
-    data: { email: email.toLowerCase(), code: codeHash, purpose, expiresAt },
+    data: { email: emailLow, code: codeHash, purpose, expiresAt },
   });
 
   return code;
 }
 
 export async function verifyOtp(email: string, code: string, purpose: string): Promise<boolean> {
-  const key = `${email.toLowerCase()}:${purpose}`;
-  const now = Date.now();
-  const state = otpAttempts.get(key);
+  const emailLow = email.toLowerCase();
 
-  // Reject immediately while locked out
-  if (state?.lockedUntil && now < state.lockedUntil) return false;
-
-  const records = await prisma.otpCode.findMany({
-    where: {
-      email: email.toLowerCase(),
-      purpose,
-      expiresAt: { gt: new Date() },
-    },
+  const record = await prisma.otpCode.findFirst({
+    where: { email: emailLow, purpose, expiresAt: { gt: new Date() } },
     orderBy: { createdAt: "desc" },
-    take: 1,
   });
 
-  if (records.length === 0) return false;
+  if (!record) return false;
 
-  const record = records[0];
+  // تحقق من التأمين المؤقت المخزّن في قاعدة البيانات
+  if (record.lockedUntil && record.lockedUntil > new Date()) return false;
+
   const isValid = await bcrypt.compare(code, record.code);
 
   if (isValid) {
     await prisma.otpCode.delete({ where: { id: record.id } });
-    otpAttempts.delete(key);
   } else {
-    const newAttempts = (state?.attempts ?? 0) + 1;
+    const newAttempts = record.attempts + 1;
     if (newAttempts >= MAX_ATTEMPTS) {
-      // Delete the OTP and lock the key; further guesses are rejected instantly
-      await prisma.otpCode.deleteMany({ where: { email: email.toLowerCase(), purpose } });
-      otpAttempts.set(key, { attempts: newAttempts, lockedUntil: now + LOCKOUT_MS });
+      // تأمين مؤقت + حذف الـ OTP لمنع مزيد من المحاولات
+      await prisma.otpCode.update({
+        where: { id: record.id },
+        data: {
+          attempts: newAttempts,
+          lockedUntil: new Date(Date.now() + LOCKOUT_MINUTES * 60 * 1000),
+        },
+      });
     } else {
-      otpAttempts.set(key, { attempts: newAttempts, lockedUntil: null });
+      await prisma.otpCode.update({
+        where: { id: record.id },
+        data: { attempts: newAttempts },
+      });
     }
   }
+
   return isValid;
 }

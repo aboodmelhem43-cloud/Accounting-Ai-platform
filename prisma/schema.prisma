@@ -14,7 +14,7 @@ datasource db {
 model Business {
   id                  String    @id @default(cuid())
   name                String
-  country             String    @default("EG")
+  country             String    @default("SA")
   baseCurrency        String    @default("EGP")
   taxNumber           String?
   address             String?
@@ -93,6 +93,8 @@ model User {
   submittedJournalEntries JournalEntry[]     @relation("JournalSubmitter")
   reviewedJournalEntries  JournalEntry[]     @relation("JournalReviewer")
   bookkeeperAccesses      BookkeeperAccess[]
+
+  @@index([businessId])
 }
 
 enum UserRole {
@@ -209,6 +211,7 @@ model Invoice {
   documentType      String        @default("INVOICE") // INVOICE | CREDIT_NOTE | DEBIT_NOTE
   relatedInvoiceId  String?       // للإشارة إلى الفاتورة الأصلية في حالة إشعارات الخصم/الائتمان
   invoiceNumber     String?       // رقم الفاتورة — مفهرس لتسريع البحث
+  viewToken         String?       @unique // توكن عرض الفاتورة للعملاء بدون تسجيل دخول
 
   business     Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
   journalEntry JournalEntry?    @relation(fields: [journalEntryId], references: [id])
@@ -276,7 +279,7 @@ model BankAccount {
   bankName       String
   accountNumber  String?
   iban           String?
-  currency       String   @default("EGP")
+  currency       String   @default("SAR")
   openingBalance Decimal  @default(0) @db.Decimal(15, 2)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -312,6 +315,7 @@ model BankTransaction {
   statement BankStatement @relation(fields: [statementId], references: [id], onDelete: Cascade)
 
   @@index([statementId])
+  @@index([statementId, matched])
 }
 
 enum JournalEntryStatus {
@@ -357,12 +361,14 @@ model BookkeeperAccess {
 
 // رموز التحقق بالبريد الإلكتروني
 model OtpCode {
-  id        String   @id @default(cuid())
-  email     String
-  code      String   // hashed
-  purpose   String   // "register" | "login"
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  id          String    @id @default(cuid())
+  email       String
+  code        String    // hashed
+  purpose     String    // "register" | "login"
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  attempts    Int       @default(0) // عدد محاولات التحقق الخاطئة
+  lockedUntil DateTime?             // تأمين مؤقت عند تجاوز الحد
 
   @@index([email, purpose])
 }

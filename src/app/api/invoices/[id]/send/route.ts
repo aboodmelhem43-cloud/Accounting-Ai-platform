@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
+import { randomUUID } from "crypto";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
@@ -49,8 +50,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const invoiceDate = extracted?.invoiceDate ?? new Date().toISOString().split("T")[0];
   const dueDate = invoice.dueDate?.toISOString().split("T")[0] ?? "";
 
+  // توليد أو استرجاع توكن العرض العام للفاتورة
+  let viewToken = invoice.viewToken;
+  if (!viewToken) {
+    viewToken = randomUUID();
+    await prisma.invoice.update({ where: { id }, data: { viewToken } });
+  }
+
   const emailSubject = subject ?? `فاتورة رقم ${invoiceNumber} من ${businessName}`;
-  const viewUrl = `${APP_URL}/invoices/${id}/view`;
+  const viewUrl = `${APP_URL}/invoice/${viewToken}`;
 
   const html = `
 <!DOCTYPE html>
