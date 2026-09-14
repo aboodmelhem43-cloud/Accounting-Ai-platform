@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
       fileType: "created",
       invoiceType: "PURCHASE",
       status: data.status as InvoiceStatus,
+      invoiceNumber: data.invoiceNumber,
       dueDate: data.dueDate ? new Date(data.dueDate) : null,
       extractedData: {
         invoiceNumber: data.invoiceNumber,

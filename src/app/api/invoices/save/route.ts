@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
       fileType: "created",
       invoiceType: "SALES",
       status: "CONFIRMED",
+      invoiceNumber: data.invoiceNumber,
       contactId: data.contactId ?? null,
       dueDate: data.dueDate ? new Date(data.dueDate) : null,
       extractedData: {

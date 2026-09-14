@@ -71,9 +71,16 @@ export async function createJournalEntry(params: {
 
     // ربط الفاتورة بالقيد لو موجودة
     if (invoiceId) {
+      const inv = await tx.invoice.findUnique({ where: { id: invoiceId }, select: { extractedData: true, invoiceNumber: true } });
+      const extractedNum = (inv?.extractedData as Record<string, unknown> | null)?.invoiceNumber as string | undefined;
       await tx.invoice.update({
         where: { id: invoiceId },
-        data: { journalEntryId: journalEntry.id, status: "CONFIRMED" },
+        data: {
+          journalEntryId: journalEntry.id,
+          status: "CONFIRMED",
+          // populate indexed column from extractedData if not already set
+          ...(extractedNum && !inv?.invoiceNumber ? { invoiceNumber: extractedNum } : {}),
+        },
       });
     }
 
