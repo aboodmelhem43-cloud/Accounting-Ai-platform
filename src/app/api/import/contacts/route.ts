@@ -92,12 +92,23 @@ export async function POST(req: NextRequest) {
 
   if (!file) return NextResponse.json({ error: "الملف مطلوب" }, { status: 400 });
 
-  if (file.size > 10 * 1024 * 1024) {
-    return NextResponse.json({ error: "حجم الملف يتجاوز 10 ميغابايت" }, { status: 413 });
+  const ALLOWED_MIME = new Set(["text/csv", "text/plain", "application/csv", "application/vnd.ms-excel"]);
+  const ALLOWED_EXT = new Set(["csv", "txt"]);
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  if (!ALLOWED_MIME.has(file.type) && !ALLOWED_EXT.has(ext)) {
+    return NextResponse.json({ error: "نوع الملف غير مسموح — أرسل ملف CSV فقط" }, { status: 400 });
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    return NextResponse.json({ error: "حجم الملف يتجاوز 5 ميغابايت" }, { status: 413 });
   }
 
   const text = await file.text();
   const { rows } = parseCSV(text);
+
+  if (rows.length > 5000) {
+    return NextResponse.json({ error: "يتجاوز الملف الحد الأقصى المسموح به (5000 صف)" }, { status: 400 });
+  }
 
   const parsed = rows.map(mapRow).filter((r): r is ParsedRow => r !== null);
 

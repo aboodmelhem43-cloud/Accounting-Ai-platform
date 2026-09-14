@@ -44,8 +44,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "الملف مطلوب" }, { status: 400 });
   }
 
-  if (file.size > 10 * 1024 * 1024) {
-    return NextResponse.json({ error: "حجم الملف يتجاوز 10 ميغابايت" }, { status: 413 });
+  const ALLOWED_MIME = new Set(["text/csv", "text/plain", "application/csv", "application/vnd.ms-excel"]);
+  const ALLOWED_EXT = new Set(["csv", "txt"]);
+  const fileExt = file.name.split(".").pop()?.toLowerCase() ?? "";
+  if (!ALLOWED_MIME.has(file.type) && !ALLOWED_EXT.has(fileExt)) {
+    return NextResponse.json({ error: "نوع الملف غير مسموح — أرسل ملف CSV فقط" }, { status: 400 });
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    return NextResponse.json({ error: "حجم الملف يتجاوز 5 ميغابايت" }, { status: 413 });
   }
 
   // التحقق من ملكية حساب البنك
@@ -89,8 +96,11 @@ export async function POST(req: NextRequest) {
             txType = "DEBIT";
           }
 
+          const parsedDate = dateStr ? new Date(dateStr) : null;
+          const validDate = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : new Date();
+
           return {
-            date: dateStr ? new Date(dateStr) : new Date(),
+            date: validDate,
             description: description || "No description",
             amount: txAmount,
             transactionType: txType,

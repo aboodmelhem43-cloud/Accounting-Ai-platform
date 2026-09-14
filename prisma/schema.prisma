@@ -213,11 +213,14 @@ model Invoice {
   business     Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
   journalEntry JournalEntry?    @relation(fields: [journalEntryId], references: [id])
   contact      Contact?         @relation(fields: [contactId], references: [id])
+  relatedInvoice Invoice?       @relation("InvoiceCreditNote", fields: [relatedInvoiceId], references: [id], onDelete: SetNull)
+  creditNotes   Invoice[]       @relation("InvoiceCreditNote")
   payments     InvoicePayment[]
 
   @@index([businessId, status])
   @@index([businessId, createdAt(sort: Desc)])
   @@index([businessId, invoiceNumber])
+  @@index([status, paymentStatus, dueDate])
 }
 
 // دفعات الفاتورة — لتتبع الدفعات الجزئية

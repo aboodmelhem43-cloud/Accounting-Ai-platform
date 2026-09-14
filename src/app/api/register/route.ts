@@ -4,7 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_CHART_OF_ACCOUNTS } from "@/lib/accounts";
 import { SUPPORTED_COUNTRIES } from "@/compliance";
-import { verifyOtp, createOtp } from "@/lib/otp";
+import { verifyOtp } from "@/lib/otp";
 import { trialEndsAtDate } from "@/lib/plans";
 
 const schema = z.object({
@@ -109,9 +109,7 @@ export async function POST(req: NextRequest) {
 
     // Create a short-lived auto-login token (90s) to avoid a second email send.
     // Uses purpose "register-autologin" so it cannot be replayed as a regular login OTP.
-    const loginOtp = await createOtp(data.email.toLowerCase(), "register-autologin");
-
-    return NextResponse.json({ message: "تم إنشاء الحساب بنجاح", businessId: result.business.id, loginOtp }, { status: 201 });
+    return NextResponse.json({ message: "تم إنشاء الحساب بنجاح", businessId: result.business.id }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });

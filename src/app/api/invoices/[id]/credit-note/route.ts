@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { createJournalEntry } from "@/lib/ledger";
 import { logAudit } from "@/lib/audit";
+import { checkInvoiceLimit } from "@/lib/plans";
 
 const schema = z.object({
   amount: z.number().positive(),
@@ -27,6 +28,11 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+
+  const limitCheck = await checkInvoiceLimit(session.user.businessId);
+  if (!limitCheck.allowed) {
+    return NextResponse.json({ error: "وصلت للحد الأقصى من الفواتير في خطتك الحالية" }, { status: 403 });
+  }
 
   const { id } = await params;
 

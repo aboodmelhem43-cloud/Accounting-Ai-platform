@@ -6,14 +6,19 @@ const LS_API_KEY = process.env.LEMONSQUEEZY_API_KEY;
 export const PLAN_VARIANT_IDS: Record<string, PlanId> = {};
 
 export function variantToPlan(variantId: string): PlanId | null {
-  const map: Record<string, PlanId> = {
-    [process.env.LEMONSQUEEZY_VARIANT_STARTER ?? ""]: "STARTER",
-    [process.env.LEMONSQUEEZY_VARIANT_PRO ?? ""]: "PRO",
-    [process.env.LEMONSQUEEZY_VARIANT_BUSINESS ?? ""]: "BUSINESS",
-    [process.env.LEMONSQUEEZY_VARIANT_STARTER_YEARLY ?? ""]: "STARTER",
-    [process.env.LEMONSQUEEZY_VARIANT_PRO_YEARLY ?? ""]: "PRO",
-    [process.env.LEMONSQUEEZY_VARIANT_BUSINESS_YEARLY ?? ""]: "BUSINESS",
-  };
+  if (!variantId) return null;
+  const map: Record<string, PlanId> = {};
+  const entries: [string | undefined, PlanId][] = [
+    [process.env.LEMONSQUEEZY_VARIANT_STARTER, "STARTER"],
+    [process.env.LEMONSQUEEZY_VARIANT_PRO, "PRO"],
+    [process.env.LEMONSQUEEZY_VARIANT_BUSINESS, "BUSINESS"],
+    [process.env.LEMONSQUEEZY_VARIANT_STARTER_YEARLY, "STARTER"],
+    [process.env.LEMONSQUEEZY_VARIANT_PRO_YEARLY, "PRO"],
+    [process.env.LEMONSQUEEZY_VARIANT_BUSINESS_YEARLY, "BUSINESS"],
+  ];
+  for (const [envVal, plan] of entries) {
+    if (envVal) map[envVal] = plan;
+  }
   return map[variantId] ?? null;
 }
 

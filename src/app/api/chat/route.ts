@@ -11,10 +11,10 @@ const schema = z.object({
   messages: z.array(
     z.object({
       role: z.enum(["user", "assistant"]),
-      content: z.string(),
+      content: z.string().max(4000),
     })
-  ),
-  message: z.string().min(1),
+  ).max(50),
+  message: z.string().min(1).max(4000),
   lang: z.enum(["ar", "en"]).optional(),
 });
 

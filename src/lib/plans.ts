@@ -135,15 +135,14 @@ export async function checkAiLimit(businessId: string): Promise<{
 
   let used = 0;
   try {
-    used = await prisma.journalEntry.count({
+    used = await prisma.chatMessage.count({
       where: {
         businessId,
-        sourceType: "AI_INVOICE",
+        role: "user",
         createdAt: { gte: startOfMonth },
       },
     });
   } catch {
-    // If the column doesn't exist yet (pending migration), allow the request
     used = 0;
   }
 
