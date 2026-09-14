@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createJournalEntry, suggestPurchaseJournalEntry, suggestSalesJournalEntry } from "@/lib/ledger";
+import { checkInvoiceLimit } from "@/lib/plans";
 import type { ExtractedInvoiceData } from "@/types";
 
 const schema = z.object({
@@ -23,6 +24,16 @@ export async function POST(req: NextRequest) {
 
   const { ids, action } = parsed.data;
   const { businessId } = session.user;
+
+  if (action === "confirm") {
+    const limit = await checkInvoiceLimit(businessId);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: `لقد وصلت إلى حد الفواتير (${limit.used}/${limit.limit}) — يرجى الترقية` },
+        { status: 403 }
+      );
+    }
+  }
 
   // Verify all invoices belong to this business and are PENDING_REVIEW
   const invoices = await prisma.invoice.findMany({

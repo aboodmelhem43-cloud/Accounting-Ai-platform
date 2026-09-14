@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import type { NormalizedSale, VerifyResult } from "./types";
+import type { NormalizedSale, VerifyResult, LineItem } from "./types";
 
 export function verifySallaSignature(
   rawBody: string,
@@ -17,35 +17,41 @@ export function verifySallaSignature(
   return { valid, reason: valid ? undefined : "Invalid Salla signature" };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function normalizeSallaOrder(payload: Record<string, any>): NormalizedSale {
-  const data = payload.data ?? payload;
+export function normalizeSallaOrder(payload: Record<string, unknown>): NormalizedSale {
+  const data = (payload.data ?? payload) as Record<string, unknown>;
 
-  const amounts = data.amounts ?? {};
-  const subtotal = Number(amounts.subtotal?.amount ?? amounts.sub_total ?? data.sub_total ?? 0);
-  const vatAmount = Number(amounts.tax?.amount ?? amounts.vat ?? data.tax ?? 0);
-  const total = Number(amounts.total?.amount ?? data.total ?? subtotal + vatAmount);
-  const currency = amounts.subtotal?.currency ?? data.currency ?? "SAR";
+  const amounts = (data.amounts ?? {}) as Record<string, unknown>;
+  const amountsSubtotal = amounts.subtotal as Record<string, unknown> | undefined;
+  const amountsTotal = amounts.total as Record<string, unknown> | undefined;
+  const amountsTax = amounts.tax as Record<string, unknown> | undefined;
+  const subtotal = Number(amountsSubtotal?.amount ?? amounts.sub_total ?? data.sub_total ?? 0);
+  const vatAmount = Number(amountsTax?.amount ?? amounts.vat ?? data.tax ?? 0);
+  const total = Number(amountsTotal?.amount ?? data.total ?? subtotal + vatAmount);
+  const currency = (amountsSubtotal?.currency ?? data.currency ?? "SAR") as string;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const lineItems = (data.items ?? data.products ?? []).map((item: any) => ({
-    description: item.name ?? item.title ?? "Item",
-    quantity: Number(item.quantity ?? 1),
-    unitPrice: Number(item.price?.amount ?? item.price ?? 0),
-    total: Number(item.total?.amount ?? item.total ?? 0),
-  }));
+  const rawSallaItems = (data.items as Record<string, unknown>[] | undefined ?? data.products as Record<string, unknown>[] | undefined ?? []);
+  const lineItems = rawSallaItems.map((item: Record<string, unknown>): LineItem => {
+    const itemPrice = item.price as Record<string, unknown> | undefined;
+    const itemTotal = item.total as Record<string, unknown> | undefined;
+    return {
+      description: String(item.name ?? item.title ?? "Item"),
+      quantity: Number(item.quantity ?? 1),
+      unitPrice: Number(itemPrice?.amount ?? item.price ?? 0),
+      total: Number(itemTotal?.amount ?? item.total ?? 0),
+    };
+  });
 
-  const customer = data.customer ?? {};
+  const customer = (data.customer ?? {}) as Record<string, unknown>;
   const customerName =
-    (customer.name ?? [customer.first_name, customer.last_name].filter(Boolean).join(" ")) || undefined;
+    String(customer.name ?? [customer.first_name, customer.last_name].filter(Boolean).map(String).join(" ")) || undefined;
 
-  const pm = (data.payment_method ?? "").toLowerCase();
+  const pm = String(data.payment_method ?? "").toLowerCase();
   const paymentMethod = pm.includes("cash") ? "cash" : pm.includes("cod") ? "cod" : "card";
 
   return {
     externalId: String(data.id ?? data.reference_id),
     orderNumber: String(data.reference_id ?? data.id),
-    occurredAt: new Date(data.date ?? data.created_at ?? Date.now()),
+    occurredAt: new Date(data.date as string ?? data.created_at as string ?? Date.now()),
     subtotal,
     vatAmount,
     total,

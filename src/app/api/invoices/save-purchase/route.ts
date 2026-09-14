@@ -5,6 +5,7 @@ import { InvoiceStatus } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createJournalEntry } from "@/lib/ledger";
+import { checkInvoiceLimit } from "@/lib/plans";
 
 const lineItemSchema = z.object({
   description: z.string(),
@@ -42,6 +43,14 @@ export async function POST(req: NextRequest) {
 
   const data = parsed.data;
   const { businessId } = session.user;
+
+  const limit = await checkInvoiceLimit(businessId);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: `لقد وصلت إلى حد الفواتير (${limit.used}/${limit.limit}) — يرجى الترقية` },
+      { status: 403 }
+    );
+  }
 
   const invoice = await prisma.invoice.create({
     data: {

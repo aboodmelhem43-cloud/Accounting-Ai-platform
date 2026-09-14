@@ -7,6 +7,8 @@ import fs from "fs/promises";
 import { put } from "@vercel/blob";
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_TYPES = new Set(["application/pdf", "image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_EXTS = new Set(["pdf", "jpg", "jpeg", "png", "webp"]);
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -23,12 +25,16 @@ export async function POST(req: NextRequest) {
 
     if (!file) return NextResponse.json({ error: "لم يتم رفع ملف" }, { status: 400 });
     if (file.size > MAX_SIZE) return NextResponse.json({ error: "حجم الملف يتجاوز 10 ميجابايت" }, { status: 400 });
+    if (!ALLOWED_TYPES.has(file.type)) {
+      return NextResponse.json({ error: "نوع الملف غير مسموح به — PDF أو JPEG أو PNG أو WebP فقط" }, { status: 400 });
+    }
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
     // حفظ الملف — Vercel Blob في الإنتاج، محلي في بيئة التطوير
-    const ext = file.name.split(".").pop() ?? "pdf";
+    const rawExt = (file.name.split(".").pop() ?? "").toLowerCase();
+    const ext = ALLOWED_EXTS.has(rawExt) ? rawExt : "pdf";
     const filename = `docs-${businessId}-${Date.now()}.${ext}`;
     let fileUrl: string;
 

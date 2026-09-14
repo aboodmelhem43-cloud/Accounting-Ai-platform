@@ -44,7 +44,7 @@ NAVIGATION & PAGES:
 SUBSCRIPTION PLANS:
 - FREE_TRIAL: 35-day free trial, all features, 1 user
 - STARTER ($15/mo): 50 invoices/month, 50 AI queries, all core features, 1 user
-- PRO ($35/mo): 500 invoices/month, unlimited AI, 3 users, Instagram AI
+- PRO ($35/mo): 500 invoices/month, unlimited AI, 3 users, store integrations
 - BUSINESS ($69/mo): Unlimited invoices, unlimited AI, 10 users, API access, VIP support
 
 TEAM MANAGEMENT (PRO & BUSINESS plans):
