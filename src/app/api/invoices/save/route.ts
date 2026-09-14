@@ -6,10 +6,12 @@ import { prisma } from "@/lib/prisma";
 import { checkInvoiceLimit } from "@/lib/plans";
 import { createJournalEntry } from "@/lib/ledger";
 
+const MAX_AMOUNT = 1_000_000_000;
+
 const lineItemSchema = z.object({
   description: z.string(),
-  quantity: z.number(),
-  unitPrice: z.number(),
+  quantity: z.number().min(0).max(MAX_AMOUNT),
+  unitPrice: z.number().min(0).max(MAX_AMOUNT),
 });
 
 const schema = z.object({
@@ -26,10 +28,10 @@ const schema = z.object({
   customerEmail: z.string().optional(),
   contactId: z.string().optional(),
   lineItems: z.array(lineItemSchema),
-  subtotal: z.number(),
-  taxRate: z.number(),
-  taxAmount: z.number(),
-  grandTotal: z.number(),
+  subtotal: z.number().min(0).max(MAX_AMOUNT),
+  taxRate: z.number().min(0).max(100),
+  taxAmount: z.number().min(0).max(MAX_AMOUNT),
+  grandTotal: z.number().min(0).max(MAX_AMOUNT),
   currency: z.string(),
   currencySymbol: z.string(),
   notes: z.string().optional(),

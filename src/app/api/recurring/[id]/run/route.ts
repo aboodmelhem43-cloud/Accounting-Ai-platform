@@ -45,6 +45,16 @@ export async function POST(
   type TemplateLine = { accountId: string; debit: number; credit: number; description?: string };
   const lines = template.lines as TemplateLine[];
 
+  // Validate that all accountIds in the template belong to this business
+  const accountIds = [...new Set(lines.map((l) => l.accountId))];
+  const validAccounts = await prisma.account.findMany({
+    where: { id: { in: accountIds }, businessId: session.user.businessId },
+    select: { id: true },
+  });
+  if (validAccounts.length !== accountIds.length) {
+    return NextResponse.json({ error: "بعض الحسابات في القالب غير مصرح بها" }, { status: 403 });
+  }
+
   try {
     const entry = await createJournalEntry({
       businessId: session.user.businessId,

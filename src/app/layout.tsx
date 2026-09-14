@@ -3,7 +3,7 @@ import { Cairo, Inter } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { Analytics } from "@vercel/analytics/next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 const cairo = Cairo({
   subsets: ["arabic", "latin"],
@@ -129,11 +129,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value === "en" ? "en" : "ar";
   const dir = lang === "en" ? "ltr" : "rtl";
+  const headersList = await headers();
+  const nonce = headersList.get("x-nonce") ?? undefined;
 
   return (
     <html lang={lang} dir={dir} className={`${cairo.variable} ${inter.variable}`}>
       <head>
         <script
+          nonce={nonce}
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify([

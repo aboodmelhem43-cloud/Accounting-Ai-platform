@@ -33,6 +33,8 @@ const nextConfig: NextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
           },
+          // CSP with nonce is set dynamically in middleware.ts for page requests.
+          // A static fallback header here covers asset and API responses.
           {
             key: "Content-Security-Policy",
             value: [

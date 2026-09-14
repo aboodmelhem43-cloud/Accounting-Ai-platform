@@ -86,7 +86,7 @@ export async function POST(
       sourceType: "MANUAL",
       status: "POSTED",
       lines: reverseLines,
-    });
+    }, tx);
 
     const creditNote = await tx.invoice.create({
       data: {

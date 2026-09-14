@@ -13,16 +13,19 @@ export function validateJournalBalance(
 }
 
 // حفظ قيد يومية متوازن — يرفض القيد غير المتوازن
-export async function createJournalEntry(params: {
-  businessId: string;
-  userId: string;
-  date: Date;
-  description: string;
-  sourceType: "MANUAL" | "AI_INVOICE" | "AI_SALES";
-  status?: "DRAFT" | "PENDING_REVIEW" | "POSTED";
-  lines: { accountId: string; debit: number; credit: number; description?: string; foreignCurrency?: string; foreignAmount?: number; exchangeRate?: number }[];
-  invoiceId?: string;
-}) {
+export async function createJournalEntry(
+  params: {
+    businessId: string;
+    userId: string;
+    date: Date;
+    description: string;
+    sourceType: "MANUAL" | "AI_INVOICE" | "AI_SALES";
+    status?: "DRAFT" | "PENDING_REVIEW" | "POSTED";
+    lines: { accountId: string; debit: number; credit: number; description?: string; foreignCurrency?: string; foreignAmount?: number; exchangeRate?: number }[];
+    invoiceId?: string;
+  },
+  tx?: Prisma.TransactionClient
+) {
   const { businessId, userId, date, description, sourceType, status = "POSTED", lines, invoiceId } = params;
 
   if (!validateJournalBalance(lines)) {
@@ -33,10 +36,12 @@ export async function createJournalEntry(params: {
     throw new Error("القيد يحتاج على الأقل سطرين (مدين ودائن)");
   }
 
+  const client = tx ?? prisma;
+
   // التحقق من أن الفترة المحاسبية ليست مقفلة
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
-  const closedPeriod = await prisma.accountingPeriod.findUnique({
+  const closedPeriod = await client.accountingPeriod.findUnique({
     where: { businessId_year_month: { businessId, year, month } },
     select: { status: true },
   });
@@ -44,9 +49,8 @@ export async function createJournalEntry(params: {
     throw new Error(`الفترة المحاسبية ${year}/${String(month).padStart(2, "0")} مقفلة — لا يمكن إضافة قيود عليها`);
   }
 
-  // إنشاء القيد مع سطوره في transaction واحدة
-  const entry = await prisma.$transaction(async (tx) => {
-    const journalEntry = await tx.journalEntry.create({
+  const run = async (innerTx: Prisma.TransactionClient) => {
+    const journalEntry = await innerTx.journalEntry.create({
       data: {
         businessId,
         createdById: userId,
@@ -71,9 +75,9 @@ export async function createJournalEntry(params: {
 
     // ربط الفاتورة بالقيد لو موجودة
     if (invoiceId) {
-      const inv = await tx.invoice.findUnique({ where: { id: invoiceId }, select: { extractedData: true, invoiceNumber: true } });
+      const inv = await innerTx.invoice.findUnique({ where: { id: invoiceId }, select: { extractedData: true, invoiceNumber: true } });
       const extractedNum = (inv?.extractedData as Record<string, unknown> | null)?.invoiceNumber as string | undefined;
-      await tx.invoice.update({
+      await innerTx.invoice.update({
         where: { id: invoiceId },
         data: {
           journalEntryId: journalEntry.id,
@@ -85,9 +89,10 @@ export async function createJournalEntry(params: {
     }
 
     return journalEntry;
-  });
+  };
 
-  return entry;
+  // إذا أُعطي transaction خارجي، نعمل داخله مباشرةً؛ وإلا نفتح transaction جديداً
+  return tx ? run(tx) : prisma.$transaction(run);
 }
 
 // رصيد النقدية الجارية — مجموع حركات حسابات النقدية والبنوك (1100-1199) من دفتر القيود

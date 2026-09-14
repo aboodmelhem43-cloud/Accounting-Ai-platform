@@ -521,9 +521,9 @@ model SalesEvent {
   externalId      String
   orderNumber     String
   occurredAt      DateTime
-  subtotal        Float
-  vatAmount       Float
-  total           Float
+  subtotal        Decimal  @db.Decimal(15, 2)
+  vatAmount       Decimal  @db.Decimal(15, 2)
+  total           Decimal  @db.Decimal(15, 2)
   currency        String
   paymentMethod   String
   customerName    String?
@@ -543,5 +543,14 @@ model SalesEvent {
   @@unique([integrationId, externalId])
   @@index([businessId, status])
   @@index([businessId, occurredAt(sort: Desc)])
+}
+
+// Stores processed webhook event IDs to prevent duplicate processing
+model ProcessedWebhookEvent {
+  id          String   @id // the event UUID from the webhook provider
+  source      String   // e.g. "lemonsqueezy"
+  processedAt DateTime @default(now())
+
+  @@index([source, processedAt])
 }
 

@@ -29,6 +29,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
+  // Idempotency: skip events we've already processed
+  const eventId = meta?.event_id as string | undefined;
+  if (eventId) {
+    try {
+      await prisma.processedWebhookEvent.create({ data: { id: eventId, source: "lemonsqueezy" } });
+    } catch {
+      // Unique constraint violation → already processed
+      return NextResponse.json({ ok: true });
+    }
+  }
+
   const attrs = data.attributes as Record<string, unknown>;
   const subscriptionId = String(data.id);
   const customerId = String(attrs.customer_id);
