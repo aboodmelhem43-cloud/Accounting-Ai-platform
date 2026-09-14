@@ -74,6 +74,9 @@ export async function GET(_req: NextRequest) {
 
   // Sheet 2: Journal Entries (flattened lines)
   const jeRows: Record<string, string | number>[] = [];
+  if (journalEntries.length === 2000) {
+    jeRows.push({ "⚠️ تنبيه": "النتائج مقطوعة عند 2000 قيد — صدّر تقارير مفلترة للحصول على البيانات الكاملة" });
+  }
   for (const je of journalEntries) {
     for (const line of je.lines) {
       jeRows.push({
@@ -91,6 +94,9 @@ export async function GET(_req: NextRequest) {
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(jeRows.length ? jeRows : [{}]), "Journal Entries");
 
   // Sheet 3: Invoices — use extractedData for numbers since Invoice stores data as JSON
+  const invoiceWarning = invoices.length === 2000
+    ? [{ "⚠️ تنبيه": "النتائج مقطوعة عند 2000 فاتورة — استخدم الفلاتر للحصول على البيانات الكاملة" }]
+    : [];
   const invoiceRows = invoices.map((inv) => {
     const extracted = inv.extractedData as {
       invoiceNumber?: string;
@@ -110,7 +116,8 @@ export async function GET(_req: NextRequest) {
       "Created At": new Date(inv.createdAt).toLocaleDateString(),
     };
   });
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(invoiceRows.length ? invoiceRows : [{}]), "Invoices");
+  const allInvoiceRows = [...invoiceWarning, ...(invoiceRows.length ? invoiceRows : [{}])];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(allInvoiceRows), "Invoices");
 
   // Sheet 4: Contacts
   const contactRows = contacts.map((c) => ({

@@ -3,7 +3,7 @@ import { Resend } from "resend";
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const FROM_EMAIL = process.env.FROM_EMAIL ?? "onboarding@resend.dev";
-const APP_URL = process.env.NEXTAUTH_URL ?? "https://mohasabai.com";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://mohasabai.com";
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL ?? "support@mohasabai.com";
 
 export async function sendOtpEmail(

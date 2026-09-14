@@ -11,6 +11,7 @@ export async function middleware(req: NextRequest) {
     pathname === "/robots.txt" ||
     pathname.startsWith("/google") ||
     pathname.startsWith("/invite") ||
+    pathname.startsWith("/invoice") ||
     pathname.startsWith("/blog") ||
     pathname === "/pricing" ||
     pathname === "/forgot-password" ||
