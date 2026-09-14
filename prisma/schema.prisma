@@ -208,6 +208,7 @@ model Invoice {
   pdfUrl            String?       // رابط PDF الفاتورة المولّدة
   documentType      String        @default("INVOICE") // INVOICE | CREDIT_NOTE | DEBIT_NOTE
   relatedInvoiceId  String?       // للإشارة إلى الفاتورة الأصلية في حالة إشعارات الخصم/الائتمان
+  invoiceNumber     String?       // رقم الفاتورة — مفهرس لتسريع البحث
 
   business     Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
   journalEntry JournalEntry?    @relation(fields: [journalEntryId], references: [id])
@@ -216,6 +217,7 @@ model Invoice {
 
   @@index([businessId, status])
   @@index([businessId, createdAt(sort: Desc)])
+  @@index([businessId, invoiceNumber])
 }
 
 // دفعات الفاتورة — لتتبع الدفعات الجزئية

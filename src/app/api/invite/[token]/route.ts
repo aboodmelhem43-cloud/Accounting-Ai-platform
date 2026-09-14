@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 async function getValidInvite(token: string) {
   return prisma.invite.findFirst({
     where: { token, usedAt: null, expiresAt: { gt: new Date() } },
-    include: { business: { select: { name: true, country: true } } },
+    include: { business: { select: { name: true, country: true, baseCurrency: true } } },
   });
 }
 
@@ -94,7 +94,7 @@ export async function POST(
         data: {
           name: `${name} (Bookkeeper)`,
           country: invite.business.country,
-          baseCurrency: "EGP",
+          baseCurrency: invite.business.baseCurrency,
           onboardingCompleted: true,
         },
       });

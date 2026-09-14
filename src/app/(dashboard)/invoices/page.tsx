@@ -71,23 +71,33 @@ export default async function InvoicesPage({
   let totalPages: number;
 
   if (needle) {
-    // Text search is over JSON extractedData fields — fetch recent 200 and filter in memory.
-    // For full-text search across all records, add an indexed invoiceNumber column in a future migration.
-    const all = await prisma.invoice.findMany({
-      where,
+    // Search by indexed invoiceNumber column first; fall back to in-memory for vendor/customer names.
+    const byNumber = await prisma.invoice.findMany({
+      where: { ...where, invoiceNumber: { contains: needle, mode: "insensitive" } },
       orderBy: { createdAt: "desc" },
-      take: 200,
     });
-    invoices = all.filter((inv) => {
-      const d = inv.extractedData as ExtractedData | null;
-      const haystack = [d?.invoiceNumber, d?.vendorName, d?.customerName]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      return haystack.includes(needle);
-    });
-    total = invoices.length;
-    totalPages = 1; // all results shown at once when searching
+    if (byNumber.length > 0) {
+      invoices = byNumber;
+      total = byNumber.length;
+      totalPages = 1;
+    } else {
+      // Fall back to in-memory search over extractedData JSON for name fields (limited to 200)
+      const all = await prisma.invoice.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: 200,
+      });
+      invoices = all.filter((inv) => {
+        const d = inv.extractedData as ExtractedData | null;
+        const haystack = [d?.invoiceNumber, d?.vendorName, d?.customerName]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(needle);
+      });
+      total = invoices.length;
+      totalPages = 1;
+    }
   } else {
     // Proper DB pagination when not searching
     [invoices, total] = await Promise.all([
@@ -152,7 +162,7 @@ export default async function InvoicesPage({
         <InvoiceFilters />
       </Suspense>
 
-      {needle && total >= 200 && (
+      {needle && total >= 200 && total <= 200 && (
         <p className="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
           {isAr
             ? "نتائج البحث محدودة بـ 200 فاتورة — يمكن تضييق النتائج بإضافة فلتر أو كلمة أدق"
