@@ -180,13 +180,15 @@ export const authOptions: NextAuthOptions = {
           // Regular profile/session refresh
           const business = await prisma.business.findUnique({
             where: { id: token.businessId as string },
-            select: { name: true, country: true, baseCurrency: true, onboardingCompleted: true },
+            select: { name: true, country: true, baseCurrency: true, onboardingCompleted: true, plan: true, trialEndsAt: true },
           });
           if (business) {
             token.businessName = business.name;
             token.country = business.country;
             token.currency = business.baseCurrency;
             token.onboardingCompleted = business.onboardingCompleted;
+            token.plan = business.plan;
+            token.trialEndsAt = business.trialEndsAt ? business.trialEndsAt.toISOString() : null;
           }
         }
       }

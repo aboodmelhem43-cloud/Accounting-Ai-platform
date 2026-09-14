@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import type { NormalizedSale, VerifyResult } from "./types";
+import type { NormalizedSale, VerifyResult, LineItem } from "./types";
 
 export function verifyZidSignature(
   rawBody: string,
@@ -17,34 +17,33 @@ export function verifyZidSignature(
   return { valid, reason: valid ? undefined : "Invalid Zid signature" };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function normalizeZidOrder(payload: Record<string, any>): NormalizedSale {
-  const order = payload.order ?? payload.data ?? payload;
+export function normalizeZidOrder(payload: Record<string, unknown>): NormalizedSale {
+  const order = (payload.order ?? payload.data ?? payload) as Record<string, unknown>;
 
   const subtotal = Number(order.sub_total ?? order.subtotal ?? 0);
   const vatAmount = Number(order.tax ?? order.vat ?? order.taxes_total ?? 0);
   const total = Number(order.total ?? order.grand_total ?? subtotal + vatAmount);
-  const currency = order.currency ?? "SAR";
+  const currency = String(order.currency ?? "SAR");
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const lineItems = (order.products ?? order.items ?? []).map((item: any) => ({
-    description: item.name ?? item.title ?? "Item",
+  const rawZidItems = (order.products as Record<string, unknown>[] | undefined ?? order.items as Record<string, unknown>[] | undefined ?? []);
+  const lineItems = rawZidItems.map((item: Record<string, unknown>): LineItem => ({
+    description: String(item.name ?? item.title ?? "Item"),
     quantity: Number(item.quantity ?? 1),
     unitPrice: Number(item.price ?? 0),
     total: Number(item.total ?? Number(item.price ?? 0) * Number(item.quantity ?? 1)),
   }));
 
-  const customer = order.customer ?? order.shipping_address ?? {};
+  const customer = (order.customer ?? order.shipping_address ?? {}) as Record<string, unknown>;
   const customerName =
-    (customer.name ?? [customer.first_name, customer.last_name].filter(Boolean).join(" ")) || undefined;
+    String(customer.name ?? [customer.first_name, customer.last_name].filter(Boolean).map(String).join(" ")) || undefined;
 
-  const pm = (order.payment_method ?? "").toLowerCase();
+  const pm = String(order.payment_method ?? "").toLowerCase();
   const paymentMethod = pm.includes("cash") ? "cash" : pm.includes("cod") ? "cod" : "card";
 
   return {
     externalId: String(order.id ?? order.order_id),
     orderNumber: String(order.reference_number ?? order.order_number ?? order.id),
-    occurredAt: new Date(order.created_at ?? order.date ?? Date.now()),
+    occurredAt: new Date(order.created_at as string ?? order.date as string ?? Date.now()),
     subtotal,
     vatAmount,
     total,

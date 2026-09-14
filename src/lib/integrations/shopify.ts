@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import type { NormalizedSale, VerifyResult } from "./types";
+import type { NormalizedSale, VerifyResult, LineItem } from "./types";
 
 export function verifyShopifySignature(
   rawBody: string,
@@ -14,22 +14,20 @@ export function verifyShopifySignature(
   return { valid, reason: valid ? undefined : "Invalid HMAC signature" };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function normalizeShopifyOrder(payload: Record<string, any>): NormalizedSale {
-  const lineItems = (payload.line_items ?? []).map(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (item: any) => ({
-      description: item.title ?? item.name ?? "Item",
+export function normalizeShopifyOrder(payload: Record<string, unknown>): NormalizedSale {
+  const lineItems = (payload.line_items as Record<string, unknown>[] ?? []).map(
+    (item: Record<string, unknown>): LineItem => ({
+      description: String(item.title ?? item.name ?? "Item"),
       quantity: Number(item.quantity ?? 1),
       unitPrice: Number(item.price ?? 0),
       total: Number(item.price ?? 0) * Number(item.quantity ?? 1),
     })
   );
 
-  const customer = payload.customer ?? {};
-  const customerName = [customer.first_name, customer.last_name].filter(Boolean).join(" ") || undefined;
+  const customer = (payload.customer ?? {}) as Record<string, unknown>;
+  const customerName = [customer.first_name, customer.last_name].filter(Boolean).map(String).join(" ") || undefined;
 
-  const paymentGateway = (payload.payment_gateway ?? "").toLowerCase();
+  const paymentGateway = String(payload.payment_gateway ?? "").toLowerCase();
   const paymentMethod = paymentGateway.includes("cash")
     ? "cash"
     : paymentGateway.includes("cod")
@@ -39,11 +37,11 @@ export function normalizeShopifyOrder(payload: Record<string, any>): NormalizedS
   return {
     externalId: String(payload.id),
     orderNumber: String(payload.order_number ?? payload.name ?? payload.id),
-    occurredAt: new Date(payload.processed_at ?? payload.created_at ?? Date.now()),
+    occurredAt: new Date(payload.processed_at as string ?? payload.created_at as string ?? Date.now()),
     subtotal: Number(payload.subtotal_price ?? 0),
     vatAmount: Number(payload.total_tax ?? 0),
     total: Number(payload.total_price ?? 0),
-    currency: payload.currency ?? "USD",
+    currency: String(payload.currency ?? "USD"),
     paymentMethod,
     customerName,
     lineItems,

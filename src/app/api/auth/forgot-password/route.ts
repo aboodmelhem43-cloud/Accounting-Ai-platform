@@ -9,18 +9,16 @@ const schema = z.object({
   lang: z.enum(["ar", "en"]).optional(),
 });
 
-// Simple in-memory rate limiter: max 3 requests per email per 15 minutes
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-function isRateLimited(email: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(email);
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(email, { count: 1, resetAt: now + 15 * 60 * 1000 });
-    return false;
-  }
-  if (entry.count >= 3) return true;
-  entry.count++;
-  return false;
+const RATE_WINDOW_MS = 15 * 60 * 1000;
+const MAX_REQUESTS = 3;
+
+// DB-backed rate limiter using OtpCode count to survive serverless cold-starts
+async function isRateLimited(email: string): Promise<boolean> {
+  const windowStart = new Date(Date.now() - RATE_WINDOW_MS);
+  const count = await prisma.otpCode.count({
+    where: { email: email.toLowerCase(), purpose: "reset-password", createdAt: { gte: windowStart } },
+  });
+  return count >= MAX_REQUESTS;
 }
 
 function createResetToken(email: string, passwordHash: string): string {
@@ -44,16 +42,30 @@ export async function POST(req: NextRequest) {
 
   const { email, lang = "ar" } = parsed.data;
 
-  if (isRateLimited(email)) {
+  // DB-backed rate check and user lookup run in parallel to equalize timing
+  const [rateLimited, user] = await Promise.all([
+    isRateLimited(email),
+    prisma.user.findUnique({ where: { email } }).catch(() => null),
+  ]);
+
+  if (rateLimited) {
     return NextResponse.json({ ok: true }); // return 200 so we don't leak rate-limit status
   }
 
-  // Always return 200 to avoid leaking whether an email exists
-  const user = await prisma.user.findUnique({ where: { email } }).catch(() => null);
+  // Track this attempt in DB (even if user doesn't exist, to count toward rate limit)
+  await prisma.otpCode.create({
+    data: {
+      email: email.toLowerCase(),
+      code: "reset-attempt",
+      purpose: "reset-password",
+      expiresAt: new Date(Date.now() + 3_600_000),
+    },
+  }).catch(() => {}); // non-blocking; ignore if it fails
+
   if (!user) return NextResponse.json({ ok: true });
 
   const token = createResetToken(email, user.passwordHash);
-  const appUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const resetUrl = `${appUrl}/reset-password?token=${token}`;
 
   try {

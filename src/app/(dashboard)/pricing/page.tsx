@@ -15,8 +15,8 @@ const FEATURES: Record<PlanId, { ar: string[]; en: string[] }> = {
     en: ["50 invoices/month", "50 AI queries/month", "AI invoice scanning", "Sales & purchase invoices", "Journal & financial reports", "Customer support"],
   },
   PRO: {
-    ar: ["500 فاتورة/شهر", "AI غير محدود", "كل مميزات Starter", "3 مستخدمين", "تقارير متقدمة + تسوية بنكية", "إنستغرام AI"],
-    en: ["500 invoices/month", "Unlimited AI", "All Starter features", "3 users", "Advanced reports + bank reconciliation", "Instagram AI"],
+    ar: ["500 فاتورة/شهر", "AI غير محدود", "كل مميزات Starter", "3 مستخدمين", "تقارير متقدمة + تسوية بنكية", "تكاملات متاجر"],
+    en: ["500 invoices/month", "Unlimited AI", "All Starter features", "3 users", "Advanced reports + bank reconciliation", "Store integrations"],
   },
   BUSINESS: {
     ar: ["فواتير غير محدودة", "AI غير محدود", "كل مميزات Pro", "10 مستخدمين", "API access + تكامل متاجر", "دعم VIP"],

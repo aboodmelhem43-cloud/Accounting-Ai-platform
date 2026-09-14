@@ -60,6 +60,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const emailSubject = subject ?? `فاتورة رقم ${invoiceNumber} من ${businessName}`;
   const viewUrl = `${APP_URL}/invoice/${viewToken}`;
 
+  const escapeHtml = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
   const html = `
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
@@ -71,7 +74,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       <div style="color:#bfdbfe;font-size:14px;margin-top:4px">فاتورة رقم: ${invoiceNumber}</div>
     </div>
     <div style="padding:32px">
-      ${message ? `<p style="color:#374151;font-size:15px;margin:0 0 24px;line-height:1.6">${message}</p>` : ""}
+      ${message ? `<p style="color:#374151;font-size:15px;margin:0 0 24px;line-height:1.6">${escapeHtml(message)}</p>` : ""}
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
         <tr>
           <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:14px">تاريخ الفاتورة</td>
