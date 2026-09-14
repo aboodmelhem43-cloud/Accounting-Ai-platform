@@ -4,6 +4,13 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import * as XLSX from "xlsx";
 
+function sanitizeCell(value: string): string {
+  if (typeof value === "string" && /^[=+\-@]/.test(value)) {
+    return `'${value}`;
+  }
+  return value;
+}
+
 export async function GET(_req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
@@ -81,11 +88,11 @@ export async function GET(_req: NextRequest) {
     for (const line of je.lines) {
       jeRows.push({
         Date: new Date(je.date).toLocaleDateString(),
-        Description: je.description,
+        Description: sanitizeCell(je.description),
         Status: je.status,
         Source: je.sourceType,
         "Account Code": line.account.code,
-        "Account Name": line.account.name,
+        "Account Name": sanitizeCell(line.account.name),
         Debit: Number(line.debit),
         Credit: Number(line.credit),
       });
@@ -121,13 +128,13 @@ export async function GET(_req: NextRequest) {
 
   // Sheet 4: Contacts
   const contactRows = contacts.map((c) => ({
-    Name: c.name,
+    Name: sanitizeCell(c.name),
     Type: c.type,
-    Email: c.email ?? "",
-    Phone: c.phone ?? "",
-    Address: c.address ?? "",
-    "Tax Number": c.taxNumber ?? "",
-    Notes: c.notes ?? "",
+    Email: sanitizeCell(c.email ?? ""),
+    Phone: sanitizeCell(c.phone ?? ""),
+    Address: sanitizeCell(c.address ?? ""),
+    "Tax Number": sanitizeCell(c.taxNumber ?? ""),
+    Notes: sanitizeCell(c.notes ?? ""),
   }));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(contactRows.length ? contactRows : [{}]), "Contacts");
 

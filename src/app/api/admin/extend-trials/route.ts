@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { timingSafeEqual } from "crypto";
 import { isSuperAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 
@@ -8,7 +9,11 @@ import { prisma } from "@/lib/prisma";
 // Protected by ADMIN_SECRET env variable, or a super-admin session.
 export async function POST(req: NextRequest) {
   const secret = req.headers.get("x-admin-secret");
-  if (!secret || secret !== process.env.ADMIN_SECRET) {
+  const adminSecret = process.env.ADMIN_SECRET;
+  const secretMatch = secret && adminSecret &&
+    secret.length === adminSecret.length &&
+    timingSafeEqual(Buffer.from(secret), Buffer.from(adminSecret));
+  if (!secretMatch) {
     // Also allow super-admin session (belt-and-suspenders)
     const { getServerSession } = await import("next-auth");
     const { authOptions } = await import("@/lib/auth");

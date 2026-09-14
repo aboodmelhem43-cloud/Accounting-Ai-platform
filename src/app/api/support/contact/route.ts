@@ -23,8 +23,14 @@ export async function POST(req: NextRequest) {
   }
 
   const { subject, message } = parsed.data;
-  const userName = session.user.name ?? session.user.email;
+  const rawUserName = session.user.name ?? session.user.email;
   const userEmail = session.user.email;
+
+  const escapeHtml = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  const userName = escapeHtml(rawUserName);
+  const safeSubject = escapeHtml(subject);
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -47,8 +53,8 @@ export async function POST(req: NextRequest) {
     <div style="padding:32px">
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
         <tr><td style="padding:8px 0;color:#6b7280;font-size:13px;width:100px">المرسل:</td><td style="padding:8px 0;color:#111827;font-weight:600">${userName}</td></tr>
-        <tr><td style="padding:8px 0;color:#6b7280;font-size:13px">البريد:</td><td style="padding:8px 0;color:#1d4ed8"><a href="mailto:${userEmail}" style="color:#1d4ed8">${userEmail}</a></td></tr>
-        <tr><td style="padding:8px 0;color:#6b7280;font-size:13px">الموضوع:</td><td style="padding:8px 0;color:#111827;font-weight:600">${subject}</td></tr>
+        <tr><td style="padding:8px 0;color:#6b7280;font-size:13px">البريد:</td><td style="padding:8px 0;color:#1d4ed8"><a href="mailto:${escapeHtml(userEmail)}" style="color:#1d4ed8">${escapeHtml(userEmail)}</a></td></tr>
+        <tr><td style="padding:8px 0;color:#6b7280;font-size:13px">الموضوع:</td><td style="padding:8px 0;color:#111827;font-weight:600">${safeSubject}</td></tr>
       </table>
       <div style="background:#f9fafb;border-right:4px solid #1d4ed8;border-radius:4px;padding:16px;margin-bottom:24px">
         <p style="color:#374151;font-size:15px;line-height:1.7;margin:0;white-space:pre-wrap">${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
@@ -72,13 +78,13 @@ export async function POST(req: NextRequest) {
       <div style="color:#fff;font-size:18px;font-weight:bold">MohasabAi — منصة المحاسبة الذكية</div>
     </div>
     <div style="padding:32px">
-      <p style="color:#374151;font-size:16px;margin:0 0 12px">مرحباً ${userName}،</p>
+      <p style="color:#374151;font-size:16px;margin:0 0 12px">مرحباً ${escapeHtml(rawUserName)}،</p>
       <p style="color:#374151;font-size:15px;margin:0 0 20px">
         تلقّينا رسالتك بنجاح وسيتواصل معك فريق الدعم خلال <strong>24 ساعة</strong>.
       </p>
       <div style="background:#eff6ff;border-radius:8px;padding:16px;margin-bottom:24px">
         <p style="color:#6b7280;font-size:13px;margin:0 0 6px">موضوع الرسالة:</p>
-        <p style="color:#1d4ed8;font-weight:600;font-size:15px;margin:0">${subject}</p>
+        <p style="color:#1d4ed8;font-weight:600;font-size:15px;margin:0">${safeSubject}</p>
       </div>
       <p style="color:#9ca3af;font-size:13px;margin:0">
         إذا كان استفساركم عاجلاً، يمكنكم التواصل مباشرة على

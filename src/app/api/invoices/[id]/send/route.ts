@@ -57,11 +57,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     await prisma.invoice.update({ where: { id }, data: { viewToken } });
   }
 
-  const emailSubject = subject ?? `فاتورة رقم ${invoiceNumber} من ${businessName}`;
-  const viewUrl = `${APP_URL}/invoice/${viewToken}`;
-
   const escapeHtml = (s: string) =>
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  const safeBusinessName = escapeHtml(businessName);
+  const safeInvoiceNumber = escapeHtml(invoiceNumber);
+  const safeInvoiceDate = escapeHtml(invoiceDate);
+  const safeDueDate = escapeHtml(dueDate);
+  const safeCurrency = escapeHtml(currency);
+
+  const emailSubject = subject ?? `فاتورة رقم ${safeInvoiceNumber} من ${safeBusinessName}`;
+  const viewUrl = `${APP_URL}/invoice/${viewToken}`;
 
   const html = `
 <!DOCTYPE html>
@@ -70,23 +76,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 <body style="font-family:Arial,sans-serif;background:#f4f4f5;padding:40px 0;margin:0">
   <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
     <div style="background:#1d4ed8;padding:24px 32px">
-      <div style="color:#fff;font-size:20px;font-weight:bold">${businessName}</div>
-      <div style="color:#bfdbfe;font-size:14px;margin-top:4px">فاتورة رقم: ${invoiceNumber}</div>
+      <div style="color:#fff;font-size:20px;font-weight:bold">${safeBusinessName}</div>
+      <div style="color:#bfdbfe;font-size:14px;margin-top:4px">فاتورة رقم: ${safeInvoiceNumber}</div>
     </div>
     <div style="padding:32px">
       ${message ? `<p style="color:#374151;font-size:15px;margin:0 0 24px;line-height:1.6">${escapeHtml(message)}</p>` : ""}
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
         <tr>
           <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:14px">تاريخ الفاتورة</td>
-          <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;color:#111827;font-size:14px;text-align:left">${invoiceDate}</td>
+          <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;color:#111827;font-size:14px;text-align:left">${safeInvoiceDate}</td>
         </tr>
-        ${dueDate ? `<tr>
+        ${safeDueDate ? `<tr>
           <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:14px">تاريخ الاستحقاق</td>
-          <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;color:#111827;font-size:14px;text-align:left">${dueDate}</td>
+          <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;color:#111827;font-size:14px;text-align:left">${safeDueDate}</td>
         </tr>` : ""}
         <tr>
           <td style="padding:12px 0;color:#111827;font-size:16px;font-weight:bold">المبلغ الإجمالي</td>
-          <td style="padding:12px 0;color:#1d4ed8;font-size:20px;font-weight:bold;text-align:left">${totalAmount.toLocaleString("ar-EG")} ${currency}</td>
+          <td style="padding:12px 0;color:#1d4ed8;font-size:20px;font-weight:bold;text-align:left">${totalAmount.toLocaleString("ar-EG")} ${safeCurrency}</td>
         </tr>
       </table>
       <a href="${viewUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:24px">
