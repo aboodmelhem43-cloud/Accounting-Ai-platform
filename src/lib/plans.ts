@@ -78,6 +78,22 @@ function effectiveTrialEnd(trialEndsAt: Date | null, createdAt: Date): Date {
   return new Date(trialEndsAt) > fromCreated ? new Date(trialEndsAt) : fromCreated;
 }
 
+/**
+ * Lightweight plan check for non-invoice state-mutating endpoints.
+ * Returns false when the business is on an expired FREE_TRIAL.
+ */
+export async function checkActivePlan(businessId: string): Promise<boolean> {
+  const business = await prisma.business.findUniqueOrThrow({
+    where: { id: businessId },
+    select: { plan: true, trialEndsAt: true, createdAt: true },
+  });
+  const plan = business.plan as PlanId;
+  if (plan === "FREE_TRIAL" && isTrialExpired(effectiveTrialEnd(business.trialEndsAt, business.createdAt))) {
+    return false;
+  }
+  return true;
+}
+
 export async function checkInvoiceLimit(businessId: string): Promise<{
   allowed: boolean;
   used: number;

@@ -7,6 +7,12 @@ import ShareBar from "./ShareBar";
 
 const SITE_URL = "https://www.mohasabai.com";
 
+// Strip <script> tags before rendering blog HTML — content is static but this
+// guards against accidental injection if the source ever moves to a CMS/DB.
+function sanitizeBlogHtml(html: string): string {
+  return html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script\s*>/gi, "");
+}
+
 export async function generateStaticParams() {
   return BLOG_POSTS.map((p) => ({ slug: p.slug }));
 }
@@ -154,7 +160,7 @@ export default async function BlogPostPage({
               prose-ul:my-4 prose-ol:my-4
               prose-blockquote:border-s-4 prose-blockquote:border-blue-400 prose-blockquote:bg-blue-50 prose-blockquote:px-4 prose-blockquote:py-3 prose-blockquote:rounded-e-lg prose-blockquote:not-italic
               ${isAr ? "text-right" : "text-left"}`}
-            dangerouslySetInnerHTML={{ __html: content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeBlogHtml(content) }}
           />
         </div>
 

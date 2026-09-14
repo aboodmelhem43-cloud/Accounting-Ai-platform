@@ -16,7 +16,7 @@ model Business {
   name                String
   country             String    @default("SA")
   baseCurrency        String    @default("EGP")
-  taxNumber           String?
+  taxNumber           String?   // TODO: encrypt at application layer before storing (MENA regulatory requirement)
   address             String?
   phone               String?
   onboardingCompleted  Boolean   @default(false)
@@ -77,12 +77,13 @@ model User {
   id                 String   @id @default(cuid())
   businessId         String
   email              String   @unique
-  passwordHash       String
-  name               String?
-  role               UserRole @default(OWNER)
-  emailPreferences   Json?    // { jvSubmitted, jvApproved, jvRejected, trialWarning, trialExpired } — all default true
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  passwordHash        String
+  passwordChangedAt   DateTime?
+  name                String?
+  role                UserRole @default(OWNER)
+  emailPreferences    Json?    // { jvSubmitted, jvApproved, jvRejected, trialWarning, trialExpired } — all default true
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   business                Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
   createdJournalEntries   JournalEntry[]     @relation("JournalCreator")
@@ -277,8 +278,8 @@ model BankAccount {
   businessId     String
   name           String
   bankName       String
-  accountNumber  String?
-  iban           String?
+  accountNumber  String?   // TODO: encrypt at application layer before storing
+  iban           String?   // TODO: encrypt at application layer before storing
   currency       String   @default("SAR")
   openingBalance Decimal  @default(0) @db.Decimal(15, 2)
   createdAt      DateTime @default(now())
@@ -552,5 +553,14 @@ model ProcessedWebhookEvent {
   processedAt DateTime @default(now())
 
   @@index([source, processedAt])
+}
+
+// IP-based rate limiting — one row per (key, window); auto-expires via cleanup job
+model RateLimitEntry {
+  key       String   @id // e.g. "login:1.2.3.4"
+  count     Int      @default(0)
+  resetAt   DateTime
+
+  @@index([resetAt])
 }
 

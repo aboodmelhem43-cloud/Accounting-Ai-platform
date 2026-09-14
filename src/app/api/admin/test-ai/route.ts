@@ -10,13 +10,10 @@ export async function POST() {
     return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   }
 
-  const keySet = !!process.env.ANTHROPIC_API_KEY;
-  const keyPreview = keySet
-    ? process.env.ANTHROPIC_API_KEY!.slice(0, 10) + "..."
-    : "NOT SET";
+  const keyConfigured = !!process.env.ANTHROPIC_API_KEY;
 
-  if (!keySet) {
-    return NextResponse.json({ ok: false, step: "env", keyPreview, error: "ANTHROPIC_API_KEY is not set in Vercel environment variables" });
+  if (!keyConfigured) {
+    return NextResponse.json({ ok: false, step: "env", keyConfigured, error: "ANTHROPIC_API_KEY is not set in Vercel environment variables" });
   }
 
   try {
@@ -27,10 +24,10 @@ export async function POST() {
       messages: [{ role: "user", content: "Say: OK" }],
     });
     const text = res.content[0]?.type === "text" ? res.content[0].text : "(no text)";
-    return NextResponse.json({ ok: true, step: "api_call", keyPreview, response: text });
+    return NextResponse.json({ ok: true, step: "api_call", keyConfigured, response: text });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     const name = err instanceof Error ? err.constructor.name : "UnknownError";
-    return NextResponse.json({ ok: false, step: "api_call", keyPreview, errorType: name, error: msg });
+    return NextResponse.json({ ok: false, step: "api_call", keyConfigured, errorType: name, error: msg });
   }
 }

@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 // كاش بسيط في الذاكرة — يُحدَّث كل ساعة
 interface RatesCache { rates: Record<string, number>; base: string; ts: number }
 let cachedRates: RatesCache | null = null;
 
+const VALID_CURRENCY = /^[A-Z]{3}$/;
+
 export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+
   const { searchParams } = new URL(req.url);
   const base = (searchParams.get("base") ?? "USD").toUpperCase();
+
+  if (!VALID_CURRENCY.test(base)) {
+    return NextResponse.json({ error: "رمز العملة غير صالح" }, { status: 400 });
+  }
 
   // التحقق من الكاش
   const now = Date.now();

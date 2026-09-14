@@ -26,6 +26,9 @@ function verifyResetToken(token: string, passwordHash: string): boolean {
   if (parts.length !== 4) return false;
   const [encodedEmail, expiryStr, pwFingerprint, sig] = parts;
 
+  if (!process.env.PASSWORD_RESET_SECRET) {
+    console.warn("[security] PASSWORD_RESET_SECRET is not set — falling back to NEXTAUTH_SECRET.");
+  }
   const secret = process.env.PASSWORD_RESET_SECRET ?? process.env.NEXTAUTH_SECRET;
   if (!secret) throw new Error("PASSWORD_RESET_SECRET is not configured");
 

@@ -23,6 +23,9 @@ async function isRateLimited(email: string): Promise<boolean> {
 
 function createResetToken(email: string, passwordHash: string): string {
   const expiry = Date.now() + 3_600_000; // 1 hour
+  if (!process.env.PASSWORD_RESET_SECRET) {
+    console.warn("[security] PASSWORD_RESET_SECRET is not set — falling back to NEXTAUTH_SECRET. Set a dedicated secret to isolate password-reset tokens.");
+  }
   const secret = process.env.PASSWORD_RESET_SECRET ?? process.env.NEXTAUTH_SECRET;
   if (!secret) throw new Error("PASSWORD_RESET_SECRET is not configured");
   // Bind token to the current password hash so it is automatically invalidated

@@ -26,7 +26,10 @@ export async function POST(req: NextRequest) {
     if (!isValid) return NextResponse.json({ error: "wrong_current" }, { status: 400 });
 
     const hash = await bcrypt.hash(data.newPassword, 12);
-    await prisma.user.update({ where: { id: session.user.id }, data: { passwordHash: hash } });
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { passwordHash: hash, passwordChangedAt: new Date() },
+    });
 
     // Audit trail + signal client to sign out (existing JWT remains valid until expiry,
     // but sign-out forces immediate re-authentication with the new password)
