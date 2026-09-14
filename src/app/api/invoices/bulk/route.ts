@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
   const { ids, action } = parsed.data;
   const { businessId } = session.user;
 
+  let invoiceCapacity = Infinity; // unlimited by default
   if (action === "confirm") {
     const limit = await checkInvoiceLimit(businessId);
     if (!limit.allowed) {
@@ -32,6 +33,9 @@ export async function POST(req: NextRequest) {
         { error: `لقد وصلت إلى حد الفواتير (${limit.used}/${limit.limit}) — يرجى الترقية` },
         { status: 403 }
       );
+    }
+    if (limit.limit > 0) {
+      invoiceCapacity = limit.limit - limit.used;
     }
   }
 
@@ -106,6 +110,11 @@ export async function POST(req: NextRequest) {
         .filter((l): l is typeof l & { accountId: string } => !!l.accountId);
 
       if (lines.length < 2) {
+        skippedNoData.push(invoice.id);
+        continue;
+      }
+
+      if (confirmed >= invoiceCapacity) {
         skippedNoData.push(invoice.id);
         continue;
       }

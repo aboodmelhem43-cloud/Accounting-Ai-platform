@@ -43,11 +43,15 @@ export async function POST(req: NextRequest) {
     return d;
   }
 
-  // Load new business's current trial end
+  // Load new business's current trial end and check it hasn't already redeemed a code
   const newBiz = await prisma.business.findUnique({
     where: { id: businessId },
-    select: { trialEndsAt: true },
+    select: { trialEndsAt: true, referredByCode: true },
   });
+
+  if (newBiz?.referredByCode) {
+    return NextResponse.json({ error: "Referral code already redeemed" }, { status: 409 });
+  }
 
   await prisma.business.update({
     where: { id: businessId },

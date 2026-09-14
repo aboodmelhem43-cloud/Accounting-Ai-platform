@@ -51,7 +51,13 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     // حفظ الملف — Vercel Blob في الإنتاج، محلي في بيئة التطوير
-    const ext = file.name.split(".").pop() ?? "jpg";
+    const ALLOWED_EXTS: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/webp": "webp",
+      "application/pdf": "pdf",
+    };
+    const ext = ALLOWED_EXTS[file.type] ?? "bin";
     const filename = `${session.user.businessId}-${Date.now()}.${ext}`;
     let fileUrl: string;
 

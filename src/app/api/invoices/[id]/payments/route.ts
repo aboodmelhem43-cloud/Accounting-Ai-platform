@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { createJournalEntry } from "@/lib/ledger";
 
 const paymentSchema = z.object({
-  amount: z.number().positive(),
+  amount: z.number().positive().max(1_000_000_000),
   date: z.string().min(1),
   accountId: z.string().min(1), // حساب النقدية أو البنك المُستلم منه
   note: z.string().optional(),

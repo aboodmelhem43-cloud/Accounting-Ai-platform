@@ -6,6 +6,15 @@ const FROM_EMAIL = process.env.FROM_EMAIL ?? "onboarding@resend.dev";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://mohasabai.com";
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL ?? "support@mohasabai.com";
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function sendOtpEmail(
   email: string,
   code: string,
@@ -49,8 +58,8 @@ export async function sendOtpEmail(
 </html>`;
 
   if (!resend) {
-    // في البيئة المحلية بدون مفتاح Resend، اطبع الرمز في الـ console
-    console.log(`[OTP] ${email} → ${code} (purpose: ${purpose})`);
+    // في البيئة المحلية بدون مفتاح Resend، نطبع رسالة بدون الرمز
+    console.log(`[email] OTP email skipped — no RESEND_API_KEY (to: ${email}, purpose: ${purpose})`);
     return;
   }
 
@@ -153,19 +162,22 @@ export async function sendJvSubmittedEmail({
   const isAr = lang === "ar";
   const dir = isAr ? "rtl" : "ltr";
   const reviewUrl = `${APP_URL}/journal/${entryId}`;
+  const safeAccountantName = escapeHtml(accountantName);
+  const safeEntryDescription = escapeHtml(entryDescription);
+  const safeBusinessName = escapeHtml(businessName);
 
   const subject = isAr
-    ? `قيد يومية بانتظار موافقتك — ${businessName}`
-    : `Journal entry awaiting your approval — ${businessName}`;
+    ? `قيد يومية بانتظار موافقتك — ${safeBusinessName}`
+    : `Journal entry awaiting your approval — ${safeBusinessName}`;
 
   const body = isAr ? `
     <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً،</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      قدّم <strong>${accountantName}</strong> قيداً يومياً جديداً يحتاج إلى موافقتك قبل ترحيله في دفتر الأستاذ.
+      قدّم <strong>${safeAccountantName}</strong> قيداً يومياً جديداً يحتاج إلى موافقتك قبل ترحيله في دفتر الأستاذ.
     </p>
     <div style="background:#eff6ff;border-right:4px solid #1d4ed8;border-radius:8px;padding:16px 20px;margin-bottom:24px">
       <div style="font-size:13px;color:#6b7280;margin-bottom:4px">بيان القيد</div>
-      <div style="font-size:16px;font-weight:600;color:#1e40af">${entryDescription}</div>
+      <div style="font-size:16px;font-weight:600;color:#1e40af">${safeEntryDescription}</div>
     </div>
     <a href="${reviewUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 28px;border-radius:10px;text-decoration:none;margin-bottom:20px">
       مراجعة القيد والموافقة
@@ -174,11 +186,11 @@ export async function sendJvSubmittedEmail({
   ` : `
     <p style="color:#374151;font-size:16px;margin:0 0 16px">Hello,</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      <strong>${accountantName}</strong> has submitted a journal entry that requires your approval before it can be posted to the ledger.
+      <strong>${safeAccountantName}</strong> has submitted a journal entry that requires your approval before it can be posted to the ledger.
     </p>
     <div style="background:#eff6ff;border-left:4px solid #1d4ed8;border-radius:8px;padding:16px 20px;margin-bottom:24px">
       <div style="font-size:13px;color:#6b7280;margin-bottom:4px">Entry description</div>
-      <div style="font-size:16px;font-weight:600;color:#1e40af">${entryDescription}</div>
+      <div style="font-size:16px;font-weight:600;color:#1e40af">${safeEntryDescription}</div>
     </div>
     <a href="${reviewUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 28px;border-radius:10px;text-decoration:none;margin-bottom:20px">
       Review &amp; Approve Entry
@@ -215,19 +227,22 @@ export async function sendJvApprovedEmail({
   const isAr = lang === "ar";
   const dir = isAr ? "rtl" : "ltr";
   const viewUrl = `${APP_URL}/journal/${entryId}`;
+  const safeOwnerName = escapeHtml(ownerName);
+  const safeEntryDescription = escapeHtml(entryDescription);
+  const safeBusinessName = escapeHtml(businessName);
 
   const subject = isAr
-    ? `✅ تمت الموافقة على قيدك وترحيله — ${businessName}`
-    : `✅ Your journal entry was approved & posted — ${businessName}`;
+    ? `✅ تمت الموافقة على قيدك وترحيله — ${safeBusinessName}`
+    : `✅ Your journal entry was approved & posted — ${safeBusinessName}`;
 
   const body = isAr ? `
     <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً،</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      وافق <strong>${ownerName}</strong> على قيدك اليومي وتم ترحيله في دفتر الأستاذ.
+      وافق <strong>${safeOwnerName}</strong> على قيدك اليومي وتم ترحيله في دفتر الأستاذ.
     </p>
     <div style="background:#f0fdf4;border-right:4px solid #16a34a;border-radius:8px;padding:16px 20px;margin-bottom:24px">
       <div style="font-size:13px;color:#6b7280;margin-bottom:4px">بيان القيد</div>
-      <div style="font-size:16px;font-weight:600;color:#15803d">${entryDescription}</div>
+      <div style="font-size:16px;font-weight:600;color:#15803d">${safeEntryDescription}</div>
     </div>
     <a href="${viewUrl}" style="display:inline-block;background:#16a34a;color:#fff;font-weight:bold;font-size:15px;padding:14px 28px;border-radius:10px;text-decoration:none">
       عرض القيد
@@ -235,11 +250,11 @@ export async function sendJvApprovedEmail({
   ` : `
     <p style="color:#374151;font-size:16px;margin:0 0 16px">Hello,</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      <strong>${ownerName}</strong> has approved your journal entry and it has been posted to the ledger.
+      <strong>${safeOwnerName}</strong> has approved your journal entry and it has been posted to the ledger.
     </p>
     <div style="background:#f0fdf4;border-left:4px solid #16a34a;border-radius:8px;padding:16px 20px;margin-bottom:24px">
       <div style="font-size:13px;color:#6b7280;margin-bottom:4px">Entry description</div>
-      <div style="font-size:16px;font-weight:600;color:#15803d">${entryDescription}</div>
+      <div style="font-size:16px;font-weight:600;color:#15803d">${safeEntryDescription}</div>
     </div>
     <a href="${viewUrl}" style="display:inline-block;background:#16a34a;color:#fff;font-weight:bold;font-size:15px;padding:14px 28px;border-radius:10px;text-decoration:none">
       View Entry
@@ -277,21 +292,25 @@ export async function sendJvRejectedEmail({
   const isAr = lang === "ar";
   const dir = isAr ? "rtl" : "ltr";
   const editUrl = `${APP_URL}/journal/${entryId}`;
+  const safeOwnerName = escapeHtml(ownerName);
+  const safeEntryDescription = escapeHtml(entryDescription);
+  const safeRejectionReason = escapeHtml(rejectionReason);
+  const safeBusinessName = escapeHtml(businessName);
 
   const subject = isAr
-    ? `❌ تم رفض قيدك — ${businessName}`
-    : `❌ Your journal entry was rejected — ${businessName}`;
+    ? `❌ تم رفض قيدك — ${safeBusinessName}`
+    : `❌ Your journal entry was rejected — ${safeBusinessName}`;
 
   const body = isAr ? `
     <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً،</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      رفض <strong>${ownerName}</strong> قيدك اليومي. يرجى مراجعة سبب الرفض وتصحيح القيد وإعادة تقديمه.
+      رفض <strong>${safeOwnerName}</strong> قيدك اليومي. يرجى مراجعة سبب الرفض وتصحيح القيد وإعادة تقديمه.
     </p>
     <div style="background:#fef2f2;border-right:4px solid #dc2626;border-radius:8px;padding:16px 20px;margin-bottom:16px">
       <div style="font-size:13px;color:#6b7280;margin-bottom:4px">بيان القيد</div>
-      <div style="font-size:15px;font-weight:600;color:#374151;margin-bottom:12px">${entryDescription}</div>
+      <div style="font-size:15px;font-weight:600;color:#374151;margin-bottom:12px">${safeEntryDescription}</div>
       <div style="font-size:13px;color:#6b7280;margin-bottom:4px">سبب الرفض</div>
-      <div style="font-size:14px;color:#dc2626;font-weight:500">${rejectionReason}</div>
+      <div style="font-size:14px;color:#dc2626;font-weight:500">${safeRejectionReason}</div>
     </div>
     <a href="${editUrl}" style="display:inline-block;background:#dc2626;color:#fff;font-weight:bold;font-size:15px;padding:14px 28px;border-radius:10px;text-decoration:none">
       تعديل وإعادة التقديم
@@ -299,13 +318,13 @@ export async function sendJvRejectedEmail({
   ` : `
     <p style="color:#374151;font-size:16px;margin:0 0 16px">Hello,</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      <strong>${ownerName}</strong> has rejected your journal entry. Please review the reason below, correct the entry, and resubmit.
+      <strong>${safeOwnerName}</strong> has rejected your journal entry. Please review the reason below, correct the entry, and resubmit.
     </p>
     <div style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:8px;padding:16px 20px;margin-bottom:16px">
       <div style="font-size:13px;color:#6b7280;margin-bottom:4px">Entry description</div>
-      <div style="font-size:15px;font-weight:600;color:#374151;margin-bottom:12px">${entryDescription}</div>
+      <div style="font-size:15px;font-weight:600;color:#374151;margin-bottom:12px">${safeEntryDescription}</div>
       <div style="font-size:13px;color:#6b7280;margin-bottom:4px">Rejection reason</div>
-      <div style="font-size:14px;color:#dc2626;font-weight:500">${rejectionReason}</div>
+      <div style="font-size:14px;color:#dc2626;font-weight:500">${safeRejectionReason}</div>
     </div>
     <a href="${editUrl}" style="display:inline-block;background:#dc2626;color:#fff;font-weight:bold;font-size:15px;padding:14px 28px;border-radius:10px;text-decoration:none">
       Edit &amp; Resubmit
@@ -338,13 +357,14 @@ export async function sendTrialWarningEmail({
   const isAr = lang === "ar";
   const dir = isAr ? "rtl" : "ltr";
   const upgradeUrl = `${APP_URL}/pricing`;
+  const safeName = escapeHtml(name);
 
   const subject = isAr
     ? `⏳ تبقى ${daysLeft} أيام فقط في تجربتك المجانية — محاسب اي`
     : `⏳ ${daysLeft} days left in your free trial — MohasabAi`;
 
   const body = isAr ? `
-    <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${name}،</p>
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${safeName}،</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
       تبقّى <strong>${daysLeft} أيام</strong> فقط على انتهاء تجربتك المجانية في منصة محاسب اي.
       بعد انتهائها لن تتمكن من الوصول إلى بياناتك أو إضافة فواتير جديدة.
@@ -357,7 +377,7 @@ export async function sendTrialWarningEmail({
     </a>
     <p style="color:#9ca3af;font-size:12px;margin:0">إذا كان لديك أي سؤال، راسلنا على ${SUPPORT_EMAIL}</p>
   ` : `
-    <p style="color:#374151;font-size:16px;margin:0 0 16px">Hi ${name},</p>
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">Hi ${safeName},</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
       You have <strong>${daysLeft} days</strong> left in your MohasabAi free trial.
       After it ends, you won't be able to access your data or add new invoices.
@@ -393,13 +413,14 @@ export async function sendTrialExpiredEmail({
   const isAr = lang === "ar";
   const dir = isAr ? "rtl" : "ltr";
   const upgradeUrl = `${APP_URL}/pricing`;
+  const safeName = escapeHtml(name);
 
   const subject = isAr
     ? `انتهت تجربتك المجانية في محاسب اي`
     : `Your MohasabAi free trial has ended`;
 
   const body = isAr ? `
-    <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${name}،</p>
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${safeName}،</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
       انتهت فترة تجربتك المجانية في منصة <strong>محاسب اي</strong>.
       بياناتك محفوظة — فقط قم بالاشتراك لاستعادة الوصول الكامل.
@@ -413,7 +434,7 @@ export async function sendTrialExpiredEmail({
     <p style="color:#6b7280;font-size:13px;margin:0 0 8px">خططنا تبدأ من $15/شهر وتشمل جميع الميزات.</p>
     <p style="color:#9ca3af;font-size:12px;margin:0">أي سؤال؟ راسلنا على ${SUPPORT_EMAIL}</p>
   ` : `
-    <p style="color:#374151;font-size:16px;margin:0 0 16px">Hi ${name},</p>
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">Hi ${safeName},</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
       Your <strong>MohasabAi</strong> free trial has ended.
       Your data is safe — just subscribe to regain full access.
@@ -465,22 +486,25 @@ export async function sendInvoiceOverdueEmail({
     year: "numeric", month: "long", day: "numeric",
   });
   const fmtAmount = amount > 0
-    ? amount.toLocaleString(isAr ? "ar" : "en", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + currency
+    ? amount.toLocaleString(isAr ? "ar" : "en", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + escapeHtml(currency)
     : "";
+  const safeContactName = escapeHtml(contactName);
+  const safeBusinessName = escapeHtml(businessName);
+  const safeInvoiceNumber = escapeHtml(invoiceNumber);
 
   const subject = isAr
-    ? `تذكير: فاتورة متأخرة من ${businessName} — #${invoiceNumber}`
-    : `Payment reminder: overdue invoice from ${businessName} — #${invoiceNumber}`;
+    ? `تذكير: فاتورة متأخرة من ${safeBusinessName} — #${safeInvoiceNumber}`
+    : `Payment reminder: overdue invoice from ${safeBusinessName} — #${safeInvoiceNumber}`;
 
   const body = isAr ? `
-    <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${contactName}،</p>
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${safeContactName}،</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      نودّ تذكيرك بأن الفاتورة التالية من <strong>${businessName}</strong> قد تجاوزت تاريخ استحقاقها ولم يتم سدادها بعد.
+      نودّ تذكيرك بأن الفاتورة التالية من <strong>${safeBusinessName}</strong> قد تجاوزت تاريخ استحقاقها ولم يتم سدادها بعد.
     </p>
     <div style="background:#fef2f2;border-right:4px solid #dc2626;border-radius:8px;padding:16px 20px;margin-bottom:24px">
       <div style="display:flex;justify-content:space-between;margin-bottom:8px">
         <span style="font-size:13px;color:#6b7280">رقم الفاتورة</span>
-        <span style="font-size:14px;font-weight:600;color:#374151">#${invoiceNumber}</span>
+        <span style="font-size:14px;font-weight:600;color:#374151">#${safeInvoiceNumber}</span>
       </div>
       ${fmtAmount ? `<div style="display:flex;justify-content:space-between;margin-bottom:8px">
         <span style="font-size:13px;color:#6b7280">المبلغ المستحق</span>
@@ -492,18 +516,18 @@ export async function sendInvoiceOverdueEmail({
       </div>
     </div>
     <p style="color:#374151;font-size:14px;margin:0 0 20px">
-      يرجى التواصل مع <strong>${businessName}</strong> لتسوية هذه الفاتورة في أقرب وقت ممكن.
+      يرجى التواصل مع <strong>${safeBusinessName}</strong> لتسوية هذه الفاتورة في أقرب وقت ممكن.
     </p>
     <p style="color:#9ca3af;font-size:12px;margin:0">إذا كنت قد سددت هذه الفاتورة مسبقاً، يرجى تجاهل هذا البريد.</p>
   ` : `
-    <p style="color:#374151;font-size:16px;margin:0 0 16px">Dear ${contactName},</p>
+    <p style="color:#374151;font-size:16px;margin:0 0 16px">Dear ${safeContactName},</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      This is a friendly reminder that the following invoice from <strong>${businessName}</strong> is now past due and remains unpaid.
+      This is a friendly reminder that the following invoice from <strong>${safeBusinessName}</strong> is now past due and remains unpaid.
     </p>
     <div style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:8px;padding:16px 20px;margin-bottom:24px">
       <div style="display:flex;justify-content:space-between;margin-bottom:8px">
         <span style="font-size:13px;color:#6b7280">Invoice number</span>
-        <span style="font-size:14px;font-weight:600;color:#374151">#${invoiceNumber}</span>
+        <span style="font-size:14px;font-weight:600;color:#374151">#${safeInvoiceNumber}</span>
       </div>
       ${fmtAmount ? `<div style="display:flex;justify-content:space-between;margin-bottom:8px">
         <span style="font-size:13px;color:#6b7280">Amount due</span>
@@ -515,7 +539,7 @@ export async function sendInvoiceOverdueEmail({
       </div>
     </div>
     <p style="color:#374151;font-size:14px;margin:0 0 20px">
-      Please contact <strong>${businessName}</strong> to settle this invoice at your earliest convenience.
+      Please contact <strong>${safeBusinessName}</strong> to settle this invoice at your earliest convenience.
     </p>
     <p style="color:#9ca3af;font-size:12px;margin:0">If you have already made this payment, please disregard this email.</p>
   `;
@@ -596,6 +620,8 @@ export async function sendReEngagementEmail({
 }): Promise<void> {
   const loginUrl = `${APP_URL}/login`;
   const feedbackEmail = SUPPORT_EMAIL;
+  const safeName = escapeHtml(name);
+  const safeBusinessName = escapeHtml(businessName);
 
   const subject = `كيف يمكننا مساعدتك؟ / How can we help you get started? — MohasabAi`;
 
@@ -603,7 +629,7 @@ export async function sendReEngagementEmail({
   const body = `
     <!-- Arabic Section -->
     <div dir="rtl" style="margin-bottom:32px;padding-bottom:32px;border-bottom:1px solid #e5e7eb">
-      <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${name}،</p>
+      <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${safeName}،</p>
       <p style="color:#374151;font-size:15px;margin:0 0 16px">
         لاحظنا أنك سجّلت في <strong>محاسب اي</strong> ولكنك لم تبدأ باستخدام المنصة بعد،
         ونحن نقدر وقتك ونريد أن نتأكد أنك حصلت على كل ما تحتاجه.
@@ -633,7 +659,7 @@ export async function sendReEngagementEmail({
 
     <!-- English Section -->
     <div dir="ltr">
-      <p style="color:#374151;font-size:16px;margin:0 0 16px">Hi ${name},</p>
+      <p style="color:#374151;font-size:16px;margin:0 0 16px">Hi ${safeName},</p>
       <p style="color:#374151;font-size:15px;margin:0 0 16px">
         We noticed you signed up for <strong>MohasabAi</strong> but haven't had a chance to try it yet.
         We want to make sure you have everything you need to get started.

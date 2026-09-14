@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { createJournalEntry } from "@/lib/ledger";
 
 // Expected CSV columns:
 // Date, Description, AccountCode (or Account Code), Debit, Credit
@@ -189,24 +190,24 @@ export async function POST(req: NextRequest) {
       continue; // skip entry if any account code not found
     }
 
-    await prisma.journalEntry.create({
-      data: {
+    try {
+      await createJournalEntry({
         businessId,
+        userId: systemUser.id,
         date: entry.date,
         description: entry.description,
         sourceType: "MANUAL",
         status: "POSTED",
-        createdById: systemUser.id,
-        lines: {
-          create: resolvedLines.map((l) => ({
-            accountId: l.accountId!,
-            debit: l.debit,
-            credit: l.credit,
-          })),
-        },
-      },
-    });
-    imported++;
+        lines: resolvedLines.map((l) => ({
+          accountId: l.accountId!,
+          debit: l.debit,
+          credit: l.credit,
+        })),
+      });
+      imported++;
+    } catch {
+      skipped++;
+    }
   }
 
   return NextResponse.json({
