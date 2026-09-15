@@ -12,28 +12,25 @@ export async function isIpRateLimited(ip: string, action: string): Promise<boole
   const now = new Date();
 
   try {
-    const entry = await prisma.rateLimitEntry.upsert({
-      where: { key },
-      create: { key, count: 1, resetAt: new Date(Date.now() + WINDOW_MS) },
-      update: {
-        count: {
-          // If window has expired, reset; otherwise increment
-          increment: 1,
-        },
-        resetAt: now,
-      },
-    });
+    const existing = await prisma.rateLimitEntry.findUnique({ where: { key } });
 
-    // If the stored resetAt is in the past, this window has expired — reset
-    if (entry.resetAt < now) {
-      await prisma.rateLimitEntry.update({
+    if (!existing || existing.resetAt < now) {
+      // Window expired or no entry — start a fresh window
+      await prisma.rateLimitEntry.upsert({
         where: { key },
-        data: { count: 1, resetAt: new Date(Date.now() + WINDOW_MS) },
+        create: { key, count: 1, resetAt: new Date(Date.now() + WINDOW_MS) },
+        update: { count: 1, resetAt: new Date(Date.now() + WINDOW_MS) },
       });
       return false;
     }
 
-    return entry.count > MAX_REQUESTS;
+    // Within the current window — increment
+    const updated = await prisma.rateLimitEntry.update({
+      where: { key },
+      data: { count: { increment: 1 } },
+    });
+
+    return updated.count > MAX_REQUESTS;
   } catch {
     // On DB error, fail open (don't block legitimate traffic)
     return false;

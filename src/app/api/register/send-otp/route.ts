@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createOtp } from "@/lib/otp";
 import { sendOtpEmail } from "@/lib/email";
+import { isIpRateLimited, getClientIp } from "@/lib/rate-limit";
 
 const schema = z.object({
   email: z.string().email(),
@@ -11,6 +12,11 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    if (await isIpRateLimited(ip, "register-send-otp")) {
+      return NextResponse.json({ error: "too_many_requests" }, { status: 429 });
+    }
+
     const body = await req.json();
     const { email, lang } = schema.parse(body);
 
