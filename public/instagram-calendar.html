@@ -1,0 +1,925 @@
+
+<title>MohasabAi Instagram Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Courier+Prime&display=swap">
+
+<style>
+  :root {
+    --ground: #F0F2F5;
+    --card: #FFFFFF;
+    --ink: #13151A;
+    --ink-2: #4B5563;
+    --ink-3: #9CA3AF;
+    --brand: #1D4ED8;
+    --border: #E5E7EB;
+    --radius: 14px;
+    --shadow: 0 2px 12px rgba(0,0,0,.07);
+    --feature: #3B82F6; --feature-bg: #EFF6FF;
+    --tip: #10B981;    --tip-bg: #ECFDF5;
+    --engage: #8B5CF6; --engage-bg: #F5F3FF;
+    --cta: #F97316;    --cta-bg: #FFF7ED;
+    --story: #06B6D4;  --story-bg: #ECFEFF;
+    --country: #F59E0B;--country-bg: #FFFBEB;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0F1117; --card: #1C1F27; --ink: #F1F3F7;
+      --ink-2: #9CA3AF; --ink-3: #6B7280; --border: #2D3748;
+      --shadow: 0 2px 12px rgba(0,0,0,.3);
+      --feature-bg:#1D3557; --tip-bg:#064E3B; --engage-bg:#2E1065;
+      --cta-bg:#431407; --story-bg:#083344; --country-bg:#451A03;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0F1117; --card: #1C1F27; --ink: #F1F3F7;
+    --ink-2: #9CA3AF; --ink-3: #6B7280; --border: #2D3748;
+    --shadow: 0 2px 12px rgba(0,0,0,.3);
+    --feature-bg:#1D3557; --tip-bg:#064E3B; --engage-bg:#2E1065;
+    --cta-bg:#431407; --story-bg:#083344; --country-bg:#451A03;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Noto Sans', 'Noto Sans Arabic', system-ui, sans-serif;
+    background: var(--ground); color: var(--ink);
+    padding: 0 16px 48px;
+  }
+
+  .header {
+    text-align: center; padding: 48px 16px 28px;
+    max-width: 760px; margin: 0 auto;
+  }
+  .header-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--brand); margin-bottom: 12px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 900;
+    line-height: 1.1; text-wrap: balance; color: var(--ink); margin-bottom: 10px;
+  }
+  .header h1 span { color: var(--brand); }
+  .header p { color: var(--ink-2); font-size: 14px; line-height: 1.6; max-width: 480px; margin: 0 auto; }
+
+  .filter-wrap {
+    position: sticky; top: env(safe-area-inset-top, 0px);
+    z-index: 50; background: var(--ground); padding: 12px 0; margin-bottom: 4px;
+  }
+  .filter-bar {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    justify-content: center; max-width: 880px; margin: 0 auto;
+  }
+  .filter-btn {
+    border: 1.5px solid var(--border); background: var(--card);
+    color: var(--ink-2); font-size: 12px; font-weight: 600;
+    padding: 6px 14px; border-radius: 100px; cursor: pointer;
+    transition: all .18s; white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--brand); color: var(--brand); }
+  .filter-btn.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+  .week { max-width: 880px; margin: 0 auto 36px; }
+  .week-label {
+    font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 12px; padding-left: 4px;
+  }
+  .week-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;
+  }
+  @media (max-width: 700px) { .week-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .post-wrap { }
+  .post-wrap.hidden { display: none; }
+
+  .post-thumb {
+    width: 100%; aspect-ratio: 1/1; border-radius: 10px 10px 0 0;
+    overflow: hidden; position: relative; cursor: pointer;
+  }
+  .post-thumb canvas { width: 100%; height: 100%; display: block; }
+
+  .post-card {
+    background: var(--card); border-radius: 0 0 var(--radius) var(--radius);
+    box-shadow: var(--shadow); border: 1.5px solid var(--border);
+    border-top: none; padding: 10px 12px 12px;
+    cursor: pointer; transition: transform .15s, box-shadow .15s;
+    position: relative;
+  }
+  .post-thumb { box-shadow: var(--shadow); border: 1.5px solid var(--border); border-bottom: none; }
+  .post-whole { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .post-whole:hover { transform: translateY(-3px); }
+
+  .post-day {
+    font-family: 'Playfair Display', serif; font-size: 18px;
+    font-weight: 900; color: var(--ink); line-height: 1;
+  }
+  .post-type-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 100px;
+    margin-top: 4px;
+  }
+  .type-feature .post-type-badge { background: var(--feature-bg); color: var(--feature); }
+  .type-tip     .post-type-badge { background: var(--tip-bg);     color: var(--tip); }
+  .type-engage  .post-type-badge { background: var(--engage-bg);  color: var(--engage); }
+  .type-cta     .post-type-badge { background: var(--cta-bg);     color: var(--cta); }
+  .type-story   .post-type-badge { background: var(--story-bg);   color: var(--story); }
+  .type-country .post-type-badge { background: var(--country-bg); color: var(--country); }
+
+  /* Modal */
+  .overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.6); z-index: 100;
+    align-items: center; justify-content: center; padding: 12px;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--card); border-radius: 20px; width: 100%;
+    max-width: 900px; max-height: 95vh; overflow-y: auto;
+    box-shadow: 0 24px 60px rgba(0,0,0,.3); position: relative;
+  }
+  .modal-inner {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  }
+  @media (max-width: 640px) { .modal-inner { grid-template-columns: 1fr; } }
+
+  .modal-preview-col {
+    padding: 24px; background: var(--ground);
+    border-radius: 20px 0 0 20px; display: flex;
+    flex-direction: column; gap: 12px; align-items: center;
+    justify-content: flex-start;
+  }
+  @media (max-width: 640px) { .modal-preview-col { border-radius: 20px 20px 0 0; } }
+
+  .preview-label {
+    font-size: 11px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-3); align-self: flex-start;
+  }
+  #modal-canvas {
+    width: 100%; max-width: 340px; aspect-ratio: 1/1;
+    border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.15);
+    display: block;
+  }
+  .dl-btn {
+    width: 100%; max-width: 340px;
+    background: var(--brand); color: #fff; border: none;
+    border-radius: 10px; padding: 11px 20px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    letter-spacing: .03em; transition: opacity .15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .dl-btn:hover { opacity: .88; }
+
+  .modal-text-col { padding: 24px 28px; display: flex; flex-direction: column; gap: 0; }
+  .modal-head {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 12px; margin-bottom: 20px;
+  }
+  .modal-day-num {
+    font-family: 'Playfair Display', serif; font-size: 36px;
+    font-weight: 900; line-height: 1; color: var(--ink);
+  }
+  .modal-day-sub { font-size: 12px; color: var(--ink-3); font-weight: 500; margin-top: 2px; }
+  .close-btn {
+    background: var(--ground); border: none; color: var(--ink-2);
+    font-size: 18px; width: 34px; height: 34px; border-radius: 50%;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background .15s;
+  }
+  .close-btn:hover { background: var(--border); }
+
+  .lang-tabs { display: flex; gap: 4px; margin-bottom: 14px; }
+  .lang-tab {
+    border: 1.5px solid var(--border); background: transparent;
+    color: var(--ink-2); font-size: 12px; font-weight: 600;
+    padding: 5px 14px; border-radius: 100px; cursor: pointer;
+    transition: all .15s;
+  }
+  .lang-tab.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+  .caption-area { display: flex; flex-direction: column; gap: 10px; }
+  .caption-box {
+    background: var(--ground); border-radius: 10px;
+    padding: 14px 16px; font-size: 13.5px; line-height: 1.8;
+    color: var(--ink); white-space: pre-wrap; min-height: 160px;
+    flex: 1;
+  }
+  .caption-box.rtl { direction: rtl; text-align: right; font-family: 'Noto Sans Arabic','Noto Sans',sans-serif; }
+
+  .copy-btn {
+    align-self: flex-end; background: var(--brand); color: #fff;
+    border: none; border-radius: 8px; padding: 7px 16px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: opacity .15s; letter-spacing: .03em;
+  }
+  .copy-btn:hover { opacity: .88; }
+  .copy-btn.copied { background: #10B981; }
+
+  .divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+  .hashtag-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+  .hashtag-box {
+    background: var(--ground); border-radius: 10px;
+    padding: 10px 14px; font-family: 'Courier Prime','Courier New',monospace;
+    font-size: 11.5px; color: var(--brand); line-height: 1.8; word-break: break-word;
+  }
+
+  .legend { max-width: 880px; margin: 0 auto 28px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  .format-row {
+    display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .format-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 700; padding: 5px 12px;
+    border-radius: 100px; border: 1.5px solid var(--border);
+    background: var(--ground); color: var(--ink-2);
+  }
+  .format-badge.reel   { background:#FFF0F0; color:#DC2626; border-color:#FCA5A5; }
+  .format-badge.carousel { background:#FFF7ED; color:#D97706; border-color:#FCD34D; }
+  .format-badge.static { background:#F0FDF4; color:#15803D; border-color:#86EFAC; }
+  [data-theme="dark"] .format-badge.reel   { background:#450A0A; color:#F87171; border-color:#7F1D1D; }
+  [data-theme="dark"] .format-badge.carousel { background:#451A03; color:#FCD34D; border-color:#78350F; }
+  [data-theme="dark"] .format-badge.static { background:#052E16; color:#4ADE80; border-color:#14532D; }
+  .best-time-pill {
+    font-size: 11.5px; color: var(--ink-3); display: flex; align-items: center; gap: 4px;
+  }
+
+  .format-overlay {
+    position: absolute; top: 7px; left: 7px; z-index: 2;
+    font-size: 10px; font-weight: 700; letter-spacing: .04em;
+    padding: 3px 8px; border-radius: 100px; pointer-events: none;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+  .format-overlay.reel     { background: rgba(220,38,38,0.82); color:#fff; }
+  .format-overlay.carousel { background: rgba(180,95,0,0.82);  color:#fff; }
+  .format-overlay.static   { background: rgba(21,128,61,0.82);  color:#fff; }
+
+  .char-count {
+    font-size: 11px; color: var(--ink-3); text-align: right; margin-top: -4px;
+    transition: color .2s;
+  }
+  .char-count.warn { color: #D97706; }
+  .char-count.over { color: #DC2626; font-weight: 700; }
+
+  .slide-hint {
+    font-size: 11.5px; color: var(--ink-3); font-style: italic; margin-top: -8px;
+  }
+</style>
+
+<div class="header">
+  <div class="header-eyebrow">محتوى انستغرام · Instagram Content</div>
+  <h1>30-Day Calendar for <span>MohasabAi</span></h1>
+  <p>Click any post to preview the branded image, copy captions, and download the 1080×1080 graphic ready to upload.</p>
+</div>
+
+<div class="legend">
+  <span class="legend-item"><span class="legend-dot" style="background:#3B82F6"></span>Feature</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#10B981"></span>Tip</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#8B5CF6"></span>Engage</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#F97316"></span>CTA</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#06B6D4"></span>Story</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#F59E0B"></span>Country</span>
+</div>
+
+<div class="filter-wrap">
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All Posts</button>
+    <button class="filter-btn" data-filter="feature">Feature</button>
+    <button class="filter-btn" data-filter="tip">Tip</button>
+    <button class="filter-btn" data-filter="engage">Engage</button>
+    <button class="filter-btn" data-filter="cta">CTA</button>
+    <button class="filter-btn" data-filter="story">Story</button>
+    <button class="filter-btn" data-filter="country">Country</button>
+  </div>
+</div>
+
+<div id="calendar"></div>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true">
+  <div class="modal" id="modal">
+    <div class="modal-inner">
+      <div class="modal-preview-col">
+        <div class="preview-label">Instagram Post Preview</div>
+        <canvas id="modal-canvas" width="1080" height="1080"></canvas>
+        <button class="dl-btn" id="dl-btn">⬇ Download 1080×1080 Image</button>
+      </div>
+      <div class="modal-text-col">
+        <div class="modal-head">
+          <div>
+            <div class="modal-day-num" id="m-day">01</div>
+            <div class="modal-day-sub" id="m-type-label"></div>
+          </div>
+          <button class="close-btn" id="close-btn" aria-label="Close">✕</button>
+        </div>
+
+        <div class="format-row">
+          <span class="format-badge" id="m-format-badge"></span>
+          <span class="best-time-pill">🕐 <span id="m-best-time"></span></span>
+        </div>
+        <div class="slide-hint" id="m-slide-hint"></div>
+        <div class="lang-tabs">
+          <button class="lang-tab active" data-lang="ar">🇸🇦 عربي</button>
+          <button class="lang-tab" data-lang="en">🇺🇸 English</button>
+        </div>
+        <div class="caption-area">
+          <div class="caption-box rtl" id="m-ar"></div>
+          <div class="caption-box" id="m-en" style="display:none"></div>
+          <div class="char-count" id="m-char-count"></div>
+          <button class="copy-btn" id="copy-caption-btn">نسخ</button>
+        </div>
+        <div class="divider"></div>
+        <div class="hashtag-label"># Hashtags</div>
+        <div class="hashtag-box" id="m-tags"></div>
+        <button class="copy-btn" id="copy-tags-btn" style="margin-top:8px">Copy Hashtags</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const POSTS = [
+  { day:1, type:"feature",
+    headline:"استخراج بيانات الفاتورة\nبالذكاء الاصطناعي",
+    enHeadline:"AI Invoice\nData Extraction",
+    ar:`📸 ارفع صورة الفاتورة أو الـ PDF — وخلّ الذكاء الاصطناعي يشتغل.\n\nمحاسب AI يستخرج:\n✅ اسم المورّد\n✅ التاريخ والرقم\n✅ المبالغ والضرائب\n✅ بنود الفاتورة كاملة\n\nبدون كتابة يدوية. بدون أخطاء.\nجرّب مجاناً 👇\nwww.mohasabai.com`,
+    en:`📸 Upload your invoice photo or PDF — let AI do the rest.\n\nMohasabAi extracts:\n✅ Vendor name\n✅ Date & invoice number\n✅ Amounts & taxes\n✅ Full line items\n\nNo manual entry. No errors.\nTry it free 👇\nwww.mohasabai.com`,
+    tags:"#محاسبة #ذكاء_اصطناعي #فاتورة #محاسب_AI #MohasabAi #accounting #AI #invoice #smallbusiness #fintech" },
+
+  { day:2, type:"tip",
+    headline:"افصل حسابك الشخصي\nعن حساب نشاطك",
+    enHeadline:"Separate Personal\nFrom Business",
+    ar:`💡 85% من أصحاب الأعمال يرتكبون هذا الخطأ:\n\nخلط الحساب الشخصي بحساب نشاطهم التجاري.\n\nالنتيجة؟\n🔹 تقارير مالية غير دقيقة\n🔹 ضرائب أصعب وأبطأ\n🔹 أرباح حقيقية مجهولة\n\nافصل الحسابين من اليوم الأول — الخلط = صداع لا ينتهي 😅`,
+    en:`💡 85% of business owners make this mistake:\n\nMixing personal money with business finances.\n\nThe result?\n🔹 Inaccurate financial reports\n🔹 Harder & slower tax filing\n🔹 Real profit impossible to see\n\nSeparate from day one — mixing them = endless headaches 😅`,
+    tags:"#نصيحة_محاسبية #محاسبة #أصحاب_الأعمال #ريادة_أعمال #accountingtips #smallbusiness #entrepreneur #finance" },
+
+  { day:3, type:"engage",
+    headline:"ما أصعب شيء\nفي المحاسبة؟",
+    enHeadline:"What's Hardest\nIn Accounting?",
+    ar:`🤔 سؤال لكل صاحب عمل:\n\nما أصعب شيء في المحاسبة اليومية؟\n\n🅰️ تسجيل الفواتير\n🅱️ تتبع المصاريف\n🅾️ إعداد التقارير\n🅳️ فهم الأرقام أصلاً 😅\n\nشاركنا في التعليقات 👇`,
+    en:`🤔 Question for every business owner:\n\nWhat's the hardest part of day-to-day accounting?\n\n🅰️ Recording invoices\n🅱️ Tracking expenses\n🅾️ Preparing reports\n🅳️ Understanding the numbers at all 😅\n\nTell us in the comments 👇`,
+    tags:"#استطلاع #محاسبة #أصحاب_الأعمال #تجارة #poll #accounting #business #entrepreneur #SME" },
+
+  { day:4, type:"cta",
+    headline:"35 يوماً مجاناً\nبدون بطاقة ائتمان",
+    enHeadline:"35 Days Free\nNo Credit Card",
+    ar:`🎁 جرّب محاسب AI مجاناً — 35 يوماً كاملة.\n\nبدون بطاقة ائتمان. بدون التزام.\n\n✨ رفع فواتير\n✨ قيود محاسبية تلقائية\n✨ تقارير فورية\n✨ شات بوت مالي\n\nابدأ الآن 👉 www.mohasabai.com`,
+    en:`🎁 Try MohasabAi free — 35 full days.\n\nNo credit card. No commitment.\n\n✨ Invoice scanning\n✨ Automatic journal entries\n✨ Instant reports\n✨ AI financial chatbot\n\nStart now 👉 www.mohasabai.com`,
+    tags:"#مجاناً #محاسب_AI #تجربة_مجانية #MohasabAi #freetrial #accounting #AI #fintech #startup" },
+
+  { day:5, type:"story",
+    headline:"لماذا بنينا\nمحاسب AI؟",
+    enHeadline:"Why We Built\nMohasabAi",
+    ar:`📖 لماذا بنينا محاسب AI؟\n\nرأينا أصحاب أعمال صغيرة يضيعون ساعات في Excel، يدفعون آلاف لمحاسبين للمهام البسيطة، ويفقدون السيطرة على أموالهم.\n\nقررنا نبني الحل:\n→ محاسبة دقيقة\n→ بسيطة يفهمها أي شخص\n→ بقوة الذكاء الاصطناعي\n\nهذا هو محاسب AI 🚀`,
+    en:`📖 Why we built MohasabAi:\n\nWe saw small business owners wasting hours in Excel, paying thousands for simple bookkeeping, and losing control of their finances.\n\nWe decided to build the solution:\n→ Accurate accounting\n→ Simple enough for anyone\n→ Powered by AI\n\nThat's MohasabAi 🚀`,
+    tags:"#قصتنا #محاسب_AI #رواد_الأعمال #شركات_ناشئة #ourstory #MohasabAi #startup #fintech #entrepreneur" },
+
+  { day:6, type:"country",
+    headline:"🇪🇬 لأصحاب الأعمال\nفي مصر",
+    enHeadline:"Egypt E-Invoice\nCompliance",
+    ar:`🇪🇬 لأصحاب الأعمال في مصر:\n\nالفاتورة الإلكترونية أصبحت إلزامية لمعظم الشركات.\n\nمحاسب AI يساعدك:\n✅ استخراج بيانات فواتيرك تلقائياً\n✅ تسجيل قيود الضريبة المضافة (14%)\n✅ تقارير ضريبية جاهزة\n\nابقَ ممتثلاً بدون جهد 💪`,
+    en:`🇪🇬 For business owners in Egypt:\n\nE-invoicing is now mandatory for most companies.\n\nMohasabAi helps you:\n✅ Automatically extract invoice data\n✅ Record VAT entries (14%)\n✅ Ready-made tax reports\n\nStay compliant effortlessly 💪`,
+    tags:"#مصر #فاتورة_إلكترونية #ضريبة_القيمة_المضافة #محاسبة_مصر #Egypt #einvoice #VAT #EgyptBusiness #MohasabAi" },
+
+  { day:7, type:"feature",
+    headline:"القيد المزدوج\nبشكل تلقائي",
+    enHeadline:"Double-Entry\nMade Automatic",
+    ar:`⚖️ لو ما تفهم القيد المزدوج — حساباتك في خطر.\n\nكل حركة مالية = مدين + دائن دائماً متساويان.\n\nمثال: اشتريت معدات بـ 5,000 ريال\n→ مدين: المعدات 5,000\n→ دائن: البنك 5,000\n\nمحاسب AI يُسجّل هذا تلقائياً بعد مراجعتك ✅`,
+    en:`⚖️ If you don't understand double-entry — your finances are at risk.\n\nEvery transaction = Debit + Credit, always balanced.\n\nExample: Bought equipment for $1,000\n→ Debit: Equipment $1,000\n→ Credit: Bank $1,000\n\nMohasabAi records this automatically after your review ✅`,
+    tags:"#قيد_مزدوج #محاسبة #تعليم_محاسبي #محاسب_AI #doubleentry #accounting #bookkeeping #education #MohasabAi" },
+
+  { day:8, type:"tip",
+    headline:"قائمة مراجعة\nنهاية الشهر",
+    enHeadline:"Month-End\nChecklist",
+    ar:`📋 قائمة مراجعة نهاية الشهر:\n\n☐ تسجيل كل الفواتير\n☐ مطابقة كشف البنك\n☐ مراجعة قيود الرواتب\n☐ حساب الضريبة المستحقة\n☐ طباعة تقرير الدخل\n\nمحاسب AI يساعدك على إنجاز ⅔ هذه القائمة تلقائياً ✅`,
+    en:`📋 Month-End Checklist:\n\n☐ Record all invoices\n☐ Reconcile bank statement\n☐ Review payroll entries\n☐ Calculate tax due\n☐ Print income report\n\nMohasabAi helps you automate ⅔ of this list ✅`,
+    tags:"#نهاية_الشهر #نصيحة_محاسبية #مراجعة_مالية #محاسب_AI #monthend #accountingtips #bookkeeping #MohasabAi" },
+
+  { day:9, type:"feature",
+    headline:"شات بوت مالي\nمتاح 24/7",
+    enHeadline:"AI Financial\nChatbot 24/7",
+    ar:`💬 تخيّل محاسباً خبيراً متاحاً 24/7.\n\nاسأله:\n🔹 "ما ربحي الصافي هذا الشهر؟"\n🔹 "أي مصروفاتي الأعلى؟"\n🔹 "كيف أسجّل قيد الاستهلاك؟"\n\nويجيبك فوراً بأرقام حقيقية من بياناتك.\n\nهذا شات بوت محاسب AI 🤖`,
+    en:`💬 Imagine an expert accountant available 24/7.\n\nAsk it:\n🔹 "What's my net profit this month?"\n🔹 "Which expense is highest?"\n🔹 "How do I record depreciation?"\n\nIt answers instantly with real numbers from your data.\n\nThat's the MohasabAi chatbot 🤖`,
+    tags:"#شات_بوت #ذكاء_اصطناعي #محاسبة #محاسب_AI #chatbot #AI #accounting #finance #MohasabAi" },
+
+  { day:10, type:"engage",
+    headline:"محاسب أم برنامج؟\nكيف تدير حساباتك؟",
+    enHeadline:"Accountant or App?\nHow Do You Manage?",
+    ar:`📊 صراحة — كيف تدير حساباتك الآن؟\n\nاختر الأقرب لك 👇\n\n🅰️ محاسب خارجي\n🅱️ Excel يدوي\n🅾️ برنامج محاسبي\n🅳️ لا أتابع أصلاً 😬\n\nإجابتك تساعدنا نبني ما تحتاجه فعلاً 💬`,
+    en:`📊 Be honest — how do you manage your accounting right now?\n\nPick the one that fits 👇\n\n🅰️ External accountant\n🅱️ Manual Excel\n🅾️ Accounting software\n🅳️ Honestly? I don't track it 😬\n\nYour answer shapes what we build next 💬`,
+    tags:"#استطلاع #محاسبة #أصحاب_الأعمال #تجارة #poll #accounting #smallbusiness #business #entrepreneur" },
+
+  { day:11, type:"cta",
+    headline:"الشهر على وشك\nالانتهاء — الترقية الآن",
+    enHeadline:"Month Ending —\nUpgrade Now",
+    ar:`⏰ الشهر على وشك الانتهاء.\n\nهل تقاريرك المالية جاهزة؟\n\nإذا لم تكن — حان وقت الترقية إلى محاسب AI 🚀\n\nخطة Starter: 49 ريال/شهر\nخطة Pro: 129 ريال/شهر\n\nابدأ اليوم 👉 www.mohasabai.com`,
+    en:`⏰ The month is almost over.\n\nAre your financial reports ready?\n\nIf not — time to upgrade to MohasabAi 🚀\n\nStarter Plan: 49 SAR/month\nPro Plan: 129 SAR/month\n\nStart today 👉 www.mohasabai.com`,
+    tags:"#ترقية #محاسب_AI #خطط_الأسعار #MohasabAi #upgrade #pricing #accounting #fintech #software" },
+
+  { day:12, type:"tip",
+    headline:"طابق كشف البنك\nكل أسبوع",
+    enHeadline:"Reconcile Bank\nEvery Week",
+    ar:`🏦 المحاسبون المحترفون يفعلون هذا كل أسبوع بدون فشل:\n\nيُطابقون كشف الحساب البنكي مع سجلاتهم.\n\nلماذا أسبوعياً لا شهرياً؟\n✅ اكتشاف الأخطاء فوراً\n✅ منع الاحتيال المبكر\n✅ صورة نقدية دائماً محدّثة\n\n15 دقيقة أسبوعياً = عقل مرتاح 😌`,
+    en:`🏦 Professional accountants do this every week without fail:\n\nThey reconcile their bank statement with their records.\n\nWhy weekly, not monthly?\n✅ Catch errors immediately\n✅ Early fraud detection\n✅ Always-current cash picture\n\n15 minutes a week = total peace of mind 😌`,
+    tags:"#مطابقة_بنكية #نصيحة_محاسبية #محاسبة #تدفق_نقدي #bankreconciliation #accountingtips #cashflow #finance" },
+
+  { day:13, type:"country",
+    headline:"🇸🇦 ضريبة القيمة\nالمضافة 15%",
+    enHeadline:"Saudi Arabia\n15% VAT",
+    ar:`🇸🇦 لأصحاب الأعمال في السعودية:\n\nضريبة القيمة المضافة 15% — هل سجلاتك دقيقة؟\n\nمحاسب AI يساعدك:\n✅ حساب ضريبة المدخلات والمخرجات\n✅ تقرير ضريبي جاهز للهيئة الزكاة\n✅ تنبيهات قبل موعد التقديم\n\nابقَ ممتثلاً، ابقَ هادئاً 🌟`,
+    en:`🇸🇦 For Saudi business owners:\n\n15% VAT — are your records accurate?\n\nMohasabAi helps you:\n✅ Calculate input/output tax\n✅ Report ready for ZATCA\n✅ Reminders before filing deadline\n\nStay compliant, stay calm 🌟`,
+    tags:"#السعودية #ضريبة_القيمة_المضافة #زاتكا #محاسبة_السعودية #SaudiArabia #VAT #ZATCA #SaudiBusiness #MohasabAi" },
+
+  { day:14, type:"story",
+    headline:"وفّر 30 ساعة\nكل شهر",
+    enHeadline:"Save 30 Hours\nEvery Month",
+    ar:`📖 أحمد، صاحب سلسلة مطاعم، كان يمضي 8 ساعات أسبوعياً في تسجيل الفواتير يدوياً.\n\nبعد محاسب AI:\n✅ رفع الفاتورة = 10 ثوانٍ\n✅ تقرير شهري = دقيقتان\n✅ وفّر 30+ ساعة شهرياً\n\n"الآن أركّز على العملاء لا الأوراق" 💬\n\n(قصة تمثيلية — النتائج تختلف حسب الاستخدام)`,
+    en:`📖 Ahmed, a restaurant chain owner, used to spend 8 hours/week recording invoices manually.\n\nAfter MohasabAi:\n✅ Invoice upload = 10 seconds\n✅ Monthly report = 2 minutes\n✅ Saved 30+ hours/month\n\n"Now I focus on customers, not paperwork" 💬\n\n(Illustrative — results may vary by usage)`,
+    tags:"#قصة_نجاح #عملاء #محاسب_AI #مطاعم #successstory #customers #MohasabAi #restaurants #timeisvalue" },
+
+  { day:15, type:"feature",
+    headline:"تقارير مالية كاملة\nبنقرة واحدة",
+    enHeadline:"Complete Reports\nIn One Click",
+    ar:`📈 تقاريرك المالية الكاملة — بنقرة واحدة.\n\nمحاسب AI يُنشئ:\n🔹 قائمة الدخل\n🔹 الميزانية العمومية\n🔹 التدفق النقدي\n🔹 تقرير حسابات العملاء\n\nبيانات حقيقية، محدّثة لحظياً، بدون Excel.\n\nالمعرفة المالية = قرارات أذكى 💡`,
+    en:`📈 Your complete financial reports — in one click.\n\nMohasabAi generates:\n🔹 Income statement\n🔹 Balance sheet\n🔹 Cash flow report\n🔹 Accounts receivable report\n\nReal data, live updates, no Excel.\n\nFinancial clarity = smarter decisions 💡`,
+    tags:"#تقارير_مالية #قائمة_الدخل #ميزانية_عمومية #محاسب_AI #financialreports #incomestatement #balancesheet #MohasabAi" },
+
+  { day:16, type:"tip",
+    headline:"دليل الحسابات:\nالبداية الصحيحة",
+    enHeadline:"Chart of Accounts:\nStart Right",
+    ar:`🗂️ نصيحة: صمّم دليل حساباتك بشكل صحيح من البداية.\n\nالمجموعات الأساسية:\n1️⃣ الأصول (Assets)\n2️⃣ الالتزامات (Liabilities)\n3️⃣ حقوق الملكية (Equity)\n4️⃣ الإيرادات (Revenue)\n5️⃣ المصاريف (Expenses)\n\nالتصميم الجيد = تقارير دقيقة دائماً ✅`,
+    en:`🗂️ Tip: Design your chart of accounts correctly from the start.\n\nMain groups:\n1️⃣ Assets\n2️⃣ Liabilities\n3️⃣ Equity\n4️⃣ Revenue\n5️⃣ Expenses\n\nGood design = always-accurate reports ✅`,
+    tags:"#دليل_الحسابات #محاسبة #تعليم_مالي #نصيحة_محاسبية #chartofaccounts #accounting #finance #education" },
+
+  { day:17, type:"engage",
+    headline:"كم فاتورة تعالج\nكل شهر؟",
+    enHeadline:"How Many Invoices\nThis Month?",
+    ar:`🧾 سريعة:\n\nكم فاتورة تُعالجها كل شهر في نشاطك؟\n\n🔵 أقل من 20\n🟢 20 – 100\n🟣 100 – 500\n🟠 أكثر من 500\n\nاعرف كيف يساعدك محاسب AI بحجم عملياتك 👇`,
+    en:`🧾 Quick question:\n\nHow many invoices do you process every month?\n\n🔵 Less than 20\n🟢 20 – 100\n🟣 100 – 500\n🟠 More than 500\n\nFind out how MohasabAi scales to your volume 👇`,
+    tags:"#استطلاع #فواتير #حجم_الأعمال #محاسبة #poll #invoices #businessvolume #accounting #SME" },
+
+  { day:18, type:"cta",
+    headline:"رشّح صديقاً\nواحصل على شهر مجاني",
+    enHeadline:"Refer a Friend\nGet a Free Month",
+    ar:`🎉 برنامج الإحالة — شهر مجاني لك ولصديقك!\n\nكيف يعمل:\n1️⃣ شارك رابط الإحالة\n2️⃣ يُسجّل صديقك ويدفع\n3️⃣ تحصل أنت على شهر مجاني فوراً\n\nكسب مشترك — الجميع يربح 🤝\n\nسجّل وابدأ الإحالة 👉 www.mohasabai.com`,
+    en:`🎉 Referral Program — free month for you AND your friend!\n\nHow it works:\n1️⃣ Share your referral link\n2️⃣ Friend signs up and pays\n3️⃣ You get a free month instantly\n\nWin-win — everyone benefits 🤝\n\nRegister now 👉 www.mohasabai.com`,
+    tags:"#إحالة #شهر_مجاني #محاسب_AI #مكافآت #referral #freemonth #MohasabAi #rewards #growth" },
+
+  { day:19, type:"story",
+    headline:"94%+ دقة في\nاستخراج الفواتير",
+    enHeadline:"94%+ Accuracy\nIn AI Extraction",
+    ar:`🤖 94%+ دقة في استخراج الفواتير.\n\nكيف حقّقنا ذلك؟\n\n✅ نموذج ذكاء اصطناعي متقدم\n✅ تحقق مزدوج من كل بند\n✅ تعلّم مستمر من تصحيحاتك\n✅ دعم الفواتير متعددة الصفحات\n\nالاستخراج الدقيق = بيانات موثوقة = قرارات صحيحة.\n\nجرّبه مجاناً 👉 www.mohasabai.com`,
+    en:`🤖 94%+ accuracy in invoice extraction.\n\nHow did we achieve it?\n\n✅ Advanced AI model\n✅ Double-verification of every field\n✅ Continuous learning from corrections\n✅ Multi-page invoice support\n\nAccurate extraction = reliable data = right decisions.\n\nTry it free 👉 www.mohasabai.com`,
+    tags:"#ذكاء_اصطناعي #دقة #محاسب_AI #AI #accuracy #technology #MohasabAi #fintech #innovation" },
+
+  { day:20, type:"country",
+    headline:"🇦🇪 لأصحاب الأعمال\nفي الإمارات",
+    enHeadline:"UAE Business\nVAT Compliance",
+    ar:`🇦🇪 لأصحاب الأعمال في الإمارات:\n\nضريبة القيمة المضافة 5% — هل تقاريرك دقيقة؟\n\nمحاسب AI يساعدك:\n✅ فصل ضريبة المدخلات/المخرجات تلقائياً\n✅ تقرير ضريبي موافق لمتطلبات FTA\n✅ تنبيهات مواعيد التقديم الربع سنوية\n\nسهّل امتثالك الضريبي 🌟`,
+    en:`🇦🇪 For UAE business owners:\n\n5% VAT — are your reports accurate?\n\nMohasabAi helps you:\n✅ Automatically separate input/output tax\n✅ FTA-compliant tax reports\n✅ Quarterly filing reminders\n\nSimplify your tax compliance 🌟`,
+    tags:"#الإمارات #ضريبة_القيمة_المضافة #FTA #محاسبة_الإمارات #UAE #VAT #Dubai #UAEBusiness #MohasabAi" },
+
+  { day:21, type:"feature",
+    headline:"قيود متكررة\nبدون جهد",
+    enHeadline:"Recurring Entries\nZero Effort",
+    ar:`🔁 القيود المتكررة — سجّل مرة، كرّر دائماً.\n\nالمصاريف الثابتة شهرياً (إيجار، رواتب، اشتراكات) لا تحتاج تسجيلاً يدوياً كل شهر.\n\nمحاسب AI يُنشئ قيداً دورياً ويُذكّرك بالمراجعة قبل الترحيل ✅\n\nوفّر الوقت، حافظ على الدقة.`,
+    en:`🔁 Recurring Entries — record once, repeat forever.\n\nFixed monthly expenses (rent, salaries, subscriptions) don't need manual entry every month.\n\nMohasabAi creates a recurring entry and reminds you to review before posting ✅\n\nSave time, maintain accuracy.`,
+    tags:"#قيود_متكررة #أتمتة #محاسبة #محاسب_AI #recurringentries #automation #accounting #efficiency #MohasabAi" },
+
+  { day:22, type:"tip",
+    headline:"الاستعداد للضرائب\nيبدأ الآن",
+    enHeadline:"Tax Prep Starts\nNow Not December",
+    ar:`📅 نصيحة نهاية العام:\n\nلا تنتظر ديسمبر لتستعد للضرائب.\n\nابدأ الآن:\n✅ راجع كل الفواتير المفتوحة\n✅ صنّف المصاريف القابلة للخصم\n✅ أعدّ قوائم الأصول الثابتة\n✅ وثّق كل عقودك\n\n6 أشهر كافية للتحضير، يوم واحد لا يكفي ⚠️`,
+    en:`📅 Year-End Tip:\n\nDon't wait until December to prepare for taxes.\n\nStart now:\n✅ Review all open invoices\n✅ Classify deductible expenses\n✅ Prepare fixed asset lists\n✅ Document all contracts\n\n6 months to prepare, one day never enough ⚠️`,
+    tags:"#نهاية_العام #ضرائب #نصيحة_محاسبية #محاسبة #yearend #taxes #accountingtips #finance #preparation" },
+
+  { day:23, type:"feature",
+    headline:"دعم العملات\nالمتعددة",
+    enHeadline:"Multi-Currency\nSupport",
+    ar:`🌍 عملاء ومورّدون بعملات مختلفة؟\n\nمحاسب AI يدعم المعاملات بالعملات المتعددة:\n✅ سعر الصرف التلقائي\n✅ تحويل للعملة الأساسية\n✅ فروق العملة في القوائم المالية\n\nتعامل عالمياً بثقة كاملة 💪`,
+    en:`🌍 Clients and suppliers in different currencies?\n\nMohasabAi supports multi-currency transactions:\n✅ Automatic exchange rates\n✅ Conversion to base currency\n✅ Currency differences in financial statements\n\nGo global with full confidence 💪`,
+    tags:"#عملات_متعددة #تجارة_دولية #محاسبة #محاسب_AI #multicurrency #forex #international #accounting #MohasabAi" },
+
+  { day:24, type:"engage",
+    headline:"أكبر خطأ محاسبي\nارتكبته؟",
+    enHeadline:"Biggest Accounting\nMistake You Made?",
+    ar:`😅 شاركنا بصراحة:\n\nما أكبر خطأ محاسبي ارتكبته في نشاطك؟\n(وكيف تعلّمت منه؟)\n\nالتعلّم من تجارب الآخرين = كنز لا يُقدّر 💎\n\nشاركنا في التعليقات — ضمان لا حكم 🤝`,
+    en:`😅 Let's be honest:\n\nWhat's the biggest accounting mistake you've made?\n(And what did you learn from it?)\n\nLearning from others' experiences = priceless 💎\n\nShare in the comments — no judgment 🤝`,
+    tags:"#خطأ_محاسبي #تعلّم #تجربة #مجتمع #accountingmistake #learning #community #business #entrepreneur" },
+
+  { day:25, type:"cta",
+    headline:"خصم 30% على\nالاشتراك السنوي",
+    enHeadline:"30% Off\nAnnual Plan",
+    ar:`🔥 عرض محدود — خصم 30% على الاشتراك السنوي.\n\nبدلاً من دفع 12 شهراً تدفع 8.4 فقط.\n\n🕐 العرض ينتهي خلال 48 ساعة.\n\nلا تفوّته 👉 www.mohasabai.com\n\n(كود الخصم: MOHASAB30)`,
+    en:`🔥 Limited Offer — 30% off annual subscription.\n\nGet 12 months for the price of 8 — 4 months FREE.\n\n🕐 Offer ends in 48 hours.\n\nDon't miss it 👉 www.mohasabai.com\n\n(Code: MOHASAB30)`,
+    tags:"#عرض_خاص #خصم #محاسب_AI #اشتراك_سنوي #MohasabAi #specialoffer #discount #annual #limited" },
+
+  { day:26, type:"story",
+    headline:"فريقنا خلف\nالكواليس",
+    enHeadline:"The Team Behind\nMohasabAi",
+    ar:`👨‍💻 فريقنا خلف الكواليس.\n\nمحاسب AI بناه مطوّرون يفهمون المحاسبة، ومحاسبون يفهمون التقنية.\n\nرسالتنا:\nجعل المحاسبة الاحترافية متاحة لكل صاحب عمل.\n\nنؤمن أن كل شركة، صغيرة كانت أم كبيرة، تستحق بيانات مالية دقيقة 📊`,
+    en:`👨‍💻 Our team behind the scenes.\n\nMohasabAi was built by developers who understand accounting, and accountants who understand technology.\n\nOur mission: make professional accounting accessible to every business owner.\n\nEvery company deserves accurate financial data 📊`,
+    tags:"#فريقنا #رسالتنا #محاسب_AI #شركات_ناشئة #ourteam #mission #MohasabAi #startup #fintech" },
+
+  { day:27, type:"country",
+    headline:"🇯🇴🇱🇧 الأردن\nولبنان",
+    enHeadline:"Jordan & Lebanon:\nJoin Us",
+    ar:`🇯🇴🇱🇧 لأصحاب الأعمال في الأردن ولبنان:\n\nالتحول الرقمي في المحاسبة وصل لمنطقتكم.\n\nمحاسب AI يدعمكم:\n✅ واجهة عربية كاملة\n✅ تقارير بالدينار والليرة\n✅ دعم فني متاح بالعربي\n\nابدأوا رحلة المحاسبة الذكية معنا 🚀`,
+    en:`🇯🇴🇱🇧 For business owners in Jordan & Lebanon:\n\nThe digital accounting revolution has reached your region.\n\nMohasabAi supports you:\n✅ Full Arabic interface\n✅ Reports in JOD & LBP\n✅ Arabic customer support\n\nStart smart accounting with us 🚀`,
+    tags:"#الأردن #لبنان #محاسبة #محاسب_AI #Jordan #Lebanon #Arabic #accounting #MohasabAi #MENA" },
+
+  { day:28, type:"feature",
+    headline:"إدارة الأصول الثابتة\nتلقائياً",
+    enHeadline:"Fixed Assets\nAuto-Managed",
+    ar:`🏭 الأصول الثابتة — إدارة كاملة بدون Excel.\n\nمحاسب AI يتولّى:\n✅ تسجيل الأصول الجديدة\n✅ حساب الاستهلاك تلقائياً\n✅ تتبع القيمة الدفترية\n✅ قيد الاستهلاك الشهري\n\nنسيت معادلة الاستهلاك؟ نحن لا ننساها أبداً 😉`,
+    en:`🏭 Fixed Assets — complete management without Excel.\n\nMohasabAi handles:\n✅ Recording new assets\n✅ Automatic depreciation calculation\n✅ Book value tracking\n✅ Monthly depreciation entry\n\nForgot the depreciation formula? We never forget 😉`,
+    tags:"#أصول_ثابتة #استهلاك #محاسبة #محاسب_AI #fixedassets #depreciation #accounting #automation #MohasabAi" },
+
+  { day:29, type:"tip",
+    headline:"الربح ≠ التدفق\nالنقدي",
+    enHeadline:"Profit ≠ Cash Flow\nKnow the Difference",
+    ar:`💰 ربحي كبير، لكن ليس معي أموال — لماذا؟!\n\nالربح ≠ التدفق النقدي.\n\nمثال:\n✅ بعت بـ 100,000 ريال (ربح)\n❌ العميل لم يدفع بعد (لا نقد)\n\nالحل:\n→ تتبع ذمم العملاء\n→ راقب التدفق النقدي أسبوعياً\n\nمحاسب AI يُظهر لك كليهما 👆`,
+    en:`💰 My profit is high but I have no cash — why?!\n\nProfit ≠ Cash Flow.\n\nExample:\n✅ Sold for $10,000 (profit recorded)\n❌ Client hasn't paid yet (no cash)\n\nSolution:\n→ Track accounts receivable\n→ Monitor cash flow weekly\n\nMohasabAi shows you both 👆`,
+    tags:"#تدفق_نقدي #ربح #محاسبة #نصيحة_مالية #cashflow #profit #accounting #financetip #MohasabAi" },
+
+  { day:30, type:"cta",
+    headline:"اليوم الأخير —\nابدأ الآن!",
+    enHeadline:"Day 30 —\nStart Today!",
+    ar:`🎯 يوم 30 — نهاية شهر، بداية مرحلة جديدة.\n\n30 يوماً شاركنا فيها نصائح وميزات وقصص نجاح.\n\nالآن السؤال لك:\nهل أنت مستعد تبدأ محاسبة ذكية حقيقية؟\n\n🚀 سجّل الآن مجاناً\n📊 بدون بطاقة ائتمان\n💬 دعم عربي كامل\n\nwww.mohasabai.com`,
+    en:`🎯 Day 30 — end of month, start of a new era.\n\n30 days of tips, features, and success stories.\n\nAre you ready to start truly smart accounting?\n\n🚀 Register free now\n📊 No credit card\n💬 Full Arabic support\n\nwww.mohasabai.com`,
+    tags:"#محاسب_AI #MohasabAi #ذكاء_اصطناعي #محاسبة #AI #accounting #fintech #startup #الشهر_الجديد #newbeginning" },
+];
+
+const TYPE_LABELS = { feature:"Feature", tip:"Tip", engage:"Engage", cta:"CTA", story:"Story", country:"Country" };
+
+const PALETTE = {
+  feature: { g1:"#1D4ED8", g2:"#3B82F6", light:"#DBEAFE", dark:"#1E3A8A" },
+  tip:     { g1:"#059669", g2:"#10B981", light:"#D1FAE5", dark:"#064E3B" },
+  engage:  { g1:"#7C3AED", g2:"#8B5CF6", light:"#EDE9FE", dark:"#4C1D95" },
+  cta:     { g1:"#EA580C", g2:"#F97316", light:"#FFEDD5", dark:"#7C2D12" },
+  story:   { g1:"#0891B2", g2:"#06B6D4", light:"#CFFAFE", dark:"#164E63" },
+  country: { g1:"#D97706", g2:"#F59E0B", light:"#FEF3C7", dark:"#78350F" },
+};
+
+const WEEKS = [
+  { label:"Week 1 — Days 1–7",  days:[1,2,3,4,5,6,7] },
+  { label:"Week 2 — Days 8–14", days:[8,9,10,11,12,13,14] },
+  { label:"Week 3 — Days 15–21",days:[15,16,17,18,19,20,21] },
+  { label:"Week 4 — Days 22–28",days:[22,23,24,25,26,27,28] },
+  { label:"Week 5 — Days 29–30",days:[29,30] },
+];
+
+// Content creator metadata
+const FORMATS = {
+  1:"reel", 2:"carousel", 3:"reel", 4:"static", 5:"reel",
+  6:"carousel", 7:"carousel", 8:"carousel", 9:"reel", 10:"reel",
+  11:"static", 12:"carousel", 13:"carousel", 14:"reel", 15:"carousel",
+  16:"carousel", 17:"reel", 18:"static", 19:"reel", 20:"carousel",
+  21:"carousel", 22:"carousel", 23:"carousel", 24:"reel", 25:"static",
+  26:"reel", 27:"carousel", 28:"carousel", 29:"reel", 30:"reel",
+};
+
+const BEST_TIMES = {
+  1:"الأحد 7–9م", 2:"الاثنين 12–2م", 3:"الثلاثاء 7–9م", 4:"الأربعاء 6–8م", 5:"الخميس 8–10م",
+  6:"الجمعة 9–11ص", 7:"السبت 12–2م", 8:"الأحد 7–9م", 9:"الاثنين 12–2م", 10:"الثلاثاء 7–9م",
+  11:"الأربعاء 6–8م", 12:"الخميس 12–2م", 13:"الجمعة 9–11ص", 14:"السبت 7–9م", 15:"الأحد 12–2م",
+  16:"الاثنين 7–9م", 17:"الثلاثاء 7–9م", 18:"الأربعاء 6–8م", 19:"الخميس 8–10م", 20:"الجمعة 9–11ص",
+  21:"السبت 12–2م", 22:"الأحد 7–9م", 23:"الاثنين 12–2م", 24:"الثلاثاء 7–9م", 25:"الأربعاء 6–8م",
+  26:"الخميس 8–10م", 27:"الجمعة 9–11ص", 28:"السبت 12–2م", 29:"الأحد 7–9م", 30:"الاثنين 12–2م",
+};
+
+const FORMAT_LABELS = { reel:"🎬 ريل", carousel:"🎠 كاروسيل", static:"📸 صورة ثابتة" };
+const FORMAT_LABELS_EN = { reel:"🎬 Reel", carousel:"🎠 Carousel", static:"📸 Static" };
+
+// ── Canvas renderer: Dark Premium style ──
+function drawPost(canvas, post) {
+  const S = 1080;
+  canvas.width = S; canvas.height = S;
+  const ctx = canvas.getContext('2d');
+  const pal = PALETTE[post.type];
+
+  // BACKGROUND: deep dark with subtle brand hue
+  const bgGrd = ctx.createLinearGradient(0, 0, S * 0.8, S);
+  bgGrd.addColorStop(0, '#060C18');
+  bgGrd.addColorStop(1, pal.dark);
+  ctx.fillStyle = bgGrd;
+  ctx.fillRect(0, 0, S, S);
+
+  // Brand-colored glow — top-right
+  const glow1 = ctx.createRadialGradient(S * 0.88, 0, 0, S * 0.88, 0, S * 0.70);
+  glow1.addColorStop(0, pal.g1 + '4D'); // ~30%
+  glow1.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow1;
+  ctx.fillRect(0, 0, S, S);
+
+  // Softer glow — bottom-left
+  const glow2 = ctx.createRadialGradient(0, S, 0, 0, S, S * 0.52);
+  glow2.addColorStop(0, pal.g2 + '2A'); // ~16%
+  glow2.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow2;
+  ctx.fillRect(0, 0, S, S);
+
+  // Diagonal accent triangle — vivid brand gradient
+  ctx.save();
+  const stripGrd = ctx.createLinearGradient(0, 0, S * 0.58, S * 0.52);
+  stripGrd.addColorStop(0, pal.g2 + 'BF'); // ~75%
+  stripGrd.addColorStop(1, pal.g1 + '22'); // ~13%
+  ctx.fillStyle = stripGrd;
+  ctx.beginPath();
+  ctx.moveTo(0, 0); ctx.lineTo(S * 0.58, 0); ctx.lineTo(0, S * 0.52);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+
+  // Oversized day number (white watermark, very subtle)
+  ctx.save();
+  ctx.globalAlpha = 0.055;
+  ctx.font = `bold 560px "Noto Sans", sans-serif`;
+  ctx.fillStyle = '#FFFFFF';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(String(post.day).padStart(2, '0'), S + 60, S + 90);
+  ctx.restore();
+
+  // TOP NAV BAR
+  ctx.fillStyle = 'rgba(255,255,255,0.10)';
+  roundRect(ctx, 48, 48, 62, 62, 14); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.lineWidth = 1;
+  roundRect(ctx, 48, 48, 62, 62, 14); ctx.stroke();
+  ctx.font = `bold 36px "Noto Sans", sans-serif`;
+  ctx.fillStyle = '#FFFFFF';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('M', 79, 79);
+
+  ctx.font = `700 30px "Noto Sans", sans-serif`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillText('MohasabAi', 124, 72);
+
+  // Brand accent underline
+  const ulGrd = ctx.createLinearGradient(124, 0, 124 + 160, 0);
+  ulGrd.addColorStop(0, pal.g2);
+  ulGrd.addColorStop(1, 'transparent');
+  ctx.fillStyle = ulGrd;
+  ctx.fillRect(124, 93, 160, 2);
+
+
+  // HEADLINE BLOCK (vertically centered)
+  const arLines = post.headline.split('\n');
+  const enLines = post.enHeadline.split('\n');
+  const arSize = 92;
+  const arLineH = 110;
+  const enSize = 50;
+  const enLineH = 62;
+  const divGap = 32;
+
+  const totalH = arLines.length * arLineH + divGap + 4 + divGap + enLines.length * enLineH;
+  const blockTop = Math.round((S - totalH) / 2) - 10;
+
+  // Arabic — white, bold
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.font = `bold ${arSize}px "Noto Sans Arabic", "Noto Sans", sans-serif`;
+  ctx.fillStyle = '#FFFFFF';
+  ctx.shadowColor = 'rgba(0,0,0,0.6)';
+  ctx.shadowBlur = 22;
+  arLines.forEach((line, i) => {
+    ctx.fillText(line, S / 2, blockTop + i * arLineH);
+  });
+  ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+
+  // Brand-colored divider (gradient fade)
+  const divY = blockTop + arLines.length * arLineH + divGap;
+  const dGrd = ctx.createLinearGradient(S / 2 - 130, 0, S / 2 + 130, 0);
+  dGrd.addColorStop(0, 'transparent');
+  dGrd.addColorStop(0.25, pal.g2);
+  dGrd.addColorStop(0.75, pal.g1);
+  dGrd.addColorStop(1, 'transparent');
+  ctx.fillStyle = dGrd;
+  ctx.fillRect(S / 2 - 130, divY, 260, 4);
+
+  // English — muted white
+  const enY0 = divY + 4 + divGap;
+  ctx.font = `600 ${enSize}px "Noto Sans", sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.72)';
+  enLines.forEach((line, i) => {
+    ctx.fillText(line, S / 2, enY0 + i * enLineH);
+  });
+
+  // BOTTOM SEPARATOR LINE
+  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  ctx.fillRect(48, S - 96, S - 96, 1);
+
+  // URL
+  ctx.font = '500 26px "Noto Sans", sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('www.mohasabai.com', 52, S - 42);
+
+  // Hashtags in brand color
+  ctx.font = '500 24px "Noto Sans Arabic", "Noto Sans", sans-serif';
+  ctx.fillStyle = pal.g2 + 'BB';
+  ctx.textAlign = 'right';
+  ctx.fillText('#محاسب_AI  #MohasabAi', S - 52, S - 42);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// ── Build calendar ──
+const cal = document.getElementById('calendar');
+
+function buildCalendar() {
+  cal.innerHTML = '';
+  for (const week of WEEKS) {
+    const sec = document.createElement('div');
+    sec.className = 'week';
+    const wl = document.createElement('div');
+    wl.className = 'week-label';
+    wl.textContent = week.label;
+    sec.appendChild(wl);
+    const grid = document.createElement('div');
+    grid.className = 'week-grid';
+
+    for (const dayNum of week.days) {
+      const post = POSTS.find(p => p.day === dayNum);
+      if (!post) continue;
+
+      const wrap = document.createElement('div');
+      wrap.className = `post-wrap type-${post.type}`;
+      wrap.dataset.type = post.type;
+
+      const whole = document.createElement('div');
+      whole.className = 'post-whole';
+
+      const thumbWrap = document.createElement('div');
+      thumbWrap.className = 'post-thumb';
+      const tc = document.createElement('canvas');
+      drawPost(tc, post);
+      thumbWrap.appendChild(tc);
+      const fmtPill = document.createElement('div');
+      const fmtKey = FORMATS[dayNum] || 'static';
+      fmtPill.className = `format-overlay ${fmtKey}`;
+      fmtPill.textContent = FORMAT_LABELS_EN[fmtKey];
+      thumbWrap.appendChild(fmtPill);
+      thumbWrap.addEventListener('click', () => openModal(post));
+
+      const card = document.createElement('div');
+      card.className = 'post-card';
+      card.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="post-day">${String(dayNum).padStart(2,'0')}</div>
+          <div class="post-type-badge">${TYPE_LABELS[post.type]}</div>
+        </div>`;
+      card.addEventListener('click', () => openModal(post));
+
+      whole.appendChild(thumbWrap);
+      whole.appendChild(card);
+      wrap.appendChild(whole);
+      grid.appendChild(wrap);
+    }
+    sec.appendChild(grid);
+    cal.appendChild(sec);
+  }
+}
+
+// ── Modal ──
+const overlay = document.getElementById('overlay');
+const modalCanvas = document.getElementById('modal-canvas');
+let currentPost = null;
+let currentLang = 'ar';
+
+function openModal(post) {
+  currentPost = post;
+  currentLang = 'ar';
+  document.getElementById('m-day').textContent = String(post.day).padStart(2,'0');
+  document.getElementById('m-type-label').textContent = TYPE_LABELS[post.type] + ' · Day ' + post.day;
+  const fmt = FORMATS[post.day] || 'static';
+  const fmtBadge = document.getElementById('m-format-badge');
+  fmtBadge.textContent = FORMAT_LABELS[fmt];
+  fmtBadge.className = 'format-badge ' + fmt;
+  document.getElementById('m-best-time').textContent = BEST_TIMES[post.day] || '';
+  document.getElementById('m-ar').textContent = post.ar;
+  document.getElementById('m-en').textContent = post.en;
+  document.getElementById('m-tags').textContent = post.tags;
+  document.getElementById('m-ar').style.display = '';
+  document.getElementById('m-en').style.display = 'none';
+  document.getElementById('copy-caption-btn').textContent = 'نسخ';
+  document.querySelectorAll('.lang-tab').forEach(t => t.classList.toggle('active', t.dataset.lang === 'ar'));
+  const slideHint = document.getElementById('m-slide-hint');
+  slideHint.textContent = fmt === 'carousel' ? '💡 يُنصح بـ 5–10 شرائح / Recommended: 5–10 slides' : '';
+  drawPost(modalCanvas, post);
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  updateCharCount();
+}
+
+function updateCharCount() {
+  if (!currentPost) return;
+  const text = currentLang === 'ar' ? currentPost.ar : currentPost.en;
+  const len = text.length;
+  const el = document.getElementById('m-char-count');
+  if (len <= 125) {
+    el.textContent = `${len} chars — fully visible in feed ✓`;
+    el.className = 'char-count';
+  } else {
+    el.textContent = `${len} chars — first 125 shown, rest hidden behind "more"`;
+    el.className = 'char-count warn';
+  }
+}
+
+function closeModal() {
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+  currentPost = null;
+}
+
+document.getElementById('close-btn').addEventListener('click', closeModal);
+overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Lang tabs
+document.querySelectorAll('.lang-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentLang = btn.dataset.lang;
+    document.querySelectorAll('.lang-tab').forEach(t => t.classList.toggle('active', t.dataset.lang === currentLang));
+    document.getElementById('m-ar').style.display = currentLang === 'ar' ? '' : 'none';
+    document.getElementById('m-en').style.display = currentLang === 'en' ? '' : 'none';
+    document.getElementById('copy-caption-btn').textContent = currentLang === 'ar' ? 'نسخ' : 'Copy';
+    updateCharCount();
+  });
+});
+
+// Download via capability
+let downloadsApi = null;
+claude.use("downloads").then(api => { downloadsApi = api; });
+
+document.getElementById('dl-btn').addEventListener('click', async () => {
+  if (!currentPost || !downloadsApi) return;
+  const btn = document.getElementById('dl-btn');
+  btn.textContent = '⏳ Preparing…';
+  btn.disabled = true;
+  try {
+    const blob = await new Promise(res => modalCanvas.toBlob(res, 'image/png'));
+    const filename = `mohasabai-day${String(currentPost.day).padStart(2,'0')}-${currentPost.type}.png`;
+    await downloadsApi.save({ filename, data: blob });
+    btn.textContent = '✓ Saved!';
+    setTimeout(() => { btn.textContent = '⬇ Download 1080×1080 Image'; btn.disabled = false; }, 2000);
+  } catch (e) {
+    btn.textContent = e?.code === 'declined' ? '⬇ Download 1080×1080 Image' : '⚠ Download unavailable';
+    btn.disabled = false;
+  }
+});
+
+// Copy buttons
+document.getElementById('copy-caption-btn').addEventListener('click', async () => {
+  const text = currentLang === 'ar'
+    ? document.getElementById('m-ar').textContent
+    : document.getElementById('m-en').textContent;
+  await copyText(text, document.getElementById('copy-caption-btn'), currentLang === 'ar' ? 'تم النسخ ✓' : 'Copied ✓');
+});
+document.getElementById('copy-tags-btn').addEventListener('click', async () => {
+  await copyText(document.getElementById('m-tags').textContent, document.getElementById('copy-tags-btn'), 'Copied ✓');
+});
+
+async function copyText(text, btn, successLabel) {
+  const orig = btn.textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = successLabel;
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+  } catch {}
+}
+
+// Filter
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    document.querySelectorAll('.post-wrap').forEach(el => {
+      el.classList.toggle('hidden', f !== 'all' && el.dataset.type !== f);
+    });
+  });
+});
+
+// Wait for Google Fonts before drawing thumbnails
+document.fonts.ready.then(() => buildCalendar());
+</script>
