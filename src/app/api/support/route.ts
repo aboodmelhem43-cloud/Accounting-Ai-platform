@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/prisma";
+import { isIpRateLimited } from "@/lib/rate-limit";
 
 const schema = z.object({
   messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(4000) })).max(30),
@@ -111,6 +112,11 @@ DOUBLE-ENTRY ACCOUNTING BASICS (for users who are not accountants):
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return new Response("Unauthorized", { status: 401 });
+
+  // 20 support messages per minute per user
+  if (await isIpRateLimited(`user:${session.user.id}`, "support-chat")) {
+    return new Response(JSON.stringify({ error: "too_many_requests" }), { status: 429 });
+  }
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return new Response(JSON.stringify({ error: "AI not configured" }), { status: 503 });

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { Resend } from "resend";
+import { isIpRateLimited } from "@/lib/rate-limit";
 
 const schema = z.object({
   subject: z.string().min(2).max(200),
@@ -15,6 +16,11 @@ const FROM_EMAIL = process.env.FROM_EMAIL ?? "noreply@mohasabai.com";
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+
+  // 10 contact emails per minute per user — prevents email-bombing via the form
+  if (await isIpRateLimited(`user:${session.user.id}`, "support-contact")) {
+    return NextResponse.json({ error: "too_many_requests" }, { status: 429 });
+  }
 
   const body = await req.json();
   const parsed = schema.safeParse(body);
