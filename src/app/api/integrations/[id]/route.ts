@@ -49,7 +49,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     },
   });
 
-  return NextResponse.json({ integration: { ...updated, hasSecret: !!(newConfig.webhookSecret) } });
+  const { config: _cfg, ...safeUpdated } = updated;
+  return NextResponse.json({ integration: { ...safeUpdated, hasSecret: !!(newConfig.webhookSecret) } });
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

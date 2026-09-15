@@ -74,5 +74,6 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  return NextResponse.json({ integration: { ...integration, hasSecret: !!webhookSecret } });
+  const { config: _cfg, ...safeIntegration } = integration;
+  return NextResponse.json({ integration: { ...safeIntegration, hasSecret: !!webhookSecret } });
 }

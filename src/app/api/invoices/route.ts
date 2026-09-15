@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { extractInvoiceData } from "@/lib/ai/extract-invoice";
 import { checkInvoiceLimit } from "@/lib/plans";
+import { detectMimeType } from "@/lib/file-magic";
 import path from "path";
 import fs from "fs/promises";
 import { put } from "@vercel/blob";
@@ -42,14 +43,16 @@ export async function POST(req: NextRequest) {
     if (!file) return NextResponse.json({ error: "لم يتم رفع ملف" }, { status: 400 });
     if (file.size > MAX_SIZE) return NextResponse.json({ error: "حجم الملف يتجاوز 10 ميجابايت" }, { status: 400 });
 
-    const mediaType = ALLOWED_TYPES[file.type];
-    if (!mediaType) {
-      return NextResponse.json({ error: "نوع الملف غير مدعوم — يُقبل JPG، PNG، WebP، PDF فقط" }, { status: 400 });
-    }
-
     // قراءة الملف كـ Buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    // تحقق من magic bytes للتأكد من نوع الملف الحقيقي (لا نثق بـ MIME header من العميل)
+    const detectedMime = detectMimeType(buffer);
+    if (!detectedMime || !ALLOWED_TYPES[detectedMime]) {
+      return NextResponse.json({ error: "نوع الملف غير مدعوم — يُقبل JPG، PNG، WebP، PDF فقط" }, { status: 400 });
+    }
+    const mediaType = ALLOWED_TYPES[detectedMime];
 
     // حفظ الملف — Vercel Blob في الإنتاج، محلي في بيئة التطوير
     const ALLOWED_EXTS: Record<string, string> = {
@@ -58,7 +61,7 @@ export async function POST(req: NextRequest) {
       "image/webp": "webp",
       "application/pdf": "pdf",
     };
-    const ext = ALLOWED_EXTS[file.type] ?? "bin";
+    const ext = ALLOWED_EXTS[detectedMime] ?? "bin";
     const filename = `${randomBytes(16).toString("hex")}.${ext}`;
     let fileUrl: string;
 
@@ -84,7 +87,7 @@ export async function POST(req: NextRequest) {
       data: {
         businessId: session.user.businessId,
         fileUrl,
-        fileType: file.type,
+        fileType: detectedMime,
         extractedData: extractedData as object,
         invoiceType: invoiceType.toUpperCase() as "PURCHASE" | "SALES",
         status: "PENDING_REVIEW",

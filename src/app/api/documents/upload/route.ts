@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { detectMimeType } from "@/lib/file-magic";
 import path from "path";
 import fs from "fs/promises";
 import { put } from "@vercel/blob";
@@ -33,6 +34,12 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    // تحقق من magic bytes — لا نثق بـ MIME header من العميل
+    const detectedMime = detectMimeType(buffer);
+    if (!detectedMime || !ALLOWED_TYPES.has(detectedMime)) {
+      return NextResponse.json({ error: "نوع الملف غير مسموح به — PDF أو JPEG أو PNG أو WebP فقط" }, { status: 400 });
+    }
+
     // حفظ الملف — Vercel Blob في الإنتاج، محلي في بيئة التطوير
     const MIME_TO_EXT: Record<string, string> = {
       "application/pdf": "pdf",
@@ -40,7 +47,7 @@ export async function POST(req: NextRequest) {
       "image/png": "png",
       "image/webp": "webp",
     };
-    const ext = MIME_TO_EXT[file.type] ?? "pdf";
+    const ext = MIME_TO_EXT[detectedMime] ?? "pdf";
     const filename = `${randomBytes(16).toString("hex")}.${ext}`;
     let fileUrl: string;
 
