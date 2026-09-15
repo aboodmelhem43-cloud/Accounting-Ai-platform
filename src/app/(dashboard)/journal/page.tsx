@@ -78,7 +78,7 @@ export default function JournalPage() {
       }
     }
     load();
-  }, [page, statusFilter]);
+  }, [page, statusFilter, lang]);
 
   async function doAction(url: string, method = "PATCH", body?: object) {
     setActionError(null);

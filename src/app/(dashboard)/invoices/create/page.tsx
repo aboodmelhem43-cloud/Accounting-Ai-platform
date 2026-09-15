@@ -291,9 +291,11 @@ export default function CreateInvoicePage() {
           <div className="flex justify-between items-start mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                {compliance.invoiceTitleAr}
+                {isAr ? compliance.invoiceTitleAr : compliance.invoiceTitleEn}
               </h1>
-              <p className="text-gray-500 font-medium mt-0.5">{compliance.invoiceTitleEn}</p>
+              <p className="text-gray-500 font-medium mt-0.5">
+                {isAr ? compliance.invoiceTitleEn : compliance.invoiceTitleAr}
+              </p>
               <p className="text-gray-400 text-sm mt-1">#{invoiceNumber}</p>
             </div>
             <div className="text-end text-sm text-gray-600 space-y-1">

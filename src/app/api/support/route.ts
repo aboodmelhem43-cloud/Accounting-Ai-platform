@@ -5,8 +5,6 @@ import { authOptions } from "@/lib/auth";
 import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/prisma";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
 const schema = z.object({
   messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(4000) })).max(30),
   message: z.string().min(1).max(2000),
@@ -113,6 +111,11 @@ DOUBLE-ENTRY ACCOUNTING BASICS (for users who are not accountants):
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return new Response("Unauthorized", { status: 401 });
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return new Response(JSON.stringify({ error: "AI not configured" }), { status: 503 });
+  }
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   const body = await req.json();
   const parsed = schema.safeParse(body);
