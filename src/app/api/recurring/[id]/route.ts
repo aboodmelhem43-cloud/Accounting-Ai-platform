@@ -20,9 +20,8 @@ export async function PATCH(
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const { id } = await params;
-  const template = await prisma.recurringTemplate.findUnique({ where: { id }, select: { businessId: true } });
+  const template = await prisma.recurringTemplate.findUnique({ where: { id, businessId: session.user.businessId }, select: { businessId: true } });
   if (!template) return NextResponse.json({ error: "القالب غير موجود" }, { status: 404 });
-  if (template.businessId !== session.user.businessId) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
 
   let body: unknown;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "طلب غير صالح" }, { status: 400 }); }
@@ -52,9 +51,8 @@ export async function DELETE(
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const { id } = await params;
-  const template = await prisma.recurringTemplate.findUnique({ where: { id }, select: { businessId: true } });
+  const template = await prisma.recurringTemplate.findUnique({ where: { id, businessId: session.user.businessId }, select: { businessId: true } });
   if (!template) return NextResponse.json({ error: "القالب غير موجود" }, { status: 404 });
-  if (template.businessId !== session.user.businessId) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
 
   await prisma.recurringTemplate.delete({ where: { id } });
   return NextResponse.json({ ok: true });

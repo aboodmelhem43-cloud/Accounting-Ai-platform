@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { SignJWT } from "jose";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_CHART_OF_ACCOUNTS } from "@/lib/accounts";
@@ -107,10 +108,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Create a short-lived auto-login OTP (90s) so the client can sign in immediately
-    // without sending a second email. Uses a separate purpose so it cannot be replayed as a login OTP.
-    const loginOtp = await createOtp(data.email, "register-autologin");
-    return NextResponse.json({ message: "تم إنشاء الحساب بنجاح", businessId: result.business.id, loginOtp }, { status: 201 });
+    // Create a short-lived auto-login OTP (90s) and wrap it in a signed JWT so it is
+    // not exposed as a plaintext value that observability tools could capture.
+    const rawOtp = await createOtp(data.email, "register-autologin");
+    const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET ?? "");
+    const autoLoginToken = await new SignJWT({ otp: rawOtp, email: data.email.toLowerCase() })
+      .setProtectedHeader({ alg: "HS256" })
+      .setExpirationTime("90s")
+      .sign(secret);
+    return NextResponse.json({ message: "تم إنشاء الحساب بنجاح", businessId: result.business.id, autoLoginToken }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });

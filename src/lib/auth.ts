@@ -1,6 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { jwtVerify } from "jose";
 import { prisma } from "./prisma";
 import { verifyOtp } from "./otp";
 import { isSuperAdmin } from "./admin";
@@ -70,9 +71,24 @@ export const authOptions: NextAuthOptions = {
           if (!isValid) return null;
         }
 
-        // Accept either a regular login OTP or the short-lived register-autologin token
+        // Accept either a regular login OTP or the short-lived register-autologin token.
+        // The auto-login token is a signed JWT wrapping the OTP — verify it and extract
+        // the raw OTP rather than trusting the plaintext value from the client.
+        let resolvedOtp = credentials.otp;
         const otpPurpose = (credentials.otpPurpose === "register-autologin") ? "register-autologin" : "login";
-        const otpValid = await verifyOtp(credentials.email, credentials.otp, otpPurpose);
+        if (otpPurpose === "register-autologin") {
+          try {
+            const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET ?? "");
+            const { payload } = await jwtVerify(credentials.otp, secret);
+            const tokenEmail = (payload as { otp?: string; email?: string }).email ?? "";
+            const tokenOtp = (payload as { otp?: string; email?: string }).otp ?? "";
+            if (tokenEmail.toLowerCase() !== credentials.email.toLowerCase() || !tokenOtp) return null;
+            resolvedOtp = tokenOtp;
+          } catch {
+            return null;
+          }
+        }
+        const otpValid = await verifyOtp(credentials.email, resolvedOtp, otpPurpose);
         if (!otpValid) return null;
 
         const trialEnd = effectiveTrialEnd(

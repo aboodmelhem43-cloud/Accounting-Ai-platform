@@ -15,6 +15,9 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+  if (session.user.role !== "OWNER") {
+    return NextResponse.json({ error: "هذه العملية متاحة للمالك فقط" }, { status: 403 });
+  }
 
   let body: unknown;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "طلب غير صالح" }, { status: 400 }); }
