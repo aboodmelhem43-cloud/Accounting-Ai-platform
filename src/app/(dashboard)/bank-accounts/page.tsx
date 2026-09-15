@@ -109,7 +109,12 @@ export default function BankAccountsPage() {
       message: isAr ? "هل تريد حذف هذا الحساب؟" : "Delete this bank account?",
       onConfirm: async () => {
         try {
-          await fetch(`/api/bank-accounts/${id}`, { method: "DELETE" });
+          const res = await fetch(`/api/bank-accounts/${id}`, { method: "DELETE" });
+          if (!res.ok) {
+            const d = await res.json().catch(() => ({}));
+            setError(d.error ?? (isAr ? "فشل حذف الحساب البنكي" : "Failed to delete bank account"));
+            return;
+          }
           load();
         } catch {
           setError(isAr ? "خطأ في الاتصال" : "Connection error");

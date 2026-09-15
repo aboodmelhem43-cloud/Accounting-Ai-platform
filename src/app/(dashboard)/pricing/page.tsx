@@ -135,7 +135,7 @@ export default function PricingPage() {
           const isFreeTrial = planId === "FREE_TRIAL";
           const isLoadingThis = loading === planId;
           const yearlyPrice = YEARLY_PRICES[planId];
-          const monthlySaving = plan.price * 2;
+          const monthlySaving = yearlyPrice != null ? plan.price * 12 - yearlyPrice : 0;
 
           return (
             <div
@@ -200,6 +200,11 @@ export default function PricingPage() {
               {isCurrent ? (
                 <div className="w-full text-center py-2.5 rounded-xl bg-green-50 text-green-700 font-medium text-sm border border-green-200">
                   {isAr ? "خطتك الحالية" : "Your Current Plan"}
+                </div>
+              ) : isFreeTrial && currentPlan === "FREE_TRIAL" ? (
+                // Logged-in expired-trial user — don't send them to /register
+                <div className="w-full text-center py-2.5 rounded-xl bg-gray-50 text-gray-500 font-medium text-sm border border-gray-200">
+                  {isAr ? "انتهت فترة التجربة" : "Trial Ended"}
                 </div>
               ) : isFreeTrial ? (
                 <a

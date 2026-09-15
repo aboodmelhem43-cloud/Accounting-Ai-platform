@@ -120,12 +120,14 @@ export default function ContactsPage() {
     setHistoryContact(null);
     try {
       const res = await fetch(`/api/contacts/${contactId}/transactions`);
-      if (res.ok) {
-        const data = await res.json() as ContactHistory;
-        setHistoryContact(data);
-      }
-    } catch { /* ignore */ }
-    finally { setHistoryLoading(false); }
+      if (!res.ok) throw new Error("fetch_failed");
+      const data = await res.json() as ContactHistory;
+      setHistoryContact(data);
+    } catch {
+      setError(isAr ? "فشل تحميل سجل المعاملات" : "Failed to load transaction history");
+    } finally {
+      setHistoryLoading(false);
+    }
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -168,9 +170,17 @@ export default function ContactsPage() {
   async function confirmDelete() {
     if (!deleteId) return;
     try {
-      await fetch(`/api/contacts/${deleteId}`, { method: "DELETE" });
+      const res = await fetch(`/api/contacts/${deleteId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        setError(d.error ?? (isAr ? "فشل حذف جهة الاتصال" : "Failed to delete contact"));
+        setDeleteId(null);
+        return;
+      }
     } catch {
-      // ignore network errors — proceed with local state cleanup
+      setError(isAr ? "خطأ في الاتصال" : "Connection error");
+      setDeleteId(null);
+      return;
     }
     setDeleteId(null);
     load();

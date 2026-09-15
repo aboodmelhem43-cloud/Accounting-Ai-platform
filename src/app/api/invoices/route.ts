@@ -63,7 +63,8 @@ export async function POST(req: NextRequest) {
     let fileUrl: string;
 
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      // fallback: حفظ محلي عند غياب توكن Vercel Blob
+      // Fallback to local filesystem — ephemeral on Vercel (files lost on redeploy). Set BLOB_READ_WRITE_TOKEN in production.
+      console.warn("[invoices/upload] BLOB_READ_WRITE_TOKEN not set — writing to local filesystem. Files will be lost on Vercel redeploy.");
       const uploadDir = path.join(process.cwd(), "public", "uploads");
       await fs.mkdir(uploadDir, { recursive: true });
       const filePath = path.join(uploadDir, filename);
