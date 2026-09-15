@@ -37,8 +37,20 @@ export async function isIpRateLimited(ip: string, action: string): Promise<boole
   }
 }
 
-/** Extract the real client IP from Next.js request headers. */
+/** Extract the real client IP from Next.js request headers.
+ *  Use x-real-ip first (set by Vercel/Nginx and not spoofable by the client),
+ *  then fall back to the RIGHTMOST hop in x-forwarded-for (the last CDN-appended
+ *  value), which is also not client-controlled. Never take the leftmost hop —
+ *  that comes from the client itself and can be trivially spoofed.
+ */
 export function getClientIp(req: Request): string {
-  const forwarded = (req.headers as Headers).get("x-forwarded-for");
-  return (forwarded?.split(",")[0] ?? "unknown").trim();
+  const headers = req.headers as Headers;
+  const realIp = headers.get("x-real-ip");
+  if (realIp) return realIp.trim();
+  const forwarded = headers.get("x-forwarded-for");
+  if (forwarded) {
+    const hops = forwarded.split(",");
+    return hops[hops.length - 1].trim();
+  }
+  return "unknown";
 }

@@ -28,7 +28,7 @@ export async function GET(
   const { id } = await params;
 
   const entry = await prisma.journalEntry.findUnique({
-    where: { id },
+    where: { id, businessId: session.user.businessId },
     include: {
       lines: {
         include: {
@@ -44,9 +44,6 @@ export async function GET(
   });
 
   if (!entry) return NextResponse.json({ error: "القيد غير موجود" }, { status: 404 });
-  if (entry.businessId !== session.user.businessId) {
-    return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
-  }
 
   return NextResponse.json({ entry });
 }
@@ -61,14 +58,11 @@ export async function PUT(
   const { id } = await params;
 
   const entry = await prisma.journalEntry.findUnique({
-    where: { id },
+    where: { id, businessId: session.user.businessId },
     select: { id: true, businessId: true, status: true, isLocked: true, description: true },
   });
 
   if (!entry) return NextResponse.json({ error: "القيد غير موجود" }, { status: 404 });
-  if (entry.businessId !== session.user.businessId) {
-    return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
-  }
   if (!["DRAFT", "REJECTED"].includes(entry.status)) {
     return NextResponse.json({ error: "لا يمكن تعديل هذا القيد بحالته الحالية" }, { status: 400 });
   }
@@ -166,14 +160,11 @@ export async function DELETE(
   const { id } = await params;
 
   const entry = await prisma.journalEntry.findUnique({
-    where: { id },
+    where: { id, businessId: session.user.businessId },
     select: { id: true, businessId: true, status: true, isLocked: true, date: true },
   });
 
   if (!entry) return NextResponse.json({ error: "القيد غير موجود" }, { status: 404 });
-  if (entry.businessId !== session.user.businessId) {
-    return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
-  }
   if (entry.status === "POSTED") {
     return NextResponse.json({ error: "لا يمكن حذف قيد مُرحَّل — أنشئ قيداً عكسياً بدلاً من ذلك" }, { status: 409 });
   }

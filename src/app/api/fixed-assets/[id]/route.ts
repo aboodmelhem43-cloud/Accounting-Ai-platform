@@ -21,7 +21,7 @@ export async function GET(
 
   const { id } = await params;
   const asset = await prisma.fixedAsset.findUnique({
-    where: { id },
+    where: { id, businessId: session.user.businessId },
     include: {
       depreciationEntries: {
         orderBy: [{ periodYear: "asc" }, { periodMonth: "asc" }],
@@ -30,7 +30,6 @@ export async function GET(
   });
 
   if (!asset) return NextResponse.json({ error: "الأصل غير موجود" }, { status: 404 });
-  if (asset.businessId !== session.user.businessId) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
 
   return NextResponse.json({ asset });
 }
@@ -43,9 +42,8 @@ export async function PATCH(
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const { id } = await params;
-  const asset = await prisma.fixedAsset.findUnique({ where: { id }, select: { businessId: true } });
+  const asset = await prisma.fixedAsset.findUnique({ where: { id, businessId: session.user.businessId }, select: { businessId: true } });
   if (!asset) return NextResponse.json({ error: "الأصل غير موجود" }, { status: 404 });
-  if (asset.businessId !== session.user.businessId) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
 
   let body: unknown;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "طلب غير صالح" }, { status: 400 }); }
@@ -83,9 +81,8 @@ export async function DELETE(
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const { id } = await params;
-  const asset = await prisma.fixedAsset.findUnique({ where: { id }, select: { businessId: true, name: true } });
+  const asset = await prisma.fixedAsset.findUnique({ where: { id, businessId: session.user.businessId }, select: { businessId: true, name: true } });
   if (!asset) return NextResponse.json({ error: "الأصل غير موجود" }, { status: 404 });
-  if (asset.businessId !== session.user.businessId) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
 
   await prisma.fixedAsset.delete({ where: { id } });
 

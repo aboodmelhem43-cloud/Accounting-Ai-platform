@@ -88,11 +88,12 @@ function RegisterForm() {
         return;
       }
 
-      // Auto-login: use the login OTP returned by the register API (no second email needed)
+      // Auto-login: the register API returns a signed JWT (autoLoginToken) wrapping
+      // the short-lived OTP so we never transmit the raw OTP value through the client.
       const result = await signIn("credentials", {
         email: form.email,
         password: form.password,
-        otp: data.loginOtp,
+        otp: data.autoLoginToken,
         otpPurpose: "register-autologin",
         redirect: false,
       });

@@ -12,11 +12,8 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const account = await prisma.account.findUnique({ where: { id } });
+  const account = await prisma.account.findUnique({ where: { id, businessId: session.user.businessId } });
   if (!account) return NextResponse.json({ error: "الحساب غير موجود" }, { status: 404 });
-  if (account.businessId !== session.user.businessId) {
-    return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
-  }
   if (account.isSystem) {
     return NextResponse.json({ error: "لا يمكن حذف حسابات النظام الافتراضية" }, { status: 403 });
   }
