@@ -33,12 +33,10 @@ export default function LoginPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        if (data.error === "no_account") {
-          setError(lang === "ar"
-            ? "لا يوجد حساب بهذا البريد. يرجى إنشاء حساب أولاً."
-            : "No account found. Please create an account first.");
-        } else if (data.error === "invalid_password") {
-          setError(lang === "ar" ? "كلمة المرور غير صحيحة." : "Incorrect password.");
+        if (data.error === "invalid_credentials") {
+          setError(lang === "ar" ? "البريد الإلكتروني أو كلمة المرور غير صحيحة." : "Incorrect email or password.");
+        } else if (data.error === "too_many_requests") {
+          setError(lang === "ar" ? "محاولات كثيرة جداً، يرجى الانتظار دقيقة." : "Too many attempts, please wait a minute.");
         } else {
           setError(t("common.error"));
         }
@@ -86,8 +84,8 @@ export default function LoginPage() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error === "invalid_password"
-          ? (lang === "ar" ? "كلمة المرور غير صحيحة." : "Incorrect password.")
+        setError(data.error === "invalid_credentials"
+          ? (lang === "ar" ? "البريد الإلكتروني أو كلمة المرور غير صحيحة." : "Incorrect email or password.")
           : t("common.error"));
       } else {
         setOtpSent(true);
