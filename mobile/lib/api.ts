@@ -1,6 +1,19 @@
 import { loadSession, clearSession } from './auth';
 import { router } from 'expo-router';
 
+export class PlanLimitError extends Error {
+  readonly used: number;
+  readonly limit: number;
+  readonly plan: string;
+  constructor(message: string, meta: { used: number; limit: number; plan: string }) {
+    super(message);
+    this.name = 'PlanLimitError';
+    this.used = meta.used;
+    this.limit = meta.limit;
+    this.plan = meta.plan;
+  }
+}
+
 const BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -35,6 +48,16 @@ async function request<T>(
   }
 
   const data = await res.json().catch(() => null);
+
+  if (res.status === 402) {
+    const body = data as { message?: string; used?: number; limit?: number; plan?: string } | null;
+    const err = new PlanLimitError(
+      body?.message ?? 'يرجى الترقية للاستمرار.',
+      { used: body?.used ?? 0, limit: body?.limit ?? 0, plan: body?.plan ?? 'FREE_TRIAL' },
+    );
+    router.push('/upgrade');
+    throw err;
+  }
 
   if (!res.ok) {
     throw new Error(
@@ -75,6 +98,16 @@ export async function streamChat(
     }),
     signal,
   });
+
+  if (res.status === 402) {
+    const body = await res.json().catch(() => null) as { message?: string; used?: number; limit?: number; plan?: string } | null;
+    const err = new PlanLimitError(
+      body?.message ?? 'يرجى الترقية للاستمرار.',
+      { used: body?.used ?? 0, limit: body?.limit ?? 0, plan: body?.plan ?? 'FREE_TRIAL' },
+    );
+    router.push('/upgrade');
+    throw err;
+  }
 
   if (!res.ok || !res.body) throw new Error('فشل الاتصال بالمساعد المالي');
 
