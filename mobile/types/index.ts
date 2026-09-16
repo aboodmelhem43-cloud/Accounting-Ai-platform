@@ -1,7 +1,7 @@
 // Shared types mirrored from src/types/index.ts in the web platform
 
 export type AccountType = 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
-export type InvoiceStatus = 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'POSTED';
+export type InvoiceStatus = 'PENDING_REVIEW' | 'CONFIRMED' | 'REJECTED' | 'POSTED';
 export type InvoiceType = 'PURCHASE' | 'SALES';
 export type JournalEntryStatus = 'DRAFT' | 'PENDING_REVIEW' | 'REJECTED' | 'POSTED';
 export type JournalSourceType = 'MANUAL' | 'AI_INVOICE' | 'AI_SALES' | 'RECURRING';

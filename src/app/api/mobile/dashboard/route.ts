@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
 
   const businessId = token.businessId;
 
-  const now      = new Date();
+  const now       = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthEnd   = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
@@ -19,9 +19,13 @@ export async function GET(req: NextRequest) {
 
   const currency = business?.baseCurrency ?? "SAR";
 
-  const [postedEntries, pendingInvoices, pendingJournalEntries] = await Promise.all([
+  const [currentMonthEntries, allPostedEntries, pendingInvoices, pendingJournalEntries] = await Promise.all([
     prisma.journalEntry.findMany({
-      where: { businessId, status: "POSTED", entryDate: { gte: monthStart, lte: monthEnd } },
+      where: { businessId, status: "POSTED", date: { gte: monthStart, lte: monthEnd } },
+      include: { lines: { include: { account: { select: { type: true } } } } },
+    }),
+    prisma.journalEntry.findMany({
+      where: { businessId, status: "POSTED" },
       include: { lines: { include: { account: { select: { type: true } } } } },
     }),
     prisma.invoice.count({ where: { businessId, status: "PENDING_REVIEW" } }),
@@ -32,29 +36,28 @@ export async function GET(req: NextRequest) {
   let totalExpenses = 0;
   let cashBalance   = 0;
 
-  const allPosted = await prisma.journalEntry.findMany({
-    where: { businessId, status: "POSTED" },
-    include: { lines: { include: { account: { select: { type: true } } } } },
-  });
-
-  for (const entry of allPosted) {
+  for (const entry of allPostedEntries) {
     for (const line of entry.lines) {
-      const accountType = line.account.type;
-      if (accountType === "ASSET" || accountType === "EXPENSE") {
-        cashBalance += (line.debit ?? 0) - (line.credit ?? 0);
+      const debit  = Number(line.debit);
+      const credit = Number(line.credit);
+      const t = line.account.type;
+      if (t === "ASSET" || t === "EXPENSE") {
+        cashBalance += debit - credit;
       } else {
-        cashBalance -= (line.debit ?? 0) - (line.credit ?? 0);
+        cashBalance -= debit - credit;
       }
     }
   }
 
-  for (const entry of postedEntries) {
+  for (const entry of currentMonthEntries) {
     for (const line of entry.lines) {
-      const accountType = line.account.type;
-      if (accountType === "REVENUE") {
-        totalRevenue += (line.credit ?? 0) - (line.debit ?? 0);
-      } else if (accountType === "EXPENSE") {
-        totalExpenses += (line.debit ?? 0) - (line.credit ?? 0);
+      const debit  = Number(line.debit);
+      const credit = Number(line.credit);
+      const t = line.account.type;
+      if (t === "REVENUE") {
+        totalRevenue += credit - debit;
+      } else if (t === "EXPENSE") {
+        totalExpenses += debit - credit;
       }
     }
   }

@@ -4,8 +4,8 @@ import type { JournalEntryListItem, JournalEntryStatus } from '@/types';
 
 export function useJournalEntries(status?: JournalEntryStatus) {
   const path = status
-    ? `/api/journal?status=${status}&limit=50`
-    : '/api/journal?limit=50';
+    ? `/api/mobile/journal?status=${status}`
+    : '/api/mobile/journal';
   return useQuery({
     queryKey: ['journal', status],
     queryFn: () =>
@@ -16,7 +16,7 @@ export function useJournalEntries(status?: JournalEntryStatus) {
 export function useJournalEntry(id: string) {
   return useQuery({
     queryKey: ['journal-entry', id],
-    queryFn: () => api.get<JournalEntryDetail>(`/api/journal/${id}`),
+    queryFn: () => api.get<JournalEntryDetail>(`/api/mobile/journal/${id}`),
     enabled: !!id,
   });
 }
@@ -24,7 +24,7 @@ export function useJournalEntry(id: string) {
 export function useApproveEntry() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.post(`/api/journal/${id}/post`, {}),
+    mutationFn: (id: string) => api.post(`/api/mobile/journal/${id}/post`, {}),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['journal'] });
       qc.invalidateQueries({ queryKey: ['dashboard'] });
@@ -36,7 +36,7 @@ export function useRejectEntry() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
-      api.post(`/api/journal/${id}/reject`, { reason }),
+      api.post(`/api/mobile/journal/${id}/reject`, { reason }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['journal'] }),
   });
 }

@@ -4,8 +4,8 @@ import type { InvoiceListItem, InvoiceStatus } from '@/types';
 
 export function useInvoices(status?: InvoiceStatus) {
   const path = status
-    ? `/api/invoices?status=${status}&limit=50`
-    : '/api/invoices?limit=50';
+    ? `/api/mobile/invoices?status=${status}`
+    : '/api/mobile/invoices';
   return useQuery({
     queryKey: ['invoices', status],
     queryFn: () => api.get<{ invoices: InvoiceListItem[]; total: number }>(path),
@@ -15,7 +15,7 @@ export function useInvoices(status?: InvoiceStatus) {
 export function useInvoice(id: string) {
   return useQuery({
     queryKey: ['invoice', id],
-    queryFn: () => api.get<InvoiceDetail>(`/api/invoices/${id}`),
+    queryFn: () => api.get<InvoiceDetail>(`/api/mobile/invoices/${id}`),
     enabled: !!id,
   });
 }
@@ -24,7 +24,7 @@ export function useUploadInvoice() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (form: FormData) =>
-      api.upload<{ invoiceId: string }>('/api/documents/upload', form),
+      api.upload<{ invoiceId: string }>('/api/mobile/documents/upload', form),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
   });
 }
@@ -33,7 +33,7 @@ export function useApproveInvoice() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (invoiceId: string) =>
-      api.post(`/api/invoices/${invoiceId}/confirm`, {}),
+      api.post(`/api/mobile/invoices/${invoiceId}/confirm`, {}),
     onSuccess: (_data, invoiceId) => {
       qc.invalidateQueries({ queryKey: ['invoices'] });
       qc.invalidateQueries({ queryKey: ['invoice', invoiceId] });
@@ -46,7 +46,7 @@ export function useRejectInvoice() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ invoiceId, reason }: { invoiceId: string; reason?: string }) =>
-      api.post(`/api/invoices/${invoiceId}/reject`, { reason }),
+      api.post(`/api/mobile/invoices/${invoiceId}/reject`, { reason }),
     onSuccess: (_data, { invoiceId }) => {
       qc.invalidateQueries({ queryKey: ['invoices'] });
       qc.invalidateQueries({ queryKey: ['invoice', invoiceId] });

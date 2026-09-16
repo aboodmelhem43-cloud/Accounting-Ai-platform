@@ -20,7 +20,7 @@ export default function SettingsScreen() {
   async function handleSave() {
     setSaving(true);
     try {
-      await api.patch('/api/settings/profile', { businessName });
+      await api.patch('/api/mobile/settings/profile', { businessName });
       Alert.alert('تم الحفظ', 'تم تحديث البيانات بنجاح');
     } catch (e: any) {
       Alert.alert('خطأ', e.message);

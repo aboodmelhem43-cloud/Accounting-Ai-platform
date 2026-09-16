@@ -46,7 +46,7 @@ function TotalItem({ label, amount, currency, color }: { label: string; amount: 
 function IncomeReport({ currency }: { currency: string }) {
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['report-income'],
-    queryFn: () => api.get<any>('/api/reports/income'),
+    queryFn: () => api.get<any>('/api/mobile/reports/income'),
   });
 
   if (isLoading) return <Loading />;
@@ -85,7 +85,7 @@ function IncomeReport({ currency }: { currency: string }) {
 function BalanceReport({ currency }: { currency: string }) {
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['report-balance'],
-    queryFn: () => api.get<any>('/api/reports/balance-sheet'),
+    queryFn: () => api.get<any>('/api/mobile/reports/balance-sheet'),
   });
 
   if (isLoading) return <Loading />;
@@ -121,7 +121,7 @@ function BalanceReport({ currency }: { currency: string }) {
 function TrialBalance({ currency }: { currency: string }) {
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['report-trial'],
-    queryFn: () => api.get<any>('/api/reports/trial-balance'),
+    queryFn: () => api.get<any>('/api/mobile/reports/trial-balance'),
   });
 
   if (isLoading) return <Loading />;
