@@ -63,13 +63,16 @@ export async function streamChat(
   signal?: AbortSignal,
 ): Promise<void> {
   const session = await loadSession();
-  const res = await fetch(`${BASE}/api/chat`, {
+  const res = await fetch(`${BASE}/api/mobile/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       ...(session ? { Authorization: `Bearer ${session.token}` } : {}),
     },
-    body: JSON.stringify({ message, history }),
+    body: JSON.stringify({
+      message,
+      messages: history.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+    }),
     signal,
   });
 
@@ -81,21 +84,8 @@ export async function streamChat(
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
+    // Mobile chat endpoint returns plain UTF-8 text chunks
     const chunk = decoder.decode(value, { stream: true });
-    // Parse SSE data lines
-    for (const line of chunk.split('\n')) {
-      if (line.startsWith('data: ')) {
-        const payload = line.slice(6).trim();
-        if (payload && payload !== '[DONE]') {
-          try {
-            const parsed = JSON.parse(payload);
-            const delta = parsed?.choices?.[0]?.delta?.content ?? parsed?.delta ?? '';
-            if (delta) onChunk(delta);
-          } catch {
-            // non-JSON SSE line — skip
-          }
-        }
-      }
-    }
+    if (chunk) onChunk(chunk);
   }
 }

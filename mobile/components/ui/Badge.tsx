@@ -7,6 +7,7 @@ type Status = InvoiceStatus | JournalEntryStatus;
 const map: Record<string, { bg: string; text: string; label: string }> = {
   PENDING_REVIEW: { bg: '#FEF3C7', text: '#92400E', label: 'في الانتظار' },
   APPROVED:       { bg: '#D1FAE5', text: '#065F46', label: 'مقبولة'      },
+  CONFIRMED:      { bg: '#DBEAFE', text: '#1E3A8A', label: 'مُرحَّل'     },
   REJECTED:       { bg: '#FEE2E2', text: '#991B1B', label: 'مرفوضة'      },
   POSTED:         { bg: '#DBEAFE', text: '#1E3A8A', label: 'مُرحَّل'     },
   DRAFT:          { bg: '#F3F4F6', text: '#374151', label: 'مسودة'        },
