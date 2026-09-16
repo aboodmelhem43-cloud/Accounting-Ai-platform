@@ -3,6 +3,9 @@
     "name": "محاسب AI",
     "slug": "mohasabai",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -12,14 +15,19 @@
       "resizeMode": "contain",
       "backgroundColor": "#1D4ED8"
     },
+    "updates": {
+      "url": "https://u.expo.dev/REPLACE_WITH_EAS_PROJECT_ID"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.mohasabai.app",
       "buildNumber": "1",
+      "appleTeamId": "REPLACE_WITH_APPLE_TEAM_ID",
       "infoPlist": {
         "NSCameraUsageDescription": "لالتقاط صور الفواتير وتحليلها بالذكاء الاصطناعي",
         "NSPhotoLibraryUsageDescription": "لاختيار صور الفواتير من المكتبة",
-        "NSPhotoLibraryAddUsageDescription": "لحفظ المستندات"
+        "NSPhotoLibraryAddUsageDescription": "لحفظ المستندات",
+        "NSFaceIDUsageDescription": "لتسجيل الدخول السريع بالمقاييس الحيوية"
       }
     },
     "android": {
@@ -32,7 +40,9 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ]
     },
     "web": {
@@ -48,6 +58,10 @@
       [
         "expo-image-picker",
         { "photosPermission": "لاختيار صور الفواتير من مكتبة الصور" }
+      ],
+      [
+        "expo-local-authentication",
+        {}
       ]
     ],
     "experiments": {
