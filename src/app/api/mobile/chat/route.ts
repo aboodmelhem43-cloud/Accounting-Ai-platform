@@ -19,8 +19,8 @@ const schema = z.object({
   lang: z.enum(["ar", "en"]).optional(),
 });
 
-function jsonError(reply: string, status: number) {
-  return NextResponse.json({ error: "error", reply }, { status });
+function jsonError(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status });
 }
 
 export async function POST(req: NextRequest) {
@@ -30,11 +30,18 @@ export async function POST(req: NextRequest) {
   try {
     const limitCheck = await checkAiLimit(token.businessId);
     if (!limitCheck.allowed) {
-      return jsonError(
-        limitCheck.limit === 0
-          ? "انتهت فترة التجربة المجانية. يرجى الترقية للاستمرار."
-          : `وصلت للحد الأقصى (${limitCheck.limit} سؤال/شهر). يرجى الترقية.`,
-        403,
+      return NextResponse.json(
+        {
+          error: "plan_limit",
+          message:
+            limitCheck.limit === 0
+              ? "انتهت فترة التجربة المجانية. يرجى الترقية للاستمرار."
+              : `وصلت للحد الأقصى (${limitCheck.limit} سؤال/شهر). يرجى الترقية.`,
+          used: limitCheck.used,
+          limit: limitCheck.limit,
+          plan: limitCheck.plan,
+        },
+        { status: 402 },
       );
     }
 
