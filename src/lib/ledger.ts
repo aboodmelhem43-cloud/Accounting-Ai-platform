@@ -1,6 +1,9 @@
 import { prisma } from "./prisma";
+import { DEFAULT_CHART_OF_ACCOUNTS } from "./accounts";
 import type { SuggestedJournalEntry, IncomeStatement, AccountBalance, BalanceSheet, CashFlowStatement } from "@/types";
 import type { Prisma } from "@prisma/client";
+
+const DEFAULT_BY_CODE = Object.fromEntries(DEFAULT_CHART_OF_ACCOUNTS.map((a) => [a.code, a]));
 
 // التحقق من توازن القيد — مجموع المدين يجب أن يساوي مجموع الدائن
 export function validateJournalBalance(
@@ -226,8 +229,13 @@ export async function computeIncomeStatement(
   };
 }
 
-function pickName(acc: { name: string; nameAr: string | null }, lang: string): string {
-  return lang === "en" ? (acc.name || acc.nameAr || "") : (acc.nameAr || acc.name);
+function pickName(acc: { code: string; name: string; nameAr: string | null }, lang: string): string {
+  if (lang === "en") {
+    // Prefer the canonical English name from our chart of accounts definition,
+    // then the stored name, in case the DB row has Arabic in the name column.
+    return DEFAULT_BY_CODE[acc.code]?.name || acc.name || acc.nameAr || "";
+  }
+  return acc.nameAr || DEFAULT_BY_CODE[acc.code]?.nameAr || acc.name;
 }
 
 // اقتراح قيد محاسبي لفاتورة مشتريات

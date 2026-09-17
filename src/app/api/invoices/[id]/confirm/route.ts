@@ -76,7 +76,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const { id } = await params;
-  const lang = req.nextUrl.searchParams.get("lang") === "en" ? "en" : "ar";
+  // Read lang from cookie (set by LanguageProvider on toggle) — more reliable than a query param
+  const cookieLang = req.cookies.get("lang")?.value;
+  const lang = cookieLang === "en" ? "en" : "ar";
 
   const invoice = await prisma.invoice.findFirst({
     where: { id, businessId: session.user.businessId },
