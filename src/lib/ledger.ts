@@ -41,14 +41,28 @@ export async function createJournalEntry(
 
   const client = tx ?? prisma;
 
-  // التحقق من أن الفترة المحاسبية ليست مقفلة
+  // التحقق من الفترة المحاسبية
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
-  const closedPeriod = await client.accountingPeriod.findUnique({
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const isPastPeriod = year < currentYear || (year === currentYear && month < currentMonth);
+
+  const period = await client.accountingPeriod.findUnique({
     where: { businessId_year_month: { businessId, year, month } },
     select: { status: true },
   });
-  if (closedPeriod?.status === "CLOSED") {
+
+  if (isPastPeriod) {
+    // الشهور السابقة مقفلة تلقائيًا — ما لم يُفتح الشهر صراحةً من الإعدادات
+    if (!period || period.status !== "OPEN") {
+      throw new Error(
+        `لا يمكن تسجيل قيود في شهور سابقة — الفترة ${year}/${String(month).padStart(2, "0")} مقفلة`
+      );
+    }
+  } else if (period?.status === "CLOSED") {
+    // الشهر الحالي أو المستقبلي مُقفل يدويًا
     throw new Error(`الفترة المحاسبية ${year}/${String(month).padStart(2, "0")} مقفلة — لا يمكن إضافة قيود عليها`);
   }
 

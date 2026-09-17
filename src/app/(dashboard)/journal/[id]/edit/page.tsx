@@ -28,6 +28,15 @@ export default function EditJournalEntryPage() {
   const { data: session } = useSession();
   const currency = session?.user?.currency ?? "";
 
+  const currentMonthStart = (() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split("T")[0];
+  })();
+  const currentMonthEnd = (() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split("T")[0];
+  })();
+
   const [loadingEntry, setLoadingEntry] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [date, setDate] = useState("");
@@ -202,6 +211,8 @@ export default function EditJournalEntryPage() {
             <input
               type="date"
               value={date}
+              min={currentMonthStart}
+              max={currentMonthEnd}
               onChange={(e) => setDate(e.target.value)}
               required
               className="input"

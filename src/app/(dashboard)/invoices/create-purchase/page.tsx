@@ -25,6 +25,14 @@ export default function CreatePurchaseInvoicePage() {
   const isAr = lang === "ar";
 
   const today = new Date().toISOString().split("T")[0];
+  const currentMonthStart = (() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split("T")[0];
+  })();
+  const currentMonthEnd = (() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split("T")[0];
+  })();
 
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [invoiceDate, setInvoiceDate] = useState(today);
@@ -171,7 +179,7 @@ export default function CreatePurchaseInvoicePage() {
             </div>
             <div>
               <label className="label">{isAr ? "تاريخ الفاتورة" : "Invoice Date"}</label>
-              <input type="date" className="input" value={invoiceDate} onChange={(e) => setInvoiceDate(e.target.value)} />
+              <input type="date" className="input" value={invoiceDate} min={currentMonthStart} max={currentMonthEnd} onChange={(e) => setInvoiceDate(e.target.value)} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">

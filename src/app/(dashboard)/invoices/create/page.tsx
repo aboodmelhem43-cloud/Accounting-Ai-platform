@@ -117,6 +117,15 @@ const EINVOICE_COLORS: Record<string, string> = {
 };
 
 const today = new Date().toISOString().split("T")[0];
+// First and last day of the current month — invoice dates must stay within current month
+const currentMonthStart = (() => {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split("T")[0];
+})();
+const currentMonthEnd = (() => {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split("T")[0];
+})();
 
 import { useRouter } from "next/navigation";
 
@@ -456,7 +465,7 @@ export default function CreateInvoicePage() {
           </div>
           <div>
             <label className="label">{isAr ? "تاريخ الفاتورة" : "Invoice Date"}</label>
-            <input type="date" value={invoiceDate} onChange={(e) => setInvoiceDate(e.target.value)} className="input" />
+            <input type="date" value={invoiceDate} min={currentMonthStart} max={currentMonthEnd} onChange={(e) => setInvoiceDate(e.target.value)} className="input" />
           </div>
           <div>
             <label className="label">{isAr ? "تاريخ الاستحقاق (اختياري)" : "Due Date (optional)"}</label>
