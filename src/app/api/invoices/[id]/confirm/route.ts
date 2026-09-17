@@ -71,11 +71,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 // جلب القيد المقترح لفاتورة معينة (قبل التأكيد)
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const { id } = await params;
+  const lang = req.nextUrl.searchParams.get("lang") === "en" ? "en" : "ar";
 
   const invoice = await prisma.invoice.findFirst({
     where: { id, businessId: session.user.businessId },
@@ -97,22 +98,24 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   if (invoice.invoiceType === "PURCHASE") {
     suggestion = await suggestPurchaseJournalEntry({
       businessId: session.user.businessId,
-      vendorName: extracted.vendorName ?? "مورد غير محدد",
+      vendorName: extracted.vendorName ?? (lang === "en" ? "Unknown vendor" : "مورد غير محدد"),
       totalAmount,
       taxAmount,
       netAmount,
       date,
       invoiceNumber: extracted.invoiceNumber ?? undefined,
+      lang,
     });
   } else {
     suggestion = await suggestSalesJournalEntry({
       businessId: session.user.businessId,
-      customerName: extracted.customerName ?? "عميل غير محدد",
+      customerName: extracted.customerName ?? (lang === "en" ? "Unknown customer" : "عميل غير محدد"),
       totalAmount,
       taxAmount,
       netAmount,
       date,
       invoiceNumber: extracted.invoiceNumber ?? undefined,
+      lang,
     });
   }
 

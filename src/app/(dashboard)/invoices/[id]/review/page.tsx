@@ -45,7 +45,7 @@ export default function ReviewInvoicePage() {
       try {
         const [invRes, sugRes] = await Promise.all([
           fetch(`/api/invoices/${id}`),
-          fetch(`/api/invoices/${id}/confirm`),
+          fetch(`/api/invoices/${id}/confirm?lang=${lang}`),
         ]);
         const inv = await invRes.json();
         const sug = sugRes.ok ? await sugRes.json() : null;
