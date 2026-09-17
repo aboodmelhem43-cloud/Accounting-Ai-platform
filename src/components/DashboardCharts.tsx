@@ -114,11 +114,11 @@ export default function DashboardCharts() {
     async function fetchData() {
       try {
         const res = await fetch("/api/reports/monthly");
-        if (!res.ok) throw new Error("فشل تحميل البيانات");
+        if (!res.ok) throw new Error(lang === "ar" ? "فشل تحميل البيانات" : "Failed to load data");
         const json = await res.json();
         setData(json as MonthData[]);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "حدث خطأ");
+        setError(err instanceof Error ? err.message : (lang === "ar" ? "حدث خطأ" : "An error occurred"));
       } finally {
         setLoading(false);
       }

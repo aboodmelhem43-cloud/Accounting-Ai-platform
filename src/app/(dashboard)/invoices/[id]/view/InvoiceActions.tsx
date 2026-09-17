@@ -95,7 +95,7 @@ export default function InvoiceActions({
         body: JSON.stringify({ amount, date: payDate, accountId: payAccount, note: payNote || undefined }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? "حدث خطأ"); return; }
+      if (!res.ok) { setError(data.error ?? (isAr ? "حدث خطأ" : "An error occurred")); return; }
       setPaymentStatus(data.paymentStatus);
       setAlreadyPaid((p) => p + amount);
       setPayments((prev) => [{ id: data.payment.id, amount, date: payDate, note: payNote || null }, ...prev]);
@@ -120,7 +120,7 @@ export default function InvoiceActions({
         body: JSON.stringify({ to: emailTo, subject: emailSubject || undefined, message: emailMessage || undefined }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? "حدث خطأ"); return; }
+      if (!res.ok) { setError(data.error ?? (isAr ? "حدث خطأ" : "An error occurred")); return; }
       setEmailSent(true);
       setTimeout(() => { setShowEmail(false); setEmailSent(false); }, 2000);
     } catch {
@@ -144,7 +144,7 @@ export default function InvoiceActions({
         body: JSON.stringify({ amount, date: creditDate, reason: creditReason || undefined }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? "حدث خطأ"); return; }
+      if (!res.ok) { setError(data.error ?? (isAr ? "حدث خطأ" : "An error occurred")); return; }
       setCreditNoteId(data.creditNoteId);
     } catch {
       setError(isAr ? "حدث خطأ في الاتصال" : "Connection error");

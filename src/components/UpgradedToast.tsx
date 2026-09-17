@@ -1,10 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useLang } from "./LanguageProvider";
 
 export default function UpgradedToast() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { lang } = useLang();
+  const isAr = lang === "ar";
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -24,8 +27,7 @@ export default function UpgradedToast() {
     <div className="fixed top-4 end-4 z-50 bg-green-600 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium animate-in slide-in-from-top-2">
       <span className="text-lg">🎉</span>
       <div>
-        <div>تم ترقية اشتراكك بنجاح!</div>
-        <div className="text-green-200 text-xs font-normal">Your subscription has been upgraded.</div>
+        <div>{isAr ? "تم ترقية اشتراكك بنجاح!" : "Your subscription has been upgraded!"}</div>
       </div>
       <button onClick={() => setShow(false)} className="ms-2 text-green-200 hover:text-white">✕</button>
     </div>
