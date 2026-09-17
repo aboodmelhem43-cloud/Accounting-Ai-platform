@@ -1,6 +1,5 @@
 "use client";
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { getT, type Lang, type TranslationKey } from "@/lib/i18n";
 
 interface LanguageContextValue {
@@ -19,7 +18,6 @@ const LanguageContext = createContext<LanguageContextValue>({
 
 export function LanguageProvider({ children, initialLang = "ar" }: { children: React.ReactNode; initialLang?: Lang }) {
   const [lang, setLang] = useState<Lang>(initialLang);
-  const router = useRouter();
 
   useEffect(() => {
     const saved = localStorage.getItem("lang") as Lang | null;
@@ -37,15 +35,11 @@ export function LanguageProvider({ children, initialLang = "ar" }: { children: R
 
   const toggleLang = useCallback(() => {
     const next = lang === "ar" ? "en" : "ar";
-    // Set cookie synchronously before refresh so server components see the new value
     document.cookie = `lang=${next}; path=/; max-age=31536000; SameSite=Lax`;
     localStorage.setItem("lang", next);
-    document.documentElement.lang = next;
-    document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
-    setLang(next);
-    // Re-fetch server components with the updated cookie
-    router.refresh();
-  }, [lang, router]);
+    // Full reload: server components re-render with the new cookie, all UI is consistent
+    window.location.reload();
+  }, [lang]);
 
   const t = getT(lang);
   const dir = lang === "ar" ? "rtl" : "ltr";
