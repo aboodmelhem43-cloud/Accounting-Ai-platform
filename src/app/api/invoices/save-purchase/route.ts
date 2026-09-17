@@ -88,12 +88,12 @@ export async function POST(req: NextRequest) {
   if (data.status === "CONFIRMED") {
     try {
       const accounts = await prisma.account.findMany({
-        where: { businessId, code: { in: ["2100", "2300", "5200", "5300"] } },
+        where: { businessId, code: { in: ["2100", "2200", "5200", "5300"] } },
       });
       const byCode = Object.fromEntries(accounts.map((a) => [a.code, a]));
 
       const apAcc = byCode["2100"]; // Accounts Payable
-      const vatInputAcc = byCode["2300"]; // VAT Input / Recoverable
+      const vatInputAcc = byCode["2200"]; // VAT Payable — input VAT reduces what we owe (debit to 2200)
 
       const journalLines: { accountId: string; debit: number; credit: number; description: string }[] = [];
 

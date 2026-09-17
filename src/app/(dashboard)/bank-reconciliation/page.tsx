@@ -374,7 +374,13 @@ export default function BankReconciliationPage() {
                 >
                   <option value="">{isAr ? "اختر الحساب..." : "Select account..."}</option>
                   {ledgerAccounts
-                    .filter((a) => codingDialog.transactionType === "CREDIT" ? a.type !== "ASSET" : a.type !== "ASSET")
+                    .filter((a) =>
+                      // CREDIT = money in (bank debited) → counterpart is REVENUE or LIABILITY
+                      // DEBIT  = money out (bank credited) → counterpart is EXPENSE or ASSET (non-cash)
+                      codingDialog.transactionType === "CREDIT"
+                        ? a.type === "REVENUE" || a.type === "LIABILITY" || a.type === "EQUITY"
+                        : a.type === "EXPENSE" || a.type === "ASSET"
+                    )
                     .map((a) => (
                       <option key={a.id} value={a.id}>{a.code} — {accountName(a)}</option>
                     ))}
