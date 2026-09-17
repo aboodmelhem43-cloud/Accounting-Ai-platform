@@ -147,8 +147,8 @@ export async function POST(req: NextRequest) {
         lines: journalLines,
         invoiceId: invoice.id,
       });
-    } catch {
-      // القيد اختياري — لا نفشل الحفظ إذا فشل القيد
+    } catch (err) {
+      console.error("[save] journal entry creation failed:", err);
     }
   }
 

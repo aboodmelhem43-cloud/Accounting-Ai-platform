@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
   if (data.status === "CONFIRMED") {
     try {
       const accounts = await prisma.account.findMany({
-        where: { businessId, code: { in: ["2100", "2300"] } },
+        where: { businessId, code: { in: ["2100", "2300", "5200", "5300"] } },
       });
       const byCode = Object.fromEntries(accounts.map((a) => [a.code, a]));
 
@@ -97,19 +97,24 @@ export async function POST(req: NextRequest) {
 
       const journalLines: { accountId: string; debit: number; credit: number; description: string }[] = [];
 
-      // Debit: selected expense account (verify it belongs to this business)
+      // Debit: selected expense account, or fallback to Purchase Expenses / Operating Expenses
+      let expenseAccount = null;
       if (data.expenseAccountId) {
-        const expenseAccount = await prisma.account.findFirst({
+        expenseAccount = await prisma.account.findFirst({
           where: { id: data.expenseAccountId, businessId },
         });
-        if (expenseAccount) {
-          journalLines.push({
-            accountId: expenseAccount.id,
-            debit: data.subtotal,
-            credit: 0,
-            description: `${isArabic(data.supplierName) ? "مشتريات" : "Purchase"} — ${data.supplierName}`,
-          });
-        }
+      }
+      if (!expenseAccount) {
+        expenseAccount = byCode["5300"] ?? byCode["5200"] ?? null;
+      }
+
+      if (expenseAccount) {
+        journalLines.push({
+          accountId: expenseAccount.id,
+          debit: data.subtotal,
+          credit: 0,
+          description: `${isArabic(data.supplierName) ? "مشتريات" : "Purchase"} — ${data.supplierName}`,
+        });
       }
 
       // Debit: VAT input if applicable
@@ -143,8 +148,8 @@ export async function POST(req: NextRequest) {
           invoiceId: invoice.id,
         });
       }
-    } catch {
-      // Non-critical — don't fail the invoice save
+    } catch (err) {
+      console.error("[save-purchase] journal entry creation failed:", err);
     }
   }
 
