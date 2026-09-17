@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet, Switch } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
+import { getBiometricType } from '@/lib/biometric';
 import { api } from '@/lib/api';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -10,7 +11,17 @@ import { Colors } from '@/constants/colors';
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
-  const { session, logout } = useAuth();
+  const { session, logout, canUseBiometric, biometricEnabled, enableBiometric, disableBiometric } = useAuth();
+  const [biometricLabel, setBiometricLabel] = useState('البصمة / الوجه');
+
+  useEffect(() => {
+    if (canUseBiometric) {
+      getBiometricType().then((type) => {
+        if (type === 'face') setBiometricLabel('Face ID');
+        else if (type === 'fingerprint') setBiometricLabel('بصمة الإصبع');
+      });
+    }
+  }, [canUseBiometric]);
 
   const [businessName, setBusinessName] = useState(session?.businessName ?? '');
   const [saving, setSaving]             = useState(false);
@@ -71,6 +82,36 @@ export default function SettingsScreen() {
         />
         <Button label={saving ? 'جاري الحفظ...' : 'حفظ التغييرات'} onPress={handleSave} loading={saving} />
       </Card>
+
+      {/* Security / Biometric */}
+      {canUseBiometric && (
+        <Card>
+          <Text style={styles.sectionTitle}>الأمان</Text>
+          <View style={styles.switchRow}>
+            <Switch
+              value={biometricEnabled}
+              onValueChange={async (val) => {
+                if (val) {
+                  await enableBiometric();
+                } else {
+                  Alert.alert(
+                    `إيقاف ${biometricLabel}`,
+                    'هل تريد إيقاف تسجيل الدخول البيومتري؟',
+                    [
+                      { text: 'إلغاء', style: 'cancel' },
+                      { text: 'إيقاف', style: 'destructive', onPress: disableBiometric },
+                    ],
+                  );
+                }
+              }}
+              trackColor={{ true: Colors.brand }}
+            />
+            <Text style={styles.switchLabel}>
+              {biometricLabel === 'Face ID' ? '🔐' : '👆'} تسجيل الدخول بـ {biometricLabel}
+            </Text>
+          </View>
+        </Card>
+      )}
 
       {/* Notifications */}
       <Card>

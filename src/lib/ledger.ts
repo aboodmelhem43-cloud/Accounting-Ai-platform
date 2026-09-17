@@ -1,6 +1,9 @@
 import { prisma } from "./prisma";
+import { DEFAULT_CHART_OF_ACCOUNTS } from "./accounts";
 import type { SuggestedJournalEntry, IncomeStatement, AccountBalance, BalanceSheet, CashFlowStatement } from "@/types";
 import type { Prisma } from "@prisma/client";
+
+const DEFAULT_BY_CODE = Object.fromEntries(DEFAULT_CHART_OF_ACCOUNTS.map((a) => [a.code, a]));
 
 // التحقق من توازن القيد — مجموع المدين يجب أن يساوي مجموع الدائن
 export function validateJournalBalance(
@@ -226,6 +229,15 @@ export async function computeIncomeStatement(
   };
 }
 
+function pickName(acc: { code: string; name: string; nameAr: string | null }, lang: string): string {
+  if (lang === "en") {
+    // Prefer the canonical English name from our chart of accounts definition,
+    // then the stored name, in case the DB row has Arabic in the name column.
+    return DEFAULT_BY_CODE[acc.code]?.name || acc.name || acc.nameAr || "";
+  }
+  return acc.nameAr || DEFAULT_BY_CODE[acc.code]?.nameAr || acc.name;
+}
+
 // اقتراح قيد محاسبي لفاتورة مشتريات
 export async function suggestPurchaseJournalEntry(params: {
   businessId: string;
@@ -235,8 +247,9 @@ export async function suggestPurchaseJournalEntry(params: {
   netAmount: number;
   date: string;
   invoiceNumber?: string;
+  lang?: string;
 }): Promise<SuggestedJournalEntry> {
-  const { businessId, vendorName, totalAmount, taxAmount, netAmount, date, invoiceNumber } = params;
+  const { businessId, vendorName, totalAmount, taxAmount, netAmount, date, invoiceNumber, lang = "ar" } = params;
 
   const accounts = await prisma.account.findMany({
     where: { businessId, code: { in: ["2100", "5300", "2200", "5200"] } },
@@ -249,24 +262,26 @@ export async function suggestPurchaseJournalEntry(params: {
   // مصروفات الشراء (مدين)
   const expenseAcc = byCode["5300"] ?? byCode["5200"];
   if (expenseAcc) {
-    lines.push({ accountCode: expenseAcc.code, accountName: expenseAcc.nameAr ?? expenseAcc.name, debit: netAmount, credit: 0 });
+    lines.push({ accountCode: expenseAcc.code, accountName: pickName(expenseAcc, lang), debit: netAmount, credit: 0 });
   }
 
   // ضريبة القيمة المضافة على المدخلات (مدين) — لو الدولة لها VAT
   if (taxAmount > 0) {
     const taxAcc = byCode["2200"];
     if (taxAcc) {
-      lines.push({ accountCode: taxAcc.code, accountName: "ضريبة مدخلات (VAT)", debit: taxAmount, credit: 0 });
+      lines.push({ accountCode: taxAcc.code, accountName: lang === "en" ? "Input VAT" : "ضريبة مدخلات (VAT)", debit: taxAmount, credit: 0 });
     }
   }
 
   // دائنون (دائن)
   const apAcc = byCode["2100"];
   if (apAcc) {
-    lines.push({ accountCode: apAcc.code, accountName: apAcc.nameAr ?? apAcc.name, debit: 0, credit: totalAmount });
+    lines.push({ accountCode: apAcc.code, accountName: pickName(apAcc, lang), debit: 0, credit: totalAmount });
   }
 
-  const desc = `فاتورة مشتريات — ${vendorName}${invoiceNumber ? ` رقم ${invoiceNumber}` : ""}`;
+  const desc = lang === "en"
+    ? `Purchase invoice — ${vendorName}${invoiceNumber ? ` No. ${invoiceNumber}` : ""}`
+    : `فاتورة مشتريات — ${vendorName}${invoiceNumber ? ` رقم ${invoiceNumber}` : ""}`;
 
   return { description: desc, date, lines };
 }
@@ -280,8 +295,9 @@ export async function suggestSalesJournalEntry(params: {
   netAmount: number;
   date: string;
   invoiceNumber?: string;
+  lang?: string;
 }): Promise<SuggestedJournalEntry> {
-  const { businessId, customerName, totalAmount, taxAmount, netAmount, date, invoiceNumber } = params;
+  const { businessId, customerName, totalAmount, taxAmount, netAmount, date, invoiceNumber, lang = "ar" } = params;
 
   const accounts = await prisma.account.findMany({
     where: { businessId, code: { in: ["1200", "4100", "2200"] } },
@@ -294,24 +310,26 @@ export async function suggestSalesJournalEntry(params: {
   // مدينون (مدين)
   const arAcc = byCode["1200"];
   if (arAcc) {
-    lines.push({ accountCode: arAcc.code, accountName: arAcc.nameAr ?? arAcc.name, debit: totalAmount, credit: 0 });
+    lines.push({ accountCode: arAcc.code, accountName: pickName(arAcc, lang), debit: totalAmount, credit: 0 });
   }
 
   // إيرادات المبيعات (دائن)
   const revAcc = byCode["4100"];
   if (revAcc) {
-    lines.push({ accountCode: revAcc.code, accountName: revAcc.nameAr ?? revAcc.name, debit: 0, credit: netAmount });
+    lines.push({ accountCode: revAcc.code, accountName: pickName(revAcc, lang), debit: 0, credit: netAmount });
   }
 
   // ضريبة القيمة المضافة على المخرجات (دائن)
   if (taxAmount > 0) {
     const taxAcc = byCode["2200"];
     if (taxAcc) {
-      lines.push({ accountCode: taxAcc.code, accountName: "ضريبة مخرجات (VAT)", debit: 0, credit: taxAmount });
+      lines.push({ accountCode: taxAcc.code, accountName: lang === "en" ? "Output VAT" : "ضريبة مخرجات (VAT)", debit: 0, credit: taxAmount });
     }
   }
 
-  const desc = `فاتورة مبيعات — ${customerName}${invoiceNumber ? ` رقم ${invoiceNumber}` : ""}`;
+  const desc = lang === "en"
+    ? `Sales invoice — ${customerName}${invoiceNumber ? ` No. ${invoiceNumber}` : ""}`
+    : `فاتورة مبيعات — ${customerName}${invoiceNumber ? ` رقم ${invoiceNumber}` : ""}`;
 
   return { description: desc, date, lines };
 }
