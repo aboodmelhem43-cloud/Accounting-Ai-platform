@@ -249,6 +249,13 @@ export default function OpeningBalancesPage() {
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1">{isAr ? "تاريخ الأرصدة الافتتاحية" : "Opening balance date"}</label>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="input text-sm" />
+          {date && date < new Date().toISOString().split("T")[0].substring(0, 7) + "-01" && (
+            <p className="text-xs text-amber-700 mt-1">
+              {isAr
+                ? "⚠️ إذا كان التاريخ في شهر سابق، يجب فتح تلك الفترة أولًا من صفحة الفترات المحاسبية"
+                : "⚠️ If the date is in a past month, open that period first from the Accounting Periods page"}
+            </p>
+          )}
         </div>
         <div className={`mt-4 text-sm font-mono px-3 py-2 rounded-lg ${isBalanced ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
           {isAr

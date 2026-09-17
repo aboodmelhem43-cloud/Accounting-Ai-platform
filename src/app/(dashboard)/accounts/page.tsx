@@ -99,6 +99,10 @@ export default function AccountsPage() {
   const [savingCustom, setSavingCustom] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const [actionError, setActionError] = useState("");
+  const [editModal, setEditModal] = useState<Account | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editNameAr, setEditNameAr] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -172,6 +176,36 @@ export default function AccountsPage() {
       setAddError(err instanceof Error ? err.message : "Error");
     } finally {
       setSavingCustom(false);
+    }
+  }
+
+  function openEditModal(acc: Account) {
+    setEditModal(acc);
+    setEditName(acc.name);
+    setEditNameAr(acc.nameAr ?? "");
+  }
+
+  async function saveEdit() {
+    if (!editModal) return;
+    setSavingEdit(true);
+    setActionError("");
+    try {
+      const res = await fetch(`/api/accounts/${editModal.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: editName, nameAr: editNameAr }),
+      });
+      if (!res.ok) {
+        const d = await res.json() as { error?: string };
+        setActionError(d.error ?? (isAr ? "فشل الحفظ" : "Save failed"));
+        return;
+      }
+      setEditModal(null);
+      load();
+    } catch {
+      setActionError(isAr ? "خطأ في الاتصال" : "Connection error");
+    } finally {
+      setSavingEdit(false);
     }
   }
 
@@ -374,18 +408,26 @@ export default function AccountsPage() {
                         <td className="px-4 py-2.5 text-gray-400 text-xs hidden sm:table-cell">
                           {isAr ? acc.name : (acc.nameAr ?? "")}
                         </td>
-                        <td className="px-4 py-2.5 w-20 text-end">
+                        <td className="px-4 py-2.5 w-28 text-end">
                           {acc.isSystem ? (
                             <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
                               {isAr ? "نظام" : "System"}
                             </span>
                           ) : (
-                            <button
-                              onClick={() => deleteAccount(acc.id)}
-                              className="text-xs text-red-400 hover:text-red-600 hover:bg-red-50 px-2 py-0.5 rounded transition-colors"
-                            >
-                              {isAr ? "حذف" : "Delete"}
-                            </button>
+                            <div className="flex gap-1 justify-end">
+                              <button
+                                onClick={() => openEditModal(acc)}
+                                className="text-xs text-blue-500 hover:text-blue-700 hover:bg-blue-50 px-2 py-0.5 rounded transition-colors"
+                              >
+                                {isAr ? "تعديل" : "Edit"}
+                              </button>
+                              <button
+                                onClick={() => deleteAccount(acc.id)}
+                                className="text-xs text-red-400 hover:text-red-600 hover:bg-red-50 px-2 py-0.5 rounded transition-colors"
+                              >
+                                {isAr ? "حذف" : "Delete"}
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -410,6 +452,33 @@ export default function AccountsPage() {
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
               >
                 {isAr ? "تأكيد" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+            <h3 className="font-semibold text-gray-800">
+              {isAr ? `تعديل الحساب ${editModal.code}` : `Edit Account ${editModal.code}`}
+            </h3>
+            <div>
+              <label className="label">{isAr ? "الاسم بالإنجليزية" : "English Name"}</label>
+              <input className="input" value={editName} onChange={(e) => setEditName(e.target.value)} />
+            </div>
+            <div>
+              <label className="label">{isAr ? "الاسم بالعربية" : "Arabic Name"}</label>
+              <input className="input" value={editNameAr} onChange={(e) => setEditNameAr(e.target.value)} />
+            </div>
+            {actionError && <p className="text-red-600 text-xs">{actionError}</p>}
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setEditModal(null)} className="btn-secondary text-sm px-4">
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+              <button onClick={saveEdit} disabled={savingEdit} className="btn-primary text-sm px-4">
+                {savingEdit ? "..." : (isAr ? "حفظ" : "Save")}
               </button>
             </div>
           </div>

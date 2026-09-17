@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
     select: {
       id: true,
       createdAt: true,
+      dueDate: true,
       extractedData: true,
     },
   });
@@ -48,13 +49,20 @@ export async function GET(req: NextRequest) {
     const data = inv.extractedData as Partial<ExtractedInvoiceData> | null;
     const contactName =
       (type === "AR" ? data?.customerName : data?.vendorName) ?? "Unknown";
-    const invoiceDateRaw = data?.invoiceDate;
-    const invoiceDate = invoiceDateRaw ? new Date(invoiceDateRaw) : inv.createdAt;
     const amount = data?.totalAmount ?? 0;
+
+    // Aging is measured from the due date; fall back to invoice date, then createdAt
+    const dueDateRaw = inv.dueDate ?? (data?.dueDate ? new Date(data.dueDate) : null);
+    const invoiceDateRaw = data?.invoiceDate;
+    const referenceDate = dueDateRaw
+      ? new Date(dueDateRaw)
+      : invoiceDateRaw
+      ? new Date(invoiceDateRaw)
+      : inv.createdAt;
 
     const daysDiff = Math.max(
       0,
-      Math.floor((today.getTime() - invoiceDate.getTime()) / (1000 * 60 * 60 * 24))
+      Math.floor((today.getTime() - referenceDate.getTime()) / (1000 * 60 * 60 * 24))
     );
 
     if (!map.has(contactName)) {
