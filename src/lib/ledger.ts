@@ -186,7 +186,7 @@ export async function computeIncomeStatement(
     include: {
       journalLines: {
         where: {
-          journalEntry: { businessId, date: { gte: from, lte: to } },
+          journalEntry: { businessId, status: "POSTED", date: { gte: from, lte: to } },
         },
       },
     },
@@ -348,7 +348,7 @@ export async function computeBalanceSheet(
     include: {
       journalLines: {
         where: {
-          journalEntry: { businessId, date: { lte: asOf } },
+          journalEntry: { businessId, status: "POSTED", date: { lte: asOf } },
         },
       },
     },
@@ -446,7 +446,7 @@ export async function computeCashFlow(
   const cashLines = await prisma.journalLine.findMany({
     where: {
       accountId: cashAccount.id,
-      journalEntry: { businessId, date: { gte: from, lte: to } },
+      journalEntry: { businessId, status: "POSTED", date: { gte: from, lte: to } },
     },
     include: {
       journalEntry: {
