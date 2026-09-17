@@ -33,6 +33,14 @@ export default function NewJournalEntryPage() {
   const router = useRouter();
 
   const today = new Date().toISOString().split("T")[0];
+  const currentMonthStart = (() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split("T")[0];
+  })();
+  const currentMonthEnd = (() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split("T")[0];
+  })();
 
   const [date, setDate] = useState(today);
   const [description, setDescription] = useState("");
@@ -154,6 +162,8 @@ export default function NewJournalEntryPage() {
             <input
               type="date"
               value={date}
+              min={currentMonthStart}
+              max={currentMonthEnd}
               onChange={(e) => setDate(e.target.value)}
               required
               className="input"
