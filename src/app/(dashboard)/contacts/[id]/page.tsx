@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
+import SavePdfButton from "@/components/SavePdfButton";
 
 interface ContactDetail {
   id: string;
@@ -32,6 +33,7 @@ interface ContactHistory {
   contact: ContactDetail;
   summary: { totalBilled: number; totalPaid: number; outstanding: number; currency: string };
   invoices: ContactInvoice[];
+  dateRange?: { from: string | null; to: string | null };
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -54,11 +56,17 @@ export default function ContactDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<"ALL" | "SALES" | "PURCHASE">("ALL");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
-  useEffect(() => {
+  function fetchData(from?: string, to?: string) {
     if (!id) return;
     setLoading(true);
-    fetch(`/api/contacts/${id}/transactions`)
+    const params = new URLSearchParams();
+    if (from) params.set("from", from);
+    if (to) params.set("to", to);
+    const qs = params.toString() ? `?${params.toString()}` : "";
+    fetch(`/api/contacts/${id}/transactions${qs}`)
       .then((r) => {
         if (!r.ok) throw new Error("Not found");
         return r.json();
@@ -66,7 +74,47 @@ export default function ContactDetailPage() {
       .then((d) => setData(d))
       .catch(() => setError(isAr ? "تعذّر تحميل بيانات الجهة" : "Failed to load contact data"))
       .finally(() => setLoading(false));
-  }, [id, isAr]);
+  }
+
+  useEffect(() => { fetchData(); }, [id, isAr]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function applyFilter() { fetchData(fromDate || undefined, toDate || undefined); }
+  function clearFilter() { setFromDate(""); setToDate(""); fetchData(); }
+
+  async function exportExcel() {
+    if (!data) return;
+    const { utils, writeFile } = await import("xlsx");
+    const { contact, invoices, summary } = data;
+    const currency = summary.currency ?? "SAR";
+    const toExport = invoices.filter((inv) => typeFilter === "ALL" || inv.invoiceType === typeFilter);
+    const rows = toExport.map((inv) => ({
+      [isAr ? "رقم الفاتورة" : "Invoice #"]: inv.invoiceNumber ?? "",
+      [isAr ? "النوع" : "Type"]: inv.invoiceType,
+      [isAr ? "التاريخ" : "Date"]: inv.invoiceDate ?? "",
+      [isAr ? "الاستحقاق" : "Due Date"]: inv.dueDate ?? "",
+      [isAr ? `الإجمالي (${currency})` : `Total (${currency})`]: inv.total,
+      [isAr ? `المدفوع (${currency})` : `Paid (${currency})`]: inv.paid,
+      [isAr ? `المستحق (${currency})` : `Outstanding (${currency})`]: inv.outstanding,
+      [isAr ? "الحالة" : "Status"]: inv.paymentStatus,
+    }));
+    // summary row
+    rows.push({} as never);
+    rows.push({
+      [isAr ? "رقم الفاتورة" : "Invoice #"]: isAr ? "الإجمالي" : "Total",
+      [isAr ? "النوع" : "Type"]: "",
+      [isAr ? "التاريخ" : "Date"]: "",
+      [isAr ? "الاستحقاق" : "Due Date"]: "",
+      [isAr ? `الإجمالي (${currency})` : `Total (${currency})`]: summary.totalBilled,
+      [isAr ? `المدفوع (${currency})` : `Paid (${currency})`]: summary.totalPaid,
+      [isAr ? `المستحق (${currency})` : `Outstanding (${currency})`]: summary.outstanding,
+      [isAr ? "الحالة" : "Status"]: "",
+    } as never);
+    const ws = utils.json_to_sheet(rows);
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, ws, isAr ? "كشف حساب" : "Statement");
+    const dateStr = new Date().toISOString().split("T")[0];
+    writeFile(wb, `statement-${contact.name}-${dateStr}.xlsx`);
+  }
 
   const fmt = (n: number, currency = "SAR") =>
     n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -155,7 +203,7 @@ export default function ContactDetailPage() {
               <p className="text-xs text-gray-400 mt-1">{contact.address}</p>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Link href={`/invoices/create?contactId=${id}`} className="btn-secondary text-sm py-1.5 px-3">
               + {isAr ? "فاتورة مبيعات" : "Sales Invoice"}
             </Link>
@@ -165,6 +213,62 @@ export default function ContactDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Date range filter + export */}
+      <div className="card p-4">
+        <div className="flex items-end gap-3 flex-wrap">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              {isAr ? "من" : "From"}
+            </label>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              {isAr ? "إلى" : "To"}
+            </label>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <button onClick={applyFilter} className="btn-primary text-sm py-1.5 px-4">
+            {isAr ? "تطبيق" : "Apply"}
+          </button>
+          {(fromDate || toDate) && (
+            <button onClick={clearFilter} className="btn-secondary text-sm py-1.5 px-4">
+              {isAr ? "مسح" : "Clear"}
+            </button>
+          )}
+          <div className="ms-auto flex gap-2">
+            <SavePdfButton
+              targetId="statement-content"
+              fileName={`statement-${contact.name}-${new Date().toISOString().split("T")[0]}.pdf`}
+              documentName={`${isAr ? "كشف حساب" : "Statement of Account"} — ${contact.name}`}
+              label={isAr ? "حفظ PDF" : "Save PDF"}
+            />
+            <button onClick={exportExcel} className="btn-secondary text-sm flex items-center gap-1.5">
+              📊 {isAr ? "تصدير Excel" : "Export Excel"}
+            </button>
+          </div>
+        </div>
+        {(data.dateRange?.from || data.dateRange?.to) && (
+          <p className="text-xs text-blue-600 mt-2">
+            {isAr ? "الفترة:" : "Period:"} {data.dateRange?.from ?? "—"} → {data.dateRange?.to ?? "—"}
+            {" · "}{filteredInvoices.length} {isAr ? "فاتورة" : "invoices"}
+          </p>
+        )}
+      </div>
+
+      {/* Statement content — captured by SavePdfButton */}
+      <div id="statement-content">
 
       {/* KPI cards */}
       <div className="grid grid-cols-3 gap-4">
@@ -287,6 +391,8 @@ export default function ContactDetailPage() {
           <p className="text-sm text-gray-600">{contact.notes}</p>
         </div>
       )}
+
+      </div>{/* end #statement-content */}
     </div>
   );
 }

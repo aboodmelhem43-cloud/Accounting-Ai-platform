@@ -166,7 +166,10 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
           })(),
         },
         ...(!isViewingClientBiz ? [{ href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "💎" }] : []),
-        ...(showAdmin && !isViewingClientBiz ? [{ href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "🛡️" }] : []),
+        ...(showAdmin && !isViewingClientBiz ? [
+          { href: "/agents", label: isAr ? "الفريق التنفيذي" : "AI Executive", icon: "🏢" },
+          { href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "🛡️" },
+        ] : []),
       ],
     },
   ];
