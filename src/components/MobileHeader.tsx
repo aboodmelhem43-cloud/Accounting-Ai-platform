@@ -46,7 +46,10 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
     { href: "/audit-log", label: isAr ? "سجل المراجعة" : "Audit Trail", icon: "🗂️" },
     { href: "/settings", label: isAr ? "الإعدادات" : "Settings", icon: "⚙️" },
     { href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "💎" },
-    ...(showAdmin ? [{ href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "🛡️" }] : []),
+    ...(showAdmin ? [
+      { href: "/agents", label: isAr ? "الفريق التنفيذي" : "AI Executive", icon: "🏢" },
+      { href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "🛡️" },
+    ] : []),
   ];
 
   return (
