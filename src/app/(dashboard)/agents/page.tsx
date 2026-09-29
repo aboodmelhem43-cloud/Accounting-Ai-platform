@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useLang } from "@/components/LanguageProvider";
-import { isSuperAdmin } from "@/lib/admin";
 
 // ─── Agent definitions ────────────────────────────────────────────────────────
 
@@ -112,7 +111,7 @@ export default function AgentsPage() {
   // ─── Admin guard (client-side mirror of server check) ───────────────────────
   useEffect(() => {
     if (status === "loading") return;
-    if (!session || !isSuperAdmin(session.user.email)) {
+    if (!session || !session.user.isAdmin) {
       router.push("/dashboard");
     }
   }, [session, status, router]);
@@ -121,7 +120,7 @@ export default function AgentsPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [history, loading]);
 
-  if (status === "loading" || !session || !isSuperAdmin(session.user.email)) {
+  if (status === "loading" || !session || !session.user.isAdmin) {
     return null;
   }
 
