@@ -137,7 +137,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  session: { strategy: "jwt", maxAge: 3600 }, // 1-hour tokens — limits stale plan/subscription data window
+  session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 }, // 30-day cookie; per-role expiry enforced in jwt callback
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (trigger === "update" && session) {
@@ -230,6 +230,8 @@ export const authOptions: NextAuthOptions = {
         token.trialEndsAt = u.trialEndsAt;
         token.clientBusinesses = u.clientBusinesses;
         token.isPractice = u.isPractice;
+        // Record sign-in time for per-role session expiry enforcement
+        token.tokenIssuedAt = Math.floor(Date.now() / 1000);
         // Embed passwordChangedAt so we can detect out-of-band password changes
         const freshUser = await prisma.user.findUnique({
           where: { id: user.id as string },
@@ -237,6 +239,13 @@ export const authOptions: NextAuthOptions = {
         });
         token.passwordChangedAt = freshUser?.passwordChangedAt?.toISOString() ?? null;
       } else if (token.sub) {
+        // Non-admin users: enforce 1-hour session limit
+        if (!isSuperAdmin(token.email as string)) {
+          const issuedAt = (token.tokenIssuedAt ?? 0) as number;
+          if (Math.floor(Date.now() / 1000) - issuedAt > 3600) {
+            return null as never; // session expired — force re-login
+          }
+        }
         // On every token refresh, compare passwordChangedAt against DB — force re-auth if changed
         const liveUser = await prisma.user.findUnique({
           where: { id: token.sub },
