@@ -263,6 +263,7 @@ export const authOptions: NextAuthOptions = {
         session.user.trialEndsAt = token.trialEndsAt as string | null;
         session.user.clientBusinesses = (token.clientBusinesses ?? []) as ClientBusiness[];
         session.user.isPractice = (token.isPractice ?? false) as boolean;
+        session.user.isAdmin = isSuperAdmin(session.user.email);
       }
       return session;
     },
@@ -291,6 +292,7 @@ declare module "next-auth" {
       trialEndsAt: string | null;
       clientBusinesses: ClientBusiness[];
       isPractice: boolean;
+      isAdmin: boolean;
     };
   }
 }
