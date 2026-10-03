@@ -41,6 +41,7 @@
     "@jest/globals": "^29.7.0",
     "@playwright/test": "^1.61.1",
     "@types/bcryptjs": "^2.4.6",
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.10.1",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.1",
