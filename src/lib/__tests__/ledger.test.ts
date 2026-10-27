@@ -134,7 +134,7 @@ const { createJournalEntry } = require("../ledger") as typeof import("../ledger"
 const BASE = {
   businessId: "biz-1",
   userId: "user-1",
-  date: new Date("2025-06-01"),
+  date: new Date(), // current month — avoids past-period rejection
   description: "اختبار",
   sourceType: "MANUAL" as const,
 };
