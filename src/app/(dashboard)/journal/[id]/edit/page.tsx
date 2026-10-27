@@ -196,7 +196,8 @@ export default function EditJournalEntryPage() {
 
   return (
     <div className="space-y-6 max-w-4xl" dir={lang === "ar" ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {lang === "ar" ? "تعديل قيد اليومية" : "Edit Journal Entry"}
         </h1>
