@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
+import { JournalAnimations } from "@/components/JournalAnimations";
 
 interface JournalLine {
   id: string;
@@ -165,6 +166,7 @@ export default function JournalPage() {
 
   return (
     <div className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
+      <JournalAnimations />
       {/* Reject modal */}
       {rejectId && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -227,7 +229,7 @@ export default function JournalPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="gsap-journal-header flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t("journal.title")}</h1>
           <p className="text-gray-500 text-sm mt-1">{total} {lang === "ar" ? "قيد محاسبي" : "entries"}</p>
@@ -247,7 +249,7 @@ export default function JournalPage() {
           { key: "POSTED",         ar: "مُرحَّل",          en: "Posted" },
         ];
         return (
-          <div className="flex gap-2 flex-wrap">
+          <div className="gsap-journal-filters flex gap-2 flex-wrap">
             {filters.map((f) => (
               <button
                 key={f.key}
@@ -280,7 +282,7 @@ export default function JournalPage() {
       )}
 
       {!loading && entries.map((entry) => (
-        <div key={entry.id} className="card">
+        <div key={entry.id} className="card gsap-journal-card">
           <div className="flex items-start justify-between mb-3 gap-4 flex-wrap">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
