@@ -174,8 +174,9 @@ export default function ContactDetailPage() {
 
   return (
     <div className="space-y-6 max-w-4xl" dir={isAr ? "rtl" : "ltr"}>
+      <PageAnimations />
       {/* Back + header */}
-      <div>
+      <div className="gsap-page-header">
         <button
           onClick={() => router.push("/contacts")}
           className="text-sm text-gray-400 hover:text-gray-600 mb-3 flex items-center gap-1"
@@ -216,7 +217,7 @@ export default function ContactDetailPage() {
       </div>
 
       {/* Date range filter + export */}
-      <div className="card p-4">
+      <div className="gsap-page-controls card p-4">
         <div className="flex items-end gap-3 flex-wrap">
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">

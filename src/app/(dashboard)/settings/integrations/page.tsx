@@ -337,7 +337,7 @@ export default function IntegrationsPage() {
             const pl = platformInfo(int.platform);
             const url = webhookUrl(int);
             return (
-              <div key={int.id} className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
+              <div key={int.id} className="gsap-page-card border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
                 <div className="flex items-start gap-3">
                   <div className="text-2xl mt-0.5">{pl?.icon ?? "🔗"}</div>
                   <div className="flex-1 min-w-0">

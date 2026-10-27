@@ -70,7 +70,8 @@ export default function PricingPage() {
 
   return (
     <div className="space-y-8" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">{isAr ? "خطط الاشتراك" : "Pricing Plans"}</h1>
         <p className="text-gray-500 text-sm mt-1">
           {isAr ? "اختر الخطة المناسبة لأعمالك" : "Choose the plan that fits your business"}
@@ -103,7 +104,7 @@ export default function PricingPage() {
       </div>
 
       {/* Billing toggle */}
-      <div className="flex justify-center">
+      <div className="gsap-page-controls flex justify-center">
         <div className="inline-flex items-center bg-gray-100 rounded-xl p-1 gap-1">
           <button
             onClick={() => setBilling("monthly")}
@@ -127,7 +128,7 @@ export default function PricingPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="gsap-page-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {PLAN_ORDER.map((planId) => {
           const plan = PLANS[planId];
           const features = FEATURES[planId];
@@ -141,7 +142,7 @@ export default function PricingPage() {
           return (
             <div
               key={planId}
-              className={`relative rounded-2xl border-2 p-6 flex flex-col ${
+              className={`gsap-page-card relative rounded-2xl border-2 p-6 flex flex-col ${
                 isPro
                   ? "border-blue-600 shadow-lg shadow-blue-100"
                   : isCurrent
