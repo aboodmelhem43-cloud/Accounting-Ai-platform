@@ -4,6 +4,7 @@ import { useLang } from "@/components/LanguageProvider";
 import * as XLSX from "xlsx";
 import type { CashFlowStatement } from "@/types";
 import SavePdfButton from "@/components/SavePdfButton";
+import { ReportAnimations } from "@/components/ReportAnimations";
 
 function Section({
   title,
@@ -116,7 +117,8 @@ export default function CashFlowPage() {
 
   return (
     <div id="report-content" className="space-y-6 max-w-3xl" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <ReportAnimations />
+      <div className="gsap-report-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "قائمة التدفقات النقدية" : "Cash Flow Statement"}
         </h1>
@@ -125,7 +127,7 @@ export default function CashFlowPage() {
         </p>
       </div>
 
-      <div className="card flex items-end gap-4 flex-wrap">
+      <div className="gsap-report-controls card flex items-end gap-4 flex-wrap">
         <div>
           <label className="label">{isAr ? "من" : "From"}</label>
           <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="input" />
@@ -165,7 +167,7 @@ export default function CashFlowPage() {
       )}
 
       {!loading && data && (
-        <div className="space-y-4">
+        <div className="space-y-4 report-data-fade">
           <Section
             title={isAr ? "أنشطة التشغيل" : "Operating Activities"}
             activities={data.operatingActivities}

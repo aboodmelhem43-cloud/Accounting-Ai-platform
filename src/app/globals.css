@@ -91,6 +91,21 @@
   animation: hero-shift 10s ease infinite;
 }
 
+/* Report data sections — fade-up when they mount after data loads */
+@keyframes report-data-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.report-data-fade {
+  animation: report-data-in 0.45s ease forwards;
+}
+
+/* Reports index — stagger cards */
+@keyframes report-card-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* Invoice bulk action bar — slides down when it appears */
 @keyframes invoice-bar-in {
   from { opacity: 0; transform: translateY(-8px); }

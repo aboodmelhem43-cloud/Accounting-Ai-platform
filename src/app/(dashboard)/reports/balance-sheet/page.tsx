@@ -4,6 +4,7 @@ import { useLang } from "@/components/LanguageProvider";
 import * as XLSX from "xlsx";
 import type { BalanceSheet, AccountBalance } from "@/types";
 import SavePdfButton from "@/components/SavePdfButton";
+import { ReportAnimations } from "@/components/ReportAnimations";
 
 function AccountsTable({
   accounts,
@@ -103,7 +104,8 @@ export default function BalanceSheetPage() {
 
   return (
     <div id="report-content" className="space-y-6 max-w-4xl" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <ReportAnimations />
+      <div className="gsap-report-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "الميزانية العمومية" : "Balance Sheet"}
         </h1>
@@ -112,7 +114,7 @@ export default function BalanceSheetPage() {
         </p>
       </div>
 
-      <div className="card flex items-end gap-4 flex-wrap">
+      <div className="gsap-report-controls card flex items-end gap-4 flex-wrap">
         <div>
           <label className="label">{isAr ? "التاريخ" : "As Of Date"}</label>
           <input
@@ -154,7 +156,7 @@ export default function BalanceSheetPage() {
       )}
 
       {!loading && data && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 report-data-fade">
           {/* Assets */}
           <div className="card">
             <div className="flex items-center justify-between mb-4">

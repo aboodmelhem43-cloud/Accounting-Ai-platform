@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
 import * as XLSX from "xlsx";
+import { ReportAnimations } from "@/components/ReportAnimations";
 
 interface AgingRow {
   contactName: string;
@@ -86,7 +87,8 @@ export default function AgingPage() {
 
   return (
     <div className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
-      <div>
+      <ReportAnimations />
+      <div className="gsap-report-header">
         <h1 className="text-2xl font-bold text-gray-900">{t("reports.aging.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">
           {lang === "ar"
@@ -95,7 +97,7 @@ export default function AgingPage() {
         </p>
       </div>
 
-      <div className="card">
+      <div className="gsap-report-controls card">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex gap-2">
             <button
@@ -139,7 +141,7 @@ export default function AgingPage() {
       )}
 
       {!loading && (
-        <div className="card overflow-x-auto">
+        <div className="card overflow-x-auto report-data-fade">
           {rows.length === 0 ? (
             <p className="text-center text-gray-400 py-8">{t("reports.aging.empty")}</p>
           ) : (
