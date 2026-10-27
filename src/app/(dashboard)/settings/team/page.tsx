@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface TeamUser {
   id: string;
@@ -193,7 +194,8 @@ export default function TeamPage() {
 
   return (
     <div className="max-w-2xl space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "إدارة الفريق" : "Team Management"}
         </h1>
@@ -265,7 +267,7 @@ export default function TeamPage() {
       )}
 
       {/* Current team members */}
-      <div className="card">
+      <div className="card gsap-page-content">
         <h2 className="font-semibold text-gray-900 mb-4">
           {isAr ? "أعضاء الفريق" : "Team Members"}
         </h2>

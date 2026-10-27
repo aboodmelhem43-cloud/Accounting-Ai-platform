@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useLang } from "@/components/LanguageProvider";
 import { useSession } from "next-auth/react";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface LineItem {
   description: string;
@@ -137,8 +138,9 @@ export default function CreatePurchaseInvoicePage() {
 
   return (
     <div className="space-y-6 max-w-4xl" dir={isAr ? "rtl" : "ltr"}>
+      <PageAnimations />
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="gsap-page-header flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="bg-orange-100 text-orange-700 text-xs font-semibold px-2.5 py-1 rounded-full">
@@ -168,7 +170,7 @@ export default function CreatePurchaseInvoicePage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="gsap-page-content grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Invoice meta */}
         <div className="card space-y-4">
           <h2 className="font-semibold text-gray-800 text-sm">{isAr ? "تفاصيل الفاتورة" : "Invoice Details"}</h2>

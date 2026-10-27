@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 // ─── Agent definitions ────────────────────────────────────────────────────────
 

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { PageAnimations } from "@/components/PageAnimations";
 import { useSession } from "next-auth/react";
 
 interface Business {

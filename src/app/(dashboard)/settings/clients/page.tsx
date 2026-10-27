@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
 import { SUPPORTED_COUNTRIES } from "@/compliance";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface ClientBiz {
   id: string;
@@ -131,7 +132,8 @@ export default function PracticeClientsPage() {
 
   return (
     <div className="max-w-3xl space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div className="flex items-start justify-between">
+      <PageAnimations />
+      <div className="gsap-page-header flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             {isAr ? "عملاء المكتب" : "Practice Clients"}
@@ -247,7 +249,7 @@ export default function PracticeClientsPage() {
             return (
               <div
                 key={client.id}
-                className={`card transition-all ${isActive ? "ring-2 ring-purple-400" : ""}`}
+                className={`gsap-page-card card transition-all ${isActive ? "ring-2 ring-purple-400" : ""}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 min-w-0 flex-1">

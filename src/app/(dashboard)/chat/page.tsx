@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
 import MarkdownMessage from "@/components/MarkdownMessage";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface Message {
   role: "user" | "assistant";

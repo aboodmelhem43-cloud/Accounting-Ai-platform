@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface BankAccount {
   id: string;
@@ -160,7 +161,8 @@ export default function BankReconciliationPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "التسوية البنكية" : "Bank Reconciliation"}
         </h1>
@@ -170,7 +172,7 @@ export default function BankReconciliationPage() {
       </div>
 
       {/* رفع الملف */}
-      <div className="card">
+      <div className="card gsap-page-controls">
         <h2 className="font-semibold text-gray-800 mb-4">
           {isAr ? "رفع كشف حساب" : "Upload Statement"}
         </h2>
@@ -225,7 +227,7 @@ export default function BankReconciliationPage() {
 
       {/* نتائج الكشف */}
       {statement && (
-        <div className="space-y-4">
+        <div className="gsap-page-content space-y-4">
           {/* ملخص */}
           <div className="grid grid-cols-3 gap-4">
             <div className="card text-center">

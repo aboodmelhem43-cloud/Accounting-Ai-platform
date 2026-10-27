@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface BankAccount {
   id: string;
@@ -128,7 +129,8 @@ export default function BankAccountsPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div className="flex items-center justify-between">
+      <PageAnimations />
+      <div className="gsap-page-header flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             {isAr ? "الحسابات البنكية" : "Bank Accounts"}
@@ -158,9 +160,9 @@ export default function BankAccountsPage() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="gsap-page-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {accounts.map((account) => (
-            <div key={account.id} className="card hover:shadow-md transition-shadow">
+            <div key={account.id} className="card gsap-page-card hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between mb-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">
                   🏦

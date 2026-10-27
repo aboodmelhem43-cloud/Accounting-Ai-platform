@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface Period {
   id: string;
@@ -74,6 +75,7 @@ export default function PeriodsPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
+      <PageAnimations />
       {confirmAction && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4">

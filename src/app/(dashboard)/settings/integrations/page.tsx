@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface AccountOption {
   id: string;
@@ -169,13 +170,14 @@ export default function IntegrationsPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6" dir={ar ? "rtl" : "ltr"}>
+      <PageAnimations />
       {toast && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium ${toast.ok ? "bg-green-600" : "bg-red-600"}`}>
           {toast.msg}
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="gsap-page-header flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             {ar ? "تكاملات المبيعات" : "Sales Integrations"}

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 import { PLANS, trialDaysLeft, isTrialExpired } from "@/lib/plans";
 import type { PlanId } from "@/lib/plans";
 

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useLang } from "@/components/LanguageProvider";
 import type { ExtractedInvoiceData, SuggestedJournalEntry } from "@/types";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface Invoice {
   id: string;
@@ -141,7 +142,8 @@ export default function ReviewInvoicePage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "مراجعة الفاتورة" : "Review Invoice"}
         </h1>
@@ -152,7 +154,7 @@ export default function ReviewInvoicePage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="gsap-page-content grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Original invoice */}
         <div className="card">
           <h2 className="font-semibold text-gray-800 mb-3">

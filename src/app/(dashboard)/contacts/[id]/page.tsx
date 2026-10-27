@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
 import SavePdfButton from "@/components/SavePdfButton";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface ContactDetail {
   id: string;

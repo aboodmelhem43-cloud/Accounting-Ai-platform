@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface VatLine {
   date: string;
@@ -71,14 +72,15 @@ export default function VatReturnPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">{isAr ? "إقرار ضريبة القيمة المضافة" : "VAT Return"}</h1>
         <p className="text-gray-500 text-sm mt-1">
           {isAr ? "احسب ضريبة المخرجات والمدخلات وصافي الضريبة المستحقة" : "Compute output VAT, input VAT, and net amount payable"}
         </p>
       </div>
 
-      <div className="card p-4 space-y-4">
+      <div className="gsap-page-controls card p-4 space-y-4">
         <div className="flex flex-wrap gap-2">
           {presets.map((p) => (
             <button

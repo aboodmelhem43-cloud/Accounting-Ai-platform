@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface Account {
   id: string;
@@ -190,7 +191,8 @@ export default function OpeningBalancesPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">{isAr ? "الأرصدة الافتتاحية" : "Opening Balances"}</h1>
         <p className="text-gray-500 text-sm mt-1">
           {isAr ? "أدخل أرصدة الحسابات عند البدء بالنظام لضمان دقة التقارير" : "Enter account balances at system start to ensure accurate reports"}
@@ -199,7 +201,7 @@ export default function OpeningBalancesPage() {
 
       {/* Import / Export */}
       {!loading && accounts.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+        <div className="gsap-page-controls flex flex-wrap items-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-xl">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-700">
               {isAr ? "استيراد من ملف CSV" : "Import from CSV file"}
@@ -267,7 +269,7 @@ export default function OpeningBalancesPage() {
       {loading ? (
         <div className="text-center py-12 text-gray-400"><div className="spinner-lg" /></div>
       ) : (
-        <div className="space-y-4">
+        <div className="gsap-page-content space-y-4">
           {grouped.map(({ type, accounts: accs }) => {
             if (accs.length === 0) return null;
             const hasValues = accs.some((a) => (lines[a.id]?.debit ?? 0) > 0 || (lines[a.id]?.credit ?? 0) > 0);
