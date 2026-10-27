@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
+import { ContactsAnimations } from "@/components/ContactsAnimations";
 
 type ContactType = "CUSTOMER" | "VENDOR";
 
@@ -191,8 +192,9 @@ export default function ContactsPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
+      <ContactsAnimations />
       {/* العنوان */}
-      <div className="flex items-center justify-between">
+      <div className="gsap-contacts-header flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             {isAr ? "العملاء والموردون" : "Contacts"}
@@ -207,7 +209,7 @@ export default function ContactsPage() {
       </div>
 
       {/* التبويبات */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+      <div className="gsap-contacts-tabs flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
         {(["CUSTOMER", "VENDOR"] as ContactType[]).map((tab) => (
           <button
             key={tab}
@@ -226,7 +228,7 @@ export default function ContactsPage() {
       </div>
 
       {/* الجدول */}
-      <div className="card p-0 overflow-hidden">
+      <div className="card gsap-contacts-table p-0 overflow-hidden">
         {loading ? (
           <div className="text-center py-12 text-gray-400">
             <div className="spinner mb-2" />
