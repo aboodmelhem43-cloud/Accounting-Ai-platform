@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface Period {
   id: string;
@@ -74,6 +75,7 @@ export default function PeriodsPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
+      <PageAnimations />
       {confirmAction && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4">
@@ -131,7 +133,7 @@ export default function PeriodsPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="gsap-page-header flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             {isAr ? "الفترات المحاسبية" : "Accounting Periods"}
@@ -159,7 +161,7 @@ export default function PeriodsPage() {
           <div className="spinner-lg mb-2" />
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="gsap-page-content grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {months.map((month) => {
             const key = `${displayYear}-${month}`;
             const period = periodMap[key];

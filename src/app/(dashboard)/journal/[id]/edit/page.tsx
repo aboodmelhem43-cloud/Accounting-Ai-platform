@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface Account {
   id: string;
@@ -195,7 +196,8 @@ export default function EditJournalEntryPage() {
 
   return (
     <div className="space-y-6 max-w-4xl" dir={lang === "ar" ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {lang === "ar" ? "تعديل قيد اليومية" : "Edit Journal Entry"}
         </h1>

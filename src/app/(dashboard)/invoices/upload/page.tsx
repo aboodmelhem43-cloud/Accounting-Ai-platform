@@ -2,6 +2,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 export default function UploadInvoicePage() {
   const router = useRouter();
@@ -61,7 +62,8 @@ export default function UploadInvoicePage() {
 
   return (
     <div className="max-w-xl mx-auto space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">{t("invoices.upload.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">
           {lang === "ar"
@@ -70,7 +72,7 @@ export default function UploadInvoicePage() {
         </p>
       </div>
 
-      <div className="card">
+      <div className="card gsap-page-controls">
         <label className="label">{lang === "ar" ? "نوع الفاتورة" : "Invoice Type"}</label>
         <div className="grid grid-cols-2 gap-3 mt-2">
           {types.map((tp) => (
@@ -90,7 +92,7 @@ export default function UploadInvoicePage() {
         </div>
       </div>
 
-      <div className="card">
+      <div className="card gsap-page-content">
         <label className="label">{t("invoices.upload.label")}</label>
         <div
           className="mt-2 border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors"

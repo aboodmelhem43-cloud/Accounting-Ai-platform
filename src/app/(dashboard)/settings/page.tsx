@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
 import { SUPPORTED_COUNTRIES } from "@/compliance";
+import { PageAnimations } from "@/components/PageAnimations";
 
 type Tab = "business" | "invoice" | "profile" | "security" | "referral" | "notifications";
 
@@ -343,10 +344,13 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <h1 className="text-2xl font-bold text-gray-900">{t("settings.title")}</h1>
+      <PageAnimations />
+      <div className="gsap-page-header">
+        <h1 className="text-2xl font-bold text-gray-900">{t("settings.title")}</h1>
+      </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-200 overflow-x-auto scrollbar-hide">
+      <div className="gsap-page-controls flex gap-1 border-b border-gray-200 overflow-x-auto scrollbar-hide">
         {TABS.map((tb) => (
           <button
             key={tb.id}
@@ -362,7 +366,7 @@ export default function SettingsPage() {
 
       {/* Business Tab */}
       {tab === "business" && (
-        <div className="card space-y-4">
+        <div className="card space-y-4 gsap-page-content">
           {/* Logo upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

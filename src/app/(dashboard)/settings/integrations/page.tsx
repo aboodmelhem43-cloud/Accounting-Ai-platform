@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface AccountOption {
   id: string;
@@ -169,13 +170,14 @@ export default function IntegrationsPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6" dir={ar ? "rtl" : "ltr"}>
+      <PageAnimations />
       {toast && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium ${toast.ok ? "bg-green-600" : "bg-red-600"}`}>
           {toast.msg}
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="gsap-page-header flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             {ar ? "تكاملات المبيعات" : "Sales Integrations"}
@@ -335,7 +337,7 @@ export default function IntegrationsPage() {
             const pl = platformInfo(int.platform);
             const url = webhookUrl(int);
             return (
-              <div key={int.id} className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
+              <div key={int.id} className="gsap-page-card border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
                 <div className="flex items-start gap-3">
                   <div className="text-2xl mt-0.5">{pl?.icon ?? "🔗"}</div>
                   <div className="flex-1 min-w-0">

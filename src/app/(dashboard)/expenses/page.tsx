@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface Account {
   id: string;
@@ -113,6 +114,7 @@ export default function ExpensesPage() {
 
   return (
     <div className="space-y-6 max-w-2xl" dir={isAr ? "rtl" : "ltr"}>
+      <PageAnimations />
       {loadError && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
           <span>{loadError}</span>
@@ -125,7 +127,7 @@ export default function ExpensesPage() {
           <button onClick={() => setSaveError(null)}>✕</button>
         </div>
       )}
-      <div>
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "تسجيل مصروف سريع" : "Quick Expense Entry"}
         </h1>
@@ -136,7 +138,7 @@ export default function ExpensesPage() {
         </p>
       </div>
 
-      <div className="card">
+      <div className="card gsap-page-controls">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Amount — prominent */}
           <div>
@@ -264,7 +266,7 @@ export default function ExpensesPage() {
 
       {/* Recent expenses */}
       {recent.length > 0 && (
-        <div className="card">
+        <div className="card gsap-page-content">
           <h2 className="font-semibold text-gray-800 mb-4">
             {isAr ? "آخر المصروفات المسجّلة" : "Recent Expenses"}
           </h2>

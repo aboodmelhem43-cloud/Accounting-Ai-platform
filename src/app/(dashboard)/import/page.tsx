@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 type Tab = "contacts" | "journal";
 
@@ -455,7 +456,8 @@ export default function ImportPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "استيراد البيانات" : "Data Import"}
         </h1>
@@ -466,7 +468,7 @@ export default function ImportPage() {
         </p>
       </div>
 
-      <div className="flex gap-1 border-b border-gray-200">
+      <div className="gsap-page-controls flex gap-1 border-b border-gray-200">
         {(["contacts", "journal"] as Tab[]).map((t) => (
           <button
             key={t}
@@ -484,7 +486,9 @@ export default function ImportPage() {
         ))}
       </div>
 
-      {tab === "contacts" ? <ContactsImport isAr={isAr} /> : <JournalImport isAr={isAr} />}
+      <div className="gsap-page-content">
+        {tab === "contacts" ? <ContactsImport isAr={isAr} /> : <JournalImport isAr={isAr} />}
+      </div>
     </div>
   );
 }

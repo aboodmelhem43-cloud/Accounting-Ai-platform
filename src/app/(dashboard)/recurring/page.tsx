@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface TemplateLine {
   accountId: string;
@@ -197,6 +198,7 @@ export default function RecurringPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
+      <PageAnimations />
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4">
@@ -212,7 +214,7 @@ export default function RecurringPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="gsap-page-header flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{isAr ? "القيود المتكررة" : "Recurring Entries"}</h1>
           <p className="text-gray-500 text-sm mt-1">{isAr ? "إيجارات ورواتب وأقساط وغيرها" : "Rent, salaries, loan installments, and more"}</p>
@@ -318,7 +320,7 @@ export default function RecurringPage() {
       ) : (
         <div className="space-y-3">
           {templates.map((t) => (
-            <div key={t.id} className={`card p-4 ${!t.isActive ? "opacity-60" : ""}`}>
+            <div key={t.id} className={`gsap-page-card card p-4 ${!t.isActive ? "opacity-60" : ""}`}>
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">

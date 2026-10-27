@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface Account {
   id: string;
@@ -145,7 +146,8 @@ export default function NewJournalEntryPage() {
 
   return (
     <div className="space-y-6 max-w-4xl" dir={lang === "ar" ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {lang === "ar" ? "قيد يومية جديد" : "New Journal Entry"}
         </h1>
@@ -156,7 +158,7 @@ export default function NewJournalEntryPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* حقول الرأس */}
-        <div className="card grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="card gsap-page-controls grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="label">{t("journal.date")}</label>
             <input
@@ -183,7 +185,7 @@ export default function NewJournalEntryPage() {
         </div>
 
         {/* سطور القيد */}
-        <div className="card">
+        <div className="card gsap-page-content">
           <h2 className="font-semibold text-gray-800 mb-4">
             {lang === "ar" ? "سطور القيد" : "Entry Lines"}
           </h2>

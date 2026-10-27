@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 // ─── Agent definitions ────────────────────────────────────────────────────────
 
@@ -198,9 +199,10 @@ export default function AgentsPage() {
       className="flex h-[calc(100vh-4rem)] rounded-xl overflow-hidden border border-gray-200 bg-white"
       dir={isAr ? "rtl" : "ltr"}
     >
+      <PageAnimations />
       {/* Sidebar */}
       <aside className="w-56 flex-shrink-0 border-e border-gray-100 bg-gray-50 flex flex-col">
-        <div className="px-4 py-3 border-b border-gray-100">
+        <div className="gsap-page-header px-4 py-3 border-b border-gray-100">
           <div className="text-sm font-bold text-gray-800">
             {isAr ? "فريق MohasabAi التنفيذي" : "MohasabAi Executive"}
           </div>
@@ -238,7 +240,7 @@ export default function AgentsPage() {
       </aside>
 
       {/* Main */}
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="gsap-page-content flex flex-col flex-1 overflow-hidden">
         {/* Top bar */}
         <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-3 bg-white">
           <span

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { useLang } from "@/components/LanguageProvider";
 import { buildZatcaQr } from "@/lib/zatca";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface LineItem {
   description: string;
@@ -433,7 +434,8 @@ export default function CreateInvoicePage() {
   // ── Form view ──
   return (
     <div className="space-y-6 max-w-4xl" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "إنشاء فاتورة" : "Create Invoice"}
         </h1>
@@ -455,7 +457,7 @@ export default function CreateInvoicePage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="gsap-page-content grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Invoice info */}
         <div className="card space-y-4">
           <h2 className="font-semibold text-gray-800">{isAr ? "معلومات الفاتورة" : "Invoice Info"}</h2>

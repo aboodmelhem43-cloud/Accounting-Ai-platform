@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { PageAnimations } from "@/components/PageAnimations";
 import { useSession } from "next-auth/react";
 
 interface Business {
@@ -316,9 +317,10 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6 pb-12">
+      <PageAnimations />
 
       {/* ── Header ──────────────────────────────────────────── */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div className="gsap-page-header flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
           <p className="text-sm text-gray-500 mt-0.5">{session?.user?.email}</p>
@@ -352,7 +354,7 @@ export default function AdminPage() {
       </div>
 
       {/* ── KPI Cards ───────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="gsap-page-content grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           label="Total Businesses"
           value={stats?.totalBusinesses ?? null}

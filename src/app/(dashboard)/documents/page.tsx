@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface StoredDocument {
   id: string;
@@ -152,6 +153,7 @@ export default function DocumentsPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
+      <PageAnimations />
       {actionError && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
           <span>{actionError}</span>
@@ -159,7 +161,7 @@ export default function DocumentsPage() {
         </div>
       )}
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div className="gsap-page-header flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             {isAr ? "المستندات والملفات" : "Documents & Files"}
@@ -181,7 +183,7 @@ export default function DocumentsPage() {
       </div>
 
       {/* Upload Area */}
-      <div className="card">
+      <div className="gsap-page-controls card">
         <h2 className="text-base font-semibold text-gray-800 mb-4">
           {isAr ? "رفع مستند جديد" : "Upload New Document"}
         </h2>
@@ -284,7 +286,7 @@ export default function DocumentsPage() {
       </div>
 
       {/* Documents List */}
-      <div className="card">
+      <div className="gsap-page-content card">
         <h2 className="text-base font-semibold text-gray-800 mb-4">
           {isAr ? "المستندات المحفوظة" : "Saved Documents"}
           {total > 0 && (

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface AuditLog {
   id: string;
@@ -77,7 +78,8 @@ export default function AuditLogPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">{isAr ? "سجل المراجعة" : "Audit Trail"}</h1>
         <p className="text-gray-500 text-sm mt-1">
           {isAr
@@ -87,7 +89,7 @@ export default function AuditLogPage() {
       </div>
 
       {/* Filters + count */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="gsap-page-controls flex flex-wrap items-center gap-3">
         <select
           value={entityFilter}
           onChange={(e) => { setEntityFilter(e.target.value); setPage(1); }}
@@ -115,7 +117,7 @@ export default function AuditLogPage() {
         </div>
       ) : (
         <>
-          <div className="card overflow-hidden">
+          <div className="card gsap-page-content overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>

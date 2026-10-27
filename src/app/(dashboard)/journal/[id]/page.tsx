@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface JournalLine {
   id: string;
@@ -192,6 +193,7 @@ export default function JournalEntryPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6" dir={isAr ? "rtl" : "ltr"}>
+      <PageAnimations />
       {/* Reject modal */}
       {showRejectModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -267,7 +269,7 @@ export default function JournalEntryPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="gsap-page-header flex items-center justify-between flex-wrap gap-3">
         <Link href="/journal" className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1">
           {isAr ? "→ الدفتر" : "← Journal"}
         </Link>

@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 const COMMON_CURRENCIES = ["USD", "EUR", "GBP", "SAR", "AED", "KWD", "EGP", "JOD", "QAR", "BHD", "OMR", "LBP", "TRY", "CNY", "JPY", "CAD", "AUD"];
 
@@ -53,7 +54,8 @@ export default function CurrencyPage() {
 
   return (
     <div className="space-y-6 max-w-4xl" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <PageAnimations />
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "محوّل العملات" : "Currency Converter"}
         </h1>
@@ -68,7 +70,7 @@ export default function CurrencyPage() {
       </div>
 
       {/* المحوّل */}
-      <div className="card">
+      <div className="card gsap-page-controls">
         <h2 className="font-semibold text-gray-800 mb-4">{isAr ? "التحويل السريع" : "Quick Convert"}</h2>
         <div className="flex flex-wrap gap-4 items-end">
           <div className="flex-1 min-w-36">
@@ -128,7 +130,7 @@ export default function CurrencyPage() {
 
       {/* جدول الأسعار */}
       {!loading && Object.keys(rates).length > 0 && (
-        <div className="card p-0 overflow-hidden">
+        <div className="card gsap-page-content p-0 overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">
               {isAr ? `أسعار الصرف (1 ${fromCurrency})` : `Exchange Rates (1 ${fromCurrency})`}
