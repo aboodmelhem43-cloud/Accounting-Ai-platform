@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { AccountsAnimations } from "@/components/AccountsAnimations";
 
 interface Account {
   id: string;
@@ -238,7 +239,8 @@ export default function AccountsPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div className="flex items-center justify-between">
+      <AccountsAnimations />
+      <div className="gsap-accounts-header flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             {isAr ? "دليل الحسابات" : "Chart of Accounts"}
@@ -257,7 +259,7 @@ export default function AccountsPage() {
       )}
 
       {/* إضافة حساب من القائمة */}
-      <div className="card space-y-4">
+      <div className="card gsap-accounts-add space-y-4">
         <h2 className="font-semibold text-gray-800">
           {isAr ? "➕ إضافة حساب من القائمة الموسّعة" : "➕ Add Account from Standard List"}
         </h2>
@@ -390,7 +392,7 @@ export default function AccountsPage() {
             if (group.length === 0) return null;
             const meta = TYPE_META[type];
             return (
-              <div key={type} className="card p-0 overflow-hidden">
+              <div key={type} className="card gsap-accounts-group p-0 overflow-hidden">
                 <div className={`flex items-center gap-3 px-4 py-3 border-b border-gray-100 ${meta.bg} border`}>
                   <span className={`text-sm font-bold ${meta.color}`}>
                     {isAr ? meta.ar : meta.en}
