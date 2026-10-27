@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cairo, Inter } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/components/LanguageProvider";
+import { LenisProvider } from "@/components/LenisProvider";
 import { Analytics } from "@vercel/analytics/next";
 import { cookies, headers } from "next/headers";
 
@@ -214,7 +215,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="font-sans bg-gray-50 text-gray-900 antialiased">
-        <LanguageProvider initialLang={lang}>{children}</LanguageProvider>
+        <LanguageProvider initialLang={lang}>
+          <LenisProvider>{children}</LenisProvider>
+        </LanguageProvider>
         <Analytics />
       </body>
     </html>
