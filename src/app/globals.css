@@ -91,6 +91,15 @@
   animation: hero-shift 10s ease infinite;
 }
 
+/* Invoice bulk action bar — slides down when it appears */
+@keyframes invoice-bar-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-invoice-bar {
+  animation: invoice-bar-in 0.25s ease forwards;
+}
+
 /* Spotlight card — hover glow follows cursor via CSS custom props */
 .spotlight-card {
   position: relative;

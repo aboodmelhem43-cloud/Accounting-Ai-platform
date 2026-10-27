@@ -81,7 +81,7 @@ export default function InvoiceBulkTable({ invoices, isAr }: Props) {
     <div>
       {/* Action bar */}
       {selectedPending.length > 0 && (
-        <div className="sticky top-0 z-10 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-3 shadow-sm flex-wrap">
+        <div className="sticky top-0 z-10 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-3 shadow-sm flex-wrap animate-invoice-bar">
           <span className="text-sm font-medium text-blue-800">
             {isAr ? `${selectedPending.length} محدد` : `${selectedPending.length} selected`}
           </span>
@@ -157,7 +157,7 @@ export default function InvoiceBulkTable({ invoices, isAr }: Props) {
               const isPending = pendingIds.has(inv.id);
               const isChecked = selected.has(inv.id);
               return (
-                <tr key={inv.id} className={`hover:bg-gray-50 ${isChecked ? "bg-blue-50" : ""}`}>
+                <tr key={inv.id} className={`gsap-invoice-row hover:bg-gray-50 transition-colors ${isChecked ? "bg-blue-50" : ""}`}>
                   <td className="px-4 py-3">
                     {isPending && (
                       <input
