@@ -10,6 +10,7 @@ import DashboardCharts, { ExpenseBreakdown } from "@/components/DashboardCharts"
 import UpgradedToast from "@/components/UpgradedToast";
 import UsageBanner from "@/components/UsageBanner";
 import PeriodPicker from "@/components/PeriodPicker";
+import { DashboardAnimations } from "@/components/DashboardAnimations";
 
 export default async function DashboardPage({
   searchParams,
@@ -69,6 +70,7 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
+      <DashboardAnimations />
       <Suspense><UpgradedToast /></Suspense>
       <Suspense><UsageBanner /></Suspense>
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -177,7 +179,7 @@ export default async function DashboardPage({
             />
           </div>
 
-          <div className="card">
+          <div className="card gsap-quick-actions">
             <h2 className="font-semibold text-gray-800 mb-4">{t("dashboard.quick_actions")}</h2>
             <div className="flex flex-wrap gap-3">
               <Link href="/invoices/upload" className="btn-primary">⬆️ {t("dashboard.upload_invoice")}</Link>
@@ -189,8 +191,8 @@ export default async function DashboardPage({
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <DashboardCharts />
-            <ExpenseBreakdown />
+            <div className="gsap-chart"><DashboardCharts /></div>
+            <div className="gsap-chart"><ExpenseBreakdown /></div>
           </div>
         </>
       )}
@@ -211,7 +213,7 @@ export default async function DashboardPage({
               };
               const s = statusMap[inv.status] ?? { label: inv.status, cls: "bg-gray-100 text-gray-600" };
               return (
-                <div key={inv.id} className="py-3 flex items-center justify-between">
+                <div key={inv.id} className="py-3 flex items-center justify-between gsap-recent-row">
                   <div>
                     <p className="text-sm font-medium text-gray-800">
                       {extracted?.vendorName ?? (lang === "ar" ? "فاتورة" : "Invoice")}
@@ -256,10 +258,10 @@ function SummaryCard({
   };
 
   const content = (
-    <div className={`rounded-xl border p-5 ${colors[color] ?? colors.blue}`}>
+    <div className={`rounded-xl border p-5 gsap-stat-card ${colors[color] ?? colors.blue}`}>
       <div className="text-2xl mb-2">{icon}</div>
       <div className="text-sm font-medium text-gray-600">{title}</div>
-      <div className="text-xl font-bold text-gray-900 mt-1 break-all leading-tight">{value}</div>
+      <div className="text-xl font-bold text-gray-900 mt-1 break-all leading-tight gsap-stat-value">{value}</div>
       <div className="text-xs text-gray-500 mt-1">{sub}</div>
     </div>
   );
