@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import InvoiceFilters from "./InvoiceFilters";
 import InvoiceBulkTable from "@/components/InvoiceBulkTable";
+import { InvoicesAnimations } from "@/components/InvoicesAnimations";
 
 const PAGE_SIZE = 25;
 
@@ -135,7 +136,8 @@ export default async function InvoicesPage({
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      <InvoicesAnimations />
+      <div className="gsap-invoices-header flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t("invoices.title")}</h1>
           <p className="text-gray-500 text-sm mt-1">
@@ -158,9 +160,11 @@ export default async function InvoicesPage({
       </div>
 
       {/* Filters */}
-      <Suspense fallback={null}>
-        <InvoiceFilters />
-      </Suspense>
+      <div className="gsap-invoices-filters">
+        <Suspense fallback={null}>
+          <InvoiceFilters />
+        </Suspense>
+      </div>
 
       {needle && total >= 200 && (
         <p className="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
@@ -194,7 +198,7 @@ export default async function InvoicesPage({
           )}
         </div>
       ) : (
-        <>
+        <div className="gsap-invoices-table">
           <InvoiceBulkTable
             isAr={isAr}
             invoices={invoices.map((inv) => {
@@ -247,7 +251,7 @@ export default async function InvoicesPage({
               )}
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );
