@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface Account {
   id: string;

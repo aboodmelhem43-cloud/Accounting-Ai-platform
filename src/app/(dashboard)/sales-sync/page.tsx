@@ -175,13 +175,14 @@ export default function SalesSyncPage() {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6" dir={ar ? "rtl" : "ltr"}>
+      <PageAnimations />
       {toast && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium ${toast.ok ? "bg-green-600" : "bg-red-600"}`}>
           {toast.msg}
         </div>
       )}
 
-      <div>
+      <div className="gsap-page-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {ar ? "مزامنة المبيعات" : "Sales Sync"}
         </h1>
@@ -193,7 +194,7 @@ export default function SalesSyncPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-200">
+      <div className="gsap-page-controls flex gap-1 border-b border-gray-200">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.value}

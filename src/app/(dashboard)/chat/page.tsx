@@ -114,7 +114,8 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-7rem)]" dir={lang === "ar" ? "rtl" : "ltr"}>
-      <div className="mb-4 flex items-start justify-between">
+      <PageAnimations />
+      <div className="gsap-page-header mb-4 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t("chat.title")}</h1>
           <p className="text-gray-500 text-sm mt-1">
@@ -139,7 +140,7 @@ export default function ChatPage() {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto bg-white rounded-xl border border-gray-200 p-4 space-y-4">
+      <div className="gsap-page-content flex-1 overflow-y-auto bg-white rounded-xl border border-gray-200 p-4 space-y-4">
         {historyLoading && (
           <div className="text-center py-8 text-gray-400 text-sm animate-pulse">
             {lang === "ar" ? "جاري تحميل المحادثة..." : "Loading history..."}
