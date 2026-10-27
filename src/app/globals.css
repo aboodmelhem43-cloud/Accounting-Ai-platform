@@ -47,6 +47,28 @@
 
 /* ── React Bits animations ─────────────────────────────────────── */
 
+/* Shimmer border for featured stat card */
+@keyframes border-shimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.featured-card {
+  position: relative;
+  isolation: isolate;
+}
+.featured-card::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #3b82f6, #6366f1, #06b6d4, #3b82f6);
+  background-size: 300% 300%;
+  animation: border-shimmer 4s ease infinite;
+  z-index: -1;
+  opacity: 0.6;
+}
+
 /* Infinite marquee */
 @keyframes marquee-left {
   from { transform: translateX(0); }
