@@ -4,6 +4,7 @@ import { useLang } from "@/components/LanguageProvider";
 import * as XLSX from "xlsx";
 import type { IncomeStatement } from "@/types";
 import SavePdfButton from "@/components/SavePdfButton";
+import { ReportAnimations } from "@/components/ReportAnimations";
 
 export default function IncomeStatementPage() {
   const { t, lang } = useLang();
@@ -94,14 +95,15 @@ export default function IncomeStatementPage() {
 
   return (
     <div id="report-content" className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
-      <div>
+      <ReportAnimations />
+      <div className="gsap-report-header">
         <h1 className="text-2xl font-bold text-gray-900">{t("reports.income.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">
           {lang === "ar" ? "محسوبة من القيود المرحّلة مباشرة" : "Calculated directly from posted journal entries"}
         </p>
       </div>
 
-      <div className="card">
+      <div className="gsap-report-controls card">
         <div className="flex flex-wrap items-end gap-4">
           <div>
             <label className="label">{t("reports.income.from")}</label>
@@ -147,7 +149,7 @@ export default function IncomeStatementPage() {
       )}
 
       {statement && !loading && (
-        <div className="space-y-4">
+        <div className="space-y-4 report-data-fade">
           <div className="card">
             <h2 className="font-semibold text-green-700 mb-4 flex items-center gap-2">
               📈 {t("reports.income.revenue")}

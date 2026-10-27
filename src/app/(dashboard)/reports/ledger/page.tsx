@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
 import * as XLSX from "xlsx";
+import { ReportAnimations } from "@/components/ReportAnimations";
 
 interface Account {
   id: string;
@@ -156,7 +157,8 @@ export default function LedgerPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <ReportAnimations />
+      <div className="gsap-report-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "دفتر الأستاذ العام" : "General Ledger"}
         </h1>
@@ -166,7 +168,7 @@ export default function LedgerPage() {
       </div>
 
       {/* أدوات */}
-      <div className="card flex flex-wrap items-end gap-4">
+      <div className="gsap-report-controls card flex flex-wrap items-end gap-4">
         <div className="flex-1 min-w-48">
           <label className="label">{isAr ? "الحساب" : "Account"}</label>
           <select
@@ -220,7 +222,7 @@ export default function LedgerPage() {
       )}
 
       {!loading && data && (
-        <div className="card p-0 overflow-hidden">
+        <div className="card p-0 overflow-hidden report-data-fade">
           <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">
               {data.account.code} — {isAr ? (data.account.nameAr ?? data.account.name) : data.account.name}

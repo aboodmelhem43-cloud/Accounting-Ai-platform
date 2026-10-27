@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import { useCallback, useEffect } from "react";
+import gsap from "gsap";
 import { useLang } from "@/components/LanguageProvider";
 
 const REPORTS = [
@@ -82,9 +84,29 @@ export default function ReportsPage() {
   const { lang } = useLang();
   const isAr = lang === "ar";
 
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl.from(".gsap-reports-header", { y: -20, opacity: 0, duration: 0.45 });
+      tl.from(".gsap-report-card", {
+        y: 28,
+        opacity: 0,
+        duration: 0.45,
+        stagger: 0.08,
+      }, "-=0.2");
+    });
+    return () => ctx.revert();
+  }, []);
+
+  const handleSpotlight = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
+    e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
+  }, []);
+
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div>
+      <div className="gsap-reports-header">
         <h1 className="text-2xl font-bold text-gray-900">
           {isAr ? "التقارير المالية" : "Financial Reports"}
         </h1>
@@ -98,7 +120,8 @@ export default function ReportsPage() {
           <Link
             key={r.href}
             href={r.href}
-            className="card hover:shadow-md transition-all hover:-translate-y-0.5 group"
+            onMouseMove={handleSpotlight}
+            className="gsap-report-card spotlight-card card hover:shadow-md transition-all hover:-translate-y-0.5 group"
           >
             <div className="flex items-start gap-4">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${colorMap[r.color]}`}>

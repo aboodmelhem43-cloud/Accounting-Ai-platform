@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
 import * as XLSX from "xlsx";
 import type { AccountType } from "@/types";
+import { ReportAnimations } from "@/components/ReportAnimations";
 
 interface TrialBalanceRow {
   accountCode: string;
@@ -100,7 +101,8 @@ export default function TrialBalancePage() {
 
   return (
     <div className="space-y-6" dir={lang === "ar" ? "rtl" : "ltr"}>
-      <div>
+      <ReportAnimations />
+      <div className="gsap-report-header">
         <h1 className="text-2xl font-bold text-gray-900">{t("reports.trial_balance.title")}</h1>
         <p className="text-gray-500 text-sm mt-1">
           {lang === "ar"
@@ -109,7 +111,7 @@ export default function TrialBalancePage() {
         </p>
       </div>
 
-      <div className="card">
+      <div className="gsap-report-controls card">
         <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
             <label className="label">{t("reports.trial_balance.as_of")}</label>
@@ -140,7 +142,7 @@ export default function TrialBalancePage() {
       )}
 
       {data && !loading && (
-        <div className="space-y-4">
+        <div className="space-y-4 report-data-fade">
           {data.rows.length === 0 ? (
             <div className="card text-center text-gray-400 py-8">
               {t("reports.trial_balance.empty")}
