@@ -306,7 +306,7 @@ export default function ContactsPage() {
                   ? (isAr ? `سجل: ${historyContact.contact.name}` : `History: ${historyContact.contact.name}`)
                   : (isAr ? "جاري التحميل..." : "Loading...")}
               </h2>
-              <button onClick={() => setHistoryContact(null)} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+              <button onClick={() => { setHistoryContact(null); setHistoryLoading(false); }} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
             </div>
 
             {historyLoading && (
