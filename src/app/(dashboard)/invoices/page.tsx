@@ -162,7 +162,7 @@ export default async function InvoicesPage({
         <InvoiceFilters />
       </Suspense>
 
-      {needle && total >= 200 && total <= 200 && (
+      {needle && total >= 200 && (
         <p className="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
           {isAr
             ? "نتائج البحث محدودة بـ 200 فاتورة — يمكن تضييق النتائج بإضافة فلتر أو كلمة أدق"
