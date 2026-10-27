@@ -44,3 +44,54 @@
   #invoice-print, #invoice-print * { visibility: visible !important; }
   #invoice-print { position: absolute; inset: 0; padding: 40px; }
 }
+
+/* ── React Bits animations ─────────────────────────────────────── */
+
+/* Infinite marquee */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+/* Hero mesh gradient animation */
+@keyframes hero-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.hero-animated-bg {
+  background: linear-gradient(135deg, #1d4ed8, #4338ca, #1e40af, #2563eb, #6366f1);
+  background-size: 300% 300%;
+  animation: hero-shift 10s ease infinite;
+}
+
+/* Spotlight card — hover glow follows cursor via CSS custom props */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(59, 130, 246, 0.08),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 0;
+}
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+.spotlight-card > * {
+  position: relative;
+  z-index: 1;
+}

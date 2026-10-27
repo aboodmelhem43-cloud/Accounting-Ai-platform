@@ -1,7 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
+import { FadeIn } from "@/components/ui/FadeIn";
+import { CountUp } from "@/components/ui/CountUp";
+import { Marquee } from "@/components/ui/Marquee";
 
 type PricingPlan = {
   id: string;
@@ -139,6 +142,12 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const isAr = lang === "ar";
 
+  const handleSpotlight = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
+    e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
+  }, []);
+
   return (
     <div className={`min-h-screen bg-white ${isAr ? "font-cairo" : "font-inter"}`} dir={isAr ? "rtl" : "ltr"}>
       {/* Navbar */}
@@ -175,84 +184,105 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
       </nav>
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 text-white">
+      <section className="hero-animated-bg text-white">
         <div className="max-w-6xl mx-auto px-4 py-24 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/15 border border-white/25 rounded-full px-4 py-1.5 text-sm font-medium mb-6">
-            ✨ {isAr ? "35 يوم تجربة مجانية — بدون بطاقة ائتمان" : "35-day free trial — no credit card required"}
-          </div>
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-            {isAr ? (
-              <>محاسبة ذكية<br /><span className="text-blue-200">لأعمالك العربية</span></>
-            ) : (
-              <>Smart Accounting<br /><span className="text-blue-200">for Arab Businesses</span></>
-            )}
-          </h1>
-          <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto mb-10 leading-relaxed">
-            {isAr
-              ? "ارفع فواتيرك، واتركها للذكاء الاصطناعي. قوائم مالية فورية، فاتورة إلكترونية متوافقة، وبدون محاسب متفرغ."
-              : "Upload your invoices and let AI do the rest. Instant financial reports, e-invoice compliance, and no full-time accountant needed."}
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              href="/register"
-              className="bg-white text-blue-700 hover:bg-blue-50 font-bold px-8 py-4 rounded-xl text-base transition-colors shadow-lg"
-            >
-              {isAr ? "ابدأ تجربتك المجانية ←" : "Start Your Free Trial →"}
-            </Link>
-            <Link
-              href="/login"
-              className="border border-white/40 hover:border-white text-white hover:bg-white/10 font-medium px-8 py-4 rounded-xl text-base transition-colors"
-            >
-              {isAr ? "تسجيل الدخول" : "Sign In"}
-            </Link>
-          </div>
+          <FadeIn direction="down" delay={0}>
+            <div className="inline-flex items-center gap-2 bg-white/15 border border-white/25 rounded-full px-4 py-1.5 text-sm font-medium mb-6">
+              ✨ {isAr ? "35 يوم تجربة مجانية — بدون بطاقة ائتمان" : "35-day free trial — no credit card required"}
+            </div>
+          </FadeIn>
+          <FadeIn direction="up" delay={100}>
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
+              {isAr ? (
+                <>محاسبة ذكية<br /><span className="text-blue-200">لأعمالك العربية</span></>
+              ) : (
+                <>Smart Accounting<br /><span className="text-blue-200">for Arab Businesses</span></>
+              )}
+            </h1>
+          </FadeIn>
+          <FadeIn direction="up" delay={200}>
+            <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto mb-10 leading-relaxed">
+              {isAr
+                ? "ارفع فواتيرك، واتركها للذكاء الاصطناعي. قوائم مالية فورية، فاتورة إلكترونية متوافقة، وبدون محاسب متفرغ."
+                : "Upload your invoices and let AI do the rest. Instant financial reports, e-invoice compliance, and no full-time accountant needed."}
+            </p>
+          </FadeIn>
+          <FadeIn direction="up" delay={300}>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link
+                href="/register"
+                className="bg-white text-blue-700 hover:bg-blue-50 font-bold px-8 py-4 rounded-xl text-base transition-colors shadow-lg"
+              >
+                {isAr ? "ابدأ تجربتك المجانية ←" : "Start Your Free Trial →"}
+              </Link>
+              <Link
+                href="/login"
+                className="border border-white/40 hover:border-white text-white hover:bg-white/10 font-medium px-8 py-4 rounded-xl text-base transition-colors"
+              >
+                {isAr ? "تسجيل الدخول" : "Sign In"}
+              </Link>
+            </div>
+          </FadeIn>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-6 max-w-lg mx-auto mt-16 pt-10 border-t border-white/20">
-            {[
-              { num: "8", label: isAr ? "دول عربية" : "Arab countries" },
-              { num: "35", label: isAr ? "يوم مجاناً" : "days free" },
-              { num: "~8h", label: isAr ? "توفير أسبوعي" : "saved/week" },
-            ].map((s) => (
-              <div key={s.label}>
-                <div className="text-3xl font-bold">{s.num}</div>
-                <div className="text-blue-200 text-sm mt-1">{s.label}</div>
+          {/* Stats — CountUp on scroll into view */}
+          <FadeIn direction="up" delay={400}>
+            <div className="grid grid-cols-3 gap-6 max-w-lg mx-auto mt-16 pt-10 border-t border-white/20">
+              <div>
+                <div className="text-3xl font-bold">
+                  <CountUp end={8} suffix="+" />
+                </div>
+                <div className="text-blue-200 text-sm mt-1">{isAr ? "دول عربية" : "Arab countries"}</div>
               </div>
-            ))}
-          </div>
+              <div>
+                <div className="text-3xl font-bold">
+                  <CountUp end={35} />
+                </div>
+                <div className="text-blue-200 text-sm mt-1">{isAr ? "يوم مجاناً" : "days free"}</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold">
+                  ~<CountUp end={8} suffix="h" />
+                </div>
+                <div className="text-blue-200 text-sm mt-1">{isAr ? "توفير أسبوعي" : "saved/week"}</div>
+              </div>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
       {/* How it works */}
       <section id="how" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-gray-900">
-              {isAr ? "كيف يعمل محاسب اي؟" : "How does MohasabAi work?"}
-            </h2>
-            <p className="text-gray-500 mt-3 text-base">
-              {isAr ? "ثلاث خطوات فقط للتحكم الكامل بمحاسبتك" : "Just three steps to full control of your accounting"}
-            </p>
-          </div>
+          <FadeIn direction="up">
+            <div className="text-center mb-14">
+              <h2 className="text-3xl font-bold text-gray-900">
+                {isAr ? "كيف يعمل محاسب اي؟" : "How does MohasabAi work?"}
+              </h2>
+              <p className="text-gray-500 mt-3 text-base">
+                {isAr ? "ثلاث خطوات فقط للتحكم الكامل بمحاسبتك" : "Just three steps to full control of your accounting"}
+              </p>
+            </div>
+          </FadeIn>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            {/* connecting line — desktop only */}
             <div className="hidden md:block absolute top-10 left-1/4 right-1/4 h-0.5 bg-blue-100" />
             {STEPS.map((step, i) => (
-              <div key={step.num} className="relative text-center">
-                <div className="w-16 h-16 rounded-2xl bg-blue-50 border-2 border-blue-100 flex items-center justify-center text-2xl mx-auto mb-4">
-                  {step.icon}
+              <FadeIn key={step.num} direction="up" delay={i * 120}>
+                <div className="relative text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-blue-50 border-2 border-blue-100 flex items-center justify-center text-2xl mx-auto mb-4">
+                    {step.icon}
+                  </div>
+                  <div className="text-xs font-bold text-blue-400 mb-1 tracking-widest">{step.num}</div>
+                  <h3 className="font-bold text-gray-900 text-base mb-2">
+                    {isAr ? step.ar.title : step.en.title}
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {isAr ? step.ar.desc : step.en.desc}
+                  </p>
+                  {i < STEPS.length - 1 && (
+                    <div className="md:hidden text-2xl text-blue-200 mt-4">↓</div>
+                  )}
                 </div>
-                <div className="text-xs font-bold text-blue-400 mb-1 tracking-widest">{step.num}</div>
-                <h3 className="font-bold text-gray-900 text-base mb-2">
-                  {isAr ? step.ar.title : step.en.title}
-                </h3>
-                <p className="text-gray-500 text-sm leading-relaxed">
-                  {isAr ? step.ar.desc : step.en.desc}
-                </p>
-                {i < STEPS.length - 1 && (
-                  <div className="md:hidden text-2xl text-blue-200 mt-4">↓</div>
-                )}
-              </div>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -261,27 +291,34 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
       {/* Features */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-gray-900">
-              {isAr ? "كل ما تحتاجه في منصة واحدة" : "Everything you need in one platform"}
-            </h2>
-            <p className="text-gray-500 mt-3 text-base max-w-xl mx-auto">
-              {isAr
-                ? "مصمّمة للمحاسبين وأصحاب الأعمال الصغيرة والمتوسطة في المنطقة العربية"
-                : "Designed for accountants and SMB owners across the Arab world"}
-            </p>
-          </div>
+          <FadeIn direction="up">
+            <div className="text-center mb-14">
+              <h2 className="text-3xl font-bold text-gray-900">
+                {isAr ? "كل ما تحتاجه في منصة واحدة" : "Everything you need in one platform"}
+              </h2>
+              <p className="text-gray-500 mt-3 text-base max-w-xl mx-auto">
+                {isAr
+                  ? "مصمّمة للمحاسبين وأصحاب الأعمال الصغيرة والمتوسطة في المنطقة العربية"
+                  : "Designed for accountants and SMB owners across the Arab world"}
+              </p>
+            </div>
+          </FadeIn>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FEATURES.map((f) => (
-              <div key={f.icon} className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md hover:border-blue-200 transition-all">
-                <div className="text-3xl mb-4">{f.icon}</div>
-                <h3 className="font-bold text-gray-900 text-base mb-2">
-                  {isAr ? f.ar.title : f.en.title}
-                </h3>
-                <p className="text-gray-500 text-sm leading-relaxed">
-                  {isAr ? f.ar.desc : f.en.desc}
-                </p>
-              </div>
+            {FEATURES.map((f, i) => (
+              <FadeIn key={f.icon} direction="up" delay={i * 80}>
+                <div
+                  className="spotlight-card bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md hover:border-blue-200 transition-all h-full"
+                  onMouseMove={handleSpotlight}
+                >
+                  <div className="text-3xl mb-4">{f.icon}</div>
+                  <h3 className="font-bold text-gray-900 text-base mb-2">
+                    {isAr ? f.ar.title : f.en.title}
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {isAr ? f.ar.desc : f.en.desc}
+                  </p>
+                </div>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -290,14 +327,16 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
       {/* Testimonials */}
       <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">
-              {isAr ? "ماذا يقول عملاؤنا" : "What our customers say"}
-            </h2>
-            <p className="text-gray-500 mt-3 text-base">
-              {isAr ? "أصحاب أعمال يثقون بمحاسب اي لإدارة حساباتهم" : "Business owners who trust MohasabAi with their accounts"}
-            </p>
-          </div>
+          <FadeIn direction="up">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900">
+                {isAr ? "ماذا يقول عملاؤنا" : "What our customers say"}
+              </h2>
+              <p className="text-gray-500 mt-3 text-base">
+                {isAr ? "أصحاب أعمال يثقون بمحاسب اي لإدارة حساباتهم" : "Business owners who trust MohasabAi with their accounts"}
+              </p>
+            </div>
+          </FadeIn>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
@@ -315,19 +354,21 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
             ].map((t, i) => {
               const item = isAr ? t.ar : t.en;
               return (
-                <div key={i} className="bg-gray-50 rounded-2xl p-6 border border-gray-200 flex flex-col">
-                  <div className="text-blue-500 text-2xl mb-3">❝</div>
-                  <p className="text-gray-700 text-sm leading-relaxed flex-1">{item.quote}</p>
-                  <div className="mt-5 pt-4 border-t border-gray-200 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-base shrink-0">
-                      {i === 0 ? "🍽️" : i === 1 ? "📊" : "🛍️"}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{item.name}</p>
-                      <p className="text-xs text-gray-400">{item.country}</p>
+                <FadeIn key={i} direction="up" delay={i * 120}>
+                  <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200 flex flex-col h-full">
+                    <div className="text-blue-500 text-2xl mb-3">❝</div>
+                    <p className="text-gray-700 text-sm leading-relaxed flex-1">{item.quote}</p>
+                    <div className="mt-5 pt-4 border-t border-gray-200 flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-base shrink-0">
+                        {i === 0 ? "🍽️" : i === 1 ? "📊" : "🛍️"}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{item.name}</p>
+                        <p className="text-xs text-gray-400">{item.country}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </FadeIn>
               );
             })}
           </div>
@@ -394,31 +435,33 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
         </div>
       </section>
 
-      {/* Countries */}
-      <section className="py-16 bg-white">
+      {/* Countries — infinite marquee */}
+      <section className="py-16 bg-white overflow-hidden">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold text-gray-900">
-              {isAr ? "متوفر في 8 دول عربية" : "Available in 8 Arab Countries"}
-            </h2>
-            <p className="text-gray-500 mt-2 text-sm">
-              {isAr
-                ? "عملة وضريبة وفاتورة إلكترونية صحيحة لكل دولة تلقائياً"
-                : "Correct currency, tax rate, and e-invoice format per country — automatically"}
-            </p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {COUNTRIES.map((c) => (
-              <div key={c.en} className="bg-white border border-gray-200 rounded-xl p-4 text-center hover:border-blue-300 hover:bg-blue-50/30 transition-all">
-                <div className="text-3xl mb-2">{c.flag}</div>
-                <div className="font-semibold text-gray-800 text-sm">{isAr ? c.ar : c.en}</div>
-                {c.system && (
-                  <div className="text-xs text-blue-600 mt-1 font-medium">{c.system}</div>
-                )}
-              </div>
-            ))}
-          </div>
+          <FadeIn direction="up">
+            <div className="text-center mb-10">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {isAr ? "متوفر في 8 دول عربية" : "Available in 8 Arab Countries"}
+              </h2>
+              <p className="text-gray-500 mt-2 text-sm">
+                {isAr
+                  ? "عملة وضريبة وفاتورة إلكترونية صحيحة لكل دولة تلقائياً"
+                  : "Correct currency, tax rate, and e-invoice format per country — automatically"}
+              </p>
+            </div>
+          </FadeIn>
         </div>
+        <Marquee speed={32}>
+          {COUNTRIES.map((c) => (
+            <div key={c.en} className="bg-white border border-gray-200 rounded-xl px-6 py-4 text-center hover:border-blue-300 hover:bg-blue-50/30 transition-all shrink-0 w-36">
+              <div className="text-3xl mb-2">{c.flag}</div>
+              <div className="font-semibold text-gray-800 text-sm">{isAr ? c.ar : c.en}</div>
+              {c.system && (
+                <div className="text-xs text-blue-600 mt-1 font-medium">{c.system}</div>
+              )}
+            </div>
+          ))}
+        </Marquee>
       </section>
 
       {/* Pricing */}
