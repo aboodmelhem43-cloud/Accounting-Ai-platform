@@ -81,12 +81,12 @@ export async function sendInviteEmail(
   const safeName = escapeHtml(businessName).replace(/[\r\n]/g, " ");
 
   const subject = isAr
-    ? `دعوة للانضمام إلى ${safeName} على محاسب اي`
+    ? `دعوة للانضمام إلى ${safeName} على محاسب Ai`
     : `You're invited to join ${safeName} on MohasabAi`;
 
   const heading = isAr ? "MohasabAi — منصة المحاسبة الذكية" : "MohasabAi — Smart Accounting";
   const intro = isAr
-    ? `تمت دعوتك للانضمام إلى منشأة <strong>${safeName}</strong> على منصة محاسب اي.`
+    ? `تمت دعوتك للانضمام إلى منشأة <strong>${safeName}</strong> على منصة محاسب Ai.`
     : `You've been invited to join <strong>${safeName}</strong> on MohasabAi.`;
   const btnLabel = isAr ? "قبول الدعوة" : "Accept Invitation";
   const expiry = isAr ? "هذه الدعوة صالحة لمدة 7 أيام." : "This invitation expires in 7 days.";
@@ -134,7 +134,7 @@ function jvEmailWrapper(dir: string, lang: string, body: string) {
 <body style="font-family:Arial,sans-serif;background:#f4f4f5;padding:40px 0;margin:0">
   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
     <div style="background:#1d4ed8;padding:24px 32px">
-      <div style="color:#fff;font-size:20px;font-weight:bold">MohasabAi · محاسب اي</div>
+      <div style="color:#fff;font-size:20px;font-weight:bold">MohasabAi · محاسب Ai</div>
     </div>
     <div style="padding:32px">${body}</div>
     <div style="padding:16px 32px;background:#f9fafb;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;text-align:center">
@@ -362,13 +362,13 @@ export async function sendTrialWarningEmail({
   const safeName = escapeHtml(name);
 
   const subject = isAr
-    ? `⏳ تبقى ${daysLeft} أيام فقط في تجربتك المجانية — محاسب اي`
+    ? `⏳ تبقى ${daysLeft} أيام فقط في تجربتك المجانية — محاسب Ai`
     : `⏳ ${daysLeft} days left in your free trial — MohasabAi`;
 
   const body = isAr ? `
     <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${safeName}،</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      تبقّى <strong>${daysLeft} أيام</strong> فقط على انتهاء تجربتك المجانية في منصة محاسب اي.
+      تبقّى <strong>${daysLeft} أيام</strong> فقط على انتهاء تجربتك المجانية في منصة محاسب Ai.
       بعد انتهائها لن تتمكن من الوصول إلى بياناتك أو إضافة فواتير جديدة.
     </p>
     <div style="background:#fffbeb;border-right:4px solid #f59e0b;border-radius:8px;padding:16px 20px;margin-bottom:24px">
@@ -418,13 +418,13 @@ export async function sendTrialExpiredEmail({
   const safeName = escapeHtml(name);
 
   const subject = isAr
-    ? `انتهت تجربتك المجانية في محاسب اي`
+    ? `انتهت تجربتك المجانية في محاسب Ai`
     : `Your MohasabAi free trial has ended`;
 
   const body = isAr ? `
     <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${safeName}،</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      انتهت فترة تجربتك المجانية في منصة <strong>محاسب اي</strong>.
+      انتهت فترة تجربتك المجانية في منصة <strong>محاسب Ai</strong>.
       بياناتك محفوظة — فقط قم بالاشتراك لاستعادة الوصول الكامل.
     </p>
     <div style="background:#fef2f2;border-right:4px solid #dc2626;border-radius:8px;padding:16px 20px;margin-bottom:24px">
@@ -567,13 +567,13 @@ export async function sendPasswordResetEmail(
   const dir = isAr ? "rtl" : "ltr";
 
   const subject = isAr
-    ? "إعادة تعيين كلمة المرور — محاسب اي"
+    ? "إعادة تعيين كلمة المرور — محاسب Ai"
     : "Reset your password — MohasabAi";
 
   const body = isAr ? `
     <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً،</p>
     <p style="color:#374151;font-size:15px;margin:0 0 20px">
-      تلقّينا طلباً لإعادة تعيين كلمة المرور لحسابك في <strong>محاسب اي</strong>.
+      تلقّينا طلباً لإعادة تعيين كلمة المرور لحسابك في <strong>محاسب Ai</strong>.
       اضغط على الزر أدناه لإنشاء كلمة مرور جديدة.
     </p>
     <a href="${resetUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:bold;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-bottom:24px">
@@ -633,7 +633,7 @@ export async function sendReEngagementEmail({
     <div dir="rtl" style="margin-bottom:32px;padding-bottom:32px;border-bottom:1px solid #e5e7eb">
       <p style="color:#374151;font-size:16px;margin:0 0 16px">مرحباً ${safeName}،</p>
       <p style="color:#374151;font-size:15px;margin:0 0 16px">
-        لاحظنا أنك سجّلت في <strong>محاسب اي</strong> ولكنك لم تبدأ باستخدام المنصة بعد،
+        لاحظنا أنك سجّلت في <strong>محاسب Ai</strong> ولكنك لم تبدأ باستخدام المنصة بعد،
         ونحن نقدر وقتك ونريد أن نتأكد أنك حصلت على كل ما تحتاجه.
       </p>
       <p style="color:#374151;font-size:15px;margin:0 0 20px">
@@ -641,7 +641,7 @@ export async function sendReEngagementEmail({
         رأيك يهمنا كثيراً ويساعدنا على التحسين.
       </p>
       <div style="background:#eff6ff;border-right:4px solid #1d4ed8;border-radius:8px;padding:16px 20px;margin-bottom:24px">
-        <div style="font-size:14px;color:#1e40af;font-weight:600;margin-bottom:8px">ما يمكنك فعله في محاسب اي:</div>
+        <div style="font-size:14px;color:#1e40af;font-weight:600;margin-bottom:8px">ما يمكنك فعله في محاسب Ai:</div>
         <ul style="color:#374151;font-size:14px;margin:0;padding-right:20px;line-height:2">
           <li>رفع الفواتير وقراءتها تلقائياً بالذكاء الاصطناعي</li>
           <li>تتبع المصروفات والإيرادات بسهولة</li>
@@ -655,7 +655,7 @@ export async function sendReEngagementEmail({
       <p style="color:#6b7280;font-size:14px;margin:16px 0 8px">
         أو راسلنا مباشرة وأخبرنا ما الذي يمنعك من البدء، وسنساعدك خطوة بخطوة:
       </p>
-      <a href="mailto:${feedbackEmail}?subject=ملاحظاتي على محاسب اي — ${encodeURIComponent(businessName)}" style="color:#1d4ed8;font-size:14px;font-weight:600">${feedbackEmail}</a>
+      <a href="mailto:${feedbackEmail}?subject=ملاحظاتي على محاسب Ai — ${encodeURIComponent(businessName)}" style="color:#1d4ed8;font-size:14px;font-weight:600">${feedbackEmail}</a>
       <p style="color:#9ca3af;font-size:12px;margin:20px 0 0">شكراً لثقتك بنا.</p>
     </div>
 

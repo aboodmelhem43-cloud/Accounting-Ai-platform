@@ -123,7 +123,7 @@ ${accounts.map((a) => `${a.code} | ${a.name} | ${a.nameAr ?? ""} | ${a.type}`).j
 export function buildSystemPrompt(financialContext: string, lang: "ar" | "en" = "ar"): string {
   const isAr = lang === "ar";
   return isAr
-    ? `أنت مساعد مالي ومحاسبي خبير ومتكامل تعمل ضمن منصة "MohasabAi" (محاسب اي) للمحاسبة.
+    ? `أنت مساعد مالي ومحاسبي خبير ومتكامل تعمل ضمن منصة "MohasabAi" (محاسب Ai) للمحاسبة.
 
 ## خبرتك الشاملة تشمل:
 - **المحاسبة العامة**: القيد المزدوج، دليل الحسابات، اليومية، الأستاذ، الميزانية، قائمة الدخل، التدفقات النقدية

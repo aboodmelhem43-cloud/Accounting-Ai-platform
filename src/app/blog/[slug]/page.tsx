@@ -40,7 +40,7 @@ export async function generateMetadata({
       url,
       type: "article",
       publishedTime: post.date,
-      authors: [isAr ? "محاسب اي" : "MohasabAi"],
+      authors: [isAr ? "محاسب Ai" : "MohasabAi"],
     },
     twitter: { card: "summary_large_image", title, description },
   };
@@ -72,8 +72,8 @@ export default async function BlogPostPage({
     description: excerpt,
     datePublished: post.date,
     dateModified: post.date,
-    author: { "@type": "Organization", name: "محاسب اي | MohasabAi", url: SITE_URL },
-    publisher: { "@type": "Organization", name: "محاسب اي | MohasabAi", url: SITE_URL },
+    author: { "@type": "Organization", name: "محاسب Ai | MohasabAi", url: SITE_URL },
+    publisher: { "@type": "Organization", name: "محاسب Ai | MohasabAi", url: SITE_URL },
     url: postUrl,
     inLanguage: lang,
     articleSection: category,
@@ -95,7 +95,7 @@ export default async function BlogPostPage({
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/" className="text-lg font-bold text-blue-700 tracking-tight">
-            MohasabAi · محاسب اي
+            MohasabAi · محاسب Ai
           </Link>
           <Link
             href="/blog"
@@ -176,7 +176,7 @@ export default async function BlogPostPage({
         <div className="mt-6 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-8 text-center text-white">
           <div className="text-4xl mb-3">🚀</div>
           <h2 className="text-xl font-bold mb-2">
-            {isAr ? "جرّب محاسب اي مجاناً — 35 يوماً" : "Try MohasabAi free for 35 days"}
+            {isAr ? "جرّب محاسب Ai مجاناً — 35 يوماً" : "Try MohasabAi free for 35 days"}
           </h2>
           <p className="text-blue-100 text-sm mb-6 max-w-md mx-auto">
             {isAr

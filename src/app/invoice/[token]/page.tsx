@@ -174,7 +174,7 @@ export default async function PublicInvoicePage({
           </div>
 
           <p style={{ color: "#9ca3af", fontSize: 12, textAlign: "center", margin: 0 }}>
-            هذه وثيقة إلكترونية صادرة من منصة محاسب اي — mohasabai.com
+            هذه وثيقة إلكترونية صادرة من منصة محاسب Ai — mohasabai.com
           </p>
         </div>
       </div>
