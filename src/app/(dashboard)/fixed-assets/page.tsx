@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import { PageAnimations } from "@/components/PageAnimations";
 
 interface DepreciationEntry {
   id: string;
@@ -191,7 +192,8 @@ export default function FixedAssetsPage() {
 
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div className="flex items-center justify-between">
+      <PageAnimations />
+      <div className="gsap-page-header flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{isAr ? "الأصول الثابتة" : "Fixed Assets"}</h1>
           <p className="text-gray-500 text-sm mt-1">{isAr ? "سجل الأصول والإهلاك الشهري" : "Asset register and monthly depreciation"}</p>
@@ -209,7 +211,7 @@ export default function FixedAssetsPage() {
       )}
 
       {/* Depreciation runner */}
-      <div className="card p-4 flex flex-wrap items-end gap-4">
+      <div className="card gsap-page-controls p-4 flex flex-wrap items-end gap-4">
         <div>
           <p className="text-xs font-semibold text-gray-500 mb-2">{isAr ? "تشغيل الإهلاك الشهري" : "Run Monthly Depreciation"}</p>
           <div className="flex gap-2 items-center">
@@ -312,7 +314,7 @@ export default function FixedAssetsPage() {
           <p className="text-sm mt-1">{isAr ? "أضف سياراتك ومعداتك ومبانيك..." : "Add your vehicles, equipment, buildings..."}</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="gsap-page-content space-y-3">
           {assets.map((asset) => {
             const isExpanded = expandedId === asset.id;
             const monthlyDepreciation = (Number(asset.purchaseCost) - Number(asset.residualValue)) / asset.usefulLifeMonths;
@@ -322,7 +324,7 @@ export default function FixedAssetsPage() {
             );
 
             return (
-              <div key={asset.id} className="card">
+              <div key={asset.id} className="card gsap-page-card">
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
