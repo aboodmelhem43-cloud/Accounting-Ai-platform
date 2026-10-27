@@ -92,7 +92,7 @@ export default function AcceptInvitePage({ params }: { params: Promise<{ token: 
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="text-2xl font-bold text-blue-700">
-            MohasabAi · محاسب اي
+            MohasabAi · محاسب Ai
           </Link>
         </div>
 

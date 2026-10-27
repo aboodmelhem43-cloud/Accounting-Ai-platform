@@ -153,7 +153,7 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
       {/* Navbar */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="text-xl font-bold text-blue-700">MohasabAi · محاسب اي</div>
+          <div className="text-xl font-bold text-blue-700">MohasabAi · محاسب Ai</div>
           <div className="flex items-center gap-1 md:gap-3">
             <a href="#how" className="hidden md:block text-sm text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
               {isAr ? "كيف يعمل" : "How it works"}
@@ -256,7 +256,7 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
           <FadeIn direction="up">
             <div className="text-center mb-14">
               <h2 className="text-3xl font-bold text-gray-900">
-                {isAr ? "كيف يعمل محاسب اي؟" : "How does MohasabAi work?"}
+                {isAr ? "كيف يعمل محاسب Ai؟" : "How does MohasabAi work?"}
               </h2>
               <p className="text-gray-500 mt-3 text-base">
                 {isAr ? "ثلاث خطوات فقط للتحكم الكامل بمحاسبتك" : "Just three steps to full control of your accounting"}
@@ -333,7 +333,7 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
                 {isAr ? "ماذا يقول عملاؤنا" : "What our customers say"}
               </h2>
               <p className="text-gray-500 mt-3 text-base">
-                {isAr ? "أصحاب أعمال يثقون بمحاسب اي لإدارة حساباتهم" : "Business owners who trust MohasabAi with their accounts"}
+                {isAr ? "أصحاب أعمال يثقون بمحاسب Ai لإدارة حساباتهم" : "Business owners who trust MohasabAi with their accounts"}
               </p>
             </div>
           </FadeIn>
@@ -380,7 +380,7 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900">
-              {isAr ? "لماذا محاسب اي؟" : "Why MohasabAi?"}
+              {isAr ? "لماذا محاسب Ai؟" : "Why MohasabAi?"}
             </h2>
             <p className="text-gray-500 mt-3 text-base">
               {isAr ? "مقارنة مع البدائل الشائعة" : "Compared to common alternatives"}
@@ -394,7 +394,7 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
                     {isAr ? "الميزة" : "Feature"}
                   </th>
                   <th className="px-4 py-4 font-bold text-blue-700 text-center">
-                    {isAr ? "محاسب اي" : "MohasabAi"}
+                    {isAr ? "محاسب Ai" : "MohasabAi"}
                   </th>
                   <th className="px-4 py-4 font-semibold text-gray-400 text-center">Excel</th>
                   <th className="px-4 py-4 font-semibold text-gray-400 text-center">
@@ -663,7 +663,7 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
           </h2>
           <p className="text-blue-100 text-lg mb-2">
             {isAr
-              ? "انضم إلى أصحاب الأعمال الذين يثقون بمحاسب اي لإدارة حساباتهم"
+              ? "انضم إلى أصحاب الأعمال الذين يثقون بمحاسب Ai لإدارة حساباتهم"
               : "Join business owners who trust MohasabAi to manage their accounts"}
           </p>
           <p className="text-blue-200 text-sm mb-8">
@@ -683,7 +683,7 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <div className="col-span-2 md:col-span-1">
-              <div className="text-white font-bold text-lg mb-2">MohasabAi · محاسب اي</div>
+              <div className="text-white font-bold text-lg mb-2">MohasabAi · محاسب Ai</div>
               <p className="text-sm leading-relaxed">
                 {isAr
                   ? "منصة محاسبة بمساعدة الذكاء الاصطناعي للأعمال الصغيرة والمتوسطة في المنطقة العربية."

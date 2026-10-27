@@ -36,10 +36,10 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>مقارنة بين الخيارات المتاحة في السوق العربي</h2>
-<p>تنقسم الخيارات المتاحة بين برامج محلية عربية وأخرى دولية معرَّبة جزئيًا. البرامج الدولية كـ QuickBooks وZoho Books توفر ميزات واسعة لكنها لا تدعم دائمًا متطلبات الفاتورة الإلكترونية المحلية. في المقابل، الحلول العربية المتخصصة كـ <strong>محاسب اي</strong> تُبنى من الأساس لتلبية احتياجات السوق العربي، مع دعم كامل للغة العربية والتقويم الهجري وأنظمة الضرائب المحلية.</p>
+<p>تنقسم الخيارات المتاحة بين برامج محلية عربية وأخرى دولية معرَّبة جزئيًا. البرامج الدولية كـ QuickBooks وZoho Books توفر ميزات واسعة لكنها لا تدعم دائمًا متطلبات الفاتورة الإلكترونية المحلية. في المقابل، الحلول العربية المتخصصة كـ <strong>محاسب Ai</strong> تُبنى من الأساس لتلبية احتياجات السوق العربي، مع دعم كامل للغة العربية والتقويم الهجري وأنظمة الضرائب المحلية.</p>
 
-<h3>ما يميز محاسب اي عن غيره</h3>
-<p>يعتمد <strong>محاسب اي</strong> على نظام القيد المزدوج لضمان دقة البيانات، مع واجهة مبسطة لا تتطلب خلفية محاسبية. يمكنك إصدار الفواتير، تتبع المصروفات، وعرض التقارير المالية في دقائق. الذكاء الاصطناعي المدمج يقرأ صور الفواتير ويقترح التصنيف المحاسبي تلقائيًا، مما يختصر وقتًا كبيرًا في الإدخال اليدوي.</p>
+<h3>ما يميز محاسب Ai عن غيره</h3>
+<p>يعتمد <strong>محاسب Ai</strong> على نظام القيد المزدوج لضمان دقة البيانات، مع واجهة مبسطة لا تتطلب خلفية محاسبية. يمكنك إصدار الفواتير، تتبع المصروفات، وعرض التقارير المالية في دقائق. الذكاء الاصطناعي المدمج يقرأ صور الفواتير ويقترح التصنيف المحاسبي تلقائيًا، مما يختصر وقتًا كبيرًا في الإدخال اليدوي.</p>
 
 <h2>نصائح عملية قبل الاختيار</h2>
 <ul>
@@ -50,7 +50,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>الخلاصة</h2>
-<p>اختيار برنامج المحاسبة المناسب قرار استراتيجي يؤثر على كفاءة عملك اليومي وامتثالك القانوني. قيّم احتياجاتك أولًا، ثم اختر نظام محاسبة سحابيًا يدعم لغتك وسوقك المحلي. إذا كنت في السعودية أو مصر أو الإمارات أو الأردن، فإن <strong>محاسب اي</strong> مُصمَّم خصيصًا لك — ابدأ تجربتك المجانية اليوم واكتشف كيف تتحول المحاسبة من عبء إلى أداة نمو.</p>`,
+<p>اختيار برنامج المحاسبة المناسب قرار استراتيجي يؤثر على كفاءة عملك اليومي وامتثالك القانوني. قيّم احتياجاتك أولًا، ثم اختر نظام محاسبة سحابيًا يدعم لغتك وسوقك المحلي. إذا كنت في السعودية أو مصر أو الإمارات أو الأردن، فإن <strong>محاسب Ai</strong> مُصمَّم خصيصًا لك — ابدأ تجربتك المجانية اليوم واكتشف كيف تتحول المحاسبة من عبء إلى أداة نمو.</p>`,
 
       en: `<h2>Why Does Your Small Business Need Accounting Software?</h2>
 <p>Whether you run a small restaurant in Riyadh, a retail shop in Cairo, or a service office in Amman, tracking income and expenses manually costs you precious hours every week. Good accounting software doesn't just replace the accountant — it gives you a clear picture of your financial position at any moment.</p>
@@ -121,7 +121,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>كيف تلتزم بمتطلبات ZATCA بدون صداع؟</h2>
-<p>الخطأ الشائع هو محاولة إنشاء ملفات XML يدويًا أو استخدام Excel. الحل العملي هو استخدام برنامج فوترة إلكترونية معتمد يتكفل بكل التفاصيل التقنية. <strong>محاسب اي</strong> مُهيَّأ لمتطلبات ZATCA الكاملة: يُنشئ الفواتير بصيغة XML المعتمدة، يوقّعها رقميًا، ويُرسلها تلقائيًا إلى منصة ZATCA للتحقق أو الإخطار، ويحتفظ بسجل كامل قابل للمراجعة في أي وقت.</p>
+<p>الخطأ الشائع هو محاولة إنشاء ملفات XML يدويًا أو استخدام Excel. الحل العملي هو استخدام برنامج فوترة إلكترونية معتمد يتكفل بكل التفاصيل التقنية. <strong>محاسب Ai</strong> مُهيَّأ لمتطلبات ZATCA الكاملة: يُنشئ الفواتير بصيغة XML المعتمدة، يوقّعها رقميًا، ويُرسلها تلقائيًا إلى منصة ZATCA للتحقق أو الإخطار، ويحتفظ بسجل كامل قابل للمراجعة في أي وقت.</p>
 
 <h3>خطوات البدء الفورية</h3>
 <ul>
@@ -133,7 +133,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>العقوبات على عدم الامتثال</h2>
-<p>المخالفات تبدأ من غرامات مالية وقد تصل إلى إيقاف النشاط التجاري في حالات التكرار. لا تنتظر حتى تأتيك مخالفة — الامتثال اليوم أرخص بكثير من الغرامات غدًا. مع <strong>محاسب اي</strong>، يمكنك التحقق من امتثال كل فاتورة قبل إرسالها، مما يقضي على القلق من الأخطاء غير المقصودة.</p>
+<p>المخالفات تبدأ من غرامات مالية وقد تصل إلى إيقاف النشاط التجاري في حالات التكرار. لا تنتظر حتى تأتيك مخالفة — الامتثال اليوم أرخص بكثير من الغرامات غدًا. مع <strong>محاسب Ai</strong>، يمكنك التحقق من امتثال كل فاتورة قبل إرسالها، مما يقضي على القلق من الأخطاء غير المقصودة.</p>
 
 <h2>خلاصة</h2>
 <p>نظام فاتورة ZATCA ليس خيارًا بل إلزامًا قانونيًا لكل منشأة مسجلة في ضريبة القيمة المضافة بالمملكة. الامتثال الصحيح يحميك من الغرامات ويرفع مصداقية نشاطك أمام عملائك وشركائك. ابدأ بالخطوات العملية المذكورة أعلاه، واستعن بحل تقني موثوق يريحك من التفاصيل التقنية.</p>`,
@@ -214,8 +214,8 @@ export const BLOG_POSTS: BlogPost[] = [
 <h2>إدارة فواتير المشتريات أيضًا</h2>
 <p>إدارة الفواتير لا تعني فقط فواتير البيع. فواتير المشتريات التي تستلمها من مورديك يجب أرشفتها أيضًا، ومطابقتها مع أوامر الشراء، والتأكد من تسجيل ضريبة القيمة المضافة المدفوعة بشكل صحيح لاسترداد ما يستحق منها.</p>
 
-<h2>كيف يساعدك محاسب اي في إدارة الفواتير</h2>
-<p>يتيح لك <strong>محاسب اي</strong> إنشاء فواتير احترافية بالعربية والإنجليزية في ثوانٍ، مع قوالب قابلة للتخصيص تعكس هوية علامتك التجارية. يمكنك تتبع حالة كل فاتورة في لوحة تحكم واحدة، وإرسال تذكيرات تلقائية للعملاء، ورؤية تقرير التدفق النقدي لحظيًا. الذكاء الاصطناعي يقرأ فواتير الموردين الواردة ويقترح القيد المحاسبي تلقائيًا — أنت فقط تؤكد.</p>
+<h2>كيف يساعدك محاسب Ai في إدارة الفواتير</h2>
+<p>يتيح لك <strong>محاسب Ai</strong> إنشاء فواتير احترافية بالعربية والإنجليزية في ثوانٍ، مع قوالب قابلة للتخصيص تعكس هوية علامتك التجارية. يمكنك تتبع حالة كل فاتورة في لوحة تحكم واحدة، وإرسال تذكيرات تلقائية للعملاء، ورؤية تقرير التدفق النقدي لحظيًا. الذكاء الاصطناعي يقرأ فواتير الموردين الواردة ويقترح القيد المحاسبي تلقائيًا — أنت فقط تؤكد.</p>
 
 <h2>نصائح سريعة لتحصيل أسرع</h2>
 <ul>
@@ -226,7 +226,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>خلاصة</h2>
-<p>إدارة الفواتير الاحترافية ليست ترفًا — هي عصب التدفق النقدي لنشاطك. النظام الصحيح يعني تحصيلًا أسرع، وامتثالًا ضريبيًا دقيقًا، وصورة أوضح عن وضعك المالي. جرّب <strong>محاسب اي</strong> مجانًا وابدأ بإصدار فواتيرك الإلكترونية باحترافية من اليوم الأول.</p>`,
+<p>إدارة الفواتير الاحترافية ليست ترفًا — هي عصب التدفق النقدي لنشاطك. النظام الصحيح يعني تحصيلًا أسرع، وامتثالًا ضريبيًا دقيقًا، وصورة أوضح عن وضعك المالي. جرّب <strong>محاسب Ai</strong> مجانًا وابدأ بإصدار فواتيرك الإلكترونية باحترافية من اليوم الأول.</p>`,
 
       en: `<h2>The Problem: Why Do Small Businesses Struggle with Invoice Chaos?</h2>
 <p>It usually starts simply: one invoice sent via WhatsApp, another by email, a third printed and filed in a drawer. As the business grows, invoices multiply and tracking them becomes a nightmare. Who hasn't paid? What were last month's total sales? How much VAT needs to be remitted? These are questions your data should answer — not your memory.</p>
@@ -304,8 +304,8 @@ export const BLOG_POSTS: BlogPost[] = [
 <p><strong>الأصول = الخصوم + حقوق الملكية</strong></p>
 <p>كل قيد يجب أن يحافظ على توازن هذه المعادلة. إذا اختلت، فهناك خطأ في مكان ما.</p>
 
-<h2>كيف يطبّق محاسب اي مبدأ القيد المزدوج؟</h2>
-<p>يعتمد <strong>محاسب اي</strong> على محرك قيد مزدوج داخلي كامل — لكنه يُخفي التعقيد التقني عن صاحب المشروع غير المحاسب. حين تصدر فاتورة بيع، يُسجَّل القيد تلقائيًا (مدين ذمم مدينة، دائن إيرادات). حين تدفع فاتورة مورّد، يُسجَّل القيد المقابل. وفي حالة استخدام الذكاء الاصطناعي لاقتراح قيود الفواتير المستوردة، تظهر لك شاشة مراجعة للتأكيد قبل أي حفظ — لأن دقة القيود مسؤوليتك أنت في نهاية المطاف.</p>
+<h2>كيف يطبّق محاسب Ai مبدأ القيد المزدوج؟</h2>
+<p>يعتمد <strong>محاسب Ai</strong> على محرك قيد مزدوج داخلي كامل — لكنه يُخفي التعقيد التقني عن صاحب المشروع غير المحاسب. حين تصدر فاتورة بيع، يُسجَّل القيد تلقائيًا (مدين ذمم مدينة، دائن إيرادات). حين تدفع فاتورة مورّد، يُسجَّل القيد المقابل. وفي حالة استخدام الذكاء الاصطناعي لاقتراح قيود الفواتير المستوردة، تظهر لك شاشة مراجعة للتأكيد قبل أي حفظ — لأن دقة القيود مسؤوليتك أنت في نهاية المطاف.</p>
 
 <h2>نصائح عملية لأصحاب المشاريع</h2>
 <ul>
@@ -316,7 +316,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ul>
 
 <h2>خلاصة</h2>
-<p>مبدأ القيد المزدوج ليس مجرد مصطلح أكاديمي — هو ضمانة دقة بياناتك المالية. عندما تعرف أن كل ريال في نشاطك التجاري موثق بجانبين متوازنين، تصبح ثقتك في تقاريرك المالية أعلى، وقراراتك أفضل. <strong>محاسب اي</strong> يوفر لك هذا الأساس المتين مع واجهة يفهمها أي شخص.</p>`,
+<p>مبدأ القيد المزدوج ليس مجرد مصطلح أكاديمي — هو ضمانة دقة بياناتك المالية. عندما تعرف أن كل ريال في نشاطك التجاري موثق بجانبين متوازنين، تصبح ثقتك في تقاريرك المالية أعلى، وقراراتك أفضل. <strong>محاسب Ai</strong> يوفر لك هذا الأساس المتين مع واجهة يفهمها أي شخص.</p>`,
 
       en: `<h2>What is Double-Entry Accounting?</h2>
 <p>The double-entry accounting principle is built on a simple idea: every financial transaction affects two sides simultaneously — the debit side (what comes in or increases in assets) and the credit side (what goes out or the source of that asset). The golden rule is that the total of debits always equals the total of credits in every journal entry.</p>
@@ -415,11 +415,11 @@ export const BLOG_POSTS: BlogPost[] = [
 <h2>العلاقة بين التقريرين</h2>
 <p>صافي الربح من قائمة الدخل ينتقل إلى الميزانية العمومية ويزيد من حقوق الملكية. الخسارة تقلصها. هذا الربط هو ما يجعل نظام القيد المزدوج متسقًا ودقيقًا — لا أرقام معزولة.</p>
 
-<h2>كيف يُسهّل عليك محاسب اي فهم تقاريرك المالية</h2>
-<p>يُنشئ <strong>محاسب اي</strong> قائمة الدخل والميزانية العمومية تلقائيًا من القيود اليومية دون أن تُدخل أي أرقام يدويًا. لوحة التحكم تعرض مؤشرات رئيسية لحظية: الإيرادات حتى اليوم، صافي الربح، الفواتير المعلقة، والرصيد النقدي — كل ذلك في مكان واحد. يمكنك تصدير التقارير PDF لمشاركتها مع المستثمرين أو البنوك أو مكتب الضرائب بنقرة واحدة.</p>
+<h2>كيف يُسهّل عليك محاسب Ai فهم تقاريرك المالية</h2>
+<p>يُنشئ <strong>محاسب Ai</strong> قائمة الدخل والميزانية العمومية تلقائيًا من القيود اليومية دون أن تُدخل أي أرقام يدويًا. لوحة التحكم تعرض مؤشرات رئيسية لحظية: الإيرادات حتى اليوم، صافي الربح، الفواتير المعلقة، والرصيد النقدي — كل ذلك في مكان واحد. يمكنك تصدير التقارير PDF لمشاركتها مع المستثمرين أو البنوك أو مكتب الضرائب بنقرة واحدة.</p>
 
 <h2>خلاصة</h2>
-<p>قراءة التقارير المالية مهارة يمكن لأي صاحب مشروع اكتسابها. ابدأ بقائمة الدخل لتعرف ربحيتك، ثم انظر في الميزانية العمومية لتفهم وضعك المالي العام. مع منصة <strong>محاسب اي</strong>، هذه التقارير متاحة دائمًا ومحدّثة لحظيًا — لا انتظار لنهاية الشهر ولا حاجة لطلب تقرير من محاسبك في كل مرة.</p>`,
+<p>قراءة التقارير المالية مهارة يمكن لأي صاحب مشروع اكتسابها. ابدأ بقائمة الدخل لتعرف ربحيتك، ثم انظر في الميزانية العمومية لتفهم وضعك المالي العام. مع منصة <strong>محاسب Ai</strong>، هذه التقارير متاحة دائمًا ومحدّثة لحظيًا — لا انتظار لنهاية الشهر ولا حاجة لطلب تقرير من محاسبك في كل مرة.</p>`,
 
       en: `<h2>Why Do You Need to Read Financial Reports?</h2>
 <p>Many small business owners measure their success solely by their bank account balance. But the bank balance can be misleading: you might have a healthy balance because you haven't paid your suppliers yet, or your balance might be low even though you have significant profits sitting in uncollected invoices. Financial reports give you the complete truth.</p>
@@ -492,7 +492,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <li><strong>اقتراح القيود:</strong> يقترح القيد المحاسبي الصحيح — أنت تؤكد فقط</li>
 <li><strong>الإجابة على الأسئلة المالية:</strong> اسأله "ما هو صافي ربحي هذا الشهر؟" واحصل على الجواب فوراً</li>
 </ul>
-<h2>لماذا محاسب اي؟</h2>
+<h2>لماذا محاسب Ai؟</h2>
 <p>مبني من الأساس للسوق العربي مع دعم ZATCA وETA وJoFotara. جرّب 35 يوماً مجاناً.</p>`,
       en: `<h2>AI Accounting Is No Longer the Future — It's Now</h2>
 <p>Businesses across Saudi Arabia, Egypt, UAE, and Jordan are saving 5–10 hours per week by switching to AI-powered accounting software. Instead of typing invoice data manually, uploading a photo is enough. Instead of asking your accountant for a profit figure, you ask the chatbot. The technology has matured — and the results are measurable.</p>
@@ -561,7 +561,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <li>تسعير بالريال السعودي أو الدولار بسعر معقول</li>
 <li>دعم فني باللغة العربية</li>
 </ul>
-<h2>محاسب اي للسوق السعودي</h2>
+<h2>محاسب Ai للسوق السعودي</h2>
 <p>مُصمَّم من الأساس لمتطلبات السوق السعودي. <a href="/sa">تعرف على خصائص نسخة السعودية</a> أو <a href="/register">ابدأ تجربتك المجانية</a>.</p>`,
       en: `<h2>Why Cloud Accounting Is Now a Requirement in Saudi Arabia</h2>
 <p>With ZATCA's Phase 2 e-invoicing rollout mandating real-time electronic integration between business systems and the Fatoora platform, cloud accounting software has moved from a convenience to an operational necessity. A desktop system or a spreadsheet simply cannot fulfill these requirements.</p>
@@ -610,7 +610,7 @@ export const BLOG_POSTS: BlogPost[] = [
     content: {
       ar: `<h2>الشركات الناشئة تختلف عن الشركات الراسخة في احتياجاتها المحاسبية</h2>
 <p>عندما تكون في المرحلة الأولى، لا تحتاج إلى نظام معقد — تحتاج إلى شيء سريع، رخيص، وسهل يتيح لك التركيز على المنتج لا على الإدارة.</p>
-<h2>محاسب اي للشركات الناشئة</h2>
+<h2>محاسب Ai للشركات الناشئة</h2>
 <p>يبدأ مجانياً، يكبر معك، ولا يحتاج محاسباً متخصصاً لتشغيله. <a href="/register">ابدأ مجاناً</a>.</p>`,
       en: `<h2>What MENA Startups Actually Need from Accounting Software</h2>
 <p>A startup's accounting needs are fundamentally different from an established business. You need speed over comprehensiveness, simplicity over power, and flexibility over rigid processes. The wrong choice at the early stage creates technical debt that's expensive to unwind later.</p>
@@ -669,7 +669,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <p>ضريبة القيمة المضافة في الإمارات 5% وتُسدَّد كل ربع سنة. الفوترة الإلكترونية إلزامية للشركات الكبيرة.</p>
 <h2>مصر: منظومة ETA</h2>
 <p>منظومة الفاتورة الإلكترونية المصرية (ETA) إلزامية للشركات المسجلة في ضريبة القيمة المضافة. نسبة الضريبة 14%.</p>
-<h2>محاسب اي يدعم البلدين</h2>
+<h2>محاسب Ai يدعم البلدين</h2>
 <p>نسخة واحدة، دعم كامل لمتطلبات UAE وETA مصر. <a href="/register">ابدأ مجاناً</a>.</p>`,
       en: `<h2>UAE and Egypt: Same Need, Different Rules</h2>
 <p>Running a business in the UAE and Egypt — whether separately or as part of a regional operation — means navigating two different tax systems, two different e-invoicing requirements, and two different VAT rates. Most international accounting software handles neither correctly.</p>
@@ -729,7 +729,7 @@ export const BLOG_POSTS: BlogPost[] = [
       ar: `<h2>لماذا يبحث أصحاب الأعمال العرب عن بديل لـ QuickBooks؟</h2>
 <p>QuickBooks الأشهر عالمياً لكنه يعاني من مشاكل جوهرية في السوق العربي: واجهة مترجمة وليست عربية حقيقية، لا يدعم ZATCA أو ETA، وتكلفته مرتفعة بالدولار مع دعم فني بالإنجليزي فقط.</p>
 <h2>مقارنة سريعة</h2>
-<table><thead><tr><th>الميزة</th><th>QuickBooks</th><th>Zoho Books</th><th>محاسب اي</th></tr></thead>
+<table><thead><tr><th>الميزة</th><th>QuickBooks</th><th>Zoho Books</th><th>محاسب Ai</th></tr></thead>
 <tbody>
 <tr><td>واجهة عربية حقيقية</td><td>❌</td><td>جزئي</td><td>✅</td></tr>
 <tr><td>فاتورة ZATCA</td><td>❌</td><td>❌</td><td>✅</td></tr>
@@ -738,7 +738,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <tr><td>تجربة مجانية</td><td>30 يوم</td><td>14 يوم</td><td>35 يوم</td></tr>
 </tbody></table>
 <h2>الخلاصة</h2>
-<p>إذا كنت تبحث عن بديل يفهم السوق العربي فعلاً، فإن <strong>محاسب اي</strong> هو الخيار الأنسب. <a href="/register">جرّبه مجاناً 35 يوماً</a>.</p>`,
+<p>إذا كنت تبحث عن بديل يفهم السوق العربي فعلاً، فإن <strong>محاسب Ai</strong> هو الخيار الأنسب. <a href="/register">جرّبه مجاناً 35 يوماً</a>.</p>`,
       en: `<h2>Why Arab Business Owners Seek a QuickBooks Alternative</h2>
 <p>QuickBooks is popular globally but fails Arab users: no native Arabic UI, no ZATCA/ETA compliance, USD-only pricing, English-only support.</p>
 <h2>Quick Comparison</h2>
@@ -777,8 +777,8 @@ export const BLOG_POSTS: BlogPost[] = [
 <h2>استخراج الضريبة من سعر شامل</h2>
 <p>الضريبة = السعر الشامل ÷ (1 + نسبة الضريبة) × نسبة الضريبة</p>
 <p>مثال: 1,150 ريال ÷ 1.15 × 0.15 = 150 ريال</p>
-<h2>محاسب اي يحسبها تلقائياً</h2>
-<p>محاسب اي يحسب ضريبة القيمة المضافة على كل فاتورة بناءً على دولتك ويُعدّ الإقرار الضريبي جاهزاً. <a href="/register">جرّبه مجاناً</a>.</p>`,
+<h2>محاسب Ai يحسبها تلقائياً</h2>
+<p>محاسب Ai يحسب ضريبة القيمة المضافة على كل فاتورة بناءً على دولتك ويُعدّ الإقرار الضريبي جاهزاً. <a href="/register">جرّبه مجاناً</a>.</p>`,
       en: `<h2>VAT Rates Across MENA</h2>
 <ul><li>Saudi Arabia: 15%</li><li>Egypt: 14%</li><li>UAE: 5%</li><li>Jordan: 16%</li><li>Bahrain: 10%</li></ul>
 <h2>How to Calculate VAT</h2>
@@ -814,7 +814,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <ul><li>قائمة الدخل: الإيرادات − المصروفات = الربح أو الخسارة</li><li>الميزانية العمومية: الأصول = الخصوم + حقوق الملكية</li><li>قائمة التدفقات النقدية</li></ul>
 <h2>أخطاء شائعة</h2>
 <ul><li>❌ خلط الأموال الشخصية بأموال الشركة</li><li>❌ الاعتماد على Excel فقط</li><li>❌ نسيان توفير مبالغ للضرائب</li></ul>
-<h2>كيف يُساعدك محاسب اي؟</h2>
+<h2>كيف يُساعدك محاسب Ai؟</h2>
 <p>يُعدّ دليل الحسابات تلقائياً، يقرأ فواتيرك بالذكاء الاصطناعي، ويُنشئ القوائم المالية في أي وقت. <a href="/register">ابدأ مجاناً</a>.</p>`,
       en: `<h2>Why Most Startups Neglect Accounting</h2>
 <p>Investors demand financials before investing. Banks require them for loans. Tax authorities don't wait. Delaying accounting is one of the most costly startup mistakes.</p>
@@ -854,7 +854,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <p>بيع نقدي 500 ريال: مدين النقدية 500 / دائن الإيرادات 500</p>
 <p>شراء معدات بالآجل 2,000 ريال: مدين المعدات 2,000 / دائن الدائنون 2,000</p>
 <p>دفع إيجار 1,500 ريال: مدين مصروف الإيجار 1,500 / دائن النقدية 1,500</p>
-<h2>محاسب اي يتكفل بالقيود تلقائياً</h2>
+<h2>محاسب Ai يتكفل بالقيود تلقائياً</h2>
 <p>الذكاء الاصطناعي يقترح القيود الصحيحة وأنت تراجع فقط. <a href="/register">جرّبه مجاناً</a>.</p>`,
       en: `<h2>The Golden Rule</h2>
 <p><strong>Total Debits = Total Credits in every entry, always.</strong></p>
@@ -897,7 +897,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <p><strong>4.</strong> احسب نقطة التعادل = التكاليف الثابتة ÷ هامش المساهمة للوحدة.</p>
 <p><strong>5.</strong> ضع 3 سيناريوهات: متفائل، واقعي، متحفظ.</p>
 <p><strong>6.</strong> راجع شهرياً وقارن الفعلي بالمخطط.</p>
-<h2>كيف يُساعدك محاسب اي؟</h2>
+<h2>كيف يُساعدك محاسب Ai؟</h2>
 <p>يُعدّ تقارير الإيرادات والمصروفات الشهرية تلقائياً لمقارنة الأداء بأهدافك. <a href="/register">ابدأ مجاناً</a>.</p>`,
       en: `<h2>Why Small Businesses Need Budgets More</h2>
 <p>Their margin for error is smallest. Without a budget, you don't know when cash runs out or the minimum sales to cover costs.</p>
