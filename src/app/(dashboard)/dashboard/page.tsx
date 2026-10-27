@@ -11,6 +11,7 @@ import UpgradedToast from "@/components/UpgradedToast";
 import UsageBanner from "@/components/UsageBanner";
 import PeriodPicker from "@/components/PeriodPicker";
 import { DashboardAnimations } from "@/components/DashboardAnimations";
+import { DashboardStatCard } from "@/components/DashboardStatCard";
 
 export default async function DashboardPage({
   searchParams,
@@ -132,46 +133,64 @@ export default async function DashboardPage({
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <SummaryCard
+            <DashboardStatCard
               title={t("dashboard.total_revenue")}
-              value={`${fmt(statement.totalRevenue)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
+              rawValue={statement.totalRevenue}
+              suffix={lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}
+              isDecimal
+              locale={locale}
               sub={monthName}
               color="green"
               icon="📈"
             />
-            <SummaryCard
+            <DashboardStatCard
               title={t("dashboard.total_expenses")}
-              value={`${fmt(statement.totalExpenses)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
+              rawValue={statement.totalExpenses}
+              suffix={lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}
+              isDecimal
+              locale={locale}
               sub={monthName}
               color="red"
               icon="📉"
             />
-            <SummaryCard
+            <DashboardStatCard
               title={t("dashboard.net_income")}
-              value={`${fmt(statement.netProfit)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
+              rawValue={statement.netProfit}
+              suffix={lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}
+              isDecimal
+              locale={locale}
               sub={monthName}
               color={statement.netProfit >= 0 ? "blue" : "red"}
               icon="💰"
+              featured
             />
-            <SummaryCard
+            <DashboardStatCard
               title={lang === "ar" ? "الرصيد النقدي" : "Cash Balance"}
-              value={`${fmt(totalCash)} ${lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}`}
+              rawValue={totalCash}
+              suffix={lang === "ar" ? compliance.currencySymbol : compliance.currencySymbolEn}
+              isDecimal
+              locale={locale}
               sub={lang === "ar" ? "إجمالي الحسابات البنكية" : "All bank accounts"}
               color="blue"
               icon="🏦"
               href="/bank-accounts"
             />
-            <SummaryCard
+            <DashboardStatCard
               title={lang === "ar" ? "فواتير متأخرة" : "Overdue Invoices"}
-              value={String(overdueCount)}
+              rawValue={overdueCount}
+              suffix=""
+              locale={locale}
               sub={lang === "ar" ? "تجاوزت تاريخ الاستحقاق" : "Past due date"}
               color={overdueCount > 0 ? "red" : "green"}
               icon="⚠️"
               href="/invoices"
+              pulse={overdueCount > 0}
             />
-            <SummaryCard
+            <DashboardStatCard
               title={lang === "ar" ? "الفواتير المعلّقة" : "Pending Review"}
-              value={String(pendingCount)}
+              rawValue={pendingCount}
+              suffix=""
+              locale={locale}
               sub={lang === "ar" ? `من ${invoiceCount} فاتورة مؤكدة` : `of ${invoiceCount} confirmed`}
               color="yellow"
               icon="🧾"
