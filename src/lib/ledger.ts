@@ -55,8 +55,9 @@ export async function createJournalEntry(
   });
 
   if (isPastPeriod) {
-    // الشهور السابقة مقفلة تلقائيًا — ما لم يُفتح الشهر صراحةً من الإعدادات
-    if (!period || period.status !== "OPEN") {
+    // يُقبل ترحيل الشهور السابقة ما لم تكن الفترة مقفلة صراحةً (status = CLOSED).
+    // غياب السجل = مفتوح افتراضيًا؛ لا نمنع الترحيل.
+    if (period?.status === "CLOSED") {
       throw new Error(
         `لا يمكن تسجيل قيود في شهور سابقة — الفترة ${year}/${String(month).padStart(2, "0")} مقفلة`
       );
@@ -272,19 +273,19 @@ export async function suggestPurchaseJournalEntry(params: {
   const byCode = Object.fromEntries(accounts.map((a) => [a.code, a]));
 
   const lines = [];
+  const taxAcc = taxAmount > 0 ? (byCode["2200"] ?? null) : null;
+  // إذا كان هناك ضريبة لكن لا يوجد حساب VAT، نضمّ الضريبة في المصروف لنُبقي القيد متوازنًا
+  const expenseDebit = taxAcc ? netAmount : totalAmount;
 
   // مصروفات الشراء (مدين)
   const expenseAcc = byCode["5300"] ?? byCode["5200"];
   if (expenseAcc) {
-    lines.push({ accountCode: expenseAcc.code, accountName: pickName(expenseAcc, lang), debit: netAmount, credit: 0 });
+    lines.push({ accountCode: expenseAcc.code, accountName: pickName(expenseAcc, lang), debit: expenseDebit, credit: 0 });
   }
 
-  // ضريبة القيمة المضافة على المدخلات (مدين) — لو الدولة لها VAT
-  if (taxAmount > 0) {
-    const taxAcc = byCode["2200"];
-    if (taxAcc) {
-      lines.push({ accountCode: taxAcc.code, accountName: lang === "en" ? "Input VAT" : "ضريبة مدخلات (VAT)", debit: taxAmount, credit: 0 });
-    }
+  // ضريبة القيمة المضافة على المدخلات (مدين) — فقط لو يوجد حساب VAT
+  if (taxAcc) {
+    lines.push({ accountCode: taxAcc.code, accountName: lang === "en" ? "Input VAT" : "ضريبة مدخلات (VAT)", debit: taxAmount, credit: 0 });
   }
 
   // دائنون (دائن)
@@ -320,6 +321,9 @@ export async function suggestSalesJournalEntry(params: {
   const byCode = Object.fromEntries(accounts.map((a) => [a.code, a]));
 
   const lines = [];
+  const taxAcc = taxAmount > 0 ? (byCode["2200"] ?? null) : null;
+  // إذا كان هناك ضريبة لكن لا يوجد حساب VAT، نضمّها في الإيراد لنُبقي القيد متوازنًا
+  const revenueCredit = taxAcc ? netAmount : totalAmount;
 
   // مدينون (مدين)
   const arAcc = byCode["1200"];
@@ -330,15 +334,12 @@ export async function suggestSalesJournalEntry(params: {
   // إيرادات المبيعات (دائن)
   const revAcc = byCode["4100"];
   if (revAcc) {
-    lines.push({ accountCode: revAcc.code, accountName: pickName(revAcc, lang), debit: 0, credit: netAmount });
+    lines.push({ accountCode: revAcc.code, accountName: pickName(revAcc, lang), debit: 0, credit: revenueCredit });
   }
 
-  // ضريبة القيمة المضافة على المخرجات (دائن)
-  if (taxAmount > 0) {
-    const taxAcc = byCode["2200"];
-    if (taxAcc) {
-      lines.push({ accountCode: taxAcc.code, accountName: lang === "en" ? "Output VAT" : "ضريبة مخرجات (VAT)", debit: 0, credit: taxAmount });
-    }
+  // ضريبة القيمة المضافة على المخرجات (دائن) — فقط لو يوجد حساب VAT
+  if (taxAcc) {
+    lines.push({ accountCode: taxAcc.code, accountName: lang === "en" ? "Output VAT" : "ضريبة مخرجات (VAT)", debit: 0, credit: taxAmount });
   }
 
   const desc = lang === "en"

@@ -74,6 +74,16 @@ export default function ReviewInvoicePage() {
       credit: l.credit,
     }));
 
+    if (lines.length < 2) {
+      setError(
+        isAr
+          ? "القيد المقترح غير مكتمل — يرجى التحقق من إعداد دليل الحسابات (مدينون / دائنون / مصروفات / إيرادات)"
+          : "Suggested journal is incomplete — please check your chart of accounts (AR / AP / expense / revenue)",
+      );
+      setConfirming(false);
+      return;
+    }
+
     if (lines.some((l) => !l.accountId)) {
       setError(
         isAr
