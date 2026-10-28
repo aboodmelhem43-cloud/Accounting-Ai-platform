@@ -11,6 +11,7 @@ import PlanBanner from "@/components/PlanBanner";
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
+  if (!session.user.onboardingCompleted) redirect("/onboarding");
 
   const sharedProps = {
     businessName: session.user.businessName,
