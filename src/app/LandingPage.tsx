@@ -158,8 +158,8 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           {/* logo */}
           <Link href="/" className="flex items-center gap-2.5 text-lg font-bold no-underline" style={{ color: "var(--lp-fg)" }}>
-            <div className="lp-logo-mark">م</div>
-            <span>محاسب <span style={{ color: "var(--lp-accent2)" }}>Ai</span></span>
+            <div className="lp-logo-mark">M</div>
+            <span>Mohasab<span style={{ color: "var(--lp-accent2)" }}>Ai</span></span>
           </Link>
 
           {/* desktop links */}
@@ -587,9 +587,9 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2.5 mb-3">
-                <div className="lp-logo-mark">م</div>
+                <div className="lp-logo-mark">M</div>
                 <span className="font-bold text-lg" style={{ color: "var(--lp-fg)" }}>
-                  محاسب <span style={{ color: "var(--lp-accent2)" }}>Ai</span>
+                  Mohasab<span style={{ color: "var(--lp-accent2)" }}>Ai</span>
                 </span>
               </div>
               <p className="text-sm leading-relaxed" style={{ color: "var(--lp-fg3)", maxWidth: 220 }}>
