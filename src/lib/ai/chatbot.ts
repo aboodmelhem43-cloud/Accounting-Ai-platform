@@ -12,8 +12,8 @@ export async function buildFinancialContext(businessId: string): Promise<string>
   const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
   const ytdStart = new Date(now.getFullYear(), 0, 1);
 
-  // Current month, previous month, and YTD lines in parallel
-  const [monthLines, prevMonthLines, ytdLines, recentEntries, invoiceCount, pendingCount, accounts] =
+  // Current month, previous month, YTD lines + balance sheet lines in parallel
+  const [monthLines, prevMonthLines, ytdLines, balanceSheetLines, recentEntries, invoiceCount, pendingCount, accounts] =
     await Promise.all([
       prisma.journalLine.findMany({
         where: {
@@ -35,6 +35,14 @@ export async function buildFinancialContext(businessId: string): Promise<string>
           account: { type: { in: ["REVENUE", "EXPENSE"] } },
         },
         include: { account: { select: { type: true } } },
+      }),
+      // Balance sheet accounts (all-time running balances)
+      prisma.journalLine.findMany({
+        where: {
+          journalEntry: { businessId },
+          account: { type: { in: ["ASSET", "LIABILITY", "EQUITY"] } },
+        },
+        include: { account: { select: { code: true, name: true, nameAr: true, type: true } } },
       }),
       prisma.journalEntry.findMany({
         where: { businessId },
@@ -69,10 +77,33 @@ export async function buildFinancialContext(businessId: string): Promise<string>
       balances[key].balance += Number(line.debit) - Number(line.credit);
     }
   }
-  const revenue = Object.values(balances).filter((b) => b.type === "REVENUE");
-  const expenses = Object.values(balances).filter((b) => b.type === "EXPENSE");
+  const revenue = Object.values(balances).filter((b) => b.type === "REVENUE").sort((a, b) => b.balance - a.balance);
+  const expenses = Object.values(balances).filter((b) => b.type === "EXPENSE").sort((a, b) => b.balance - a.balance);
   const totalRevenue = revenue.reduce((s, b) => s + b.balance, 0);
   const totalExpenses = expenses.reduce((s, b) => s + b.balance, 0);
+
+  // Balance sheet running balances
+  const bsBalances: Record<string, { name: string; nameAr: string; type: string; balance: number }> = {};
+  for (const line of balanceSheetLines) {
+    const key = line.accountId;
+    if (!bsBalances[key]) {
+      bsBalances[key] = {
+        name: line.account.name,
+        nameAr: line.account.nameAr ?? line.account.name,
+        type: line.account.type,
+        balance: 0,
+      };
+    }
+    // Assets: normal debit balance; Liabilities/Equity: normal credit balance
+    if (line.account.type === "ASSET") {
+      bsBalances[key].balance += Number(line.debit) - Number(line.credit);
+    } else {
+      bsBalances[key].balance += Number(line.credit) - Number(line.debit);
+    }
+  }
+  const assets = Object.values(bsBalances).filter((b) => b.type === "ASSET").sort((a, b) => b.balance - a.balance);
+  const liabilities = Object.values(bsBalances).filter((b) => b.type === "LIABILITY").sort((a, b) => b.balance - a.balance);
+  const equity = Object.values(bsBalances).filter((b) => b.type === "EQUITY");
 
   // Previous month totals
   let prevRevenue = 0, prevExpenses = 0;
@@ -91,6 +122,9 @@ export async function buildFinancialContext(businessId: string): Promise<string>
   const fmt = (n: number) => `${n.toLocaleString()} ${compliance.currency}`;
   const prevMonthName = prevMonthStart.toLocaleString("en", { month: "long", year: "numeric" });
 
+  const top5Expenses = expenses.slice(0, 5);
+  const top5Revenue = revenue.slice(0, 5);
+
   return `
 == BUSINESS DATA: ${business.name} ==
 Country: ${compliance.countryNameEn} | Currency: ${compliance.currency}
@@ -98,9 +132,9 @@ Date: ${now.toISOString().split("T")[0]}
 
 == CURRENT MONTH FINANCIALS ==
 Total Revenue: ${fmt(totalRevenue)}
-Revenue Breakdown: ${revenue.map((r) => `${r.nameEn} (${r.name}): ${fmt(r.balance)}`).join(" | ") || "None"}
+Top Revenue Sources: ${top5Revenue.map((r) => `${r.nameEn} (${r.name}): ${fmt(r.balance)}`).join(" | ") || "None"}
 Total Expenses: ${fmt(totalExpenses)}
-Expense Breakdown: ${expenses.map((e) => `${e.nameEn} (${e.name}): ${fmt(e.balance)}`).join(" | ") || "None"}
+Top Expenses (highest first): ${top5Expenses.map((e) => `${e.nameEn} (${e.name}): ${fmt(e.balance)}`).join(" | ") || "None"}
 Net Profit This Month: ${fmt(totalRevenue - totalExpenses)}
 
 == PREVIOUS MONTH (${prevMonthName}) ==
@@ -108,6 +142,18 @@ Revenue: ${fmt(prevRevenue)} | Expenses: ${fmt(prevExpenses)} | Net: ${fmt(prevR
 
 == YEAR-TO-DATE (${now.getFullYear()}) ==
 Revenue: ${fmt(ytdRevenue)} | Expenses: ${fmt(ytdExpenses)} | Net: ${fmt(ytdRevenue - ytdExpenses)}
+
+== BALANCE SHEET (running totals, all time) ==
+ASSETS:
+${assets.map((a) => `  ${a.name} (${a.nameAr}): ${fmt(a.balance)}`).join("\n") || "  None"}
+Total Assets: ${fmt(assets.reduce((s, a) => s + a.balance, 0))}
+
+LIABILITIES:
+${liabilities.map((l) => `  ${l.name} (${l.nameAr}): ${fmt(l.balance)}`).join("\n") || "  None"}
+Total Liabilities: ${fmt(liabilities.reduce((s, l) => s + l.balance, 0))}
+
+EQUITY:
+${equity.map((e) => `  ${e.name} (${e.nameAr}): ${fmt(e.balance)}`).join("\n") || "  None"}
 
 == RECENT JOURNAL ENTRIES (last 5) ==
 ${recentEntries.map((e) => `- ${new Date(e.date).toISOString().split("T")[0]}: ${e.description}`).join("\n") || "No entries yet"}
