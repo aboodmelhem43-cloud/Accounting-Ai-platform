@@ -15,6 +15,7 @@ type InvoiceRow = {
   status: string;
   statusLabel: string;
   statusCls: string;
+  etaStatus?: string | null;
 };
 
 type Props = {
@@ -183,9 +184,21 @@ export default function InvoiceBulkTable({ invoices, isAr }: Props) {
                   <td className="px-4 py-3">{inv.amount}</td>
                   <td className="px-4 py-3 text-gray-500">{inv.date}</td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${inv.statusCls}`}>
-                      {inv.statusLabel}
-                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${inv.statusCls}`}>
+                        {inv.statusLabel}
+                      </span>
+                      {inv.etaStatus && (
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          inv.etaStatus === "Valid" ? "bg-green-100 text-green-700" :
+                          inv.etaStatus === "Submitted" ? "bg-yellow-100 text-yellow-700" :
+                          inv.etaStatus === "Invalid" ? "bg-red-100 text-red-700" :
+                          "bg-gray-100 text-gray-600"
+                        }`}>
+                          ETA: {inv.etaStatus}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     {inv.isCreated ? (
