@@ -216,6 +216,12 @@ model Invoice {
   etaStatus         String?       // Valid | Invalid | Cancelled | Submitted
   etaSubmittedAt    DateTime?     // وقت إرسال الفاتورة لـ ETA
 
+  // JoFotara (منظومة الفاتورة الإلكترونية الأردنية)
+  joFotaraUuid      String?       // UUID الصادر من JoFotara بعد التقديم الناجح
+  joFotaraStatus    String?       // Submitted | Valid | Invalid
+  joFotaraSubmittedAt DateTime?   // وقت إرسال الفاتورة لـ JoFotara
+  joFotaraHash      String?       // SHA-256 hash of this invoice for chaining
+
   business     Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
   journalEntry JournalEntry?    @relation(fields: [journalEntryId], references: [id])
   contact      Contact?         @relation(fields: [contactId], references: [id])
