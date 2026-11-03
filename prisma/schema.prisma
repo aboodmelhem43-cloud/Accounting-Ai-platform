@@ -211,6 +211,11 @@ model Invoice {
   invoiceNumber     String?       // رقم الفاتورة — مفهرس لتسريع البحث
   viewToken         String?       @unique // توكن عرض الفاتورة للعملاء بدون تسجيل دخول
 
+  // ETA (منظومة الفاتورة الإلكترونية المصرية)
+  etaUuid           String?       // UUID الصادر من ETA بعد التقديم الناجح
+  etaStatus         String?       // Valid | Invalid | Cancelled | Submitted
+  etaSubmittedAt    DateTime?     // وقت إرسال الفاتورة لـ ETA
+
   business     Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
   journalEntry JournalEntry?    @relation(fields: [journalEntryId], references: [id])
   contact      Contact?         @relation(fields: [contactId], references: [id])
