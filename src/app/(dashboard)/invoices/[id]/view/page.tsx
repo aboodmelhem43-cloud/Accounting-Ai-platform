@@ -106,6 +106,9 @@ export default async function InvoiceViewPage({
             date: p.date.toISOString().split("T")[0],
             note: p.note,
           }))}
+          isEgypt={session.user.country === "EG"}
+          etaStatus={(invoice as { etaStatus?: string | null }).etaStatus ?? null}
+          etaUuid={(invoice as { etaUuid?: string | null }).etaUuid ?? null}
         />
       )}
 

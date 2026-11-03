@@ -223,6 +223,7 @@ export default async function InvoicesPage({
                 status: inv.status,
                 statusLabel: s.label,
                 statusCls: s.cls,
+                etaStatus: (inv as { etaStatus?: string | null }).etaStatus ?? null,
               };
             })}
           />

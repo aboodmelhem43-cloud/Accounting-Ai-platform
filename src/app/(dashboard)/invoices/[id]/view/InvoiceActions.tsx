@@ -23,6 +23,16 @@ type Props = {
   isAr: boolean;
   currencySymbol: string;
   payments: Payment[];
+  isEgypt?: boolean;
+  etaStatus?: string | null;
+  etaUuid?: string | null;
+};
+
+const etaStatusColors: Record<string, string> = {
+  Submitted: "bg-yellow-100 text-yellow-800",
+  Valid: "bg-green-100 text-green-800",
+  Invalid: "bg-red-100 text-red-800",
+  Cancelled: "bg-gray-200 text-gray-600",
 };
 
 const statusColors: Record<string, string> = {
@@ -50,6 +60,8 @@ export default function InvoiceActions({
   isAr,
   currencySymbol,
   payments: initialPayments,
+  isEgypt = false,
+  etaStatus: initialEtaStatus = null,
 }: Props) {
   const [showPayment, setShowPayment] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
@@ -59,6 +71,9 @@ export default function InvoiceActions({
   const [payments, setPayments] = useState<Payment[]>(initialPayments);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [etaSubmitStatus, setEtaSubmitStatus] = useState<string | null>(initialEtaStatus ?? null);
+  const [etaLoading, setEtaLoading] = useState(false);
+  const [etaError, setEtaError] = useState("");
 
   // Credit note form state
   const [creditAmount, setCreditAmount] = useState("");
@@ -153,6 +168,25 @@ export default function InvoiceActions({
     }
   }
 
+  async function handleEtaSubmit() {
+    setEtaError("");
+    setEtaLoading(true);
+    try {
+      const res = await fetch("/api/compliance/egypt/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoiceId }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setEtaError(data.error ?? (isAr ? "حدث خطأ" : "An error occurred")); return; }
+      setEtaSubmitStatus(data.etaStatus ?? "Submitted");
+    } catch {
+      setEtaError(isAr ? "حدث خطأ في الاتصال" : "Connection error");
+    } finally {
+      setEtaLoading(false);
+    }
+  }
+
   const fmt = (n: number) => `${n.toLocaleString(isAr ? "ar-EG" : "en-US", { minimumFractionDigits: 2 })} ${currencySymbol}`;
 
   return (
@@ -190,6 +224,25 @@ export default function InvoiceActions({
           >
             {isAr ? "إصدار إشعار دائن" : "Issue Credit Note"}
           </button>
+        )}
+        {isEgypt && (
+          <>
+            {etaSubmitStatus && (
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${etaStatusColors[etaSubmitStatus] ?? "bg-gray-100 text-gray-600"}`}>
+                ETA: {etaSubmitStatus}
+              </span>
+            )}
+            {(!etaSubmitStatus || etaSubmitStatus === "Invalid") && (
+              <button
+                onClick={handleEtaSubmit}
+                disabled={etaLoading}
+                className="btn-secondary text-sm px-4 py-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+              >
+                {etaLoading ? "..." : isAr ? "إرسال لـ ETA" : "Submit to ETA"}
+              </button>
+            )}
+            {etaError && <span className="text-xs text-red-600">{etaError}</span>}
+          </>
         )}
       </div>
 
