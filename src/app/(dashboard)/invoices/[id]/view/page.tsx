@@ -109,6 +109,9 @@ export default async function InvoiceViewPage({
           isEgypt={session.user.country === "EG"}
           etaStatus={(invoice as { etaStatus?: string | null }).etaStatus ?? null}
           etaUuid={(invoice as { etaUuid?: string | null }).etaUuid ?? null}
+          isJordan={session.user.country === "JO"}
+          joFotaraStatus={(invoice as { joFotaraStatus?: string | null }).joFotaraStatus ?? null}
+          joFotaraUuid={(invoice as { joFotaraUuid?: string | null }).joFotaraUuid ?? null}
         />
       )}
 

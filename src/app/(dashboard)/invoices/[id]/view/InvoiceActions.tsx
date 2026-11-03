@@ -26,9 +26,12 @@ type Props = {
   isEgypt?: boolean;
   etaStatus?: string | null;
   etaUuid?: string | null;
+  isJordan?: boolean;
+  joFotaraStatus?: string | null;
+  joFotaraUuid?: string | null;
 };
 
-const etaStatusColors: Record<string, string> = {
+const complianceStatusColors: Record<string, string> = {
   Submitted: "bg-yellow-100 text-yellow-800",
   Valid: "bg-green-100 text-green-800",
   Invalid: "bg-red-100 text-red-800",
@@ -62,6 +65,8 @@ export default function InvoiceActions({
   payments: initialPayments,
   isEgypt = false,
   etaStatus: initialEtaStatus = null,
+  isJordan = false,
+  joFotaraStatus: initialJoFotaraStatus = null,
 }: Props) {
   const [showPayment, setShowPayment] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
@@ -74,6 +79,9 @@ export default function InvoiceActions({
   const [etaSubmitStatus, setEtaSubmitStatus] = useState<string | null>(initialEtaStatus ?? null);
   const [etaLoading, setEtaLoading] = useState(false);
   const [etaError, setEtaError] = useState("");
+  const [joFotaraSubmitStatus, setJoFotaraSubmitStatus] = useState<string | null>(initialJoFotaraStatus ?? null);
+  const [joFotaraLoading, setJoFotaraLoading] = useState(false);
+  const [joFotaraError, setJoFotaraError] = useState("");
 
   // Credit note form state
   const [creditAmount, setCreditAmount] = useState("");
@@ -187,6 +195,25 @@ export default function InvoiceActions({
     }
   }
 
+  async function handleJoFotaraSubmit() {
+    setJoFotaraError("");
+    setJoFotaraLoading(true);
+    try {
+      const res = await fetch("/api/compliance/jordan/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoiceId }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setJoFotaraError(data.error ?? (isAr ? "حدث خطأ" : "An error occurred")); return; }
+      setJoFotaraSubmitStatus(data.status ?? "Submitted");
+    } catch {
+      setJoFotaraError(isAr ? "حدث خطأ في الاتصال" : "Connection error");
+    } finally {
+      setJoFotaraLoading(false);
+    }
+  }
+
   const fmt = (n: number) => `${n.toLocaleString(isAr ? "ar-EG" : "en-US", { minimumFractionDigits: 2 })} ${currencySymbol}`;
 
   return (
@@ -228,7 +255,7 @@ export default function InvoiceActions({
         {isEgypt && (
           <>
             {etaSubmitStatus && (
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${etaStatusColors[etaSubmitStatus] ?? "bg-gray-100 text-gray-600"}`}>
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${complianceStatusColors[etaSubmitStatus] ?? "bg-gray-100 text-gray-600"}`}>
                 ETA: {etaSubmitStatus}
               </span>
             )}
@@ -242,6 +269,25 @@ export default function InvoiceActions({
               </button>
             )}
             {etaError && <span className="text-xs text-red-600">{etaError}</span>}
+          </>
+        )}
+        {isJordan && (
+          <>
+            {joFotaraSubmitStatus && (
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${complianceStatusColors[joFotaraSubmitStatus] ?? "bg-gray-100 text-gray-600"}`}>
+                JoFotara: {joFotaraSubmitStatus}
+              </span>
+            )}
+            {(!joFotaraSubmitStatus || joFotaraSubmitStatus === "Invalid") && (
+              <button
+                onClick={handleJoFotaraSubmit}
+                disabled={joFotaraLoading}
+                className="btn-secondary text-sm px-4 py-2 border-teal-300 text-teal-700 hover:bg-teal-50"
+              >
+                {joFotaraLoading ? "..." : isAr ? "إرسال لـ JoFotara" : "Submit to JoFotara"}
+              </button>
+            )}
+            {joFotaraError && <span className="text-xs text-red-600">{joFotaraError}</span>}
           </>
         )}
       </div>
