@@ -24,16 +24,16 @@ function markdownToHtml(md: string): string {
 }
 
 const SOCIAL_QUICK: { label: string; msg: string }[] = [
-  { label: "📅 Content Calendar", msg: "Build my content calendar for this month" },
-  { label: "🎬 TikTok Scripts", msg: "Write 5 TikTok scripts about accounting tips" },
-  { label: "💰 Ad Copy", msg: "Write Facebook and TikTok ad copy for MohasabAi" },
-  { label: "🤝 DM Templates", msg: "Draft reply templates for DMs and comments" },
-  { label: "🚀 Campaign", msg: "Plan a product launch campaign for a new feature" },
-  { label: "🤳 Influencer Brief", msg: "Write an influencer brief for finance creators in Egypt" },
-  { label: "🎯 Growth Strategy", msg: "Build a 90-day Instagram growth strategy for MohasabAi" },
-  { label: "📧 Newsletter", msg: "Write an email newsletter about our new AI invoice feature" },
-  { label: "🎥 Reels AR", msg: "اكتب سكريبت ريلز عن سهولة المحاسبة مع محاسب Ai" },
-  { label: "📊 Analytics", msg: "Analyze our social media performance and give me a full improvement plan" },
+  { label: "🎬 ريلز TikTok كامل", msg: "أنتج لي باقة كاملة لريلز TikTok عن برنامج محاسبة بالذكاء الاصطناعي — سكريبت + أوفرلي + كابشن + هاشتاقات" },
+  { label: "📅 Content Calendar", msg: "Build this month's complete content calendar — include full captions and scripts for every single post" },
+  { label: "💰 Ad Sets Ready", msg: "Write complete Facebook and TikTok ad sets for MohasabAi — all copy ready to launch now" },
+  { label: "📱 5 Reels Packages", msg: "Produce 5 complete Instagram Reels packages — each with full scene script, on-screen text, voice-over, caption and hashtags" },
+  { label: "🚀 Ramadan Campaign", msg: "Produce a complete Ramadan social media campaign — all posts, videos and captions ready to post" },
+  { label: "🤝 Reply Templates", msg: "Write complete copy-paste reply templates for every type of comment and DM we receive" },
+  { label: "🤳 Influencer Brief", msg: "Write a complete influencer brief plus outreach DM for Egyptian and Gulf finance creators" },
+  { label: "📧 Newsletter Ready", msg: "Write a complete email newsletter about our AI invoice feature — subject line and full body ready to send" },
+  { label: "🎥 YouTube Script", msg: "Produce a complete YouTube video script: how MohasabAi saves 10 hours a week on accounting" },
+  { label: "📣 Launch Campaign", msg: "Produce a complete product launch campaign package for a new MohasabAi feature — all platforms, all content included" },
 ];
 
 export default function HQPage() {
