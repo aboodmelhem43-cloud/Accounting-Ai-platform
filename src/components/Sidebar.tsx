@@ -72,7 +72,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
       items: [
         { href: "/dashboard", label: t("nav.dashboard"), icon: "🏠" },
         { href: "/chat", label: isAr ? "المساعد الذكي" : "AI Assistant", icon: "🤖" },
-        ...(showAdmin ? [{ href: "/hq", label: isAr ? "مقر الوكلاء" : "AI HQ", icon: "🏢" }] : []),
+        { href: "/hq", label: isAr ? "مقر الوكلاء" : "AI HQ", icon: "🏢" },
       ],
     },
     {
