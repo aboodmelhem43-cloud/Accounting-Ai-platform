@@ -43,6 +43,7 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
     { href: "/documents", label: isAr ? "المستندات" : "Documents", icon: "📄" },
     { href: "/import", label: isAr ? "استيراد البيانات" : "Data Import", icon: "📥" },
     { href: "/chat", label: t("nav.chat"), icon: "🤖" },
+    { href: "/hq", label: isAr ? "مقر الوكلاء" : "AI HQ", icon: "🏢" },
     { href: "/audit-log", label: isAr ? "سجل المراجعة" : "Audit Trail", icon: "🗂️" },
     { href: "/settings", label: isAr ? "الإعدادات" : "Settings", icon: "⚙️" },
     { href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "💎" },
@@ -55,12 +56,12 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
   return (
     <>
       {/* Mobile topbar */}
-      <header className="md:hidden sticky top-0 z-30 bg-white border-b border-gray-200 px-4 h-14 flex items-center justify-between">
-        <div className="text-base font-bold text-blue-700">MohasabAi · محاسب Ai</div>
+      <header className="md:hidden sticky top-0 z-30 bg-[#0f172a] border-b border-slate-700/40 px-4 h-14 flex items-center justify-between">
+        <div className="text-base font-bold text-blue-400">MohasabAi · محاسب Ai</div>
         <button
           onClick={() => setOpen(true)}
           aria-label="فتح القائمة"
-          className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors text-xl"
+          className="p-2 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors text-xl"
         >
           ☰
         </button>
@@ -71,23 +72,23 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
         <div className="fixed inset-0 z-50 md:hidden" dir={isAr ? "rtl" : "ltr"}>
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
 
           {/* Drawer panel */}
           <div
-            className={`absolute top-0 ${isAr ? "right-0" : "left-0"} h-full w-72 bg-white shadow-2xl flex flex-col`}
+            className={`absolute top-0 ${isAr ? "right-0" : "left-0"} h-full w-72 bg-[#0f172a] shadow-2xl flex flex-col`}
           >
             {/* Header */}
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+            <div className="p-4 border-b border-slate-700/40 flex items-center justify-between">
               <div>
-                <div className="font-bold text-blue-700 text-sm">MohasabAi · محاسب Ai</div>
-                <div className="text-xs text-gray-400 mt-0.5 truncate">{businessName}</div>
+                <div className="font-bold text-blue-400 text-sm">MohasabAi · محاسب Ai</div>
+                <div className="text-xs text-slate-400 mt-0.5 truncate">{businessName}</div>
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 text-base"
+                className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-800 text-base"
               >
                 ✕
               </button>
@@ -106,8 +107,8 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
                       "indent" in item ? "ms-4" : ""
                     } ${
                       isActive
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-blue-600/15 text-blue-400"
+                        : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
                     }`}
                   >
                     <span className="text-base">{item.icon}</span>
@@ -118,17 +119,17 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
             </nav>
 
             {/* Footer */}
-            <div className="p-3 border-t border-gray-100 space-y-1">
+            <div className="p-3 border-t border-slate-700/40 space-y-1">
               <button
                 onClick={() => { toggleLang(); setOpen(false); }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-blue-400 transition-colors"
               >
                 <span>🌐</span>
                 {t("nav.lang_toggle")}
               </button>
               <button
                 onClick={() => signOut({ callbackUrl: "/login" })}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-red-900/20 hover:text-red-400 transition-colors"
               >
                 <span>🚪</span>
                 {t("nav.signout")}
