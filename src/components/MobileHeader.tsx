@@ -130,9 +130,9 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
                     }`}
                   >
                     <NavIcon
-                      size={16}
+                      size={18}
                       strokeWidth={1.75}
-                      className={isActive ? "text-blue-400" : "text-slate-400"}
+                      className={isActive ? "text-blue-400" : "text-slate-300"}
                     />
                     {item.label}
                   </Link>
@@ -146,14 +146,14 @@ export default function MobileHeader({ businessName, country, currency, isAdmin 
                 onClick={() => { toggleLang(); setOpen(false); }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-100 hover:bg-slate-800/60 hover:text-blue-400 transition-colors"
               >
-                <IcoGlobe size={16} strokeWidth={1.75} className="text-slate-400" />
+                <IcoGlobe size={18} strokeWidth={1.75} className="text-slate-300" />
                 {t("nav.lang_toggle")}
               </button>
               <button
                 onClick={() => signOut({ callbackUrl: "/login" })}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-100 hover:bg-red-900/20 hover:text-red-400 transition-colors"
               >
-                <IcoLogOut size={16} strokeWidth={1.75} className="text-red-400" />
+                <IcoLogOut size={18} strokeWidth={1.75} className="text-red-400" />
                 {t("nav.signout")}
               </button>
             </div>
