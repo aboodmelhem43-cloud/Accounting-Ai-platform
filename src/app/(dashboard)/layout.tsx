@@ -22,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <SessionProviderWrapper session={session}>
-      <div className="flex min-h-screen flex-col md:flex-row bg-[#0f172a]">
+      <div className="dash flex min-h-screen flex-col md:flex-row bg-[#0f172a]">
         <MobileHeader {...sharedProps} />
         <Sidebar {...sharedProps} />
         <main className="flex-1 overflow-auto flex flex-col bg-[#0f172a]">

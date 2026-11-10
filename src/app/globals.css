@@ -206,7 +206,106 @@
 .lp-footer-link { color: var(--lp-fg3); font-size: 13.5px; text-decoration: none; transition: color .15s; }
 .lp-footer-link:hover { color: var(--lp-fg); }
 
-/* ── Dashboard Dark Navy Theme ──────────────────────────────────── */
+/* ── Dashboard Dark Navy Theme — full content override ─────────── */
+
+/* Backgrounds */
+.dash .bg-white           { background-color: #1e293b !important; }
+.dash .bg-gray-50         { background-color: #172033 !important; }
+.dash .bg-gray-100        { background-color: #1e2d45 !important; }
+.dash .bg-gray-200        { background-color: #263548 !important; }
+
+/* Borders */
+.dash .border-gray-100,
+.dash .border-gray-200,
+.dash .border-gray-300    { border-color: #334155 !important; }
+.dash .divide-gray-100 > * + *,
+.dash .divide-gray-200 > * + * { border-color: #334155 !important; }
+
+/* Text — primary */
+.dash .text-gray-900,
+.dash .text-gray-800      { color: #e2e8f0 !important; }
+.dash .text-gray-700,
+.dash .text-gray-600      { color: #94a3b8 !important; }
+.dash .text-gray-500,
+.dash .text-gray-400      { color: #64748b !important; }
+
+/* Hover states */
+.dash .hover\:bg-gray-50:hover  { background-color: #1e2d45 !important; }
+.dash .hover\:bg-gray-100:hover { background-color: #263548 !important; }
+
+/* Tables */
+.dash table               { background-color: transparent !important; }
+.dash thead               { background-color: #172033 !important; }
+.dash th                  { color: #94a3b8 !important; border-color: #334155 !important; }
+.dash td                  { border-color: #334155 !important; color: #cbd5e1 !important; }
+.dash tbody tr:hover      { background-color: #1e2d45 !important; }
+
+/* Form controls */
+.dash select,
+.dash textarea            { background-color: #0f172a !important; color: #e2e8f0 !important; border-color: #334155 !important; }
+.dash option              { background-color: #1e293b !important; color: #e2e8f0 !important; }
+
+/* Status badges — keep color intent, darken bg */
+.dash .bg-green-50,
+.dash .bg-green-100       { background-color: rgba(16,185,129,0.12) !important; }
+.dash .text-green-600,
+.dash .text-green-700,
+.dash .text-green-800     { color: #34d399 !important; }
+.dash .border-green-200,
+.dash .border-green-300   { border-color: rgba(16,185,129,0.3) !important; }
+
+.dash .bg-red-50,
+.dash .bg-red-100         { background-color: rgba(239,68,68,0.12) !important; }
+.dash .text-red-600,
+.dash .text-red-700,
+.dash .text-red-800       { color: #f87171 !important; }
+.dash .border-red-200,
+.dash .border-red-300     { border-color: rgba(239,68,68,0.3) !important; }
+
+.dash .bg-yellow-50,
+.dash .bg-yellow-100      { background-color: rgba(234,179,8,0.12) !important; }
+.dash .text-yellow-600,
+.dash .text-yellow-700,
+.dash .text-yellow-800    { color: #fbbf24 !important; }
+.dash .border-yellow-200,
+.dash .border-yellow-300  { border-color: rgba(234,179,8,0.3) !important; }
+
+.dash .bg-blue-50,
+.dash .bg-blue-100        { background-color: rgba(59,130,246,0.1) !important; }
+.dash .text-blue-600,
+.dash .text-blue-700,
+.dash .text-blue-800      { color: #60a5fa !important; }
+.dash .border-blue-200,
+.dash .border-blue-300    { border-color: rgba(59,130,246,0.3) !important; }
+
+.dash .bg-purple-50,
+.dash .bg-purple-100      { background-color: rgba(139,92,246,0.1) !important; }
+.dash .text-purple-600,
+.dash .text-purple-700,
+.dash .text-purple-800    { color: #a78bfa !important; }
+
+.dash .bg-orange-50,
+.dash .bg-orange-100      { background-color: rgba(249,115,22,0.12) !important; }
+.dash .text-orange-600,
+.dash .text-orange-700,
+.dash .text-orange-800    { color: #fb923c !important; }
+
+.dash .bg-indigo-50,
+.dash .bg-indigo-100      { background-color: rgba(99,102,241,0.1) !important; }
+.dash .text-indigo-600,
+.dash .text-indigo-700,
+.dash .text-indigo-800    { color: #818cf8 !important; }
+
+/* Shadows */
+.dash .shadow-sm          { box-shadow: 0 1px 4px rgba(0,0,0,0.5) !important; }
+.dash .shadow             { box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important; }
+.dash .shadow-md          { box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important; }
+
+/* Ring */
+.dash .ring-1,
+.dash .ring-gray-200      { --tw-ring-color: #334155 !important; }
+
+/* ── Dashboard Dark Navy Theme — component vars ─────────────────── */
 .dashboard-dark,
 .bg-\[#0f172a\] {
   --dash-bg: #0f172a;
