@@ -305,9 +305,9 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                         }`}
                       >
                         <NavIcon
-                          size={16}
+                          size={18}
                           strokeWidth={1.75}
-                          className={active ? "text-blue-400" : "text-slate-400"}
+                          className={active ? "text-blue-400" : "text-slate-300"}
                         />
                         <span className="truncate">{item.label}</span>
                       </Link>
@@ -340,9 +340,9 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                               }`}
                             >
                               <ChildIcon
-                                size={13}
+                                size={15}
                                 strokeWidth={1.75}
-                                className={childActive ? "text-blue-400" : "text-slate-400"}
+                                className={childActive ? "text-blue-400" : "text-slate-300"}
                               />
                               <span className="truncate">{child.label}</span>
                             </Link>
@@ -367,14 +367,14 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
           onClick={toggleLang}
           className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-slate-100 hover:bg-slate-800/60 hover:text-blue-400 transition-colors"
         >
-          <IcoGlobe size={16} strokeWidth={1.75} className="text-slate-400" />
+          <IcoGlobe size={18} strokeWidth={1.75} className="text-slate-300" />
           {t("nav.lang_toggle")}
         </button>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
           className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-slate-100 hover:bg-red-900/20 hover:text-red-400 transition-colors"
         >
-          <IcoLogOut size={16} strokeWidth={1.75} className="text-slate-400" />
+          <IcoLogOut size={18} strokeWidth={1.75} className="text-slate-300" />
           {t("nav.signout")}
         </button>
       </div>
