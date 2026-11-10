@@ -4,6 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useLang } from "./LanguageProvider";
+import type { LucideIcon } from "lucide-react";
+import {
+  LayoutDashboard, Sparkles, Building2, FileText, Upload, FilePlus,
+  ShoppingCart, RefreshCw, Plug, Zap, Users, BookOpen, Repeat, Scale,
+  Lock, LayoutList, CreditCard, CheckCircle2, Package, BarChart2,
+  Percent, ArrowLeftRight, FolderOpen, Download, ClipboardList,
+  Settings2, Gem, Cpu, Shield, Globe, LogOut, UserPlus, Briefcase, Store,
+} from "lucide-react";
 
 interface SidebarProps {
   businessName: string;
@@ -15,13 +23,13 @@ interface SidebarProps {
 interface NavChild {
   href: string;
   label: string;
-  icon: string;
+  icon: LucideIcon;
 }
 
 interface NavItem {
   href: string;
   label: string;
-  icon: string;
+  icon: LucideIcon;
   children?: NavChild[];
 }
 
@@ -68,9 +76,9 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
   const sections: NavSection[] = [
     {
       items: [
-        { href: "/dashboard", label: t("nav.dashboard"), icon: "⬡" },
-        { href: "/chat", label: isAr ? "المساعد الذكي" : "AI Assistant", icon: "✦" },
-        { href: "/hq", label: isAr ? "مقر الوكلاء" : "AI HQ", icon: "◈" },
+        { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
+        { href: "/chat", label: isAr ? "المساعد الذكي" : "AI Assistant", icon: Sparkles },
+        { href: "/hq", label: isAr ? "مقر الوكلاء" : "AI HQ", icon: Building2 },
       ],
     },
     {
@@ -79,23 +87,23 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         {
           href: "/invoices",
           label: t("nav.invoices"),
-          icon: "▤",
+          icon: FileText,
           children: [
-            { href: "/invoices/upload", label: t("nav.upload"), icon: "↑" },
-            { href: "/invoices/create", label: isAr ? "فاتورة مبيعات" : "Sales Invoice", icon: "+" },
-            { href: "/invoices/create-purchase", label: isAr ? "فاتورة شراء" : "Purchase Invoice", icon: "↓" },
+            { href: "/invoices/upload", label: t("nav.upload"), icon: Upload },
+            { href: "/invoices/create", label: isAr ? "فاتورة مبيعات" : "Sales Invoice", icon: FilePlus },
+            { href: "/invoices/create-purchase", label: isAr ? "فاتورة شراء" : "Purchase Invoice", icon: ShoppingCart },
           ],
         },
         {
           href: "/sales-sync",
           label: isAr ? "مزامنة المبيعات" : "Sales Sync",
-          icon: "⇄",
+          icon: Store,
           children: [
-            { href: "/settings/integrations", label: isAr ? "ربط المتاجر" : "Integrations", icon: "⊕" },
+            { href: "/settings/integrations", label: isAr ? "ربط المتاجر" : "Integrations", icon: Plug },
           ],
         },
-        { href: "/expenses", label: isAr ? "مصروف سريع" : "Quick Expense", icon: "◎" },
-        { href: "/contacts", label: isAr ? "العملاء والموردون" : "Contacts", icon: "◉" },
+        { href: "/expenses", label: isAr ? "مصروف سريع" : "Quick Expense", icon: Zap },
+        { href: "/contacts", label: isAr ? "العملاء والموردون" : "Contacts", icon: Users },
       ],
     },
     {
@@ -104,23 +112,23 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         {
           href: "/journal",
           label: t("nav.journal"),
-          icon: "≡",
+          icon: BookOpen,
           children: [
-            { href: "/recurring", label: isAr ? "القيود المتكررة" : "Recurring Entries", icon: "↺" },
-            { href: "/opening-balances", label: isAr ? "الأرصدة الافتتاحية" : "Opening Balances", icon: "⊞" },
-            { href: "/periods", label: isAr ? "الفترات المحاسبية" : "Accounting Periods", icon: "⊟" },
+            { href: "/recurring", label: isAr ? "القيود المتكررة" : "Recurring Entries", icon: Repeat },
+            { href: "/opening-balances", label: isAr ? "الأرصدة الافتتاحية" : "Opening Balances", icon: Scale },
+            { href: "/periods", label: isAr ? "الفترات المحاسبية" : "Accounting Periods", icon: Lock },
           ],
         },
-        { href: "/accounts", label: isAr ? "دليل الحسابات" : "Chart of Accounts", icon: "⊞" },
+        { href: "/accounts", label: isAr ? "دليل الحسابات" : "Chart of Accounts", icon: LayoutList },
         {
           href: "/bank-accounts",
           label: isAr ? "الحسابات البنكية" : "Bank Accounts",
-          icon: "⬡",
+          icon: CreditCard,
           children: [
-            { href: "/bank-reconciliation", label: isAr ? "تسوية بنكية" : "Reconciliation", icon: "⇋" },
+            { href: "/bank-reconciliation", label: isAr ? "تسوية بنكية" : "Reconciliation", icon: CheckCircle2 },
           ],
         },
-        { href: "/fixed-assets", label: isAr ? "الأصول الثابتة" : "Fixed Assets", icon: "◫" },
+        { href: "/fixed-assets", label: isAr ? "الأصول الثابتة" : "Fixed Assets", icon: Package },
       ],
     },
     {
@@ -129,9 +137,9 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         {
           href: "/reports",
           label: isAr ? "التقارير المالية" : "Financial Reports",
-          icon: "▦",
+          icon: BarChart2,
           children: [
-            { href: "/vat-return", label: isAr ? "إقرار ضريبة القيمة المضافة" : "VAT Return", icon: "%" },
+            { href: "/vat-return", label: isAr ? "إقرار ضريبة القيمة المضافة" : "VAT Return", icon: Percent },
           ],
         },
       ],
@@ -139,10 +147,10 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
     {
       label: isAr ? "أدوات" : "Tools",
       items: [
-        { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "⇌" },
-        { href: "/documents", label: isAr ? "المستندات" : "Documents", icon: "▭" },
-        { href: "/import", label: isAr ? "استيراد البيانات" : "Data Import", icon: "⤓" },
-        { href: "/audit-log", label: isAr ? "سجل المراجعة" : "Audit Trail", icon: "☰" },
+        { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: ArrowLeftRight },
+        { href: "/documents", label: isAr ? "المستندات" : "Documents", icon: FolderOpen },
+        { href: "/import", label: isAr ? "استيراد البيانات" : "Data Import", icon: Download },
+        { href: "/audit-log", label: isAr ? "سجل المراجعة" : "Audit Trail", icon: ClipboardList },
       ],
     },
     {
@@ -151,23 +159,23 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         {
           href: "/settings",
           label: isAr ? "الإعدادات" : "Settings",
-          icon: "◎",
+          icon: Settings2,
           children: (() => {
             if (isViewingClientBiz) return undefined;
             const sub: NavChild[] = [];
             if (session?.user?.plan === "PRO" || session?.user?.plan === "BUSINESS") {
-              sub.push({ href: "/settings/team", label: isAr ? "الفريق" : "Team", icon: "◉" });
+              sub.push({ href: "/settings/team", label: isAr ? "الفريق" : "Team", icon: UserPlus });
             }
             if (isPractice) {
-              sub.push({ href: "/settings/clients", label: isAr ? "عملاء المكتب" : "Clients", icon: "◈" });
+              sub.push({ href: "/settings/clients", label: isAr ? "عملاء المكتب" : "Clients", icon: Briefcase });
             }
             return sub.length > 0 ? sub : undefined;
           })(),
         },
-        ...(!isViewingClientBiz ? [{ href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "◆" }] : []),
+        ...(!isViewingClientBiz ? [{ href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: Gem }] : []),
         ...(showAdmin && !isViewingClientBiz ? [
-          { href: "/agents", label: isAr ? "الفريق التنفيذي" : "AI Executive", icon: "✦" },
-          { href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "⊛" },
+          { href: "/agents", label: isAr ? "الفريق التنفيذي" : "AI Executive", icon: Cpu },
+          { href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: Shield },
         ] : []),
       ],
     },
@@ -211,7 +219,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                   disabled={switchingId === primaryBusinessId}
                   className={`w-full flex items-center gap-2 px-3 py-2.5 text-start hover:bg-slate-700 transition-colors ${activeBusinessId === primaryBusinessId ? "bg-slate-700" : ""}`}
                 >
-                  <span>🏢</span>
+                  <Building2 size={14} className="text-slate-400" />
                   <div className="min-w-0 flex-1">
                     <div className="text-xs font-medium text-slate-200 truncate">
                       {isAr ? "منشأتي" : "My Business"}
@@ -231,7 +239,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                         disabled={switchingId === biz.id}
                         className={`w-full flex items-center gap-2 px-3 py-2 text-start hover:bg-slate-700 transition-colors ${activeBusinessId === biz.id ? "bg-slate-700" : ""}`}
                       >
-                        <span className="text-sm">{biz.source === "practice" ? "🏢" : "👔"}</span>
+                        <Building2 size={13} className="text-slate-400 flex-shrink-0" />
                         <div className="min-w-0 flex-1">
                           <div className="text-xs font-medium text-slate-200 truncate">{biz.name}</div>
                           <div className="text-xs text-slate-400">{biz.country} · {biz.currency}</div>
@@ -282,6 +290,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                 const active = isItemActive(item);
                 const open = isOpen(item);
                 const hasChildren = item.children && item.children.length > 0;
+                const NavIcon = item.icon;
 
                 return (
                   <div key={item.href}>
@@ -294,7 +303,11 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                             : "text-slate-100 font-semibold hover:bg-slate-800/60 hover:text-white"
                         }`}
                       >
-                        <span className="w-4 text-center text-sm leading-none opacity-70">{item.icon}</span>
+                        <NavIcon
+                          size={15}
+                          strokeWidth={1.75}
+                          className={`flex-shrink-0 ${active ? "opacity-100" : "opacity-60"}`}
+                        />
                         <span className="truncate">{item.label}</span>
                       </Link>
                       {hasChildren && (
@@ -314,6 +327,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                       <div className={`mt-0.5 mb-0.5 ${isAr ? "mr-3 border-r-2" : "ml-3 border-l-2"} border-slate-700 space-y-0.5 py-0.5`}>
                         {item.children!.map((child) => {
                           const childActive = pathname === child.href || pathname.startsWith(child.href + "/");
+                          const ChildIcon = child.icon;
                           return (
                             <Link
                               key={child.href}
@@ -324,7 +338,11 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                                   : "text-slate-300 font-medium hover:bg-slate-800/60 hover:text-white"
                               }`}
                             >
-                              <span className="w-3 text-center text-xs leading-none opacity-60">{child.icon}</span>
+                              <ChildIcon
+                                size={12}
+                                strokeWidth={1.75}
+                                className={`flex-shrink-0 ${childActive ? "opacity-100" : "opacity-60"}`}
+                              />
                               <span className="truncate">{child.label}</span>
                             </Link>
                           );
@@ -348,14 +366,14 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
           onClick={toggleLang}
           className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-slate-100 hover:bg-slate-800/60 hover:text-blue-400 transition-colors"
         >
-          <span className="w-4 text-center text-sm leading-none opacity-70">⊕</span>
+          <Globe size={15} strokeWidth={1.75} className="flex-shrink-0 opacity-60" />
           {t("nav.lang_toggle")}
         </button>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
           className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-slate-100 hover:bg-red-900/20 hover:text-red-400 transition-colors"
         >
-          <span className="w-4 text-center text-sm leading-none opacity-70">→</span>
+          <LogOut size={15} strokeWidth={1.75} className="flex-shrink-0 opacity-60" />
           {t("nav.signout")}
         </button>
       </div>
