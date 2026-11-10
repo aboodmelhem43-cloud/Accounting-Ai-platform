@@ -206,6 +206,64 @@
 .lp-footer-link { color: var(--lp-fg3); font-size: 13.5px; text-decoration: none; transition: color .15s; }
 .lp-footer-link:hover { color: var(--lp-fg); }
 
+/* ── Dashboard Dark Navy Theme ──────────────────────────────────── */
+.dashboard-dark,
+.bg-\[#0f172a\] {
+  --dash-bg: #0f172a;
+  --dash-surface: #1e293b;
+  --dash-surface2: #263044;
+  --dash-border: #334155;
+  --dash-fg: #e2e8f0;
+  --dash-muted: #94a3b8;
+  --dash-accent: #3b82f6;
+}
+
+/* Scope dark overrides to any element inside the dark bg */
+[class*="bg-[#0f172a]"] .card,
+.bg-\[#0f172a\] .card {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+[class*="bg-[#0f172a]"] .label,
+.bg-\[#0f172a\] .label {
+  color: #cbd5e1;
+}
+
+[class*="bg-[#0f172a]"] .input,
+.bg-\[#0f172a\] .input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+[class*="bg-[#0f172a]"] .input::placeholder,
+.bg-\[#0f172a\] .input::placeholder {
+  color: #64748b;
+}
+
+[class*="bg-[#0f172a]"] .btn-secondary,
+.bg-\[#0f172a\] .btn-secondary {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+
+[class*="bg-[#0f172a]"] .btn-secondary:hover,
+.bg-\[#0f172a\] .btn-secondary:hover {
+  background: #334155;
+}
+
+[class*="bg-[#0f172a]"] .spinner,
+[class*="bg-[#0f172a]"] .spinner-lg,
+.bg-\[#0f172a\] .spinner,
+.bg-\[#0f172a\] .spinner-lg {
+  border-color: #334155;
+  border-top-color: #3b82f6;
+}
+
 @media print {
   body * { visibility: hidden !important; }
   #invoice-print, #invoice-print * { visibility: visible !important; }

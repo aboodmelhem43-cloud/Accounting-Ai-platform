@@ -26,7 +26,7 @@ interface NavItem {
 }
 
 interface NavSection {
-  label?: string; // undefined = no header (top section)
+  label?: string;
   items: NavItem[];
 }
 
@@ -37,7 +37,6 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
   const { data: session, update } = useSession();
   const [switchingId, setSwitchingId] = useState<string | null>(null);
   const [switcherOpen, setSwitcherOpen] = useState(false);
-  // Track which parent items are manually expanded
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const showAdmin = isAdmin;
@@ -66,7 +65,6 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
     setExpanded((prev) => ({ ...prev, [href]: !prev[href] }));
   }
 
-  // Sections with grouped nav items
   const sections: NavSection[] = [
     {
       items: [
@@ -186,10 +184,10 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
   }
 
   return (
-    <aside className="hidden md:flex w-60 bg-white border-e border-gray-200 flex-col h-screen sticky top-0">
-      {/* Header: logo + business */}
-      <div className="px-4 py-4 border-b border-gray-100">
-        <Link href="/" className="text-lg font-bold text-blue-700 hover:text-blue-800 transition-colors block">
+    <aside className="hidden md:flex w-60 bg-[#0f172a] border-e border-slate-700/40 flex-col h-screen sticky top-0">
+      {/* Header */}
+      <div className="px-4 py-4 border-b border-slate-700/40">
+        <Link href="/" className="text-lg font-bold text-blue-400 hover:text-blue-300 transition-colors block">
           {t("app.name")}
         </Link>
 
@@ -197,33 +195,33 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
           <div className="mt-2 relative">
             <button
               onClick={() => setSwitcherOpen((o) => !o)}
-              className="w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors"
+              className="w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700/80 transition-colors"
             >
               <div className="min-w-0 flex-1 text-start">
-                <div className="text-xs font-semibold text-blue-800 truncate">{displayName}</div>
-                <div className="text-xs text-blue-500">{displayCountry} · {displayCurrency}</div>
+                <div className="text-xs font-semibold text-slate-200 truncate">{displayName}</div>
+                <div className="text-xs text-slate-400">{displayCountry} · {displayCurrency}</div>
               </div>
-              <span className="text-blue-400 flex-shrink-0 text-xs">{switcherOpen ? "▲" : "▼"}</span>
+              <span className="text-slate-500 flex-shrink-0 text-xs">{switcherOpen ? "▲" : "▼"}</span>
             </button>
 
             {switcherOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden">
                 <button
                   onClick={() => switchBusiness(primaryBusinessId!)}
                   disabled={switchingId === primaryBusinessId}
-                  className={`w-full flex items-center gap-2 px-3 py-2.5 text-start hover:bg-gray-50 transition-colors ${activeBusinessId === primaryBusinessId ? "bg-blue-50" : ""}`}
+                  className={`w-full flex items-center gap-2 px-3 py-2.5 text-start hover:bg-slate-700 transition-colors ${activeBusinessId === primaryBusinessId ? "bg-slate-700" : ""}`}
                 >
                   <span>🏢</span>
                   <div className="min-w-0 flex-1">
-                    <div className="text-xs font-medium text-gray-900 truncate">
+                    <div className="text-xs font-medium text-slate-200 truncate">
                       {isAr ? "منشأتي" : "My Business"}
                     </div>
                   </div>
-                  {activeBusinessId === primaryBusinessId && <span className="text-blue-600 text-xs">✓</span>}
+                  {activeBusinessId === primaryBusinessId && <span className="text-blue-400 text-xs">✓</span>}
                 </button>
                 {clientBusinesses.length > 0 && (
-                  <div className="border-t border-gray-100">
-                    <div className="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wide">
+                  <div className="border-t border-slate-700">
+                    <div className="px-3 py-1 text-xs font-medium text-slate-500 uppercase tracking-wide">
                       {isAr ? "عملاء" : "Clients"}
                     </div>
                     {clientBusinesses.map((biz) => (
@@ -231,14 +229,14 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                         key={biz.id}
                         onClick={() => switchBusiness(biz.id)}
                         disabled={switchingId === biz.id}
-                        className={`w-full flex items-center gap-2 px-3 py-2 text-start hover:bg-gray-50 transition-colors ${activeBusinessId === biz.id ? "bg-blue-50" : ""}`}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-start hover:bg-slate-700 transition-colors ${activeBusinessId === biz.id ? "bg-slate-700" : ""}`}
                       >
                         <span className="text-sm">{biz.source === "practice" ? "🏢" : "👔"}</span>
                         <div className="min-w-0 flex-1">
-                          <div className="text-xs font-medium text-gray-900 truncate">{biz.name}</div>
-                          <div className="text-xs text-gray-400">{biz.country} · {biz.currency}</div>
+                          <div className="text-xs font-medium text-slate-200 truncate">{biz.name}</div>
+                          <div className="text-xs text-slate-400">{biz.country} · {biz.currency}</div>
                         </div>
-                        {activeBusinessId === biz.id && <span className="text-blue-600 text-xs">✓</span>}
+                        {activeBusinessId === biz.id && <span className="text-blue-400 text-xs">✓</span>}
                       </button>
                     ))}
                   </div>
@@ -248,19 +246,19 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
           </div>
         ) : (
           <div className="mt-1.5">
-            <div className="text-xs font-medium text-gray-700 truncate">{displayName}</div>
-            <div className="text-xs text-gray-400">{displayCountry} · {displayCurrency}</div>
+            <div className="text-xs font-medium text-slate-200 truncate">{displayName}</div>
+            <div className="text-xs text-slate-400">{displayCountry} · {displayCurrency}</div>
           </div>
         )}
 
         {isViewingClientBiz && (
-          <div className="mt-2 flex items-center justify-between bg-purple-50 border border-purple-200 rounded-lg px-2 py-1">
-            <span className="text-xs text-purple-700 font-medium">
+          <div className="mt-2 flex items-center justify-between bg-purple-900/20 border border-purple-700/40 rounded-lg px-2 py-1">
+            <span className="text-xs text-purple-300 font-medium">
               {isAr ? "وضع العميل" : "Client mode"}
             </span>
             <button
               onClick={() => switchBusiness(primaryBusinessId!)}
-              className="text-xs text-purple-600 hover:text-purple-800 font-medium"
+              className="text-xs text-purple-400 hover:text-purple-200 font-medium"
             >
               {isAr ? "رجوع" : "Back"}
             </button>
@@ -274,7 +272,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
           <div key={si} className={si > 0 ? "mt-2" : ""}>
             {section.label && (
               <div className="px-4 pt-1 pb-1">
-                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   {section.label}
                 </span>
               </div>
@@ -292,8 +290,8 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                         href={item.href}
                         className={`flex-1 flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                           active
-                            ? "bg-blue-50 text-blue-700"
-                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            ? "bg-blue-600/15 text-blue-400"
+                            : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
                         }`}
                       >
                         <span className="text-base leading-none">{item.icon}</span>
@@ -302,7 +300,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                       {hasChildren && (
                         <button
                           onClick={() => toggleExpand(item.href)}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors flex-shrink-0"
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors flex-shrink-0"
                           aria-label="toggle submenu"
                         >
                           <svg className={`w-3 h-3 transition-transform ${open ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -313,7 +311,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                     </div>
 
                     {hasChildren && open && (
-                      <div className={`mt-0.5 mb-0.5 ${isAr ? "mr-3 border-r-2" : "ml-3 border-l-2"} border-gray-100 space-y-0.5 py-0.5`}>
+                      <div className={`mt-0.5 mb-0.5 ${isAr ? "mr-3 border-r-2" : "ml-3 border-l-2"} border-slate-700 space-y-0.5 py-0.5`}>
                         {item.children!.map((child) => {
                           const childActive = pathname === child.href || pathname.startsWith(child.href + "/");
                           return (
@@ -322,8 +320,8 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                               href={child.href}
                               className={`flex items-center gap-2 ${isAr ? "pr-3" : "pl-3"} py-1.5 rounded-lg text-xs font-medium transition-colors ${
                                 childActive
-                                  ? "bg-blue-50 text-blue-700"
-                                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                                  ? "bg-blue-600/15 text-blue-400"
+                                  : "text-slate-500 hover:bg-slate-800 hover:text-slate-300"
                               }`}
                             >
                               <span className="text-sm leading-none">{child.icon}</span>
@@ -338,24 +336,24 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
               })}
             </div>
             {si < sections.length - 1 && (
-              <div className="mx-4 mt-3 border-t border-gray-100" />
+              <div className="mx-4 mt-3 border-t border-slate-700/40" />
             )}
           </div>
         ))}
       </nav>
 
       {/* Footer */}
-      <div className="px-2 py-2 border-t border-gray-100 space-y-0.5">
+      <div className="px-2 py-2 border-t border-slate-700/40 space-y-0.5">
         <button
           onClick={toggleLang}
-          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-gray-500 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-blue-400 transition-colors"
         >
           <span>🌐</span>
           {t("nav.lang_toggle")}
         </button>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-red-900/20 hover:text-red-400 transition-colors"
         >
           <span>🚪</span>
           {t("nav.signout")}
