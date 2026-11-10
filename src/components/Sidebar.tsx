@@ -4,14 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useLang } from "./LanguageProvider";
-import type { LucideIcon } from "lucide-react";
+import type { SvgIcon } from "./icons";
 import {
-  LayoutDashboard, Sparkles, Building2, FileText, Upload, FilePlus,
-  ShoppingCart, RefreshCw, Plug, Zap, Users, BookOpen, Repeat, Scale,
-  Lock, LayoutList, CreditCard, CheckCircle2, Package, BarChart2,
-  Percent, ArrowLeftRight, FolderOpen, Download, ClipboardList,
-  Settings2, Gem, Cpu, Shield, Globe, LogOut, UserPlus, Briefcase, Store,
-} from "lucide-react";
+  IcoDashboard, IcoSparkles, IcoBuilding, IcoFileText, IcoUpload, IcoFilePlus,
+  IcoShoppingCart, IcoStore, IcoPlug, IcoZap, IcoUsers, IcoBookOpen, IcoRepeat,
+  IcoScale, IcoLock, IcoLayoutList, IcoCreditCard, IcoCheckCircle, IcoPackage,
+  IcoBarChart, IcoPercent, IcoArrowLeftRight, IcoFolderOpen, IcoDownload,
+  IcoClipboardList, IcoSettings, IcoGem, IcoCpu, IcoShield, IcoGlobe, IcoLogOut,
+  IcoUserPlus, IcoBriefcase,
+} from "./icons";
 
 interface SidebarProps {
   businessName: string;
@@ -23,13 +24,13 @@ interface SidebarProps {
 interface NavChild {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: SvgIcon;
 }
 
 interface NavItem {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: SvgIcon;
   children?: NavChild[];
 }
 
@@ -76,9 +77,9 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
   const sections: NavSection[] = [
     {
       items: [
-        { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
-        { href: "/chat", label: isAr ? "المساعد الذكي" : "AI Assistant", icon: Sparkles },
-        { href: "/hq", label: isAr ? "مقر الوكلاء" : "AI HQ", icon: Building2 },
+        { href: "/dashboard", label: t("nav.dashboard"), icon: IcoDashboard },
+        { href: "/chat", label: isAr ? "المساعد الذكي" : "AI Assistant", icon: IcoSparkles },
+        { href: "/hq", label: isAr ? "مقر الوكلاء" : "AI HQ", icon: IcoBuilding },
       ],
     },
     {
@@ -87,23 +88,23 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         {
           href: "/invoices",
           label: t("nav.invoices"),
-          icon: FileText,
+          icon: IcoFileText,
           children: [
-            { href: "/invoices/upload", label: t("nav.upload"), icon: Upload },
-            { href: "/invoices/create", label: isAr ? "فاتورة مبيعات" : "Sales Invoice", icon: FilePlus },
-            { href: "/invoices/create-purchase", label: isAr ? "فاتورة شراء" : "Purchase Invoice", icon: ShoppingCart },
+            { href: "/invoices/upload", label: t("nav.upload"), icon: IcoUpload },
+            { href: "/invoices/create", label: isAr ? "فاتورة مبيعات" : "Sales Invoice", icon: IcoFilePlus },
+            { href: "/invoices/create-purchase", label: isAr ? "فاتورة شراء" : "Purchase Invoice", icon: IcoShoppingCart },
           ],
         },
         {
           href: "/sales-sync",
           label: isAr ? "مزامنة المبيعات" : "Sales Sync",
-          icon: Store,
+          icon: IcoStore,
           children: [
-            { href: "/settings/integrations", label: isAr ? "ربط المتاجر" : "Integrations", icon: Plug },
+            { href: "/settings/integrations", label: isAr ? "ربط المتاجر" : "Integrations", icon: IcoPlug },
           ],
         },
-        { href: "/expenses", label: isAr ? "مصروف سريع" : "Quick Expense", icon: Zap },
-        { href: "/contacts", label: isAr ? "العملاء والموردون" : "Contacts", icon: Users },
+        { href: "/expenses", label: isAr ? "مصروف سريع" : "Quick Expense", icon: IcoZap },
+        { href: "/contacts", label: isAr ? "العملاء والموردون" : "Contacts", icon: IcoUsers },
       ],
     },
     {
@@ -112,23 +113,23 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         {
           href: "/journal",
           label: t("nav.journal"),
-          icon: BookOpen,
+          icon: IcoBookOpen,
           children: [
-            { href: "/recurring", label: isAr ? "القيود المتكررة" : "Recurring Entries", icon: Repeat },
-            { href: "/opening-balances", label: isAr ? "الأرصدة الافتتاحية" : "Opening Balances", icon: Scale },
-            { href: "/periods", label: isAr ? "الفترات المحاسبية" : "Accounting Periods", icon: Lock },
+            { href: "/recurring", label: isAr ? "القيود المتكررة" : "Recurring Entries", icon: IcoRepeat },
+            { href: "/opening-balances", label: isAr ? "الأرصدة الافتتاحية" : "Opening Balances", icon: IcoScale },
+            { href: "/periods", label: isAr ? "الفترات المحاسبية" : "Accounting Periods", icon: IcoLock },
           ],
         },
-        { href: "/accounts", label: isAr ? "دليل الحسابات" : "Chart of Accounts", icon: LayoutList },
+        { href: "/accounts", label: isAr ? "دليل الحسابات" : "Chart of Accounts", icon: IcoLayoutList },
         {
           href: "/bank-accounts",
           label: isAr ? "الحسابات البنكية" : "Bank Accounts",
-          icon: CreditCard,
+          icon: IcoCreditCard,
           children: [
-            { href: "/bank-reconciliation", label: isAr ? "تسوية بنكية" : "Reconciliation", icon: CheckCircle2 },
+            { href: "/bank-reconciliation", label: isAr ? "تسوية بنكية" : "Reconciliation", icon: IcoCheckCircle },
           ],
         },
-        { href: "/fixed-assets", label: isAr ? "الأصول الثابتة" : "Fixed Assets", icon: Package },
+        { href: "/fixed-assets", label: isAr ? "الأصول الثابتة" : "Fixed Assets", icon: IcoPackage },
       ],
     },
     {
@@ -137,9 +138,9 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         {
           href: "/reports",
           label: isAr ? "التقارير المالية" : "Financial Reports",
-          icon: BarChart2,
+          icon: IcoBarChart,
           children: [
-            { href: "/vat-return", label: isAr ? "إقرار ضريبة القيمة المضافة" : "VAT Return", icon: Percent },
+            { href: "/vat-return", label: isAr ? "إقرار ضريبة القيمة المضافة" : "VAT Return", icon: IcoPercent },
           ],
         },
       ],
@@ -147,10 +148,10 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
     {
       label: isAr ? "أدوات" : "Tools",
       items: [
-        { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: ArrowLeftRight },
-        { href: "/documents", label: isAr ? "المستندات" : "Documents", icon: FolderOpen },
-        { href: "/import", label: isAr ? "استيراد البيانات" : "Data Import", icon: Download },
-        { href: "/audit-log", label: isAr ? "سجل المراجعة" : "Audit Trail", icon: ClipboardList },
+        { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: IcoArrowLeftRight },
+        { href: "/documents", label: isAr ? "المستندات" : "Documents", icon: IcoFolderOpen },
+        { href: "/import", label: isAr ? "استيراد البيانات" : "Data Import", icon: IcoDownload },
+        { href: "/audit-log", label: isAr ? "سجل المراجعة" : "Audit Trail", icon: IcoClipboardList },
       ],
     },
     {
@@ -159,23 +160,23 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         {
           href: "/settings",
           label: isAr ? "الإعدادات" : "Settings",
-          icon: Settings2,
+          icon: IcoSettings,
           children: (() => {
             if (isViewingClientBiz) return undefined;
             const sub: NavChild[] = [];
             if (session?.user?.plan === "PRO" || session?.user?.plan === "BUSINESS") {
-              sub.push({ href: "/settings/team", label: isAr ? "الفريق" : "Team", icon: UserPlus });
+              sub.push({ href: "/settings/team", label: isAr ? "الفريق" : "Team", icon: IcoUserPlus });
             }
             if (isPractice) {
-              sub.push({ href: "/settings/clients", label: isAr ? "عملاء المكتب" : "Clients", icon: Briefcase });
+              sub.push({ href: "/settings/clients", label: isAr ? "عملاء المكتب" : "Clients", icon: IcoBriefcase });
             }
             return sub.length > 0 ? sub : undefined;
           })(),
         },
-        ...(!isViewingClientBiz ? [{ href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: Gem }] : []),
+        ...(!isViewingClientBiz ? [{ href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: IcoGem }] : []),
         ...(showAdmin && !isViewingClientBiz ? [
-          { href: "/agents", label: isAr ? "الفريق التنفيذي" : "AI Executive", icon: Cpu },
-          { href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: Shield },
+          { href: "/agents", label: isAr ? "الفريق التنفيذي" : "AI Executive", icon: IcoCpu },
+          { href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: IcoShield },
         ] : []),
       ],
     },
@@ -219,7 +220,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                   disabled={switchingId === primaryBusinessId}
                   className={`w-full flex items-center gap-2 px-3 py-2.5 text-start hover:bg-slate-700 transition-colors ${activeBusinessId === primaryBusinessId ? "bg-slate-700" : ""}`}
                 >
-                  <Building2 size={14} className="text-slate-400" />
+                  <IcoBuilding size={14} className="text-slate-400" />
                   <div className="min-w-0 flex-1">
                     <div className="text-xs font-medium text-slate-200 truncate">
                       {isAr ? "منشأتي" : "My Business"}
@@ -239,7 +240,7 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                         disabled={switchingId === biz.id}
                         className={`w-full flex items-center gap-2 px-3 py-2 text-start hover:bg-slate-700 transition-colors ${activeBusinessId === biz.id ? "bg-slate-700" : ""}`}
                       >
-                        <Building2 size={13} className="text-slate-400 flex-shrink-0" />
+                        <IcoBuilding size={13} className="text-slate-400 flex-shrink-0" />
                         <div className="min-w-0 flex-1">
                           <div className="text-xs font-medium text-slate-200 truncate">{biz.name}</div>
                           <div className="text-xs text-slate-400">{biz.country} · {biz.currency}</div>
@@ -366,14 +367,14 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
           onClick={toggleLang}
           className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-slate-100 hover:bg-slate-800/60 hover:text-blue-400 transition-colors"
         >
-          <Globe size={15} strokeWidth={1.75} className="flex-shrink-0 opacity-60" />
+          <IcoGlobe size={15} strokeWidth={1.75} className="flex-shrink-0 opacity-60" />
           {t("nav.lang_toggle")}
         </button>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
           className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-slate-100 hover:bg-red-900/20 hover:text-red-400 transition-colors"
         >
-          <LogOut size={15} strokeWidth={1.75} className="flex-shrink-0 opacity-60" />
+          <IcoLogOut size={15} strokeWidth={1.75} className="flex-shrink-0 opacity-60" />
           {t("nav.signout")}
         </button>
       </div>
