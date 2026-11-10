@@ -68,9 +68,9 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
   const sections: NavSection[] = [
     {
       items: [
-        { href: "/dashboard", label: t("nav.dashboard"), icon: "🏠" },
-        { href: "/chat", label: isAr ? "المساعد الذكي" : "AI Assistant", icon: "🤖" },
-        { href: "/hq", label: isAr ? "مقر الوكلاء" : "AI HQ", icon: "🏢" },
+        { href: "/dashboard", label: t("nav.dashboard"), icon: "⬡" },
+        { href: "/chat", label: isAr ? "المساعد الذكي" : "AI Assistant", icon: "✦" },
+        { href: "/hq", label: isAr ? "مقر الوكلاء" : "AI HQ", icon: "◈" },
       ],
     },
     {
@@ -79,23 +79,23 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         {
           href: "/invoices",
           label: t("nav.invoices"),
-          icon: "🧾",
+          icon: "▤",
           children: [
-            { href: "/invoices/upload", label: t("nav.upload"), icon: "⬆️" },
-            { href: "/invoices/create", label: isAr ? "فاتورة مبيعات" : "Sales Invoice", icon: "📝" },
-            { href: "/invoices/create-purchase", label: isAr ? "فاتورة شراء" : "Purchase Invoice", icon: "🛒" },
+            { href: "/invoices/upload", label: t("nav.upload"), icon: "↑" },
+            { href: "/invoices/create", label: isAr ? "فاتورة مبيعات" : "Sales Invoice", icon: "+" },
+            { href: "/invoices/create-purchase", label: isAr ? "فاتورة شراء" : "Purchase Invoice", icon: "↓" },
           ],
         },
         {
           href: "/sales-sync",
           label: isAr ? "مزامنة المبيعات" : "Sales Sync",
-          icon: "🛍️",
+          icon: "⇄",
           children: [
-            { href: "/settings/integrations", label: isAr ? "ربط المتاجر" : "Integrations", icon: "🔌" },
+            { href: "/settings/integrations", label: isAr ? "ربط المتاجر" : "Integrations", icon: "⊕" },
           ],
         },
-        { href: "/expenses", label: isAr ? "مصروف سريع" : "Quick Expense", icon: "💸" },
-        { href: "/contacts", label: isAr ? "العملاء والموردون" : "Contacts", icon: "👥" },
+        { href: "/expenses", label: isAr ? "مصروف سريع" : "Quick Expense", icon: "◎" },
+        { href: "/contacts", label: isAr ? "العملاء والموردون" : "Contacts", icon: "◉" },
       ],
     },
     {
@@ -104,23 +104,23 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         {
           href: "/journal",
           label: t("nav.journal"),
-          icon: "📒",
+          icon: "≡",
           children: [
-            { href: "/recurring", label: isAr ? "القيود المتكررة" : "Recurring Entries", icon: "🔁" },
-            { href: "/opening-balances", label: isAr ? "الأرصدة الافتتاحية" : "Opening Balances", icon: "⚖️" },
-            { href: "/periods", label: isAr ? "الفترات المحاسبية" : "Accounting Periods", icon: "🔒" },
+            { href: "/recurring", label: isAr ? "القيود المتكررة" : "Recurring Entries", icon: "↺" },
+            { href: "/opening-balances", label: isAr ? "الأرصدة الافتتاحية" : "Opening Balances", icon: "⊞" },
+            { href: "/periods", label: isAr ? "الفترات المحاسبية" : "Accounting Periods", icon: "⊟" },
           ],
         },
-        { href: "/accounts", label: isAr ? "دليل الحسابات" : "Chart of Accounts", icon: "📋" },
+        { href: "/accounts", label: isAr ? "دليل الحسابات" : "Chart of Accounts", icon: "⊞" },
         {
           href: "/bank-accounts",
           label: isAr ? "الحسابات البنكية" : "Bank Accounts",
-          icon: "🏦",
+          icon: "⬡",
           children: [
-            { href: "/bank-reconciliation", label: isAr ? "تسوية بنكية" : "Reconciliation", icon: "🔄" },
+            { href: "/bank-reconciliation", label: isAr ? "تسوية بنكية" : "Reconciliation", icon: "⇋" },
           ],
         },
-        { href: "/fixed-assets", label: isAr ? "الأصول الثابتة" : "Fixed Assets", icon: "🏗️" },
+        { href: "/fixed-assets", label: isAr ? "الأصول الثابتة" : "Fixed Assets", icon: "◫" },
       ],
     },
     {
@@ -129,9 +129,9 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         {
           href: "/reports",
           label: isAr ? "التقارير المالية" : "Financial Reports",
-          icon: "📊",
+          icon: "▦",
           children: [
-            { href: "/vat-return", label: isAr ? "إقرار ضريبة القيمة المضافة" : "VAT Return", icon: "🧮" },
+            { href: "/vat-return", label: isAr ? "إقرار ضريبة القيمة المضافة" : "VAT Return", icon: "%" },
           ],
         },
       ],
@@ -139,10 +139,10 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
     {
       label: isAr ? "أدوات" : "Tools",
       items: [
-        { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "💱" },
-        { href: "/documents", label: isAr ? "المستندات" : "Documents", icon: "📄" },
-        { href: "/import", label: isAr ? "استيراد البيانات" : "Data Import", icon: "📥" },
-        { href: "/audit-log", label: isAr ? "سجل المراجعة" : "Audit Trail", icon: "🗂️" },
+        { href: "/currency", label: isAr ? "محوّل العملات" : "Currency", icon: "⇌" },
+        { href: "/documents", label: isAr ? "المستندات" : "Documents", icon: "▭" },
+        { href: "/import", label: isAr ? "استيراد البيانات" : "Data Import", icon: "⤓" },
+        { href: "/audit-log", label: isAr ? "سجل المراجعة" : "Audit Trail", icon: "☰" },
       ],
     },
     {
@@ -151,23 +151,23 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
         {
           href: "/settings",
           label: isAr ? "الإعدادات" : "Settings",
-          icon: "⚙️",
+          icon: "◎",
           children: (() => {
             if (isViewingClientBiz) return undefined;
             const sub: NavChild[] = [];
             if (session?.user?.plan === "PRO" || session?.user?.plan === "BUSINESS") {
-              sub.push({ href: "/settings/team", label: isAr ? "الفريق" : "Team", icon: "👤" });
+              sub.push({ href: "/settings/team", label: isAr ? "الفريق" : "Team", icon: "◉" });
             }
             if (isPractice) {
-              sub.push({ href: "/settings/clients", label: isAr ? "عملاء المكتب" : "Clients", icon: "🏢" });
+              sub.push({ href: "/settings/clients", label: isAr ? "عملاء المكتب" : "Clients", icon: "◈" });
             }
             return sub.length > 0 ? sub : undefined;
           })(),
         },
-        ...(!isViewingClientBiz ? [{ href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "💎" }] : []),
+        ...(!isViewingClientBiz ? [{ href: "/pricing", label: isAr ? "الخطط والأسعار" : "Pricing", icon: "◆" }] : []),
         ...(showAdmin && !isViewingClientBiz ? [
-          { href: "/agents", label: isAr ? "الفريق التنفيذي" : "AI Executive", icon: "🏢" },
-          { href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "🛡️" },
+          { href: "/agents", label: isAr ? "الفريق التنفيذي" : "AI Executive", icon: "✦" },
+          { href: "/admin", label: isAr ? "لوحة الإدارة" : "Admin", icon: "⊛" },
         ] : []),
       ],
     },
@@ -288,13 +288,13 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                     <div className="flex items-center">
                       <Link
                         href={item.href}
-                        className={`flex-1 flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        className={`flex-1 flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors ${
                           active
-                            ? "bg-blue-600/15 text-blue-400"
-                            : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                            ? "bg-blue-600/15 text-blue-400 font-semibold"
+                            : "text-slate-100 font-semibold hover:bg-slate-800/60 hover:text-white"
                         }`}
                       >
-                        <span className="text-base leading-none">{item.icon}</span>
+                        <span className="w-4 text-center text-sm leading-none opacity-70">{item.icon}</span>
                         <span className="truncate">{item.label}</span>
                       </Link>
                       {hasChildren && (
@@ -318,13 +318,13 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
                             <Link
                               key={child.href}
                               href={child.href}
-                              className={`flex items-center gap-2 ${isAr ? "pr-3" : "pl-3"} py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                              className={`flex items-center gap-2 ${isAr ? "pr-3" : "pl-3"} py-1.5 rounded-lg text-xs transition-colors ${
                                 childActive
-                                  ? "bg-blue-600/15 text-blue-400"
-                                  : "text-slate-500 hover:bg-slate-800 hover:text-slate-300"
+                                  ? "bg-blue-600/15 text-blue-400 font-semibold"
+                                  : "text-slate-300 font-medium hover:bg-slate-800/60 hover:text-white"
                               }`}
                             >
-                              <span className="text-sm leading-none">{child.icon}</span>
+                              <span className="w-3 text-center text-xs leading-none opacity-60">{child.icon}</span>
                               <span className="truncate">{child.label}</span>
                             </Link>
                           );
@@ -346,16 +346,16 @@ export default function Sidebar({ businessName, country, currency, isAdmin }: Si
       <div className="px-2 py-2 border-t border-slate-700/40 space-y-0.5">
         <button
           onClick={toggleLang}
-          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-blue-400 transition-colors"
+          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-slate-100 hover:bg-slate-800/60 hover:text-blue-400 transition-colors"
         >
-          <span>🌐</span>
+          <span className="w-4 text-center text-sm leading-none opacity-70">⊕</span>
           {t("nav.lang_toggle")}
         </button>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-red-900/20 hover:text-red-400 transition-colors"
+          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold text-slate-100 hover:bg-red-900/20 hover:text-red-400 transition-colors"
         >
-          <span>🚪</span>
+          <span className="w-4 text-center text-sm leading-none opacity-70">→</span>
           {t("nav.signout")}
         </button>
       </div>
