@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 
 const schema = z.object({
   name: z.string().min(2).max(100),
-  country: z.string().length(2).optional(),
+  country: z.enum(["EG", "SA", "AE", "JO", "KW", "BH", "QA", "OM"]).optional(),
   baseCurrency: z.string().min(2).max(10).optional(),
   taxNumber: z.string().max(50).optional().nullable(),
   address: z.string().max(200).optional().nullable(),

@@ -20,7 +20,11 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const type = searchParams.get("type") as "CUSTOMER" | "VENDOR" | null;
+  const typeParam = searchParams.get("type");
+  const VALID_TYPES = ["CUSTOMER", "VENDOR"] as const;
+  const type = VALID_TYPES.includes(typeParam as (typeof VALID_TYPES)[number])
+    ? (typeParam as "CUSTOMER" | "VENDOR")
+    : null;
 
   const contacts = await prisma.contact.findMany({
     where: {
@@ -28,6 +32,7 @@ export async function GET(req: NextRequest) {
       ...(type ? { type } : {}),
     },
     orderBy: { name: "asc" },
+    take: 1000,
   });
 
   return NextResponse.json(contacts);

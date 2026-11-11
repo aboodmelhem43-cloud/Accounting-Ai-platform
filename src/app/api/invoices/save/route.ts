@@ -9,8 +9,8 @@ import { createJournalEntry } from "@/lib/ledger";
 const MAX_AMOUNT = 1_000_000_000;
 
 const lineItemSchema = z.object({
-  description: z.string(),
-  quantity: z.number().min(0).max(MAX_AMOUNT),
+  description: z.string().min(1),
+  quantity: z.number().min(0.001).max(MAX_AMOUNT),
   unitPrice: z.number().min(0).max(MAX_AMOUNT),
 });
 
@@ -27,7 +27,7 @@ const schema = z.object({
   customerPhone: z.string().optional(),
   customerEmail: z.string().optional(),
   contactId: z.string().optional(),
-  lineItems: z.array(lineItemSchema),
+  lineItems: z.array(lineItemSchema).min(1),
   subtotal: z.number().min(0).max(MAX_AMOUNT),
   taxRate: z.number().min(0).max(100),
   taxAmount: z.number().min(0).max(MAX_AMOUNT),
@@ -60,6 +60,13 @@ export async function POST(req: NextRequest) {
   }
 
   const data = parsed.data;
+
+  // تحقق من توازن الإجماليات — grandTotal يجب أن يساوي subtotal + taxAmount
+  const computedTotal = Math.round((data.subtotal + data.taxAmount) * 100) / 100;
+  if (Math.abs(computedTotal - data.grandTotal) > 0.01) {
+    return NextResponse.json({ error: "إجمالي الفاتورة لا يتطابق مع مجموع المبلغ قبل الضريبة والضريبة" }, { status: 400 });
+  }
+
   const { businessId } = session.user;
 
   // جلب الحسابات المطلوبة للقيد
