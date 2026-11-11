@@ -16,6 +16,9 @@ function buildNonceCsp(nonce: string): string {
 
 function withNonce(res: ReturnType<typeof NextResponse.next>, csp: string) {
   res.headers.set("Content-Security-Policy", csp);
+  res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   return res;
 }
 

@@ -59,11 +59,15 @@ export default async function InvoicesPage({
   const { q = "", status = "", period = "", page: pageStr = "1" } = await searchParams;
   const page = Math.max(1, parseInt(pageStr, 10) || 1);
   const periodRange = getPeriodRange(period);
-  const needle = q.trim().toLowerCase();
+  const needle = q.trim().slice(0, 100).toLowerCase();
+
+  const VALID_STATUSES = ["PENDING_REVIEW", "CONFIRMED", "REJECTED"] as const;
+  type InvoiceStatus = (typeof VALID_STATUSES)[number];
+  const statusFilter = VALID_STATUSES.includes(status as InvoiceStatus) ? (status as InvoiceStatus) : undefined;
 
   const where = {
     businessId,
-    ...(status ? { status: status as "PENDING_REVIEW" | "CONFIRMED" | "REJECTED" } : {}),
+    ...(statusFilter ? { status: statusFilter } : {}),
     ...(periodRange ? { createdAt: { gte: periodRange.from, lte: periodRange.to } } : {}),
   };
 

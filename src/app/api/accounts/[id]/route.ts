@@ -5,9 +5,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const updateSchema = z.object({
-  name: z.string().min(1).optional(),
-  nameAr: z.string().optional(),
-  description: z.string().optional(),
+  name: z.string().min(1).max(100).optional(),
+  nameAr: z.string().max(100).optional(),
+  description: z.string().max(500).optional(),
 });
 
 export async function PUT(

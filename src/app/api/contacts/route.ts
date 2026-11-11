@@ -7,12 +7,12 @@ import { checkActivePlan } from "@/lib/plans";
 
 const createContactSchema = z.object({
   type: z.enum(["CUSTOMER", "VENDOR"]),
-  name: z.string().min(1),
-  email: z.string().email().optional().nullable(),
-  phone: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
-  taxNumber: z.string().optional().nullable(),
-  notes: z.string().optional().nullable(),
+  name: z.string().min(1).max(200),
+  email: z.string().email().max(200).optional().nullable(),
+  phone: z.string().max(30).optional().nullable(),
+  address: z.string().max(500).optional().nullable(),
+  taxNumber: z.string().max(50).optional().nullable(),
+  notes: z.string().max(2000).optional().nullable(),
 });
 
 export async function GET(req: NextRequest) {

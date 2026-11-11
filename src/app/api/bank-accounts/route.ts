@@ -5,12 +5,12 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const createBankAccountSchema = z.object({
-  name: z.string().min(1),
-  bankName: z.string().min(1),
-  accountNumber: z.string().optional().nullable(),
-  iban: z.string().optional().nullable(),
-  currency: z.string().optional(),
-  openingBalance: z.number().default(0),
+  name: z.string().min(1).max(100),
+  bankName: z.string().min(1).max(100),
+  accountNumber: z.string().max(50).optional().nullable(),
+  iban: z.string().max(34).optional().nullable(),
+  currency: z.string().max(10).optional(),
+  openingBalance: z.number().min(-1_000_000_000).max(1_000_000_000).default(0),
 });
 
 export async function GET(req: NextRequest) {

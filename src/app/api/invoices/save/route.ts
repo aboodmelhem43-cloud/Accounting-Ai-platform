@@ -15,9 +15,9 @@ const lineItemSchema = z.object({
 });
 
 const schema = z.object({
-  invoiceNumber: z.string().min(1),
-  invoiceDate: z.string().min(1),
-  dueDate: z.string().optional(),
+  invoiceNumber: z.string().min(1).max(50),
+  invoiceDate: z.string().min(1).refine((s) => !isNaN(new Date(s).getTime()), { message: "تاريخ الفاتورة غير صالح" }),
+  dueDate: z.string().optional().refine((s) => !s || !isNaN(new Date(s).getTime()), { message: "تاريخ الاستحقاق غير صالح" }),
   sellerName: z.string(),
   sellerTaxNumber: z.string().optional(),
   sellerAddress: z.string().optional(),
