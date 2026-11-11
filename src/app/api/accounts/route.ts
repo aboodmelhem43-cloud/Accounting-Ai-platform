@@ -18,9 +18,9 @@ export async function GET(_req: NextRequest) {
 }
 
 const createSchema = z.object({
-  code: z.string().min(1),
-  name: z.string().min(1),
-  nameAr: z.string().optional(),
+  code: z.string().min(1).max(20),
+  name: z.string().min(1).max(100),
+  nameAr: z.string().max(100).optional(),
   type: z.enum(["ASSET", "LIABILITY", "EQUITY", "REVENUE", "EXPENSE"]),
 });
 

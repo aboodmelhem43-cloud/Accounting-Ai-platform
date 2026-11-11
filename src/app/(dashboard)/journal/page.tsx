@@ -451,7 +451,7 @@ export default function JournalPage() {
             {lang === "ar" ? "← السابق" : "← Prev"}
           </button>
           <span className="py-2 text-sm text-gray-500">{lang === "ar" ? `صفحة ${page}` : `Page ${page}`}</span>
-          <button onClick={() => setPage((p) => p + 1)} disabled={entries.length < 20} className="btn-secondary">
+          <button onClick={() => setPage((p) => p + 1)} disabled={page * 20 >= total} className="btn-secondary">
             {lang === "ar" ? "التالي →" : "Next →"}
           </button>
         </div>

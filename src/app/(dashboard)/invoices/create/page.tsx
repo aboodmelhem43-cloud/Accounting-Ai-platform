@@ -18,6 +18,7 @@ interface BusinessInfo {
   taxNumber: string | null;
   address: string | null;
   phone: string | null;
+  compliance?: CountryCompliance;
 }
 
 interface CustomerContact {
@@ -46,69 +47,15 @@ interface CountryCompliance {
   showQr: boolean;
 }
 
-const COMPLIANCE: Record<string, CountryCompliance> = {
-  JO: {
-    vatRate: 0.16, vatName: "ضريبة المبيعات العامة", vatNameEn: "General Sales Tax",
-    vatShortName: "GST", currency: "JOD", currencySymbol: "JD",
-    eInvoiceSystem: "JoFotara",
-    eInvoiceNoteAr: "وفقاً لنظام JoFotara، هذه الفاتورة إلزامية لكل عملية بيع بقيمة دينار أردني أو أكثر.",
-    eInvoiceNoteEn: "Per JoFotara system, this invoice is mandatory for all sales of 1 JOD or more.",
-    invoiceTitleAr: "فاتورة ضريبة مبيعات", invoiceTitleEn: "Sales Tax Invoice",
-    taxIdLabel: "الرقم الضريبي", taxIdLabelEn: "Tax Number", showQr: false,
-  },
-  EG: {
-    vatRate: 0.14, vatName: "ضريبة القيمة المضافة", vatNameEn: "Value Added Tax",
-    vatShortName: "VAT", currency: "EGP", currencySymbol: "ج.م",
-    eInvoiceSystem: "ETA",
-    eInvoiceNoteAr: "وفقاً لمنظومة الفاتورة الإلكترونية (ETA)، يجب تقديم هذه الفاتورة إلكترونياً عبر بوابة الضرائب المصرية.",
-    eInvoiceNoteEn: "Per Egypt Tax Authority (ETA) e-invoice system, this invoice must be submitted electronically.",
-    invoiceTitleAr: "فاتورة ضريبية", invoiceTitleEn: "Tax Invoice",
-    taxIdLabel: "الرقم الضريبي", taxIdLabelEn: "Tax Number", showQr: false,
-  },
-  SA: {
-    vatRate: 0.15, vatName: "ضريبة القيمة المضافة", vatNameEn: "Value Added Tax",
-    vatShortName: "VAT", currency: "SAR", currencySymbol: "ر.س",
-    eInvoiceSystem: "ZATCA",
-    eInvoiceNoteAr: "وفقاً لنظام فاتورة (ZATCA)، يجب إصدار هذه الفاتورة إلكترونياً وتضمين رمز QR الضريبي.",
-    eInvoiceNoteEn: "Per ZATCA e-invoice mandate, this invoice must be issued electronically with a QR code.",
-    invoiceTitleAr: "فاتورة ضريبية", invoiceTitleEn: "Tax Invoice",
-    taxIdLabel: "الرقم الضريبي (15 رقماً)", taxIdLabelEn: "VAT Number (15 digits)", showQr: true,
-  },
-  AE: {
-    vatRate: 0.05, vatName: "ضريبة القيمة المضافة", vatNameEn: "Value Added Tax",
-    vatShortName: "VAT", currency: "AED", currencySymbol: "د.إ",
-    eInvoiceSystem: null, eInvoiceNoteAr: "", eInvoiceNoteEn: "",
-    invoiceTitleAr: "فاتورة ضريبية", invoiceTitleEn: "Tax Invoice",
-    taxIdLabel: "الرقم الضريبي", taxIdLabelEn: "TRN", showQr: false,
-  },
-  KW: {
-    vatRate: 0, vatName: "", vatNameEn: "", vatShortName: "",
-    currency: "KWD", currencySymbol: "د.ك",
-    eInvoiceSystem: null, eInvoiceNoteAr: "", eInvoiceNoteEn: "",
-    invoiceTitleAr: "فاتورة", invoiceTitleEn: "Invoice",
-    taxIdLabel: "الرقم الضريبي", taxIdLabelEn: "Tax Number", showQr: false,
-  },
-  BH: {
-    vatRate: 0.10, vatName: "ضريبة القيمة المضافة", vatNameEn: "Value Added Tax",
-    vatShortName: "VAT", currency: "BHD", currencySymbol: "د.ب",
-    eInvoiceSystem: null, eInvoiceNoteAr: "", eInvoiceNoteEn: "",
-    invoiceTitleAr: "فاتورة ضريبية", invoiceTitleEn: "Tax Invoice",
-    taxIdLabel: "الرقم الضريبي", taxIdLabelEn: "TIN", showQr: false,
-  },
-  QA: {
-    vatRate: 0, vatName: "", vatNameEn: "", vatShortName: "",
-    currency: "QAR", currencySymbol: "ر.ق",
-    eInvoiceSystem: null, eInvoiceNoteAr: "", eInvoiceNoteEn: "",
-    invoiceTitleAr: "فاتورة", invoiceTitleEn: "Invoice",
-    taxIdLabel: "الرقم الضريبي", taxIdLabelEn: "Tax Number", showQr: false,
-  },
-  OM: {
-    vatRate: 0.05, vatName: "ضريبة القيمة المضافة", vatNameEn: "Value Added Tax",
-    vatShortName: "VAT", currency: "OMR", currencySymbol: "ر.ع",
-    eInvoiceSystem: null, eInvoiceNoteAr: "", eInvoiceNoteEn: "",
-    invoiceTitleAr: "فاتورة ضريبية", invoiceTitleEn: "Tax Invoice",
-    taxIdLabel: "الرقم الضريبي", taxIdLabelEn: "TIN", showQr: false,
-  },
+// قيم افتراضية لمصر — تُستبدل بقيم الدولة الفعلية بعد جلب بيانات المنشأة من API
+const DEFAULT_COMPLIANCE: CountryCompliance = {
+  vatRate: 0.14, vatName: "ضريبة القيمة المضافة", vatNameEn: "Value Added Tax",
+  vatShortName: "VAT", currency: "EGP", currencySymbol: "ج.م",
+  eInvoiceSystem: "ETA",
+  eInvoiceNoteAr: "وفقاً لمنظومة الفاتورة الإلكترونية (ETA)، يجب تقديم هذه الفاتورة إلكترونياً عبر بوابة الضرائب المصرية.",
+  eInvoiceNoteEn: "Per Egypt Tax Authority (ETA) e-invoice system, this invoice must be submitted electronically.",
+  invoiceTitleAr: "فاتورة ضريبية", invoiceTitleEn: "Tax Invoice",
+  taxIdLabel: "الرقم الضريبي", taxIdLabelEn: "Tax Number", showQr: false,
 };
 
 const EINVOICE_COLORS: Record<string, string> = {
@@ -118,15 +65,6 @@ const EINVOICE_COLORS: Record<string, string> = {
 };
 
 const today = new Date().toISOString().split("T")[0];
-// First and last day of the current month — invoice dates must stay within current month
-const currentMonthStart = (() => {
-  const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split("T")[0];
-})();
-const currentMonthEnd = (() => {
-  const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split("T")[0];
-})();
 
 import { useRouter } from "next/navigation";
 
@@ -167,8 +105,9 @@ export default function CreateInvoicePage() {
 
   const [taxRate, setTaxRate] = useState(0);
   const [notes, setNotes] = useState("");
+  const [validationError, setValidationError] = useState("");
 
-  const compliance = COMPLIANCE[business?.country ?? ""] ?? COMPLIANCE["EG"];
+  const compliance = business?.compliance ?? DEFAULT_COMPLIANCE;
 
   // Load business info, customers, and next invoice number on mount
   useEffect(() => {
@@ -179,8 +118,8 @@ export default function CreateInvoicePage() {
         setSellerName(data.name ?? "");
         setSellerTaxNumber(data.taxNumber ?? "");
         setSellerAddress(data.address ?? "");
-        const c = COMPLIANCE[data.country ?? ""] ?? COMPLIANCE["EG"];
-        setTaxRate(Math.round(c.vatRate * 100));
+        const c = data.compliance;
+        if (c) setTaxRate(Math.round(c.vatRate * 100));
       })
       .catch(() => {});
 
@@ -431,6 +370,26 @@ export default function CreateInvoicePage() {
     );
   }
 
+  function goToPreview() {
+    const hasValidItem = lineItems.some(
+      (l) => l.description.trim() && l.quantity > 0 && l.unitPrice > 0
+    );
+    if (!hasValidItem) {
+      setValidationError(isAr
+        ? "أضف بنداً واحداً على الأقل بوصف وسعر صحيحين"
+        : "Add at least one line item with a valid description and price");
+      return;
+    }
+    if (subtotal <= 0) {
+      setValidationError(isAr
+        ? "إجمالي الفاتورة يجب أن يكون أكبر من صفر"
+        : "Invoice total must be greater than zero");
+      return;
+    }
+    setValidationError("");
+    setView("preview");
+  }
+
   // ── Form view ──
   return (
     <div className="space-y-6 max-w-4xl" dir={isAr ? "rtl" : "ltr"}>
@@ -467,7 +426,7 @@ export default function CreateInvoicePage() {
           </div>
           <div>
             <label className="label">{isAr ? "تاريخ الفاتورة" : "Invoice Date"}</label>
-            <input type="date" value={invoiceDate} min={currentMonthStart} max={currentMonthEnd} onChange={(e) => setInvoiceDate(e.target.value)} className="input" />
+            <input type="date" value={invoiceDate} max={today} onChange={(e) => setInvoiceDate(e.target.value)} className="input" />
           </div>
           <div>
             <label className="label">{isAr ? "تاريخ الاستحقاق (اختياري)" : "Due Date (optional)"}</label>
@@ -652,8 +611,13 @@ export default function CreateInvoicePage() {
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder={isAr ? "شروط الدفع، تعليمات خاصة..." : "Payment terms, special instructions..."} className="input resize-none" />
       </div>
 
+      {validationError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+          {validationError}
+        </div>
+      )}
       <div className="flex gap-3">
-        <button type="button" onClick={() => setView("preview")} className="btn-primary">
+        <button type="button" onClick={goToPreview} className="btn-primary">
           👁️ {isAr ? "معاينة وطباعة" : "Preview & Print"}
         </button>
       </div>

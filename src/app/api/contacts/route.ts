@@ -7,12 +7,12 @@ import { checkActivePlan } from "@/lib/plans";
 
 const createContactSchema = z.object({
   type: z.enum(["CUSTOMER", "VENDOR"]),
-  name: z.string().min(1),
-  email: z.string().email().optional().nullable(),
-  phone: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
-  taxNumber: z.string().optional().nullable(),
-  notes: z.string().optional().nullable(),
+  name: z.string().min(1).max(200),
+  email: z.string().email().max(200).optional().nullable(),
+  phone: z.string().max(30).optional().nullable(),
+  address: z.string().max(500).optional().nullable(),
+  taxNumber: z.string().max(50).optional().nullable(),
+  notes: z.string().max(2000).optional().nullable(),
 });
 
 export async function GET(req: NextRequest) {
@@ -20,7 +20,11 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const type = searchParams.get("type") as "CUSTOMER" | "VENDOR" | null;
+  const typeParam = searchParams.get("type");
+  const VALID_TYPES = ["CUSTOMER", "VENDOR"] as const;
+  const type = VALID_TYPES.includes(typeParam as (typeof VALID_TYPES)[number])
+    ? (typeParam as "CUSTOMER" | "VENDOR")
+    : null;
 
   const contacts = await prisma.contact.findMany({
     where: {
@@ -28,6 +32,7 @@ export async function GET(req: NextRequest) {
       ...(type ? { type } : {}),
     },
     orderBy: { name: "asc" },
+    take: 1000,
   });
 
   return NextResponse.json(contacts);

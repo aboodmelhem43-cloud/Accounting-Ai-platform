@@ -97,13 +97,31 @@ export default function SettingsPage() {
   function handleLogoFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 400 * 1024) {
-      setBMsg({ ok: false, text: isAr ? "حجم الشعار يجب أن يكون أقل من 400 كيلوبايت" : "Logo must be under 400 KB" });
+    if (file.size > 5 * 1024 * 1024) {
+      setBMsg({ ok: false, text: isAr ? "حجم الملف يجب أن يكون أقل من 5 ميجابايت" : "File must be under 5 MB" });
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (ev) => setBLogo(ev.target?.result as string);
-    reader.readAsDataURL(file);
+    const url = URL.createObjectURL(file);
+    const img = new window.Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const MAX_DIM = 300;
+      let { width, height } = img;
+      if (width > MAX_DIM || height > MAX_DIM) {
+        if (width > height) { height = Math.round(height * MAX_DIM / width); width = MAX_DIM; }
+        else { width = Math.round(width * MAX_DIM / height); height = MAX_DIM; }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
+      setBLogo(canvas.toDataURL("image/jpeg", 0.75));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      setBMsg({ ok: false, text: isAr ? "تعذّر تحميل الصورة" : "Could not load image" });
+    };
+    img.src = url;
   }
 
   async function saveBusiness() {
@@ -389,7 +407,7 @@ export default function SettingsPage() {
                     {isAr ? "حذف الشعار" : "Remove"}
                   </button>
                 )}
-                <p className="text-xs text-gray-400">{isAr ? "PNG/JPG · حد أقصى 400 كيلوبايت" : "PNG/JPG · max 400 KB"}</p>
+                <p className="text-xs text-gray-400">{isAr ? "PNG/JPG · يُضغط تلقائياً (حد 5 ميجابايت)" : "PNG/JPG · auto-compressed (max 5 MB)"}</p>
               </div>
             </div>
             <input ref={logoInputRef} type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="hidden" onChange={handleLogoFile} />

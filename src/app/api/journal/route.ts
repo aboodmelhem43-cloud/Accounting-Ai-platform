@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const page = Number(searchParams.get("page") ?? 1);
+  const page = Math.max(1, Number(searchParams.get("page") ?? 1));
   const statusParam = searchParams.get("status");
   const validStatuses = Object.values(JournalEntryStatus) as string[];
   const statusFilter = statusParam && validStatuses.includes(statusParam)
@@ -56,7 +56,7 @@ const createJournalSchema = z.object({
   date: z.string().min(1),
   description: z.string().min(1),
   status: z.enum(["DRAFT", "PENDING_REVIEW", "POSTED"]).default("POSTED"),
-  lines: z.array(journalLineSchema).min(2),
+  lines: z.array(journalLineSchema).min(2).max(200),
 });
 
 export async function POST(req: NextRequest) {
