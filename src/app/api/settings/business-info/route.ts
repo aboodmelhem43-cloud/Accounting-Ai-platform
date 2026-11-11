@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getComplianceModule } from "@/compliance";
+import { toInvoiceCompliance } from "@/lib/invoice-compliance";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -12,5 +14,6 @@ export async function GET() {
     select: { name: true, country: true, baseCurrency: true, taxNumber: true, address: true, phone: true, logo: true, defaultPaymentTerms: true, invoiceNumberPrefix: true, invoiceNumberSeed: true },
   });
 
-  return NextResponse.json(business ?? {});
+  const compliance = toInvoiceCompliance(getComplianceModule(business?.country ?? "EG"));
+  return NextResponse.json({ ...(business ?? {}), compliance });
 }
