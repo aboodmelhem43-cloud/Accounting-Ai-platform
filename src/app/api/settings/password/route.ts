@@ -7,8 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
-  currentPassword: z.string().min(1),
-  newPassword: z.string().min(8, "Password must be at least 8 characters"),
+  currentPassword: z.string().min(1).max(128),
+  newPassword: z.string().min(8, "Password must be at least 8 characters").max(128),
 });
 
 export async function POST(req: NextRequest) {

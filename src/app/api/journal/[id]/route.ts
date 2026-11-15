@@ -5,17 +5,19 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { logAudit } from "@/lib/audit";
 
+const MAX_AMOUNT = 1_000_000_000;
+
 const journalLineSchema = z.object({
   accountId: z.string().min(1),
-  debit: z.number().min(0),
-  credit: z.number().min(0),
-  description: z.string().optional(),
+  debit: z.number().min(0).max(MAX_AMOUNT),
+  credit: z.number().min(0).max(MAX_AMOUNT),
+  description: z.string().max(500).optional(),
 });
 
 const updateJournalSchema = z.object({
-  date: z.string().min(1),
-  description: z.string().min(1),
-  lines: z.array(journalLineSchema).min(2),
+  date: z.string().min(1).refine((s) => !isNaN(new Date(s).getTime()), { message: "تاريخ غير صالح" }),
+  description: z.string().min(1).max(500),
+  lines: z.array(journalLineSchema).min(2).max(200),
 });
 
 export async function GET(
