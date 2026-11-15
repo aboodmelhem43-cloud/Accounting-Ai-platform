@@ -71,27 +71,34 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      const journalEntry = await createJournalEntry({
-        businessId: session.user.businessId,
-        userId: session.user.id,
-        date: event.occurredAt,
-        description: `مبيعة من ${event.platform} — طلب #${event.orderNumber}`,
-        sourceType: "AI_SALES",
-        status: "POSTED",
-        lines: lines.map((l) => ({
-          accountId: l.accountId,
-          debit: l.debit,
-          credit: l.credit,
-          description: l.description,
-        })),
+      const journalEntryId = await prisma.$transaction(async (tx) => {
+        const entry = await createJournalEntry(
+          {
+            businessId: session.user.businessId,
+            userId: session.user.id,
+            date: event.occurredAt,
+            description: `مبيعة من ${event.platform} — طلب #${event.orderNumber}`,
+            sourceType: "AI_SALES",
+            status: "POSTED",
+            lines: lines.map((l) => ({
+              accountId: l.accountId,
+              debit: l.debit,
+              credit: l.credit,
+              description: l.description,
+            })),
+          },
+          tx
+        );
+
+        await tx.salesEvent.update({
+          where: { id: event.id },
+          data: { status: "APPROVED", journalEntryId: entry.id },
+        });
+
+        return entry.id;
       });
 
-      await prisma.salesEvent.update({
-        where: { id: event.id },
-        data: { status: "APPROVED", journalEntryId: journalEntry.id },
-      });
-
-      results.push({ id: event.id, ok: true, journalEntryId: journalEntry.id });
+      results.push({ id: event.id, ok: true, journalEntryId });
     } catch (err) {
       results.push({ id: event.id, ok: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" });
     }
