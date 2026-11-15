@@ -45,16 +45,18 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ entries, total, page, pages: Math.ceil(total / limit) });
 }
 
+const MAX_AMOUNT = 1_000_000_000;
+
 const journalLineSchema = z.object({
   accountId: z.string().min(1),
-  debit: z.number().min(0),
-  credit: z.number().min(0),
-  description: z.string().optional(),
+  debit: z.number().min(0).max(MAX_AMOUNT),
+  credit: z.number().min(0).max(MAX_AMOUNT),
+  description: z.string().max(500).optional(),
 });
 
 const createJournalSchema = z.object({
-  date: z.string().min(1),
-  description: z.string().min(1),
+  date: z.string().min(1).refine((s) => !isNaN(new Date(s).getTime()), { message: "تاريخ غير صالح" }),
+  description: z.string().min(1).max(500),
   status: z.enum(["DRAFT", "PENDING_REVIEW", "POSTED"]).default("POSTED"),
   lines: z.array(journalLineSchema).min(2).max(200),
 });
