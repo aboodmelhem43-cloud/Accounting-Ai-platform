@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 
 const updateSchema = z.object({
   name: z.string().min(1).max(100).optional(),
@@ -36,6 +37,15 @@ export async function PUT(
     data: parsed.data,
   });
 
+  await logAudit({
+    businessId: session.user.businessId,
+    userId: session.user.id,
+    action: "ACCOUNT_UPDATE",
+    entity: "Account",
+    entityId: id,
+    description: `تحديث الحساب: ${updated.name}`,
+  });
+
   return NextResponse.json(updated);
 }
 
@@ -64,5 +74,15 @@ export async function DELETE(
   }
 
   await prisma.account.delete({ where: { id } });
+
+  await logAudit({
+    businessId: session.user.businessId,
+    userId: session.user.id,
+    action: "ACCOUNT_DELETE",
+    entity: "Account",
+    entityId: id,
+    description: `حذف الحساب: ${account.name}`,
+  });
+
   return NextResponse.json({ ok: true });
 }

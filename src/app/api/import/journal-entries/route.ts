@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createJournalEntry } from "@/lib/ledger";
+import { logAudit } from "@/lib/audit";
 
 // Expected CSV columns:
 // Date, Description, AccountCode (or Account Code), Debit, Credit
@@ -129,8 +130,8 @@ export async function POST(req: NextRequest) {
   const text = await file.text();
   const rows = parseCSV(text);
 
-  if (rows.length > 10000) {
-    return NextResponse.json({ error: "يتجاوز الملف الحد الأقصى المسموح به (10000 صف)" }, { status: 400 });
+  if (rows.length > 5000) {
+    return NextResponse.json({ error: "يتجاوز الملف الحد الأقصى المسموح به (5000 صف)" }, { status: 400 });
   }
 
   const rawLines = parseRawLines(rows);
@@ -167,6 +168,10 @@ export async function POST(req: NextRequest) {
     }, { status: 400 });
   }
 
+  // Cap to 500 entries per import to stay within serverless execution limits
+  const MAX_IMPORT = 500;
+  const toImport = balanced.slice(0, MAX_IMPORT);
+
   // Load accounts for this business once
   const accounts = await prisma.account.findMany({
     where: { businessId },
@@ -181,7 +186,7 @@ export async function POST(req: NextRequest) {
   let imported = 0;
   let skipped = 0;
 
-  for (const entry of balanced) {
+  for (const entry of toImport) {
     const resolvedLines = entry.lines.map((l) => ({
       ...l,
       accountId: accountByCode.get(l.accountCode),
@@ -212,10 +217,21 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  await logAudit({
+    businessId,
+    userId: systemUser.id,
+    action: "JOURNAL_IMPORT",
+    entity: "JournalEntry",
+    entityId: businessId,
+    description: `استيراد ${imported} قيد من ملف CSV`,
+    metadata: { imported, skipped, total: entries.length },
+  });
+
   return NextResponse.json({
     imported,
     skipped,
     unbalancedSkipped: unbalanced.length,
+    cappedAt: balanced.length > MAX_IMPORT ? MAX_IMPORT : undefined,
     total: entries.length,
   });
 }
