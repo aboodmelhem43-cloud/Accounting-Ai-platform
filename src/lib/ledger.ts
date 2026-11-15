@@ -39,6 +39,12 @@ export async function createJournalEntry(
     throw new Error("القيد يحتاج على الأقل سطرين (مدين ودائن)");
   }
 
+  // رفض القيود التي جميع سطورها بمبالغ صفرية (no-op entry)
+  const hasNonZeroLine = lines.some((l) => l.debit > 0 || l.credit > 0);
+  if (!hasNonZeroLine) {
+    throw new Error("القيد لا يحتوي على أي مبالغ — جميع السطور بمبلغ صفر");
+  }
+
   const client = tx ?? prisma;
 
   // التحقق من الفترة المحاسبية
