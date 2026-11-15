@@ -5,6 +5,11 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { checkInvoiceLimit } from "@/lib/plans";
 import { createJournalEntry } from "@/lib/ledger";
+import { logAudit } from "@/lib/audit";
+
+class PlanLimitError extends Error {
+  constructor(public readonly limit: number) { super("plan_limit"); }
+}
 
 const MAX_AMOUNT = 1_000_000_000;
 
@@ -42,16 +47,6 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-
-  const limitCheck = await checkInvoiceLimit(session.user.businessId);
-  if (!limitCheck.allowed) {
-    return NextResponse.json({
-      error: "plan_limit",
-      message: limitCheck.limit === 0
-        ? "انتهت فترة التجربة المجانية. يرجى الترقية للاستمرار."
-        : `وصلت للحد الأقصى (${limitCheck.limit} فاتورة/شهر). يرجى الترقية.`,
-    }, { status: 403 });
-  }
 
   const body = await req.json();
   const parsed = schema.safeParse(body);
@@ -112,8 +107,16 @@ export async function POST(req: NextRequest) {
   }
 
   // إنشاء الفاتورة والقيد المحاسبي في معاملة واحدة لضمان الاتساق
-  const invoice = await prisma.$transaction(async (tx) => {
-    const inv = await tx.invoice.create({
+  let invoice: Awaited<ReturnType<typeof prisma.invoice.create>>;
+  try {
+    invoice = await prisma.$transaction(async (tx) => {
+      // فحص الحد داخل المعاملة لمنع حالة السباق (TOCTOU)
+      const limitCheck = await checkInvoiceLimit(businessId, tx);
+      if (!limitCheck.allowed) {
+        throw new PlanLimitError(limitCheck.limit);
+      }
+
+      const inv = await tx.invoice.create({
       data: {
         businessId,
         fileUrl: "",
