@@ -22,6 +22,11 @@ export default function IncomeStatementPage() {
   const [error, setError] = useState<string | null>(null);
 
   async function fetchStatement() {
+    if (new Date(from) > new Date(to)) {
+      setError(lang === "ar" ? "تاريخ البداية يجب أن يكون قبل تاريخ النهاية" : "Start date must be before end date");
+      setStatement(null);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {

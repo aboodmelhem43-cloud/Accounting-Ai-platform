@@ -21,6 +21,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "تاريخ غير صحيح" }, { status: 400 });
   }
 
+  if (from > to) {
+    return NextResponse.json({ error: "تاريخ البداية يجب أن يكون قبل تاريخ النهاية" }, { status: 400 });
+  }
+
+  const MAX_RANGE_MS = 10 * 365.25 * 24 * 60 * 60 * 1000; // 10 years
+  if (to.getTime() - from.getTime() > MAX_RANGE_MS) {
+    return NextResponse.json({ error: "نطاق التاريخ يتجاوز الحد الأقصى (10 سنوات)" }, { status: 400 });
+  }
+
   const statement = await computeIncomeStatement(session.user.businessId, from, to);
   return NextResponse.json(statement);
 }

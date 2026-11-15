@@ -15,6 +15,17 @@ export async function GET(req: NextRequest) {
   const from = fromStr ? new Date(fromStr) : new Date(now.getFullYear(), now.getMonth(), 1);
   const to = toStr ? new Date(toStr) : now;
 
+  if (isNaN(from.getTime()) || isNaN(to.getTime())) {
+    return NextResponse.json({ error: "تاريخ غير صحيح" }, { status: 400 });
+  }
+  if (from > to) {
+    return NextResponse.json({ error: "تاريخ البداية يجب أن يكون قبل تاريخ النهاية" }, { status: 400 });
+  }
+  const MAX_RANGE_MS = 10 * 365.25 * 24 * 60 * 60 * 1000;
+  if (to.getTime() - from.getTime() > MAX_RANGE_MS) {
+    return NextResponse.json({ error: "نطاق التاريخ يتجاوز الحد الأقصى (10 سنوات)" }, { status: 400 });
+  }
+
   try {
     const result = await computeCashFlow(session.user.businessId, from, to);
     return NextResponse.json(result);

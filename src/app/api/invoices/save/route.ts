@@ -85,47 +85,16 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const invoice = await prisma.invoice.create({
-    data: {
-      businessId,
-      fileUrl: "",
-      fileType: "created",
-      invoiceType: "SALES",
-      status: "CONFIRMED",
-      invoiceNumber: data.invoiceNumber,
-      contactId: data.contactId ?? null,
-      dueDate: data.dueDate ? new Date(data.dueDate) : null,
-      extractedData: {
-        invoiceNumber: data.invoiceNumber,
-        invoiceDate: data.invoiceDate,
-        dueDate: data.dueDate ?? null,
-        sellerName: data.sellerName,
-        sellerTaxNumber: data.sellerTaxNumber ?? null,
-        sellerAddress: data.sellerAddress ?? null,
-        customerName: data.customerName,
-        customerTaxNumber: data.customerTaxNumber ?? null,
-        customerAddress: data.customerAddress ?? null,
-        customerPhone: data.customerPhone ?? null,
-        customerEmail: data.customerEmail ?? null,
-        lineItems: data.lineItems,
-        subtotal: data.subtotal,
-        taxRate: data.taxRate,
-        taxAmount: data.taxAmount,
-        totalAmount: data.grandTotal,
-        grandTotal: data.grandTotal,
-        currency: data.currency,
-        currencySymbol: data.currencySymbol,
-        notes: data.notes ?? null,
-        country: data.country ?? null,
-        eInvoiceSystem: data.eInvoiceSystem ?? null,
-      },
-    },
+  // التحقق من عدم تكرار رقم الفاتورة لنفس المنشأة
+  const existingInvoice = await prisma.invoice.findFirst({
+    where: { businessId, invoiceNumber: data.invoiceNumber },
+    select: { id: true },
   });
+  if (existingInvoice) {
+    return NextResponse.json({ error: `رقم الفاتورة "${data.invoiceNumber}" مستخدم بالفعل` }, { status: 409 });
+  }
 
   // قيد محاسبي تلقائي للفاتورة المُنشأة يدوياً
-  // مدين: المدينون/العملاء (1200) بالإجمالي
-  // دائن: إيرادات المبيعات (4100) بالمبلغ قبل الضريبة
-  // دائن: ضريبة القيمة المضافة المستحقة (2200) بقيمة الضريبة
   const journalLines: { accountId: string; debit: number; credit: number; description: string }[] = [];
 
   const arAcc = byCode["1200"]; // Accounts Receivable
@@ -142,9 +111,47 @@ export async function POST(req: NextRequest) {
     journalLines.push({ accountId: taxAcc.id, debit: 0, credit: data.taxAmount, description: "ضريبة مخرجات (VAT)" });
   }
 
-  // نُنشئ القيد فقط إذا وُجدت الحسابات وكان القيد متوازناً
-  if (journalLines.length >= 2) {
-    try {
+  // إنشاء الفاتورة والقيد المحاسبي في معاملة واحدة لضمان الاتساق
+  const invoice = await prisma.$transaction(async (tx) => {
+    const inv = await tx.invoice.create({
+      data: {
+        businessId,
+        fileUrl: "",
+        fileType: "created",
+        invoiceType: "SALES",
+        status: "CONFIRMED",
+        invoiceNumber: data.invoiceNumber,
+        contactId: data.contactId ?? null,
+        dueDate: data.dueDate ? new Date(data.dueDate) : null,
+        extractedData: {
+          invoiceNumber: data.invoiceNumber,
+          invoiceDate: data.invoiceDate,
+          dueDate: data.dueDate ?? null,
+          sellerName: data.sellerName,
+          sellerTaxNumber: data.sellerTaxNumber ?? null,
+          sellerAddress: data.sellerAddress ?? null,
+          customerName: data.customerName,
+          customerTaxNumber: data.customerTaxNumber ?? null,
+          customerAddress: data.customerAddress ?? null,
+          customerPhone: data.customerPhone ?? null,
+          customerEmail: data.customerEmail ?? null,
+          lineItems: data.lineItems,
+          subtotal: data.subtotal,
+          taxRate: data.taxRate,
+          taxAmount: data.taxAmount,
+          totalAmount: data.grandTotal,
+          grandTotal: data.grandTotal,
+          currency: data.currency,
+          currencySymbol: data.currencySymbol,
+          notes: data.notes ?? null,
+          country: data.country ?? null,
+          eInvoiceSystem: data.eInvoiceSystem ?? null,
+        },
+      },
+    });
+
+    // نُنشئ القيد فقط إذا وُجدت الحسابات — الفاتورة والقيد في نفس المعاملة
+    if (journalLines.length >= 2) {
       await createJournalEntry({
         businessId,
         userId: session.user.id ?? session.user.email,
@@ -152,12 +159,12 @@ export async function POST(req: NextRequest) {
         description: `فاتورة مبيعات — ${data.customerName} رقم ${data.invoiceNumber}`,
         sourceType: "MANUAL",
         lines: journalLines,
-        invoiceId: invoice.id,
-      });
-    } catch (err) {
-      console.error("[save] journal entry creation failed:", err);
+        invoiceId: inv.id,
+      }, tx);
     }
-  }
+
+    return inv;
+  });
 
   // Advance the invoice number seed so the next auto-number is fresh
   try {

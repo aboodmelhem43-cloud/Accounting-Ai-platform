@@ -415,7 +415,7 @@ export default function SettingsPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t("settings.business.name")}</label>
-            <input className="input" value={bName} onChange={(e) => setBName(e.target.value)} />
+            <input className="input" value={bName} onChange={(e) => setBName(e.target.value)} maxLength={100} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -433,15 +433,15 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t("settings.business.tax_number")}</label>
-            <input className="input" value={bTaxNumber} onChange={(e) => setBTaxNumber(e.target.value)} placeholder="—" />
+            <input className="input" value={bTaxNumber} onChange={(e) => setBTaxNumber(e.target.value)} placeholder="—" maxLength={50} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t("settings.business.address")}</label>
-            <input className="input" value={bAddress} onChange={(e) => setBAddress(e.target.value)} placeholder="—" />
+            <input className="input" value={bAddress} onChange={(e) => setBAddress(e.target.value)} placeholder="—" maxLength={200} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t("settings.business.phone")}</label>
-            <input className="input" value={bPhone} onChange={(e) => setBPhone(e.target.value)} placeholder="—" />
+            <input className="input" value={bPhone} onChange={(e) => setBPhone(e.target.value)} placeholder="—" maxLength={30} />
           </div>
           {bMsg && <p className={`text-sm ${bMsg.ok ? "text-green-600" : "text-red-600"}`}>{bMsg.text}</p>}
           <button onClick={saveBusiness} disabled={bSaving || !bName.trim()} className="btn-primary">
