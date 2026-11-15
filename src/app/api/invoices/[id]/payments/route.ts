@@ -33,8 +33,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "الفاتورة مدفوعة بالكامل بالفعل" }, { status: 400 });
   }
 
-  const body = await req.json();
-  const data = paymentSchema.parse(body);
+  let body: unknown;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "طلب غير صالح" }, { status: 400 }); }
+  const parsed = paymentSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
+  const data = parsed.data;
 
   // Validate accountId belongs to this business
   const account = await prisma.account.findFirst({

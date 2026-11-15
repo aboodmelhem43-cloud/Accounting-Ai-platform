@@ -21,24 +21,29 @@ export async function GET(req: NextRequest) {
 
   const accounts = await prisma.account.findMany({
     where: { businessId },
-    include: {
-      journalLines: {
-        where: {
-          journalEntry: {
-            businessId,
-            status: "POSTED",
-            date: { lte: asOf },
-          },
-        },
-      },
-    },
+    select: { id: true, code: true, name: true, nameAr: true, type: true },
     orderBy: { code: "asc" },
   });
 
+  const tbSums = await prisma.journalLine.groupBy({
+    by: ["accountId"],
+    where: {
+      accountId: { in: accounts.map((a) => a.id) },
+      journalEntry: {
+        businessId,
+        status: "POSTED",
+        date: { lte: asOf },
+      },
+    },
+    _sum: { debit: true, credit: true },
+  });
+  const sumByAccountTB = new Map(tbSums.map((s) => [s.accountId, s._sum]));
+
   const rows = accounts
     .map((acc) => {
-      const totalDebits = acc.journalLines.reduce((s, l) => s + Number(l.debit), 0);
-      const totalCredits = acc.journalLines.reduce((s, l) => s + Number(l.credit), 0);
+      const accSum = sumByAccountTB.get(acc.id);
+      const totalDebits = Number(accSum?.debit ?? 0);
+      const totalCredits = Number(accSum?.credit ?? 0);
       const balance =
         acc.type === "ASSET" || acc.type === "EXPENSE"
           ? totalDebits - totalCredits

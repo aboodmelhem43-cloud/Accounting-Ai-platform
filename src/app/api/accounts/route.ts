@@ -32,7 +32,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "plan_expired", message: "انتهت فترة التجربة المجانية. يرجى الترقية للاستمرار." }, { status: 403 });
   }
 
-  const body = await req.json();
+  let body: unknown;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "طلب غير صالح" }, { status: 400 }); }
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });

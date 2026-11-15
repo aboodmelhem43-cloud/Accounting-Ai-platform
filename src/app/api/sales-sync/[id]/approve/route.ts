@@ -8,7 +8,7 @@ import { z } from "zod";
 const MAX_AMOUNT = 1_000_000_000;
 
 const lineSchema = z.object({
-  accountId: z.string().max(50),
+  accountId: z.string().min(1).max(50),
   debit: z.number().min(0).max(MAX_AMOUNT),
   credit: z.number().min(0).max(MAX_AMOUNT),
   description: z.string().max(500).optional(),

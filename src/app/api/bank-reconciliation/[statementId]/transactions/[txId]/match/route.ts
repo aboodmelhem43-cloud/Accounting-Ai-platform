@@ -68,20 +68,27 @@ export async function PATCH(
         { accountId: bankAccountId, debit: 0, credit: amount },
       ];
 
-  const journalEntry = await createJournalEntry({
-    businessId: session.user.businessId,
-    userId: session.user.id,
-    date: bankTx.date,
-    description: bankTx.description,
-    sourceType: "MANUAL",
-    status: "POSTED",
-    lines,
+  const result = await prisma.$transaction(async (prismaTx) => {
+    const entry = await createJournalEntry(
+      {
+        businessId: session.user.businessId,
+        userId: session.user.id,
+        date: bankTx.date,
+        description: bankTx.description,
+        sourceType: "MANUAL",
+        status: "POSTED",
+        lines,
+      },
+      prismaTx
+    );
+
+    const matched = await prismaTx.bankTransaction.update({
+      where: { id: txId },
+      data: { matched: true, journalEntryId: entry.id },
+    });
+
+    return { transaction: matched, journalEntry: entry };
   });
 
-  const tx = await prisma.bankTransaction.update({
-    where: { id: txId },
-    data: { matched: true, journalEntryId: journalEntry.id },
-  });
-
-  return NextResponse.json({ transaction: tx, journalEntry });
+  return NextResponse.json(result);
 }

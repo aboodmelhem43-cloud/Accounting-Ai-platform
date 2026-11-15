@@ -26,7 +26,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const existing = await getOwned(id, session.user.businessId);
   if (!existing) return NextResponse.json({ error: "غير موجود" }, { status: 404 });
 
-  const body = await req.json();
+  let body: unknown;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "طلب غير صالح" }, { status: 400 }); }
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
