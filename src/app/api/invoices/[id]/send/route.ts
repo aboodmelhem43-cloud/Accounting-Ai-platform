@@ -45,7 +45,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   } catch {
     return NextResponse.json({ error: "بريد إلكتروني غير صالح" }, { status: 400 });
   }
-  const { to, subject, message } = parsed;
+  const { to: rawTo, subject, message } = parsed;
+  const to = rawTo.toLowerCase();
 
   const extracted = invoice.extractedData as ExtractedInvoiceData | null;
   const businessName = session.user.businessName;
