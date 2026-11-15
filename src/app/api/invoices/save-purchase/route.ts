@@ -179,7 +179,9 @@ export async function POST(req: NextRequest) {
         { status: 403 }
       );
     }
-    const message = err instanceof Error ? err.message : "خطأ في الخادم";
+    const name = err instanceof Error ? err.constructor.name : "";
+    const isDbError = name.includes("Prisma") || (err instanceof Error && (err.message.includes("prisma") || /^P\d{4}/.test(err.message)));
+    const message = isDbError ? "خطأ في الخادم" : (err instanceof Error ? err.message : "خطأ في الخادم");
     return NextResponse.json({ error: message }, { status: 500 });
   }
 

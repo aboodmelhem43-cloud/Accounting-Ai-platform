@@ -37,6 +37,7 @@ export default function ReviewInvoicePage() {
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState("");
+  const [rejectConfirm, setRejectConfirm] = useState(false);
 
   const [extracted, setExtracted] = useState<ExtractedInvoiceData | null>(null);
 
@@ -120,7 +121,8 @@ export default function ReviewInvoicePage() {
   }
 
   async function handleReject() {
-    if (!confirm(isAr ? "هل تريد رفض هذه الفاتورة؟" : "Are you sure you want to reject this invoice?")) return;
+    if (!rejectConfirm) { setRejectConfirm(true); return; }
+    setRejectConfirm(false);
     const res = await fetch(`/api/invoices/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -298,15 +300,32 @@ export default function ReviewInvoicePage() {
       {error && <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
 
       {invoice.status === "PENDING_REVIEW" && (
-        <div className="flex gap-3">
-          <button onClick={handleConfirm} disabled={confirming} className="btn-primary flex-1">
-            {confirming
-              ? (isAr ? "جاري الترحيل..." : "Posting...")
-              : (isAr ? "✅ تأكيد وترحيل القيد" : "✅ Confirm & Post Journal Entry")}
-          </button>
-          <button onClick={handleReject} disabled={confirming} className="btn-secondary">
-            {isAr ? "❌ رفض الفاتورة" : "❌ Reject Invoice"}
-          </button>
+        <div className="space-y-3">
+          {rejectConfirm && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center justify-between gap-3 text-sm">
+              <span className="text-red-700 font-medium">
+                {isAr ? "هل أنت متأكد من رفض هذه الفاتورة؟" : "Are you sure you want to reject this invoice?"}
+              </span>
+              <div className="flex gap-2">
+                <button onClick={handleReject} className="btn-danger text-xs px-3 py-1">
+                  {isAr ? "نعم، رفض" : "Yes, Reject"}
+                </button>
+                <button onClick={() => setRejectConfirm(false)} className="btn-secondary text-xs px-3 py-1">
+                  {isAr ? "إلغاء" : "Cancel"}
+                </button>
+              </div>
+            </div>
+          )}
+          <div className="flex gap-3">
+            <button onClick={handleConfirm} disabled={confirming} className="btn-primary flex-1">
+              {confirming
+                ? (isAr ? "جاري الترحيل..." : "Posting...")
+                : (isAr ? "✅ تأكيد وترحيل القيد" : "✅ Confirm & Post Journal Entry")}
+            </button>
+            <button onClick={handleReject} disabled={confirming} className="btn-secondary">
+              {isAr ? "❌ رفض الفاتورة" : "❌ Reject Invoice"}
+            </button>
+          </div>
         </div>
       )}
 

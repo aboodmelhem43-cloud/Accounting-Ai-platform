@@ -605,7 +605,10 @@ export async function sendPasswordResetEmail(
     return;
   }
   const r = await resend.emails.send({ from: FROM_EMAIL, to: email, subject, html });
-  if (r.error) console.error("[email] Password reset error:", r.error);
+  if (r.error) {
+    console.error("[email] Password reset error:", r.error);
+    throw new Error("فشل إرسال بريد إعادة تعيين كلمة المرور");
+  }
 }
 
 // ── Re-engagement Email ───────────────────────────────────────────────────────
