@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const schema = z.object({
-  password: z.string().min(1, "Password required"),
+  password: z.string().min(1, "Password required").max(128),
   confirmation: z.literal("DELETE MY ACCOUNT"),
 });
 

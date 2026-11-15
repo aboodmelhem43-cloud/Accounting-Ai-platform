@@ -13,6 +13,7 @@ export interface ExtractedInvoiceData {
   taxAmount: number | null;
   taxRate: number | null;           // e.g. 0.15
   totalAmount: number | null;
+  grandTotal?: number | null;
   lineItems: InvoiceLineItem[];
   invoiceType: "purchase" | "sales" | null;
   notes: string | null;

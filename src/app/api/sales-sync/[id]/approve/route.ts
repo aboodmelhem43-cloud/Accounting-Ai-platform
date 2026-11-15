@@ -5,16 +5,18 @@ import { prisma } from "@/lib/prisma";
 import { createJournalEntry, validateJournalBalance } from "@/lib/ledger";
 import { z } from "zod";
 
+const MAX_AMOUNT = 1_000_000_000;
+
 const lineSchema = z.object({
-  accountId: z.string(),
-  debit: z.number().min(0),
-  credit: z.number().min(0),
-  description: z.string().optional(),
+  accountId: z.string().max(50),
+  debit: z.number().min(0).max(MAX_AMOUNT),
+  credit: z.number().min(0).max(MAX_AMOUNT),
+  description: z.string().max(500).optional(),
 });
 
 const approveSchema = z.object({
   // Optionally override the AI-suggested lines
-  lines: z.array(lineSchema).optional(),
+  lines: z.array(lineSchema).max(200).optional(),
 });
 
 export async function POST(

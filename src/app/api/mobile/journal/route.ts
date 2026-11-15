@@ -8,7 +8,8 @@ export async function GET(req: NextRequest) {
   if (!token) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const page = Number(searchParams.get("page") ?? 1);
+  const pageRaw = Number(searchParams.get("page") ?? 1);
+  const page = Number.isFinite(pageRaw) && pageRaw >= 1 ? Math.min(Math.floor(pageRaw), 10000) : 1;
   const statusParam = searchParams.get("status");
   const limit = 20;
 

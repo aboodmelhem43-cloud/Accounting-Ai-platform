@@ -8,8 +8,8 @@ import { isSuperAdmin, ensureAdminAccount } from "@/lib/admin";
 import { isIpRateLimited, getClientIp } from "@/lib/rate-limit";
 
 const schema = z.object({
-  email: z.string().email(),
-  password: z.string().optional(),
+  email: z.string().email().max(200),
+  password: z.string().max(128).optional(),
   lang: z.enum(["ar", "en"]).optional(),
 });
 

@@ -9,7 +9,7 @@ const schema = z.object({
   year: z.number().int().min(2000).max(2100),
   month: z.number().int().min(1).max(12),
   action: z.enum(["close", "open"]),
-  notes: z.string().optional(),
+  notes: z.string().max(500).optional(),
 });
 
 export async function POST(req: NextRequest) {

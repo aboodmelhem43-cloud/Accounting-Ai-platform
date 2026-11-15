@@ -12,9 +12,9 @@ const FROM_EMAIL = process.env.FROM_EMAIL ?? "onboarding@resend.dev";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 const sendSchema = z.object({
-  to: z.string().email(),
-  subject: z.string().optional(),
-  message: z.string().optional(),
+  to: z.string().email().max(200),
+  subject: z.string().max(300).optional(),
+  message: z.string().max(2000).optional(),
 });
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

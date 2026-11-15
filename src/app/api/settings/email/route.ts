@@ -7,7 +7,7 @@ import { createOtp } from "@/lib/otp";
 import { sendOtpEmail } from "@/lib/email";
 
 const schema = z.object({
-  newEmail: z.string().email(),
+  newEmail: z.string().email().max(200),
   lang: z.enum(["ar", "en"]).optional(),
 });
 
