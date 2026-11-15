@@ -7,9 +7,17 @@ export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
+  const ALLOWED_STATUSES = ["PENDING", "APPROVED", "REJECTED", "ALL"] as const;
+  type AllowedStatus = typeof ALLOWED_STATUSES[number];
+
   const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status") ?? "PENDING";
-  const page = Number(searchParams.get("page") ?? 1);
+  const statusParam = searchParams.get("status") ?? "PENDING";
+  if (!ALLOWED_STATUSES.includes(statusParam as AllowedStatus)) {
+    return NextResponse.json({ error: "حالة غير صالحة" }, { status: 400 });
+  }
+  const status = statusParam as AllowedStatus;
+  const pageParam = Number(searchParams.get("page") ?? 1);
+  const page = Number.isFinite(pageParam) && pageParam >= 1 ? Math.min(Math.floor(pageParam), 10000) : 1;
   const limit = 20;
 
   const where = {

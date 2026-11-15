@@ -4,23 +4,26 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
+const MAX_AMOUNT = 1_000_000_000;
+const isValidDate = (s: string) => !isNaN(new Date(s).getTime());
+
 const lineSchema = z.object({
   accountId: z.string().min(1),
-  accountCode: z.string(),
-  accountName: z.string(),
-  debit: z.number().min(0),
-  credit: z.number().min(0),
-  description: z.string().optional(),
+  accountCode: z.string().max(20),
+  accountName: z.string().max(200),
+  debit: z.number().min(0).max(MAX_AMOUNT),
+  credit: z.number().min(0).max(MAX_AMOUNT),
+  description: z.string().max(500).optional(),
 });
 
 const createSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().min(1),
+  name: z.string().min(1).max(200),
+  description: z.string().min(1).max(1000),
   frequency: z.enum(["MONTHLY", "WEEKLY", "QUARTERLY", "YEARLY"]),
   dayOfMonth: z.number().int().min(1).max(28).optional(),
-  nextRunDate: z.string().min(1),
-  endDate: z.string().optional(),
-  lines: z.array(lineSchema).min(2),
+  nextRunDate: z.string().min(1).refine(isValidDate, { message: "تاريخ التشغيل غير صالح" }),
+  endDate: z.string().refine((s) => !s || isValidDate(s), { message: "تاريخ الانتهاء غير صالح" }).optional(),
+  lines: z.array(lineSchema).min(2).max(50),
 });
 
 export async function GET(_req: NextRequest) {

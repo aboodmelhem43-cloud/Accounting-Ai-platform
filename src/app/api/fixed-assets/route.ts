@@ -5,19 +5,21 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { logAudit } from "@/lib/audit";
 
+const MAX_AMOUNT = 1_000_000_000;
+
 const createSchema = z.object({
-  name: z.string().min(1),
-  code: z.string().optional(),
-  category: z.string().optional(),
-  purchaseDate: z.string().min(1),
-  purchaseCost: z.number().positive(),
-  residualValue: z.number().min(0).default(0),
-  usefulLifeMonths: z.number().int().positive(),
+  name: z.string().min(1).max(200),
+  code: z.string().max(50).optional(),
+  category: z.string().max(100).optional(),
+  purchaseDate: z.string().min(1).refine((s) => !isNaN(new Date(s).getTime()), { message: "تاريخ الشراء غير صالح" }),
+  purchaseCost: z.number().positive().max(MAX_AMOUNT),
+  residualValue: z.number().min(0).max(MAX_AMOUNT).default(0),
+  usefulLifeMonths: z.number().int().positive().max(600),
   depreciationMethod: z.enum(["STRAIGHT_LINE", "DECLINING_BALANCE"]).default("STRAIGHT_LINE"),
   assetAccountId: z.string().min(1),
   accumDeprecAccountId: z.string().min(1),
   deprecExpenseAccountId: z.string().min(1),
-  notes: z.string().optional(),
+  notes: z.string().max(2000).optional(),
 });
 
 export async function GET(_req: NextRequest) {

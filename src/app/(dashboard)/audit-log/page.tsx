@@ -46,11 +46,13 @@ export default function AuditLogPage() {
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [entityFilter, setEntityFilter] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const params = new URLSearchParams({ page: String(page) });
       if (entityFilter) params.set("entity", entityFilter);
@@ -59,10 +61,12 @@ export default function AuditLogPage() {
       setLogs(data.logs ?? []);
       setTotal(data.total ?? 0);
       setPages(data.pages ?? 1);
+    } catch {
+      setError(isAr ? "فشل تحميل سجل المراجعة" : "Failed to load audit log");
     } finally {
       setLoading(false);
     }
-  }, [page, entityFilter]);
+  }, [page, entityFilter, isAr]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -87,6 +91,13 @@ export default function AuditLogPage() {
             : "All sensitive actions logged with user and timestamp"}
         </p>
       </div>
+
+      {error && (
+        <div className="rounded-lg p-3 text-sm bg-red-50 border border-red-200 text-red-700 flex justify-between">
+          <span>{error}</span>
+          <button onClick={() => setError(null)}>✕</button>
+        </div>
+      )}
 
       {/* Filters + count */}
       <div className="gsap-page-controls flex flex-wrap items-center gap-3">

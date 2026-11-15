@@ -26,11 +26,16 @@ export async function GET(req: NextRequest) {
   const from = fromStr ? new Date(fromStr) : new Date(now.getFullYear(), 0, 1);
   const to = toStr ? new Date(toStr) : now;
 
+  if (isNaN(from.getTime()) || isNaN(to.getTime())) {
+    return NextResponse.json({ error: "تاريخ غير صالح" }, { status: 400 });
+  }
+
   const lines = await prisma.journalLine.findMany({
     where: {
       accountId,
       journalEntry: {
         businessId: session.user.businessId,
+        status: "POSTED",
         date: { gte: from, lte: to },
       },
     },

@@ -9,7 +9,10 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { businessId, code } = await req.json() as { businessId: string; code: string };
+  let parsed: { businessId?: unknown; code?: unknown };
+  try { parsed = await req.json(); } catch { return NextResponse.json({ error: "Invalid request" }, { status: 400 }); }
+  const businessId = typeof parsed.businessId === "string" ? parsed.businessId : "";
+  const code = typeof parsed.code === "string" ? parsed.code.slice(0, 30) : "";
 
   if (!businessId || !code) {
     return NextResponse.json({ error: "businessId and code are required" }, { status: 400 });
@@ -53,21 +56,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Referral code already redeemed" }, { status: 409 });
   }
 
-  await prisma.business.update({
-    where: { id: businessId },
-    data: {
-      referredByCode: normalizedCode,
-      trialEndsAt: extendTrial(newBiz?.trialEndsAt),
-    },
-  });
-
-  await prisma.business.update({
-    where: { id: referrer.id },
-    data: {
-      trialEndsAt: extendTrial(referrer.trialEndsAt),
-      referralCount: { increment: 1 },
-    },
-  });
+  await prisma.$transaction([
+    prisma.business.update({
+      where: { id: businessId },
+      data: {
+        referredByCode: normalizedCode,
+        trialEndsAt: extendTrial(newBiz?.trialEndsAt),
+      },
+    }),
+    prisma.business.update({
+      where: { id: referrer.id },
+      data: {
+        trialEndsAt: extendTrial(referrer.trialEndsAt),
+        referralCount: { increment: 1 },
+      },
+    }),
+  ]);
 
   return NextResponse.json({ ok: true });
 }

@@ -7,10 +7,10 @@ import { createJournalEntry } from "@/lib/ledger";
 
 const step1Schema = z.object({
   step: z.literal(1),
-  name: z.string().min(2),
-  taxNumber: z.string().optional(),
-  address: z.string().optional(),
-  phone: z.string().optional(),
+  name: z.string().min(2).max(200),
+  taxNumber: z.string().max(50).optional(),
+  address: z.string().max(200).optional(),
+  phone: z.string().max(30).optional(),
 });
 
 const step3Schema = z.object({
@@ -24,9 +24,10 @@ export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-  const body = await req.json();
+  let body: unknown;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "طلب غير صالح" }, { status: 400 }); }
 
-  if (body.step === 1) {
+  if ((body as Record<string, unknown>).step === 1) {
     const parsed = step1Schema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: "بيانات غير صالحة" }, { status: 400 });
     const { name, taxNumber, address, phone } = parsed.data;
@@ -42,7 +43,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  if (body.step === 3) {
+  if ((body as Record<string, unknown>).step === 3) {
     const parsed = step3Schema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: "بيانات غير صالحة" }, { status: 400 });
 

@@ -18,6 +18,13 @@ export async function GET(req: NextRequest) {
   if (isNaN(from.getTime()) || isNaN(to.getTime())) {
     return NextResponse.json({ error: "تاريخ غير صحيح" }, { status: 400 });
   }
+  if (from > to) {
+    return NextResponse.json({ error: "تاريخ البداية يجب أن يكون قبل تاريخ النهاية" }, { status: 400 });
+  }
+  const TEN_YEARS_MS = 10 * 365.25 * 24 * 60 * 60 * 1000;
+  if (to.getTime() - from.getTime() > TEN_YEARS_MS) {
+    return NextResponse.json({ error: "نطاق التاريخ لا يمكن أن يتجاوز 10 سنوات" }, { status: 400 });
+  }
 
   try {
     const statement = await computeIncomeStatement(token.businessId, from, to);

@@ -7,9 +7,9 @@ import { logAudit } from "@/lib/audit";
 
 const patchSchema = z.object({
   status: z.enum(["ACTIVE", "DISPOSED", "FULLY_DEPRECIATED"]).optional(),
-  disposedAt: z.string().optional(),
-  notes: z.string().optional(),
-  name: z.string().min(1).optional(),
+  disposedAt: z.string().refine((s) => !s || !isNaN(new Date(s).getTime()), { message: "تاريخ التخلص غير صالح" }).optional(),
+  notes: z.string().max(2000).optional(),
+  name: z.string().min(1).max(200).optional(),
 });
 
 export async function GET(

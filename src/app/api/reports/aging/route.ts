@@ -31,12 +31,14 @@ export async function GET(req: NextRequest) {
       businessId,
       invoiceType: type === "AR" ? "SALES" : "PURCHASE",
       status: "CONFIRMED",
+      paymentStatus: { not: "PAID" },
     },
     select: {
       id: true,
       createdAt: true,
       dueDate: true,
       extractedData: true,
+      payments: { select: { amount: true } },
     },
   });
 
@@ -49,7 +51,9 @@ export async function GET(req: NextRequest) {
     const data = inv.extractedData as Partial<ExtractedInvoiceData> | null;
     const contactName =
       (type === "AR" ? data?.customerName : data?.vendorName) ?? "Unknown";
-    const amount = data?.totalAmount ?? 0;
+    const totalAmount = data?.totalAmount ?? data?.grandTotal ?? 0;
+    const paidAmount = inv.payments.reduce((s, p) => s + Number(p.amount), 0);
+    const amount = Math.max(0, totalAmount - paidAmount);
 
     // Aging is measured from the due date; fall back to invoice date, then createdAt
     const dueDateRaw = inv.dueDate ?? (data?.dueDate ? new Date(data.dueDate) : null);
