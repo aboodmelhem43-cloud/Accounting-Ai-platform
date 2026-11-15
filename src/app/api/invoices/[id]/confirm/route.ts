@@ -6,18 +6,20 @@ import { prisma } from "@/lib/prisma";
 import { createJournalEntry, suggestPurchaseJournalEntry, suggestSalesJournalEntry } from "@/lib/ledger";
 import type { ExtractedInvoiceData } from "@/types";
 
+const MAX_AMOUNT = 1_000_000_000;
+
 const lineSchema = z.object({
-  accountId: z.string(),
-  debit: z.number().min(0),
-  credit: z.number().min(0),
-  description: z.string().optional(),
+  accountId: z.string().min(1),
+  debit: z.number().min(0).max(MAX_AMOUNT),
+  credit: z.number().min(0).max(MAX_AMOUNT),
+  description: z.string().max(500).optional(),
 });
 
 const confirmSchema = z.object({
   // المستخدم يمكنه تعديل القيد المقترح أو الموافقة عليه كما هو
-  journalLines: z.array(lineSchema).min(2),
-  description: z.string().min(1),
-  date: z.string(),
+  journalLines: z.array(lineSchema).min(2).max(200),
+  description: z.string().min(1).max(500),
+  date: z.string().min(1).refine((s) => !isNaN(new Date(s).getTime()), { message: "تاريخ غير صالح" }),
 });
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

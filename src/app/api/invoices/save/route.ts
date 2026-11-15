@@ -9,7 +9,7 @@ import { createJournalEntry } from "@/lib/ledger";
 const MAX_AMOUNT = 1_000_000_000;
 
 const lineItemSchema = z.object({
-  description: z.string().min(1),
+  description: z.string().min(1).max(500),
   quantity: z.number().min(0.001).max(MAX_AMOUNT),
   unitPrice: z.number().min(0).max(MAX_AMOUNT),
 });
@@ -18,25 +18,25 @@ const schema = z.object({
   invoiceNumber: z.string().min(1).max(50),
   invoiceDate: z.string().min(1).refine((s) => !isNaN(new Date(s).getTime()), { message: "تاريخ الفاتورة غير صالح" }),
   dueDate: z.string().optional().refine((s) => !s || !isNaN(new Date(s).getTime()), { message: "تاريخ الاستحقاق غير صالح" }),
-  sellerName: z.string(),
-  sellerTaxNumber: z.string().optional(),
-  sellerAddress: z.string().optional(),
-  customerName: z.string(),
-  customerTaxNumber: z.string().optional(),
-  customerAddress: z.string().optional(),
-  customerPhone: z.string().optional(),
-  customerEmail: z.string().optional(),
+  sellerName: z.string().max(200),
+  sellerTaxNumber: z.string().max(50).optional(),
+  sellerAddress: z.string().max(500).optional(),
+  customerName: z.string().max(200),
+  customerTaxNumber: z.string().max(50).optional(),
+  customerAddress: z.string().max(500).optional(),
+  customerPhone: z.string().max(30).optional(),
+  customerEmail: z.string().email().max(200).optional().or(z.literal("")).optional(),
   contactId: z.string().optional(),
-  lineItems: z.array(lineItemSchema).min(1),
+  lineItems: z.array(lineItemSchema).min(1).max(200),
   subtotal: z.number().min(0).max(MAX_AMOUNT),
   taxRate: z.number().min(0).max(100),
   taxAmount: z.number().min(0).max(MAX_AMOUNT),
   grandTotal: z.number().min(0).max(MAX_AMOUNT),
-  currency: z.string(),
-  currencySymbol: z.string(),
-  notes: z.string().optional(),
-  country: z.string().optional(),
-  eInvoiceSystem: z.string().nullable().optional(),
+  currency: z.string().max(10),
+  currencySymbol: z.string().max(10),
+  notes: z.string().max(2000).optional(),
+  country: z.string().max(2).optional(),
+  eInvoiceSystem: z.string().max(50).nullable().optional(),
 });
 
 export async function POST(req: NextRequest) {

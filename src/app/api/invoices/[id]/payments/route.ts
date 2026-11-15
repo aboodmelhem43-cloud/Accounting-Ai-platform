@@ -7,9 +7,9 @@ import { createJournalEntry } from "@/lib/ledger";
 
 const paymentSchema = z.object({
   amount: z.number().positive().max(1_000_000_000),
-  date: z.string().min(1),
+  date: z.string().min(1).refine((s) => !isNaN(new Date(s).getTime()), { message: "تاريخ الدفع غير صالح" }),
   accountId: z.string().min(1), // حساب النقدية أو البنك المُستلم منه
-  note: z.string().optional(),
+  note: z.string().max(500).optional(),
 });
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
