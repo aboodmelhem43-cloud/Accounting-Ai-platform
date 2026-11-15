@@ -94,7 +94,10 @@ export default function ExpensesPage() {
         }),
       });
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? (isAr ? "فشل تسجيل المصروف" : "Failed to save expense"));
+      }
       setAmount("");
       setDescription("");
       setReference("");
@@ -102,8 +105,8 @@ export default function ExpensesPage() {
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
       loadRecent();
-    } catch {
-      setSaveError(isAr ? "فشل تسجيل المصروف" : "Failed to save expense");
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : (isAr ? "فشل تسجيل المصروف" : "Failed to save expense"));
     } finally {
       setSaving(false);
     }
