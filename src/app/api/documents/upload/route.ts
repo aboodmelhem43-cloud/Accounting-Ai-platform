@@ -21,8 +21,11 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-    const name = (formData.get("name") as string | null) ?? "document";
-    const type = (formData.get("type") as string | null) ?? "OTHER";
+    const rawName = (formData.get("name") as string | null) ?? "document";
+    const name = rawName.slice(0, 200);
+    const ALLOWED_DOC_TYPES = new Set(["INVOICE", "CONTRACT", "RECEIPT", "OTHER", "REPORT", "TAX", "BANK_STATEMENT"]);
+    const rawType = (formData.get("type") as string | null) ?? "OTHER";
+    const type = ALLOWED_DOC_TYPES.has(rawType) ? rawType : "OTHER";
     const invoiceId = formData.get("invoiceId") as string | null;
 
     if (!file) return NextResponse.json({ error: "لم يتم رفع ملف" }, { status: 400 });

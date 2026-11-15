@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { verifyOtp } from "@/lib/otp";
 
 const schema = z.object({
-  email: z.string().email(),
+  email: z.string().email().max(200),
   otp:   z.string().length(6),
 });
 

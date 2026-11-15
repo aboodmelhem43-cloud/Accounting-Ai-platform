@@ -5,8 +5,8 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 const schema = z.object({
-  token: z.string().min(10),
-  password: z.string().min(8),
+  token: z.string().min(10).max(2000),
+  password: z.string().min(8).max(128),
 });
 
 // Decode the token envelope without verifying — extracts email for the DB lookup

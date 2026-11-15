@@ -7,7 +7,7 @@ import { verifyOtp } from "@/lib/otp";
 import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
-  newEmail: z.string().email(),
+  newEmail: z.string().email().max(200),
   otp: z.string().length(6),
 });
 

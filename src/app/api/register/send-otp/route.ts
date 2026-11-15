@@ -6,7 +6,7 @@ import { sendOtpEmail } from "@/lib/email";
 import { isIpRateLimited, getClientIp } from "@/lib/rate-limit";
 
 const schema = z.object({
-  email: z.string().email(),
+  email: z.string().email().max(200),
   lang: z.enum(["ar", "en"]).optional(),
 });
 

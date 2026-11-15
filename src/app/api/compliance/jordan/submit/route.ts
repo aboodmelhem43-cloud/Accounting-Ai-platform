@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createJordanCompliance } from "@/compliance/jordan";
@@ -15,14 +16,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "غير مصرح — مطلوب صلاحية مالك أو محاسب" }, { status: 403 });
   }
 
-  let invoiceId: string;
-  try {
-    const body = (await req.json()) as { invoiceId?: string };
-    if (!body.invoiceId) throw new Error("invoiceId مطلوب");
-    invoiceId = body.invoiceId;
-  } catch {
+  const bodySchema = z.object({ invoiceId: z.string().min(1).max(50) });
+  const bodyParsed = bodySchema.safeParse(await req.json().catch(() => ({})));
+  if (!bodyParsed.success) {
     return NextResponse.json({ error: "invoiceId مطلوب في جسم الطلب" }, { status: 400 });
   }
+  const { invoiceId } = bodyParsed.data;
 
   const invoice = await prisma.invoice.findFirst({
     where: { id: invoiceId, businessId },

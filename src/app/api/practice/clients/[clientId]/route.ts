@@ -12,8 +12,8 @@ async function getOwnedClient(practiceId: string, clientId: string) {
 
 // PATCH — update client business name / details
 const patchSchema = z.object({
-  name: z.string().min(2).optional(),
-  taxNumber: z.string().optional(),
+  name: z.string().min(2).max(200).optional(),
+  taxNumber: z.string().max(50).optional(),
 });
 
 export async function PATCH(
@@ -31,8 +31,11 @@ export async function PATCH(
   const client = await getOwnedClient(practiceId, clientId);
   if (!client) return NextResponse.json({ error: "Client not found" }, { status: 404 });
 
-  const body = await req.json();
-  const data = patchSchema.parse(body);
+  let rawBody: unknown;
+  try { rawBody = await req.json(); } catch { return NextResponse.json({ error: "Invalid request" }, { status: 400 }); }
+  const clientParsed = patchSchema.safeParse(rawBody);
+  if (!clientParsed.success) return NextResponse.json({ error: clientParsed.error.errors[0].message }, { status: 400 });
+  const data = clientParsed.data;
 
   const updated = await prisma.business.update({
     where: { id: clientId },

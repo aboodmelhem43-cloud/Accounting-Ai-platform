@@ -15,7 +15,8 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const search = (searchParams.get("search") ?? "").slice(0, 100);
   const country = (searchParams.get("country") ?? "").slice(0, 2);
-  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
+  const pageRaw = parseInt(searchParams.get("page") ?? "1", 10);
+  const page = Number.isFinite(pageRaw) && pageRaw >= 1 ? Math.min(pageRaw, 10000) : 1;
   const skip = (page - 1) * LIMIT;
 
   const where = {

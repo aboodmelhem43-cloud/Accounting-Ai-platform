@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { verifyMobileToken } from "@/lib/mobile-auth";
 import { prisma } from "@/lib/prisma";
 
@@ -11,7 +12,9 @@ export async function POST(
 
   const { id } = await params;
   const body = await req.json().catch(() => ({}));
-  const reason: string | undefined = body.reason;
+  const rejectBodySchema = z.object({ reason: z.string().max(500).optional() });
+  const rejectParsed = rejectBodySchema.safeParse(body);
+  const reason = rejectParsed.success ? rejectParsed.data.reason : undefined;
 
   const invoice = await prisma.invoice.findFirst({
     where: { id, businessId: token.businessId, status: "PENDING_REVIEW" },

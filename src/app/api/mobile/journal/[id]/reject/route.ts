@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { verifyMobileToken } from "@/lib/mobile-auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
@@ -15,10 +16,12 @@ export async function POST(
   }
 
   const body = await req.json().catch(() => ({}));
-  const reason: string | undefined = body.reason;
-  if (!reason || !reason.trim()) {
+  const rejectBodySchema = z.object({ reason: z.string().min(1).max(500) });
+  const rejectParsed = rejectBodySchema.safeParse(body);
+  if (!rejectParsed.success || !rejectParsed.data.reason.trim()) {
     return NextResponse.json({ error: "سبب الرفض مطلوب" }, { status: 400 });
   }
+  const { reason } = rejectParsed.data;
 
   const { id } = await params;
   const entry = await prisma.journalEntry.findFirst({

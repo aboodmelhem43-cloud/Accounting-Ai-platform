@@ -30,8 +30,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   let totalBilled = 0;
   let totalPaid = 0;
 
-  const fromDate = from ? new Date(from) : null;
-  const toDate = to ? new Date(to + "T23:59:59") : null;
+  const fromDate = from ? (() => { const d = new Date(from); return isNaN(d.getTime()) ? null : d; })() : null;
+  const toDate = to ? (() => { const d = new Date(to + "T23:59:59"); return isNaN(d.getTime()) ? null : d; })() : null;
 
   const invoices = contact.invoices
     .map((inv) => {
