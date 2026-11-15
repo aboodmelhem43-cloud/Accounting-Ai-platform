@@ -72,36 +72,40 @@ export async function POST(
   const depreciationDate = new Date(year, month - 1, 28);
 
   try {
-    const journalEntry = await createJournalEntry({
-      businessId: session.user.businessId,
-      userId: session.user.id,
-      date: depreciationDate,
-      description: `إهلاك — ${asset.name} — ${year}/${String(month).padStart(2, "0")}`,
-      sourceType: "MANUAL",
-      status: "POSTED",
-      lines: [
-        { accountId: asset.deprecExpenseAccountId, debit: amount, credit: 0, description: `إهلاك ${asset.name}` },
-        { accountId: asset.accumDeprecAccountId, debit: 0, credit: amount, description: `مجمع إهلاك ${asset.name}` },
-      ],
+    const { depEntry, journalEntryId } = await prisma.$transaction(async (tx) => {
+      const journalEntry = await createJournalEntry({
+        businessId: session.user.businessId,
+        userId: session.user.id,
+        date: depreciationDate,
+        description: `إهلاك — ${asset.name} — ${year}/${String(month).padStart(2, "0")}`,
+        sourceType: "MANUAL",
+        status: "POSTED",
+        lines: [
+          { accountId: asset.deprecExpenseAccountId, debit: amount, credit: 0, description: `إهلاك ${asset.name}` },
+          { accountId: asset.accumDeprecAccountId, debit: 0, credit: amount, description: `مجمع إهلاك ${asset.name}` },
+        ],
+      }, tx);
+
+      const depEntry = await tx.assetDepreciationEntry.create({
+        data: {
+          assetId: id,
+          periodYear: year,
+          periodMonth: month,
+          amount,
+          journalEntryId: journalEntry.id,
+        },
+      });
+
+      return { depEntry, journalEntryId: journalEntry.id };
     });
 
-    const depEntry = await prisma.assetDepreciationEntry.create({
-      data: {
-        assetId: id,
-        periodYear: year,
-        periodMonth: month,
-        amount,
-        journalEntryId: journalEntry.id,
-      },
-    });
-
-    // Check if fully depreciated
+    // Check if fully depreciated (outside transaction — non-critical status update)
     const newTotal = totalDepreciation + amount;
     if (newTotal >= cost - residual) {
       await prisma.fixedAsset.update({ where: { id }, data: { status: "FULLY_DEPRECIATED" } });
     }
 
-    return NextResponse.json({ depEntry, journalEntryId: journalEntry.id, amount });
+    return NextResponse.json({ depEntry, journalEntryId, amount });
   } catch (err) {
     const message = err instanceof Error ? err.message : "خطأ في الخادم";
     return NextResponse.json({ error: message }, { status: 500 });

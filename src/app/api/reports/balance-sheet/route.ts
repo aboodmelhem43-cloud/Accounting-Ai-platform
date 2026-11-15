@@ -11,6 +11,10 @@ export async function GET(req: NextRequest) {
   const asOfStr = searchParams.get("asOf");
   const asOf = asOfStr ? new Date(asOfStr) : new Date();
 
+  if (isNaN(asOf.getTime())) {
+    return NextResponse.json({ error: "تاريخ غير صحيح" }, { status: 400 });
+  }
+
   try {
     const result = await computeBalanceSheet(session.user.businessId, asOf);
     return NextResponse.json(result);

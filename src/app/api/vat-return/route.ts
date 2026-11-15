@@ -19,6 +19,17 @@ export async function GET(req: NextRequest) {
   const toDate = new Date(to);
   toDate.setHours(23, 59, 59, 999);
 
+  if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+    return NextResponse.json({ error: "تاريخ غير صحيح" }, { status: 400 });
+  }
+  if (fromDate > toDate) {
+    return NextResponse.json({ error: "تاريخ البداية يجب أن يكون قبل تاريخ النهاية" }, { status: 400 });
+  }
+  const MAX_RANGE_MS = 10 * 365.25 * 24 * 60 * 60 * 1000;
+  if (toDate.getTime() - fromDate.getTime() > MAX_RANGE_MS) {
+    return NextResponse.json({ error: "نطاق التاريخ يتجاوز الحد الأقصى (10 سنوات)" }, { status: 400 });
+  }
+
   // Find the VAT account (code 2200)
   const vatAccount = await prisma.account.findFirst({
     where: { businessId: session.user.businessId, code: "2200" },

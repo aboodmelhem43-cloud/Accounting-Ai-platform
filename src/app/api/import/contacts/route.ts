@@ -121,14 +121,19 @@ export async function POST(req: NextRequest) {
   }
 
   // Import mode — upsert on name+type per business to avoid exact duplicates
+  // Batch-load existing contacts to avoid N+1 queries
+  const names = parsed.map((r) => r.name);
+  const existingContacts = await prisma.contact.findMany({
+    where: { businessId, name: { in: names } },
+    select: { name: true, type: true },
+  });
+  const existingSet = new Set(existingContacts.map((c) => `${c.name}||${c.type}`));
+
   let imported = 0;
   let skipped = 0;
 
   for (const row of parsed) {
-    const existing = await prisma.contact.findFirst({
-      where: { businessId, name: row.name, type: row.type },
-    });
-    if (existing) {
+    if (existingSet.has(`${row.name}||${row.type}`)) {
       skipped++;
       continue;
     }
@@ -144,6 +149,7 @@ export async function POST(req: NextRequest) {
         notes: row.notes || null,
       },
     });
+    existingSet.add(`${row.name}||${row.type}`);
     imported++;
   }
 
