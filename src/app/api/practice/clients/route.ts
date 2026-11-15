@@ -48,10 +48,10 @@ export async function GET() {
 
 // POST — create a new client business under this practice
 const createClientSchema = z.object({
-  name: z.string().min(2, "Business name must be at least 2 characters"),
+  name: z.string().min(2, "Business name must be at least 2 characters").max(200),
   country: z.string().length(2).default("EG"),
   baseCurrency: z.string().min(3).max(3).default("EGP"),
-  taxNumber: z.string().optional(),
+  taxNumber: z.string().max(50).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -62,8 +62,11 @@ export async function POST(req: NextRequest) {
   }
 
   const practiceId = session.user.primaryBusinessId ?? session.user.businessId;
-  const body = await req.json();
-  const { name, country, baseCurrency, taxNumber } = createClientSchema.parse(body);
+  let rawBody: unknown;
+  try { rawBody = await req.json(); } catch { return NextResponse.json({ error: "Invalid request" }, { status: 400 }); }
+  const clientParsed = createClientSchema.safeParse(rawBody);
+  if (!clientParsed.success) return NextResponse.json({ error: clientParsed.error.errors[0].message }, { status: 400 });
+  const { name, country, baseCurrency, taxNumber } = clientParsed.data;
 
   const client = await prisma.business.create({
     data: {

@@ -4,30 +4,32 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+const MAX_AMOUNT = 1_000_000_000;
+
 const patchSchema = z.object({
   status: z.literal("REJECTED").optional(),
   invoiceType: z.enum(["PURCHASE", "SALES"]).optional(),
   extractedData: z.object({
-    invoiceNumber: z.string().optional().nullable(),
-    invoiceDate: z.string().optional().nullable(),
-    dueDate: z.string().optional().nullable(),
-    vendorName: z.string().optional().nullable(),
-    customerName: z.string().optional().nullable(),
-    sellerName: z.string().optional().nullable(),
-    subtotal: z.number().optional().nullable(),
-    taxAmount: z.number().optional().nullable(),
-    taxRate: z.number().optional().nullable(),
-    totalAmount: z.number().optional().nullable(),
-    grandTotal: z.number().optional().nullable(),
-    currency: z.string().optional().nullable(),
-    currencySymbol: z.string().optional().nullable(),
-    notes: z.string().optional().nullable(),
+    invoiceNumber: z.string().max(100).optional().nullable(),
+    invoiceDate: z.string().max(50).optional().nullable(),
+    dueDate: z.string().max(50).optional().nullable(),
+    vendorName: z.string().max(200).optional().nullable(),
+    customerName: z.string().max(200).optional().nullable(),
+    sellerName: z.string().max(200).optional().nullable(),
+    subtotal: z.number().min(0).max(MAX_AMOUNT).optional().nullable(),
+    taxAmount: z.number().min(0).max(MAX_AMOUNT).optional().nullable(),
+    taxRate: z.number().min(0).max(100).optional().nullable(),
+    totalAmount: z.number().min(0).max(MAX_AMOUNT).optional().nullable(),
+    grandTotal: z.number().min(0).max(MAX_AMOUNT).optional().nullable(),
+    currency: z.string().max(10).optional().nullable(),
+    currencySymbol: z.string().max(10).optional().nullable(),
+    notes: z.string().max(2000).optional().nullable(),
     lineItems: z.array(z.object({
-      description: z.string(),
-      quantity: z.number().optional(),
-      unitPrice: z.number().optional(),
-      total: z.number().optional(),
-    })).optional().nullable(),
+      description: z.string().max(500),
+      quantity: z.number().min(0).max(MAX_AMOUNT).optional(),
+      unitPrice: z.number().min(0).max(MAX_AMOUNT).optional(),
+      total: z.number().min(0).max(MAX_AMOUNT).optional(),
+    })).max(100).optional().nullable(),
   }).optional(),
 });
 
