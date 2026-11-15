@@ -43,7 +43,8 @@ export async function POST(req: NextRequest) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ ok: true }); // don't leak validation errors
 
-  const { email, lang = "ar" } = parsed.data;
+  const { email: rawEmail, lang = "ar" } = parsed.data;
+  const email = rawEmail.toLowerCase();
 
   // DB-backed rate check and user lookup run in parallel to equalize timing
   const [rateLimited, user] = await Promise.all([

@@ -172,7 +172,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 inLanguage: ["ar", "en"],
                 availableInCountry: ["SA", "EG", "AE", "JO", "KW", "BH", "QA", "OM"],
                 screenshot: "https://www.mohasabai.com/og-image.png",
-                aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", reviewCount: "24" },
               },
               {
                 "@context": "https://schema.org",
