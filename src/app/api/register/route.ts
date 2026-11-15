@@ -8,12 +8,14 @@ import { SUPPORTED_COUNTRIES } from "@/compliance";
 import { verifyOtp, createOtp } from "@/lib/otp";
 import { trialEndsAtDate } from "@/lib/plans";
 
+const VALID_COUNTRY_CODES = ["EG", "SA", "AE", "JO", "KW", "BH", "QA", "OM"] as const;
+
 const schema = z.object({
   businessName: z.string().min(2, "اسم المنشأة مطلوب").max(200, "اسم المنشأة طويل جداً"),
-  email: z.string().email("بريد إلكتروني غير صحيح").max(200),
+  email: z.string().email("بريد إلكتروني غير صحيح").max(254),
   password: z.string().min(8, "كلمة المرور لا تقل عن 8 أحرف").max(128),
-  userName: z.string().max(200).optional(),
-  country: z.string().length(2, "رمز الدولة غير صحيح"),
+  userName: z.string().max(100).optional(),
+  country: z.enum(VALID_COUNTRY_CODES, { errorMap: () => ({ message: "رمز الدولة غير صحيح" }) }),
   otp: z.string().length(6, "رمز التحقق يجب أن يكون 6 أرقام"),
   refCode: z.string().max(20).optional(),
 });
