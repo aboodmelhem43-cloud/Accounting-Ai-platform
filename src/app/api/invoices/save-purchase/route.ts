@@ -6,6 +6,11 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createJournalEntry } from "@/lib/ledger";
 import { checkInvoiceLimit } from "@/lib/plans";
+import { logAudit } from "@/lib/audit";
+
+class PlanLimitError extends Error {
+  constructor(public readonly limit: number) { super("plan_limit"); }
+}
 
 const MAX_AMOUNT = 1_000_000_000;
 const isValidDate = (s: string) => !isNaN(new Date(s).getTime());
@@ -52,14 +57,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "المجموع الكلي لا يطابق المجموع الفرعي والضريبة" }, { status: 400 });
   }
 
-  const limit = await checkInvoiceLimit(businessId);
-  if (!limit.allowed) {
-    return NextResponse.json(
-      { error: `لقد وصلت إلى حد الفواتير (${limit.used}/${limit.limit}) — يرجى الترقية` },
-      { status: 403 }
-    );
-  }
-
   // Duplicate invoice number check per business
   const existing = await prisma.invoice.findFirst({
     where: { businessId, invoiceNumber: data.invoiceNumber, invoiceType: "PURCHASE" },
@@ -72,6 +69,12 @@ export async function POST(req: NextRequest) {
   let invoiceId: string;
   try {
     invoiceId = await prisma.$transaction(async (tx) => {
+      // فحص الحد داخل المعاملة لمنع حالة السباق (TOCTOU)
+      const limitCheck = await checkInvoiceLimit(businessId, tx);
+      if (!limitCheck.allowed) {
+        throw new PlanLimitError(limitCheck.limit);
+      }
+
       const inv = await tx.invoice.create({
         data: {
           businessId,
@@ -170,9 +173,26 @@ export async function POST(req: NextRequest) {
       return inv.id;
     });
   } catch (err) {
+    if (err instanceof PlanLimitError) {
+      return NextResponse.json(
+        { error: `لقد وصلت إلى حد الفواتير (${err.limit}) — يرجى الترقية` },
+        { status: 403 }
+      );
+    }
     const message = err instanceof Error ? err.message : "خطأ في الخادم";
     return NextResponse.json({ error: message }, { status: 500 });
   }
+
+  await logAudit({
+    businessId,
+    userId: session.user.id,
+    userName: session.user.name ?? undefined,
+    userEmail: session.user.email,
+    action: "CREATE",
+    entity: "Invoice",
+    entityId: invoiceId,
+    description: `فاتورة شراء — ${data.supplierName} رقم ${data.invoiceNumber} — ${data.grandTotal} ${data.currency}`,
+  });
 
   return NextResponse.json({ invoiceId }, { status: 201 });
 }

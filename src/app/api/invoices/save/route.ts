@@ -167,7 +167,18 @@ export async function POST(req: NextRequest) {
     }
 
     return inv;
-  });
+    });
+  } catch (err) {
+    if (err instanceof PlanLimitError) {
+      return NextResponse.json({
+        error: "plan_limit",
+        message: err.limit === 0
+          ? "انتهت فترة التجربة المجانية. يرجى الترقية للاستمرار."
+          : `وصلت للحد الأقصى (${err.limit} فاتورة/شهر). يرجى الترقية.`,
+      }, { status: 403 });
+    }
+    return NextResponse.json({ error: "خطأ في الخادم" }, { status: 500 });
+  }
 
   // Advance the invoice number seed so the next auto-number is fresh
   try {
@@ -189,6 +200,17 @@ export async function POST(req: NextRequest) {
   } catch {
     // non-critical — seed sync failure doesn't affect the saved invoice
   }
+
+  await logAudit({
+    businessId,
+    userId: session.user.id,
+    userName: session.user.name ?? undefined,
+    userEmail: session.user.email,
+    action: "CREATE",
+    entity: "Invoice",
+    entityId: invoice.id,
+    description: `فاتورة مبيعات — ${data.customerName} رقم ${data.invoiceNumber} — ${data.grandTotal} ${data.currency}`,
+  });
 
   return NextResponse.json({ invoiceId: invoice.id }, { status: 201 });
 }
