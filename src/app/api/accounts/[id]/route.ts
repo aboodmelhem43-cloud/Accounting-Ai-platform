@@ -24,7 +24,8 @@ export async function PUT(
   });
   if (!account) return NextResponse.json({ error: "الحساب غير موجود" }, { status: 404 });
 
-  const body = await req.json();
+  let body: unknown;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "طلب غير صالح" }, { status: 400 }); }
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });

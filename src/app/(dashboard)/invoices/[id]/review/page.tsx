@@ -121,11 +121,16 @@ export default function ReviewInvoicePage() {
 
   async function handleReject() {
     if (!confirm(isAr ? "هل تريد رفض هذه الفاتورة؟" : "Are you sure you want to reject this invoice?")) return;
-    await fetch(`/api/invoices/${id}`, {
+    const res = await fetch(`/api/invoices/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ extractedData: extracted, status: "REJECTED" }),
     });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error ?? (isAr ? "فشل رفض الفاتورة" : "Failed to reject invoice"));
+      return;
+    }
     router.push("/invoices");
   }
 

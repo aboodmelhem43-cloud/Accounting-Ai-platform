@@ -4,6 +4,7 @@ import { verifyMobileToken } from "@/lib/mobile-auth";
 import { buildFinancialContext, buildSystemPrompt } from "@/lib/ai/chatbot";
 import { checkAiLimit } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
+import { isIpRateLimited } from "@/lib/rate-limit";
 import Anthropic from "@anthropic-ai/sdk";
 
 const schema = z.object({
@@ -26,6 +27,10 @@ function jsonError(message: string, status: number) {
 export async function POST(req: NextRequest) {
   const token = await verifyMobileToken(req);
   if (!token) return jsonError("غير مصرح", 401);
+
+  if (await isIpRateLimited(`business:${token.businessId}`, "mobile-chat")) {
+    return jsonError("too_many_requests", 429);
+  }
 
   try {
     const limitCheck = await checkAiLimit(token.businessId);

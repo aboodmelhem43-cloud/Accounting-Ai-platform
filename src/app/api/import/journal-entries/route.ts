@@ -64,8 +64,8 @@ function parseRawLines(rows: Record<string, string>[]): RawLine[] {
     date: col(row, "date", "التاريخ"),
     description: col(row, "description", "البيان", "narration", "memo"),
     accountCode: col(row, "account code", "accountcode", "account", "code", "رمز الحساب", "كود الحساب"),
-    debit: Math.abs(parseFloat(col(row, "debit", "مدين", "dr")) || 0),
-    credit: Math.abs(parseFloat(col(row, "credit", "دائن", "cr")) || 0),
+    debit: Math.min(Math.abs(parseFloat(col(row, "debit", "مدين", "dr")) || 0), 1_000_000_000),
+    credit: Math.min(Math.abs(parseFloat(col(row, "credit", "دائن", "cr")) || 0), 1_000_000_000),
   })).filter((r) => r.date && r.accountCode && (r.debit > 0 || r.credit > 0));
 }
 

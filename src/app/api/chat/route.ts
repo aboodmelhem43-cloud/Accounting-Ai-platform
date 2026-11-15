@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { buildFinancialContext, buildSystemPrompt } from "@/lib/ai/chatbot";
 import { checkAiLimit } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
+import { isIpRateLimited } from "@/lib/rate-limit";
 import Anthropic from "@anthropic-ai/sdk";
 
 const schema = z.object({
@@ -25,6 +26,10 @@ function jsonError(reply: string, status: number) {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return jsonError("غير مصرح", 401);
+
+  if (await isIpRateLimited(`user:${session.user.id}`, "chat")) {
+    return jsonError("too_many_requests", 429);
+  }
 
   try {
     const limitCheck = await checkAiLimit(session.user.businessId);

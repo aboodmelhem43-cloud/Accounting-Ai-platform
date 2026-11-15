@@ -34,9 +34,8 @@ export async function POST(
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const { id } = await params;
-  const template = await prisma.recurringTemplate.findUnique({ where: { id } });
+  const template = await prisma.recurringTemplate.findFirst({ where: { id, businessId: session.user.businessId } });
   if (!template) return NextResponse.json({ error: "القالب غير موجود" }, { status: 404 });
-  if (template.businessId !== session.user.businessId) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   if (!template.isActive) return NextResponse.json({ error: "القالب غير نشط" }, { status: 400 });
   if (template.endDate && template.nextRunDate > template.endDate) {
     return NextResponse.json({ error: "انتهت صلاحية القالب" }, { status: 400 });

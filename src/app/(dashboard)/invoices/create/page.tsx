@@ -189,7 +189,7 @@ export default function CreateInvoicePage() {
         setTimeout(() => router.push("/invoices"), 1200);
       } else {
         const err = await res.json();
-        setSaveError(err.message ?? (isAr ? "فشل الحفظ" : "Save failed"));
+        setSaveError(err.error ?? (isAr ? "فشل الحفظ" : "Save failed"));
       }
     } finally {
       setSaving(false);

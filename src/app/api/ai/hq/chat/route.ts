@@ -4,12 +4,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextRequest } from "next/server";
 import { HQ_AGENTS } from "@/lib/ai/hq-agents";
+import { isIpRateLimited } from "@/lib/rate-limit";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return new Response("Unauthorized", { status: 401 });
+
+  if (await isIpRateLimited(`user:${session.user.id}`, "hq-chat")) {
+    return new Response("Too many requests", { status: 429 });
+  }
 
   const hqSchema = z.object({
     agentId: z.string().max(100),

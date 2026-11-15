@@ -199,21 +199,26 @@ export async function computeIncomeStatement(
 
   const accounts = await prisma.account.findMany({
     where: { businessId, type: { in: ["REVENUE", "EXPENSE"] } },
-    include: {
-      journalLines: {
-        where: {
-          journalEntry: { businessId, status: "POSTED", date: { gte: from, lte: to } },
-        },
-      },
-    },
+    select: { id: true, code: true, name: true, nameAr: true, type: true },
   });
+
+  const sums = await prisma.journalLine.groupBy({
+    by: ["accountId"],
+    where: {
+      accountId: { in: accounts.map((a) => a.id) },
+      journalEntry: { businessId, status: "POSTED", date: { gte: from, lte: to } },
+    },
+    _sum: { debit: true, credit: true },
+  });
+  const sumByAccountIncome = new Map(sums.map((s) => [s.accountId, s._sum]));
 
   const revenueAccounts: AccountBalance[] = [];
   const expenseAccounts: AccountBalance[] = [];
 
   for (const acc of accounts) {
-    const totalDebit = acc.journalLines.reduce((s, l) => s + Number(l.debit), 0);
-    const totalCredit = acc.journalLines.reduce((s, l) => s + Number(l.credit), 0);
+    const accSum = sumByAccountIncome.get(acc.id);
+    const totalDebit = Number(accSum?.debit ?? 0);
+    const totalCredit = Number(accSum?.credit ?? 0);
     // إيرادات: رصيد = دائن - مدين | مصروفات: رصيد = مدين - دائن
     const balance =
       acc.type === "REVENUE" ? totalCredit - totalDebit : totalDebit - totalCredit;
@@ -361,14 +366,18 @@ export async function computeBalanceSheet(
 
   const accounts = await prisma.account.findMany({
     where: { businessId },
-    include: {
-      journalLines: {
-        where: {
-          journalEntry: { businessId, status: "POSTED", date: { lte: asOf } },
-        },
-      },
-    },
+    select: { id: true, code: true, name: true, nameAr: true, type: true },
   });
+
+  const bsSums = await prisma.journalLine.groupBy({
+    by: ["accountId"],
+    where: {
+      accountId: { in: accounts.map((a) => a.id) },
+      journalEntry: { businessId, status: "POSTED", date: { lte: asOf } },
+    },
+    _sum: { debit: true, credit: true },
+  });
+  const sumByAccountBS = new Map(bsSums.map((s) => [s.accountId, s._sum]));
 
   const assets: AccountBalance[] = [];
   const liabilities: AccountBalance[] = [];
@@ -377,8 +386,9 @@ export async function computeBalanceSheet(
   let totalExpenses = 0;
 
   for (const acc of accounts) {
-    const totalDebit = acc.journalLines.reduce((s, l) => s + Number(l.debit), 0);
-    const totalCredit = acc.journalLines.reduce((s, l) => s + Number(l.credit), 0);
+    const accSum = sumByAccountBS.get(acc.id);
+    const totalDebit = Number(accSum?.debit ?? 0);
+    const totalCredit = Number(accSum?.credit ?? 0);
 
     const entry: AccountBalance = {
       accountId: acc.id,

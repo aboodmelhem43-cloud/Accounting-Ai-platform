@@ -7,10 +7,12 @@ import ShareBar from "./ShareBar";
 
 const SITE_URL = "https://www.mohasabai.com";
 
-// Strip <script> tags before rendering blog HTML — content is static but this
-// guards against accidental injection if the source ever moves to a CMS/DB.
+// Strip <script> tags and inline event handlers before rendering blog HTML.
+// Content is static today, but this guards if the source ever moves to a CMS/DB.
 function sanitizeBlogHtml(html: string): string {
-  return html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script\s*>/gi, "");
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script\s*>/gi, "")
+    .replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi, "");
 }
 
 export async function generateStaticParams() {

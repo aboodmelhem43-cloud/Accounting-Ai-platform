@@ -29,11 +29,6 @@ export async function POST(
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-  const limitCheck = await checkInvoiceLimit(session.user.businessId);
-  if (!limitCheck.allowed) {
-    return NextResponse.json({ error: "وصلت للحد الأقصى من الفواتير في خطتك الحالية" }, { status: 403 });
-  }
-
   const { id } = await params;
 
   let body: unknown;
@@ -77,8 +72,16 @@ export async function POST(
     return NextResponse.json({ error: "لم يتم العثور على قيود للعكس" }, { status: 400 });
   }
 
-  const result = await prisma.$transaction(async (tx) => {
-    const creditNoteEntry = await createJournalEntry({
+  let result: Awaited<ReturnType<typeof prisma.invoice.create>>;
+  try {
+    result = await prisma.$transaction(async (tx) => {
+      // فحص الحد داخل المعاملة لمنع حالة السباق (TOCTOU)
+      const limitCheck = await checkInvoiceLimit(session.user.businessId, tx);
+      if (!limitCheck.allowed) {
+        throw Object.assign(new Error("plan_limit"), { limit: limitCheck.limit });
+      }
+
+      const creditNoteEntry = await createJournalEntry({
       businessId: session.user.businessId,
       userId: session.user.id,
       date: new Date(date),
@@ -109,8 +112,14 @@ export async function POST(
       },
     });
 
-    return creditNote;
-  });
+      return creditNote;
+    });
+  } catch (err) {
+    if (err instanceof Error && err.message === "plan_limit") {
+      return NextResponse.json({ error: "وصلت للحد الأقصى من الفواتير في خطتك الحالية" }, { status: 403 });
+    }
+    return NextResponse.json({ error: "خطأ في الخادم" }, { status: 500 });
+  }
 
   await logAudit({
     businessId: session.user.businessId,

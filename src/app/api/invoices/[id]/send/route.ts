@@ -4,6 +4,7 @@ import { z } from "zod";
 import { randomUUID } from "crypto";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isIpRateLimited } from "@/lib/rate-limit";
 import { Resend } from "resend";
 import type { ExtractedInvoiceData } from "@/types";
 
@@ -20,6 +21,10 @@ const sendSchema = z.object({
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+
+  if (await isIpRateLimited(`user:${session.user.id}`, "invoice-send")) {
+    return NextResponse.json({ error: "too_many_requests" }, { status: 429 });
+  }
 
   const { id } = await params;
 
