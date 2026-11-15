@@ -81,6 +81,7 @@ export default function RecurringPage() {
       setAccounts(Array.isArray(aData) ? aData : []);
     } catch {
       setTemplates([]);
+      setError(isAr ? "فشل تحميل البيانات" : "Failed to load data");
     } finally {
       setLoading(false);
     }

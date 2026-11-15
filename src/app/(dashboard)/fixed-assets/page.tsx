@@ -92,6 +92,7 @@ export default function FixedAssetsPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const [aRes, accRes] = await Promise.all([
         fetch("/api/fixed-assets"),
@@ -100,10 +101,12 @@ export default function FixedAssetsPage() {
       const [aData, accData] = await Promise.all([aRes.json(), accRes.json()]);
       setAssets(aData.assets ?? []);
       setAccounts(Array.isArray(accData) ? accData : []);
+    } catch {
+      setError(isAr ? "فشل تحميل البيانات" : "Failed to load data");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAr]);
 
   useEffect(() => { load(); }, [load]);
 
