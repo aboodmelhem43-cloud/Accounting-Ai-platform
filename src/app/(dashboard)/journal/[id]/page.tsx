@@ -63,14 +63,19 @@ export default function JournalEntryPage() {
 
   useEffect(() => {
     async function load() {
-      const res = await fetch(`/api/journal/${id}`);
-      if (res.status === 404 || res.status === 403) { setNotFound(true); setLoading(false); return; }
-      const data = await res.json();
-      setEntry(data.entry);
-      setLoading(false);
+      try {
+        const res = await fetch(`/api/journal/${id}`);
+        if (res.status === 404 || res.status === 403) { setNotFound(true); setLoading(false); return; }
+        const data = await res.json();
+        setEntry(data.entry);
+      } catch {
+        setActionError(isAr ? "فشل تحميل القيد" : "Failed to load entry");
+      } finally {
+        setLoading(false);
+      }
     }
     load();
-  }, [id]);
+  }, [id, isAr]);
 
   async function doAction(url: string, method = "PATCH", body?: object): Promise<boolean> {
     setActionError(null);

@@ -72,6 +72,7 @@ export default function OpeningBalancesPage() {
       }
     } catch {
       setAccounts([]);
+      setError(isAr ? "فشل تحميل البيانات" : "Failed to load data");
     } finally {
       setLoading(false);
     }

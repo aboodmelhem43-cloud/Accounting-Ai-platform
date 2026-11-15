@@ -9,11 +9,11 @@ import { verifyOtp } from "@/lib/otp";
 import { trialEndsAtDate } from "@/lib/plans";
 
 const schema = z.object({
-  email:        z.string().email(),
-  password:     z.string().min(8),
-  name:         z.string().min(1),
-  businessName: z.string().min(2),
-  country:      z.string().length(2),
+  email:        z.string().email().max(254),
+  password:     z.string().min(8).max(128),
+  name:         z.string().min(1).max(100),
+  businessName: z.string().min(2).max(200),
+  country:      z.string().length(2).toUpperCase(),
   otp:          z.string().length(6),
 });
 

@@ -4,12 +4,14 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
+const isValidDate = (s: string) => !isNaN(new Date(s).getTime());
+
 const patchSchema = z.object({
   isActive: z.boolean().optional(),
-  nextRunDate: z.string().optional(),
-  endDate: z.string().optional().nullable(),
-  name: z.string().min(1).optional(),
-  description: z.string().optional(),
+  nextRunDate: z.string().refine((s) => !s || isValidDate(s), { message: "تاريخ التشغيل غير صالح" }).optional(),
+  endDate: z.string().refine((s) => s === null || !s || isValidDate(s), { message: "تاريخ الانتهاء غير صالح" }).optional().nullable(),
+  name: z.string().min(1).max(200).optional(),
+  description: z.string().max(1000).optional(),
 });
 
 export async function PATCH(
