@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { Prisma } from "@prisma/client";
 
 export type PlanId = "FREE_TRIAL" | "STARTER" | "PRO" | "BUSINESS";
 
@@ -94,13 +95,17 @@ export async function checkActivePlan(businessId: string): Promise<boolean> {
   return true;
 }
 
-export async function checkInvoiceLimit(businessId: string): Promise<{
+export async function checkInvoiceLimit(
+  businessId: string,
+  tx?: Prisma.TransactionClient
+): Promise<{
   allowed: boolean;
   used: number;
   limit: number;
   plan: PlanId;
 }> {
-  const business = await prisma.business.findUniqueOrThrow({
+  const db = tx ?? prisma;
+  const business = await db.business.findUniqueOrThrow({
     where: { id: businessId },
     select: { plan: true, trialEndsAt: true, createdAt: true },
   });
@@ -118,7 +123,7 @@ export async function checkInvoiceLimit(businessId: string): Promise<{
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
 
-  const used = await prisma.invoice.count({
+  const used = await db.invoice.count({
     where: { businessId, createdAt: { gte: startOfMonth } },
   });
 
