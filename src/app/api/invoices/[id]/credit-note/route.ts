@@ -8,9 +8,9 @@ import { logAudit } from "@/lib/audit";
 import { checkInvoiceLimit } from "@/lib/plans";
 
 const schema = z.object({
-  amount: z.number().positive(),
-  date: z.string().min(1),
-  reason: z.string().min(1),
+  amount: z.number().positive().max(1_000_000_000),
+  date: z.string().min(1).refine((s) => !isNaN(new Date(s).getTime()), { message: "تاريخ الإشعار غير صالح" }),
+  reason: z.string().min(1).max(500),
 });
 
 type ExtractedData = {
