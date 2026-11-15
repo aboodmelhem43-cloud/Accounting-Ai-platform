@@ -78,6 +78,7 @@ export default function ContactsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [historyContact, setHistoryContact] = useState<ContactHistory | null>(null);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [pageError, setPageError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -119,16 +120,18 @@ export default function ContactsPage() {
   async function openHistory(contactId: string) {
     setHistoryLoading(true);
     setHistoryContact(null);
+    setPageError(null);
     try {
       const res = await fetch(`/api/contacts/${contactId}/transactions`);
       if (!res.ok) throw new Error("fetch_failed");
       const data = await res.json() as ContactHistory;
       setHistoryContact(data);
     } catch {
-      setError(isAr ? "فشل تحميل سجل المعاملات" : "Failed to load transaction history");
-    } finally {
       setHistoryLoading(false);
+      setPageError(isAr ? "فشل تحميل سجل المعاملات" : "Failed to load transaction history");
+      return;
     }
+    setHistoryLoading(false);
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -174,12 +177,12 @@ export default function ContactsPage() {
       const res = await fetch(`/api/contacts/${deleteId}`, { method: "DELETE" });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
-        setError(d.error ?? (isAr ? "فشل حذف جهة الاتصال" : "Failed to delete contact"));
+        setPageError(d.error ?? (isAr ? "فشل حذف جهة الاتصال" : "Failed to delete contact"));
         setDeleteId(null);
         return;
       }
     } catch {
-      setError(isAr ? "خطأ في الاتصال" : "Connection error");
+      setPageError(isAr ? "خطأ في الاتصال" : "Connection error");
       setDeleteId(null);
       return;
     }
@@ -193,6 +196,12 @@ export default function ContactsPage() {
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <ContactsAnimations />
+      {pageError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
+          <span>{pageError}</span>
+          <button onClick={() => setPageError(null)} className="text-red-400 hover:text-red-600 ms-2">✕</button>
+        </div>
+      )}
       {/* العنوان */}
       <div className="gsap-contacts-header flex items-center justify-between">
         <div>

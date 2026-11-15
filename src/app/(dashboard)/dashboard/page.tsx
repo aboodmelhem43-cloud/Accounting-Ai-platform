@@ -264,27 +264,3 @@ export default async function DashboardPage({
   );
 }
 
-function SummaryCard({
-  title, value, sub, color, icon, href,
-}: {
-  title: string; value: string; sub: string; color: string; icon: string; href?: string;
-}) {
-  const colors: Record<string, string> = {
-    green: "bg-green-50 border-green-200",
-    red: "bg-red-50 border-red-200",
-    blue: "bg-blue-50 border-blue-200",
-    yellow: "bg-yellow-50 border-yellow-200",
-  };
-
-  const content = (
-    <div className={`rounded-xl border p-5 gsap-stat-card ${colors[color] ?? colors.blue}`}>
-      <div className="text-2xl mb-2">{icon}</div>
-      <div className="text-sm font-medium text-gray-600">{title}</div>
-      <div className="text-xl font-bold text-gray-900 mt-1 break-all leading-tight gsap-stat-value">{value}</div>
-      <div className="text-xs text-gray-500 mt-1">{sub}</div>
-    </div>
-  );
-
-  if (href) return <Link href={href} className="block hover:opacity-90 transition-opacity">{content}</Link>;
-  return content;
-}

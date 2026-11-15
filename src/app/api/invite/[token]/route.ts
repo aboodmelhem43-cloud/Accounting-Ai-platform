@@ -55,7 +55,8 @@ export async function POST(
     return NextResponse.json({ error: "Invitation is invalid or has expired." }, { status: 404 });
   }
 
-  const body = await req.json();
+  let body: unknown;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid request body" }, { status: 400 }); }
 
   if (invite.type === "BOOKKEEPER") {
     // Bookkeeper invite: existing user just accepts access; new user also creates account
@@ -78,7 +79,9 @@ export async function POST(
     }
 
     // New user — need name + password to create account
-    const { name, password } = acceptSchema.parse(body);
+    const bkParsed = acceptSchema.safeParse(body);
+    if (!bkParsed.success) return NextResponse.json({ error: bkParsed.error.errors[0]?.message ?? "Invalid data" }, { status: 400 });
+    const { name, password } = bkParsed.data;
     if (!name || !password) {
       return NextResponse.json(
         { error: "Name and password are required for new accounts." },
@@ -120,7 +123,9 @@ export async function POST(
   }
 
   // TEAM invite — original flow
-  const { name, password } = acceptSchema.parse(body);
+  const teamParsed = acceptSchema.safeParse(body);
+  if (!teamParsed.success) return NextResponse.json({ error: teamParsed.error.errors[0]?.message ?? "Invalid data" }, { status: 400 });
+  const { name, password } = teamParsed.data;
   if (!name || !password) {
     return NextResponse.json(
       { error: "Name and password are required." },

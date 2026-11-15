@@ -13,8 +13,8 @@ const lineSchema = z.object({
 });
 
 const schema = z.object({
-  date: z.string().min(1),
-  lines: z.array(lineSchema).min(1),
+  date: z.string().min(1).refine((s) => !isNaN(new Date(s).getTime()), { message: "تاريخ غير صالح" }),
+  lines: z.array(lineSchema).min(1).max(500),
 });
 
 export async function GET(_req: NextRequest) {

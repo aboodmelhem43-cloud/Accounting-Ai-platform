@@ -64,7 +64,9 @@ export async function POST(req: NextRequest) {
   }
 
   const text = await file.text();
-  const { rows } = parseCSV(text);
+  const { rows: allRows } = parseCSV(text);
+  const MAX_ROWS = 5000;
+  const rows = allRows.slice(0, MAX_ROWS);
 
   // إنشاء كشف الحساب
   const statement = await prisma.bankStatement.create({

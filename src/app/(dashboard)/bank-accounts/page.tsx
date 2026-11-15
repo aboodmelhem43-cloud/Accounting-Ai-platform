@@ -36,7 +36,8 @@ export default function BankAccountsPage() {
   const [form, setForm] = useState(emptyForm());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
+  const [pageError, setPageError] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => Promise<void> } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -113,12 +114,12 @@ export default function BankAccountsPage() {
           const res = await fetch(`/api/bank-accounts/${id}`, { method: "DELETE" });
           if (!res.ok) {
             const d = await res.json().catch(() => ({}));
-            setError(d.error ?? (isAr ? "فشل حذف الحساب البنكي" : "Failed to delete bank account"));
+            setPageError(d.error ?? (isAr ? "فشل حذف الحساب البنكي" : "Failed to delete bank account"));
             return;
           }
           load();
         } catch {
-          setError(isAr ? "خطأ في الاتصال" : "Connection error");
+          setPageError(isAr ? "خطأ في الاتصال" : "Connection error");
         }
       },
     });
@@ -130,6 +131,12 @@ export default function BankAccountsPage() {
   return (
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <PageAnimations />
+      {pageError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
+          <span>{pageError}</span>
+          <button onClick={() => setPageError(null)} className="text-red-400 hover:text-red-600 ms-2">✕</button>
+        </div>
+      )}
       <div className="gsap-page-header flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
@@ -224,7 +231,7 @@ export default function BankAccountsPage() {
                 {isAr ? "إلغاء" : "Cancel"}
               </button>
               <button
-                onClick={() => { confirmModal.onConfirm(); setConfirmModal(null); }}
+                onClick={async () => { await confirmModal.onConfirm(); setConfirmModal(null); }}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
               >
                 {isAr ? "تأكيد" : "Confirm"}

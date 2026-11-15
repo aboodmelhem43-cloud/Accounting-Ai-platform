@@ -7,9 +7,9 @@ import { createJournalEntry } from "@/lib/ledger";
 
 const paymentSchema = z.object({
   amount: z.number().positive().max(1_000_000_000),
-  date: z.string().min(1),
+  date: z.string().min(1).refine((s) => !isNaN(new Date(s).getTime()), { message: "تاريخ الدفع غير صالح" }),
   accountId: z.string().min(1), // حساب النقدية أو البنك المُستلم منه
-  note: z.string().optional(),
+  note: z.string().max(500).optional(),
 });
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -42,20 +42,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   });
   if (!account) return NextResponse.json({ error: "حساب النقدية غير صالح" }, { status: 400 });
 
-  // استخرج المبلغ الإجمالي من بيانات الفاتورة
-  const extracted = invoice.extractedData as { totalAmount?: number } | null;
-  const totalAmount = extracted?.totalAmount ?? 0;
-
-  const alreadyPaid = invoice.payments.reduce((s, p) => s + Number(p.amount), 0);
-  const remaining = totalAmount - alreadyPaid;
-
-  if (data.amount > remaining + 0.001) {
-    return NextResponse.json(
-      { error: `المبلغ المدفوع (${data.amount}) يتجاوز المبلغ المتبقي (${remaining.toFixed(2)})` },
-      { status: 400 }
-    );
-  }
-
   // ابحث عن حساب المدينين (AR) لفاتورة المبيعات أو الدائنين (AP) للمشتريات
   const counterpartCode = invoice.invoiceType === "SALES" ? "1200" : "2100";
   const counterpartAcc = await prisma.account.findFirst({
@@ -65,54 +51,81 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "لم يتم العثور على حساب المدينين/الدائنين" }, { status: 400 });
   }
 
-  // قيد الدفع: نقدية مدين / مدينون دائن (للمبيعات) أو دائنون مدين / نقدية دائن (للمشتريات)
-  let lines: { accountId: string; debit: number; credit: number; description?: string }[];
-  if (invoice.invoiceType === "SALES") {
-    lines = [
-      { accountId: data.accountId, debit: data.amount, credit: 0, description: "استلام دفعة" },
-      { accountId: counterpartAcc.id, debit: 0, credit: data.amount, description: "تسوية مدينين" },
-    ];
-  } else {
-    lines = [
-      { accountId: counterpartAcc.id, debit: data.amount, credit: 0, description: "تسوية دائنين" },
-      { accountId: data.accountId, debit: 0, credit: data.amount, description: "صرف دفعة" },
-    ];
+  // تنفيذ الدفع داخل معاملة واحدة لتفادي تعارض الطلبات المتزامنة
+  let result: Awaited<ReturnType<typeof prisma.$transaction>>;
+  try {
+    result = await prisma.$transaction(async (tx) => {
+      // إعادة قراءة الدفعات داخل المعاملة لضمان الدقة
+      const freshInvoice = await tx.invoice.findUnique({
+        where: { id: invoice.id },
+        include: { payments: true },
+      });
+      if (!freshInvoice) throw new Error("الفاتورة غير موجودة");
+
+      const freshExtracted = freshInvoice.extractedData as { totalAmount?: number; grandTotal?: number } | null;
+      const totalAmount = freshExtracted?.totalAmount ?? freshExtracted?.grandTotal ?? 0;
+      const alreadyPaid = freshInvoice.payments.reduce((s, p) => s + Number(p.amount), 0);
+      const remaining = totalAmount - alreadyPaid;
+
+      if (data.amount > remaining + 0.001) {
+        throw new Error(`المبلغ المدفوع (${data.amount}) يتجاوز المبلغ المتبقي (${remaining.toFixed(2)})`);
+      }
+
+      // قيد الدفع: نقدية مدين / مدينون دائن (للمبيعات) أو دائنون مدين / نقدية دائن (للمشتريات)
+      const lines: { accountId: string; debit: number; credit: number; description?: string }[] =
+        invoice.invoiceType === "SALES"
+          ? [
+              { accountId: data.accountId, debit: data.amount, credit: 0, description: "استلام دفعة" },
+              { accountId: counterpartAcc.id, debit: 0, credit: data.amount, description: "تسوية مدينين" },
+            ]
+          : [
+              { accountId: counterpartAcc.id, debit: data.amount, credit: 0, description: "تسوية دائنين" },
+              { accountId: data.accountId, debit: 0, credit: data.amount, description: "صرف دفعة" },
+            ];
+
+      const journalEntry = await createJournalEntry(
+        {
+          businessId: session.user.businessId,
+          userId: session.user.id,
+          date: new Date(data.date),
+          description: data.note ?? `دفعة فاتورة ${invoice.id}`,
+          sourceType: "MANUAL",
+          lines,
+        },
+        tx
+      );
+
+      const payment = await tx.invoicePayment.create({
+        data: {
+          invoiceId: invoice.id,
+          amount: data.amount,
+          date: new Date(data.date),
+          note: data.note,
+          journalEntryId: journalEntry.id,
+        },
+      });
+
+      const newTotalPaid = alreadyPaid + data.amount;
+      const newStatus =
+        Math.abs(newTotalPaid - totalAmount) < 0.01
+          ? "PAID"
+          : newTotalPaid > 0
+            ? "PARTIALLY_PAID"
+            : "UNPAID";
+
+      await tx.invoice.update({
+        where: { id: invoice.id },
+        data: { paymentStatus: newStatus },
+      });
+
+      return { payment, journalEntryId: journalEntry.id, paymentStatus: newStatus };
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "خطأ في الخادم";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
-  const journalEntry = await createJournalEntry({
-    businessId: session.user.businessId,
-    userId: session.user.id,
-    date: new Date(data.date),
-    description: data.note ?? `دفعة فاتورة ${invoice.id}`,
-    sourceType: "MANUAL",
-    lines,
-  });
-
-  const payment = await prisma.invoicePayment.create({
-    data: {
-      invoiceId: invoice.id,
-      amount: data.amount,
-      date: new Date(data.date),
-      note: data.note,
-      journalEntryId: journalEntry.id,
-    },
-  });
-
-  // تحديث حالة الدفع
-  const newTotalPaid = alreadyPaid + data.amount;
-  const newStatus =
-    Math.abs(newTotalPaid - totalAmount) < 0.01
-      ? "PAID"
-      : newTotalPaid > 0
-        ? "PARTIALLY_PAID"
-        : "UNPAID";
-
-  await prisma.invoice.update({
-    where: { id: invoice.id },
-    data: { paymentStatus: newStatus },
-  });
-
-  return NextResponse.json({ payment, journalEntryId: journalEntry.id, paymentStatus: newStatus });
+  return NextResponse.json(result);
 }
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

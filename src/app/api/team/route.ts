@@ -71,8 +71,11 @@ export async function POST(req: NextRequest) {
   const { businessId, businessName } = session.user;
   const plan = session.user.plan as PlanId;
 
-  const body = await req.json();
-  const { email, role, type } = inviteSchema.parse(body);
+  let body: unknown;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid request body" }, { status: 400 }); }
+  const parsed = inviteSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.errors[0]?.message ?? "Invalid data" }, { status: 400 });
+  const { email, role, type } = parsed.data;
   const normalizedEmail = email.toLowerCase();
 
   if (type === "TEAM") {

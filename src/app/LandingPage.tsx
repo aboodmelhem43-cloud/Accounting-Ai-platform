@@ -639,7 +639,7 @@ export default function LandingPage({ pricingData }: { pricingData: PricingPlan[
 
           <div className="flex items-center justify-between flex-wrap gap-3 pt-6" style={{ borderTop: "1px solid var(--lp-border)" }}>
             <span style={{ fontSize: 12.5, color: "var(--lp-fg3)" }}>
-              © 2025 MohasabAi · محاسب Ai. {isAr ? "جميع الحقوق محفوظة." : "All rights reserved."}
+              © 2026 MohasabAi · محاسب Ai. {isAr ? "جميع الحقوق محفوظة." : "All rights reserved."}
             </span>
             <span style={{ fontSize: 12.5, color: "var(--lp-fg3)", fontFamily: "Inter, sans-serif" }}>
               Made with ❤️ for Arab businesses

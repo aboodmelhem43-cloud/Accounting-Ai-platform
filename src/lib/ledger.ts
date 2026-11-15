@@ -164,6 +164,7 @@ export async function getAccountBalance(
     accountId,
     journalEntry: {
       businessId,
+      status: "POSTED",
       ...(from || to
         ? {
             date: {
@@ -438,12 +439,13 @@ export async function computeCashFlow(
     where: { id: businessId },
   });
 
-  // حساب النقدية (كود 1100)
-  const cashAccount = await prisma.account.findFirst({
-    where: { businessId, code: "1100" },
+  // حسابات النقدية والبنوك — جميع حسابات 11xx
+  const cashAccountList = await prisma.account.findMany({
+    where: { businessId, type: "ASSET", code: { startsWith: "11" } },
+    select: { id: true },
   });
 
-  if (!cashAccount) {
+  if (cashAccountList.length === 0) {
     return {
       period: { from: from.toISOString(), to: to.toISOString() },
       operatingActivities: [],
@@ -457,17 +459,19 @@ export async function computeCashFlow(
     };
   }
 
+  const cashAccountIds = new Set(cashAccountList.map((a) => a.id));
+
   // جلب حركات النقدية مع الحسابات المقابلة
   const cashLines = await prisma.journalLine.findMany({
     where: {
-      accountId: cashAccount.id,
+      accountId: { in: [...cashAccountIds] },
       journalEntry: { businessId, status: "POSTED", date: { gte: from, lte: to } },
     },
     include: {
       journalEntry: {
         include: {
           lines: {
-            where: { accountId: { not: cashAccount.id } },
+            where: { accountId: { notIn: [...cashAccountIds] } },
             include: { account: true },
           },
         },
