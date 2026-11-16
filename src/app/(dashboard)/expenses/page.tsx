@@ -150,6 +150,7 @@ export default function ExpensesPage() {
             </label>
             <input
               type="number"
+              inputMode="decimal"
               min="0.01"
               step="0.01"
               className="input text-2xl font-bold"

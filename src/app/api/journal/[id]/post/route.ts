@@ -21,6 +21,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (entry.isLocked) return NextResponse.json({ error: "القيد مقفل" }, { status: 403 });
   if (entry.status === "POSTED") return NextResponse.json({ error: "القيد مُرحَّل بالفعل" }, { status: 400 });
 
+  // التحقق من أن الفترة المحاسبية للقيد ليست مقفلة
+  const entryYear = entry.date.getFullYear();
+  const entryMonth = entry.date.getMonth() + 1;
+  const lockedPeriod = await prisma.accountingPeriod.findUnique({
+    where: { businessId_year_month: { businessId: session.user.businessId, year: entryYear, month: entryMonth } },
+    select: { status: true },
+  });
+  if (lockedPeriod?.status === "CLOSED") {
+    return NextResponse.json({ error: "الفترة المحاسبية مقفلة — لا يمكن ترحيل قيود عليها" }, { status: 409 });
+  }
+
   const updated = await prisma.journalEntry.update({
     where: { id },
     data: {

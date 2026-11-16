@@ -24,6 +24,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "القيد ليس بانتظار المراجعة" }, { status: 400 });
   }
 
+  // التحقق من أن الفترة المحاسبية للقيد ليست مقفلة
+  const entryYear = entry.date.getFullYear();
+  const entryMonth = entry.date.getMonth() + 1;
+  const lockedPeriod = await prisma.accountingPeriod.findUnique({
+    where: { businessId_year_month: { businessId: session.user.businessId, year: entryYear, month: entryMonth } },
+    select: { status: true },
+  });
+  if (lockedPeriod?.status === "CLOSED") {
+    return NextResponse.json({ error: "الفترة المحاسبية مقفلة — لا يمكن الموافقة على قيد في فترة مقفلة" }, { status: 409 });
+  }
+
   const updated = await prisma.journalEntry.update({
     where: { id },
     data: {

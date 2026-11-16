@@ -191,7 +191,7 @@ export default function CreatePurchaseInvoicePage() {
             </div>
             <div>
               <label className="label">{isAr ? "نسبة الضريبة %" : "Tax Rate %"}</label>
-              <input type="number" className="input" value={taxRate} min={0} max={100} onChange={(e) => setTaxRate(Number(e.target.value))} />
+              <input type="number" className="input" inputMode="decimal" value={taxRate} min={0} max={100} onChange={(e) => setTaxRate(Number(e.target.value))} />
             </div>
           </div>
           <div>
@@ -266,6 +266,7 @@ export default function CreatePurchaseInvoicePage() {
                   <td className="py-2 px-4">
                     <input
                       type="number"
+                      inputMode="numeric"
                       className="w-full border-none outline-none bg-transparent text-end tabular-nums text-gray-800"
                       value={li.quantity}
                       min={0}
@@ -275,6 +276,7 @@ export default function CreatePurchaseInvoicePage() {
                   <td className="py-2 px-4">
                     <input
                       type="number"
+                      inputMode="decimal"
                       className="w-full border-none outline-none bg-transparent text-end tabular-nums text-gray-800"
                       value={li.unitPrice}
                       min={0}

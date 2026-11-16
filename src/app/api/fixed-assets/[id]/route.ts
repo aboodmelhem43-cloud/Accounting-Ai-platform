@@ -84,6 +84,12 @@ export async function DELETE(
   const asset = await prisma.fixedAsset.findUnique({ where: { id, businessId: session.user.businessId }, select: { businessId: true, name: true } });
   if (!asset) return NextResponse.json({ error: "الأصل غير موجود" }, { status: 404 });
 
+  // منع الحذف إذا كان الأصل لديه قيود إهلاك مسجلة
+  const hasDepreciation = await prisma.assetDepreciationEntry.findFirst({ where: { assetId: id } });
+  if (hasDepreciation) {
+    return NextResponse.json({ error: "لا يمكن حذف أصل لديه قيود إهلاك مسجلة" }, { status: 409 });
+  }
+
   await prisma.fixedAsset.delete({ where: { id } });
 
   await logAudit({
