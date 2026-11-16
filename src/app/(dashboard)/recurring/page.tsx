@@ -255,7 +255,7 @@ export default function RecurringPage() {
             {form.frequency === "MONTHLY" && (
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">{isAr ? "يوم الشهر" : "Day of month"}</label>
-                <input type="number" min={1} max={28} className="input w-full text-sm" value={form.dayOfMonth} onChange={(e) => setForm((f) => ({ ...f, dayOfMonth: e.target.value }))} />
+                <input type="number" inputMode="numeric" min={1} max={28} className="input w-full text-sm" value={form.dayOfMonth} onChange={(e) => setForm((f) => ({ ...f, dayOfMonth: e.target.value }))} />
               </div>
             )}
             <div>
@@ -288,8 +288,8 @@ export default function RecurringPage() {
                       <option key={a.id} value={a.id}>{a.code} — {isAr ? (a.nameAr ?? a.name) : a.name}</option>
                     ))}
                   </select>
-                  <input type="number" min={0} placeholder={isAr ? "مدين" : "Debit"} className="input w-24 text-xs" value={line.debit || ""} onChange={(e) => updateLine(i, "debit", parseFloat(e.target.value) || 0)} />
-                  <input type="number" min={0} placeholder={isAr ? "دائن" : "Credit"} className="input w-24 text-xs" value={line.credit || ""} onChange={(e) => updateLine(i, "credit", parseFloat(e.target.value) || 0)} />
+                  <input type="number" inputMode="decimal" min={0} placeholder={isAr ? "مدين" : "Debit"} className="input w-24 text-xs" value={line.debit || ""} onChange={(e) => updateLine(i, "debit", parseFloat(e.target.value) || 0)} />
+                  <input type="number" inputMode="decimal" min={0} placeholder={isAr ? "دائن" : "Credit"} className="input w-24 text-xs" value={line.credit || ""} onChange={(e) => updateLine(i, "credit", parseFloat(e.target.value) || 0)} />
                   {form.lines.length > 2 && (
                     <button onClick={() => removeLine(i)} className="text-red-400 hover:text-red-600 text-sm">✕</button>
                   )}

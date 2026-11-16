@@ -77,6 +77,7 @@ export default function CurrencyPage() {
             <label className="label">{isAr ? "المبلغ" : "Amount"}</label>
             <input
               type="number"
+              inputMode="decimal"
               min="0"
               step="0.01"
               value={amount}

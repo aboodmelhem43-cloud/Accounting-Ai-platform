@@ -320,6 +320,7 @@ export default function InvoiceActions({
                 <div className="relative">
                   <input
                     type="number"
+                    inputMode="decimal"
                     step="0.01"
                     min="0.01"
                     max={remaining}
@@ -410,6 +411,7 @@ export default function InvoiceActions({
                     <label className="block text-sm font-medium mb-1">{isAr ? "المبلغ" : "Amount"}</label>
                     <input
                       type="number"
+                      inputMode="decimal"
                       step="0.01"
                       min="0.01"
                       max={totalAmount}

@@ -350,6 +350,7 @@ function Field({
       <label className="label">{label}</label>
       <input
         type={type}
+        inputMode={type === "number" ? "decimal" : undefined}
         className="input"
         value={value}
         onChange={(e) => onChange(e.target.value)}
