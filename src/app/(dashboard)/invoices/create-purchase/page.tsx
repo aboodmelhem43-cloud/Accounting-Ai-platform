@@ -78,6 +78,7 @@ export default function CreatePurchaseInvoicePage() {
   }
 
   function removeLine(index: number) {
+    if (lineItems.length <= 1) return;
     setLineItems((prev) => prev.filter((_, i) => i !== index));
   }
 
@@ -187,7 +188,7 @@ export default function CreatePurchaseInvoicePage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="label">{isAr ? "تاريخ الاستحقاق" : "Due Date"}</label>
-              <input type="date" className="input" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+              <input type="date" className="input" value={dueDate} min={invoiceDate} onChange={(e) => setDueDate(e.target.value)} />
             </div>
             <div>
               <label className="label">{isAr ? "نسبة الضريبة %" : "Tax Rate %"}</label>
