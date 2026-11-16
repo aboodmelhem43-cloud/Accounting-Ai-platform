@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { createJournalEntry, suggestPurchaseJournalEntry, suggestSalesJournalEntry } from "@/lib/ledger";
+import { createJournalEntry, suggestPurchaseJournalEntry, suggestSalesJournalEntry, LedgerError } from "@/lib/ledger";
 import type { ExtractedInvoiceData } from "@/types";
 
 const MAX_AMOUNT = 1_000_000_000;
@@ -65,9 +65,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
-    if (error instanceof Error) {
+    if (error instanceof LedgerError) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
+    console.error("[invoice/confirm]", error);
     return NextResponse.json({ error: "فشل في تأكيد الفاتورة" }, { status: 500 });
   }
 }

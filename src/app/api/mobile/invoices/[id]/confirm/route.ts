@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyMobileToken } from "@/lib/mobile-auth";
 import { prisma } from "@/lib/prisma";
-import { createJournalEntry, suggestPurchaseJournalEntry, suggestSalesJournalEntry } from "@/lib/ledger";
+import { createJournalEntry, suggestPurchaseJournalEntry, suggestSalesJournalEntry, LedgerError } from "@/lib/ledger";
 import type { ExtractedInvoiceData } from "@/types";
 
 export async function POST(
@@ -92,9 +92,7 @@ export async function POST(
       message: "تم تأكيد الفاتورة وترحيل القيد بنجاح",
     });
   } catch (error) {
-    const name = error instanceof Error ? error.constructor.name : "";
-    const isDbError = name.includes("Prisma") || (error instanceof Error && /^P\d{4}/.test(error.message));
-    if (!isDbError && error instanceof Error && error.message) {
+    if (error instanceof LedgerError) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
     console.error("[mobile/invoice/confirm]", error);
