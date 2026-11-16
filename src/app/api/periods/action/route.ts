@@ -26,59 +26,64 @@ export async function POST(req: NextRequest) {
   const { year, month, action, notes } = parsed.data;
   const newStatus = action === "close" ? "CLOSED" : "OPEN";
 
-  const period = await prisma.accountingPeriod.upsert({
-    where: { businessId_year_month: { businessId: session.user.businessId, year, month } },
-    create: {
+  // Atomic: upsert + journal lock/unlock + audit log all commit or all roll back
+  const period = await prisma.$transaction(async (tx) => {
+    const p = await tx.accountingPeriod.upsert({
+      where: { businessId_year_month: { businessId: session.user.businessId, year, month } },
+      create: {
+        businessId: session.user.businessId,
+        year,
+        month,
+        status: newStatus,
+        closedAt: newStatus === "CLOSED" ? new Date() : null,
+        closedById: session.user.id,
+        notes,
+      },
+      update: {
+        status: newStatus,
+        closedAt: newStatus === "CLOSED" ? new Date() : null,
+        closedById: session.user.id,
+        notes,
+      },
+    });
+
+    if (newStatus === "CLOSED") {
+      await tx.journalEntry.updateMany({
+        where: {
+          businessId: session.user.businessId,
+          status: "POSTED",
+          date: {
+            gte: new Date(year, month - 1, 1),
+            lt: new Date(year, month, 1),
+          },
+        },
+        data: { isLocked: true, lockedAt: new Date() },
+      });
+    } else {
+      await tx.journalEntry.updateMany({
+        where: {
+          businessId: session.user.businessId,
+          date: {
+            gte: new Date(year, month - 1, 1),
+            lt: new Date(year, month, 1),
+          },
+        },
+        data: { isLocked: false, lockedAt: null },
+      });
+    }
+
+    await logAudit({
       businessId: session.user.businessId,
-      year,
-      month,
-      status: newStatus,
-      closedAt: newStatus === "CLOSED" ? new Date() : null,
-      closedById: session.user.id,
-      notes,
-    },
-    update: {
-      status: newStatus,
-      closedAt: newStatus === "CLOSED" ? new Date() : null,
-      closedById: session.user.id,
-      notes,
-    },
-  });
-
-  if (newStatus === "CLOSED") {
-    await prisma.journalEntry.updateMany({
-      where: {
-        businessId: session.user.businessId,
-        status: "POSTED",
-        date: {
-          gte: new Date(year, month - 1, 1),
-          lt: new Date(year, month, 1),
-        },
-      },
-      data: { isLocked: true, lockedAt: new Date() },
+      userId: session.user.id,
+      userName: session.user.name ?? undefined,
+      userEmail: session.user.email,
+      action: newStatus === "CLOSED" ? "CLOSE" : "OPEN",
+      entity: "Period",
+      entityId: p.id,
+      description: `${newStatus === "CLOSED" ? "إقفال" : "فتح"} الفترة ${year}/${String(month).padStart(2, "0")}`,
     });
-  } else {
-    await prisma.journalEntry.updateMany({
-      where: {
-        businessId: session.user.businessId,
-        date: {
-          gte: new Date(year, month - 1, 1),
-          lt: new Date(year, month, 1),
-        },
-      },
-      data: { isLocked: false, lockedAt: null },
-    });
-  }
 
-  await logAudit({
-    businessId: session.user.businessId,
-    userId: session.user.id,
-    userName: session.user.name ?? undefined,
-    userEmail: session.user.email,
-    action: newStatus === "CLOSED" ? "CLOSE" : "OPEN",
-    entity: "Period",
-    entityId: period.id,
-    description: `${newStatus === "CLOSED" ? "إقفال" : "فتح"} الفترة ${year}/${String(month).padStart(2, "0")}`,
+    return p;
   });
 
   return NextResponse.json({ period });

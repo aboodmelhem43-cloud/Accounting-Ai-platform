@@ -430,7 +430,7 @@ export default function CreateInvoicePage() {
           </div>
           <div>
             <label className="label">{isAr ? "تاريخ الاستحقاق (اختياري)" : "Due Date (optional)"}</label>
-            <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="input" />
+            <input type="date" value={dueDate} min={invoiceDate} onChange={(e) => setDueDate(e.target.value)} className="input" />
           </div>
           <div>
             <label className="label">

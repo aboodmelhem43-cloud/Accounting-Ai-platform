@@ -46,32 +46,43 @@ export async function POST(req: NextRequest) {
     return d;
   }
 
-  // Load new business's current trial end and check it hasn't already redeemed a code
-  const newBiz = await prisma.business.findUnique({
-    where: { id: businessId },
-    select: { trialEndsAt: true, referredByCode: true },
-  });
+  // Interactive transaction: re-read newBiz and check referredByCode inside the tx to prevent TOCTOU race.
+  // Both concurrent requests will serialize on the row lock — only the first proceeds, the second sees referredByCode set.
+  class AlreadyRedeemedError extends Error {}
 
-  if (newBiz?.referredByCode) {
-    return NextResponse.json({ error: "Referral code already redeemed" }, { status: 409 });
+  try {
+    await prisma.$transaction(async (tx) => {
+      const newBiz = await tx.business.findUnique({
+        where: { id: businessId },
+        select: { trialEndsAt: true, referredByCode: true },
+      });
+
+      if (newBiz?.referredByCode) {
+        throw new AlreadyRedeemedError("Referral code already redeemed");
+      }
+
+      await tx.business.update({
+        where: { id: businessId },
+        data: {
+          referredByCode: normalizedCode,
+          trialEndsAt: extendTrial(newBiz?.trialEndsAt),
+        },
+      });
+
+      await tx.business.update({
+        where: { id: referrer.id },
+        data: {
+          trialEndsAt: extendTrial(referrer.trialEndsAt),
+          referralCount: { increment: 1 },
+        },
+      });
+    });
+  } catch (err) {
+    if (err instanceof AlreadyRedeemedError) {
+      return NextResponse.json({ error: "Referral code already redeemed" }, { status: 409 });
+    }
+    throw err;
   }
-
-  await prisma.$transaction([
-    prisma.business.update({
-      where: { id: businessId },
-      data: {
-        referredByCode: normalizedCode,
-        trialEndsAt: extendTrial(newBiz?.trialEndsAt),
-      },
-    }),
-    prisma.business.update({
-      where: { id: referrer.id },
-      data: {
-        trialEndsAt: extendTrial(referrer.trialEndsAt),
-        referralCount: { increment: 1 },
-      },
-    }),
-  ]);
 
   return NextResponse.json({ ok: true });
 }

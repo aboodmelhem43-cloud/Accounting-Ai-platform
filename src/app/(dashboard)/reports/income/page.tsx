@@ -40,7 +40,8 @@ export default function IncomeStatementPage() {
     }
   }
 
-  useEffect(() => { fetchStatement(); }, [from, to]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchStatement(); }, [from, to, lang]);
 
   const fmt = (n: number) =>
     `${n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${statement?.currency ?? ""}`;

@@ -233,6 +233,7 @@ model Invoice {
   @@index([businessId, createdAt(sort: Desc)])
   @@index([businessId, invoiceNumber])
   @@index([status, paymentStatus, dueDate])
+  @@index([contactId])
 }
 
 // دفعات الفاتورة — لتتبع الدفعات الجزئية

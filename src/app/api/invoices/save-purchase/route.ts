@@ -4,7 +4,7 @@ import { z } from "zod";
 import { InvoiceStatus } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { createJournalEntry } from "@/lib/ledger";
+import { createJournalEntry, LedgerError } from "@/lib/ledger";
 import { checkInvoiceLimit } from "@/lib/plans";
 import { logAudit } from "@/lib/audit";
 
@@ -178,6 +178,9 @@ export async function POST(req: NextRequest) {
         { error: `لقد وصلت إلى حد الفواتير (${err.limit}) — يرجى الترقية` },
         { status: 403 }
       );
+    }
+    if (err instanceof LedgerError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
     }
     const name = err instanceof Error ? err.constructor.name : "";
     const isDbError = name.includes("Prisma") || (err instanceof Error && (err.message.includes("prisma") || /^P\d{4}/.test(err.message)));

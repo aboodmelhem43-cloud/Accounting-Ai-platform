@@ -65,7 +65,8 @@ export default function TrialBalancePage() {
 
   useEffect(() => {
     fetchData();
-  }, [asOf]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [asOf, lang]);
 
   const fmt = (n: number) =>
     n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
