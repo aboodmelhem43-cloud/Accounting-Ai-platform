@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
 
   const businessId = token.businessId;
 
-  const now       = new Date();
+  const now        = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthEnd   = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
@@ -19,46 +19,58 @@ export async function GET(req: NextRequest) {
 
   const currency = business?.baseCurrency ?? "SAR";
 
-  const [currentMonthEntries, allPostedEntries, pendingInvoices, pendingJournalEntries] = await Promise.all([
-    prisma.journalEntry.findMany({
-      where: { businessId, status: "POSTED", date: { gte: monthStart, lte: monthEnd } },
-      include: { lines: { include: { account: { select: { type: true } } } } },
+  // تحميل أنواع الحسابات مرة واحدة — O(حسابات) وليس O(سطور قيود)
+  const accounts = await prisma.account.findMany({
+    where: { businessId },
+    select: { id: true, type: true },
+  });
+  const accountTypeMap = new Map(accounts.map((a) => [a.id, a.type]));
+
+  // تجميع على مستوى DB — بدون فحص غير محدود لجميع القيود
+  const [allTimeSums, currentMonthSums, pendingInvoices, pendingJournalEntries] = await Promise.all([
+    prisma.journalLine.groupBy({
+      by: ["accountId"],
+      _sum: { debit: true, credit: true },
+      where: { journalEntry: { businessId, status: "POSTED" } },
     }),
-    prisma.journalEntry.findMany({
-      where: { businessId, status: "POSTED" },
-      include: { lines: { include: { account: { select: { type: true } } } } },
+    prisma.journalLine.groupBy({
+      by: ["accountId"],
+      _sum: { debit: true, credit: true },
+      where: {
+        journalEntry: {
+          businessId,
+          status: "POSTED",
+          date: { gte: monthStart, lte: monthEnd },
+        },
+      },
     }),
     prisma.invoice.count({ where: { businessId, status: "PENDING_REVIEW" } }),
     prisma.journalEntry.count({ where: { businessId, status: "PENDING_REVIEW" } }),
   ]);
 
+  let cashBalance   = 0;
   let totalRevenue  = 0;
   let totalExpenses = 0;
-  let cashBalance   = 0;
 
-  for (const entry of allPostedEntries) {
-    for (const line of entry.lines) {
-      const debit  = Number(line.debit);
-      const credit = Number(line.credit);
-      const t = line.account.type;
-      if (t === "ASSET" || t === "EXPENSE") {
-        cashBalance += debit - credit;
-      } else {
-        cashBalance -= debit - credit;
-      }
+  for (const row of allTimeSums) {
+    const debit  = Number(row._sum.debit  ?? 0);
+    const credit = Number(row._sum.credit ?? 0);
+    const t = accountTypeMap.get(row.accountId);
+    if (t === "ASSET" || t === "EXPENSE") {
+      cashBalance += debit - credit;
+    } else if (t) {
+      cashBalance -= debit - credit;
     }
   }
 
-  for (const entry of currentMonthEntries) {
-    for (const line of entry.lines) {
-      const debit  = Number(line.debit);
-      const credit = Number(line.credit);
-      const t = line.account.type;
-      if (t === "REVENUE") {
-        totalRevenue += credit - debit;
-      } else if (t === "EXPENSE") {
-        totalExpenses += debit - credit;
-      }
+  for (const row of currentMonthSums) {
+    const debit  = Number(row._sum.debit  ?? 0);
+    const credit = Number(row._sum.credit ?? 0);
+    const t = accountTypeMap.get(row.accountId);
+    if (t === "REVENUE") {
+      totalRevenue  += credit - debit;
+    } else if (t === "EXPENSE") {
+      totalExpenses += debit - credit;
     }
   }
 

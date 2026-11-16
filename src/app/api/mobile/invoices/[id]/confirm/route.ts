@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyMobileToken } from "@/lib/mobile-auth";
 import { prisma } from "@/lib/prisma";
-import { createJournalEntry, suggestPurchaseJournalEntry, suggestSalesJournalEntry } from "@/lib/ledger";
+import { createJournalEntry, suggestPurchaseJournalEntry, suggestSalesJournalEntry, LedgerError } from "@/lib/ledger";
 import type { ExtractedInvoiceData } from "@/types";
 
 export async function POST(
@@ -92,7 +92,10 @@ export async function POST(
       message: "تم تأكيد الفاتورة وترحيل القيد بنجاح",
     });
   } catch (error) {
-    const msg = error instanceof Error ? error.message : "فشل في تأكيد الفاتورة";
-    return NextResponse.json({ error: msg }, { status: 500 });
+    if (error instanceof LedgerError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    console.error("[mobile/invoice/confirm]", error);
+    return NextResponse.json({ error: "فشل في تأكيد الفاتورة" }, { status: 500 });
   }
 }

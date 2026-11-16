@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider";
 
@@ -9,6 +9,8 @@ type Step = "credentials" | "otp";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isExpired = searchParams.get("expired") === "1";
   const { t, toggleLang, lang } = useLang();
   const [step, setStep] = useState<Step>("credentials");
   const [email, setEmail] = useState("");
@@ -157,6 +159,11 @@ export default function LoginPage() {
 
   return (
     <div className="card">
+      {isExpired && (
+        <div className="mb-4 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg px-4 py-3">
+          {lang === "ar" ? "انتهت جلستك. يرجى تسجيل الدخول مجدداً." : "Your session has expired. Please sign in again."}
+        </div>
+      )}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-800">{t("login.title")}</h1>
         <button onClick={toggleLang} className="text-xs text-gray-400 hover:text-blue-600 border border-gray-200 rounded px-2 py-1">

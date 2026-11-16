@@ -313,6 +313,7 @@ export default function BankAccountsPage() {
                   <label className="label">{isAr ? "الرصيد الافتتاحي" : "Opening Balance"}</label>
                   <input
                     type="number"
+                    inputMode="decimal"
                     min="0"
                     step="0.01"
                     value={form.openingBalance}

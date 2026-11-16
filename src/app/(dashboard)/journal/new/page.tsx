@@ -233,6 +233,7 @@ export default function NewJournalEntryPage() {
                     <td className="py-2 pe-2">
                       <input
                         type="number"
+                        inputMode="decimal"
                         min="0"
                         step="0.01"
                         value={line.debit}
@@ -244,6 +245,7 @@ export default function NewJournalEntryPage() {
                     <td className="py-2 pe-2">
                       <input
                         type="number"
+                        inputMode="decimal"
                         min="0"
                         step="0.01"
                         value={line.credit}

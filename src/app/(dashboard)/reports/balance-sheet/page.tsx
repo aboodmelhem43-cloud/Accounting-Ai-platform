@@ -18,6 +18,7 @@ function AccountsTable({
       {accounts.length === 0 ? (
         <p className="text-gray-400 text-sm py-2">{isAr ? "لا توجد أرصدة" : "No balances"}</p>
       ) : (
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <tbody className="divide-y divide-gray-100">
             {accounts.map((a) => (
@@ -33,6 +34,7 @@ function AccountsTable({
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );

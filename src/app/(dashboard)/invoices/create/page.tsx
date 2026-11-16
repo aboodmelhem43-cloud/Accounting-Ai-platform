@@ -440,6 +440,7 @@ export default function CreateInvoicePage() {
             </label>
             <input
               type="number" min="0" max="100" step="0.1"
+              inputMode="decimal"
               value={taxRate}
               onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
               className="input"
@@ -564,10 +565,10 @@ export default function CreateInvoicePage() {
                     <input type="text" value={item.description} onChange={(e) => updateLineItem(i, "description", e.target.value)} placeholder={isAr ? "وصف البند..." : "Item description..."} className="input text-sm" />
                   </td>
                   <td className="py-2 pe-2">
-                    <input type="number" min="0" step="1" value={item.quantity} onChange={(e) => updateLineItem(i, "quantity", parseFloat(e.target.value) || 0)} className="input text-sm font-mono" />
+                    <input type="number" min="0" step="1" inputMode="numeric" value={item.quantity} onChange={(e) => updateLineItem(i, "quantity", parseFloat(e.target.value) || 0)} className="input text-sm font-mono" />
                   </td>
                   <td className="py-2 pe-2">
-                    <input type="number" min="0" step="0.01" value={item.unitPrice} onChange={(e) => updateLineItem(i, "unitPrice", parseFloat(e.target.value) || 0)} placeholder="0.00" className="input text-sm font-mono" />
+                    <input type="number" min="0" step="0.01" inputMode="decimal" value={item.unitPrice} onChange={(e) => updateLineItem(i, "unitPrice", parseFloat(e.target.value) || 0)} placeholder="0.00" className="input text-sm font-mono" />
                   </td>
                   <td className="py-2 pe-2 text-right font-mono text-sm text-gray-700">
                     {fmt(item.quantity * item.unitPrice)} {currencyDisplay}

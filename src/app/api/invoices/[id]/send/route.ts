@@ -119,7 +119,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const result = await resend.emails.send({ from: FROM_EMAIL, to, subject: emailSubject, html });
   if (result.error) {
-    return NextResponse.json({ error: result.error.message }, { status: 500 });
+    console.error("[invoice-send] resend error:", result.error.message);
+    return NextResponse.json({ error: "فشل في إرسال البريد الإلكتروني" }, { status: 500 });
   }
 
   return NextResponse.json({ sent: true, messageId: result.data?.id });

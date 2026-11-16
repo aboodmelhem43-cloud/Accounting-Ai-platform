@@ -280,7 +280,7 @@ export default function EditJournalEntryPage() {
                     </td>
                     <td className="py-2 pe-2">
                       <input
-                        type="number" min="0" step="0.01"
+                        type="number" inputMode="decimal" min="0" step="0.01"
                         value={line.debit}
                         onChange={(e) => updateLine(i, "debit", e.target.value)}
                         placeholder="0.00"
@@ -289,7 +289,7 @@ export default function EditJournalEntryPage() {
                     </td>
                     <td className="py-2 pe-2">
                       <input
-                        type="number" min="0" step="0.01"
+                        type="number" inputMode="decimal" min="0" step="0.01"
                         value={line.credit}
                         onChange={(e) => updateLine(i, "credit", e.target.value)}
                         placeholder="0.00"

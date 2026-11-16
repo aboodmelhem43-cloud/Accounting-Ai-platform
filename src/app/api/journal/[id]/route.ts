@@ -85,7 +85,7 @@ export async function PUT(
 
   const totalDebit = lines.reduce((s, l) => s + l.debit, 0);
   const totalCredit = lines.reduce((s, l) => s + l.credit, 0);
-  if (Math.abs(totalDebit - totalCredit) > 0.01) {
+  if (Math.abs(totalDebit - totalCredit) > 0.001) {
     return NextResponse.json({ error: "القيد غير متوازن — مجموع المدين يجب أن يساوي مجموع الدائن" }, { status: 400 });
   }
   if (totalDebit === 0) {

@@ -301,6 +301,7 @@ export default function OpeningBalancesPage() {
                           <td className="py-1.5 px-4">
                             <input
                               type="number"
+                              inputMode="decimal"
                               min={0}
                               step="0.01"
                               value={line.debit || ""}
@@ -312,6 +313,7 @@ export default function OpeningBalancesPage() {
                           <td className="py-1.5 px-4">
                             <input
                               type="number"
+                              inputMode="decimal"
                               min={0}
                               step="0.01"
                               value={line.credit || ""}
