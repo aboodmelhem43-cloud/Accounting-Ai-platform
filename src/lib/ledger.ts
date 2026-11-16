@@ -5,6 +5,14 @@ import type { Prisma } from "@prisma/client";
 
 const DEFAULT_BY_CODE = Object.fromEntries(DEFAULT_CHART_OF_ACCOUNTS.map((a) => [a.code, a]));
 
+// خطأ تطبيقي من منطق الـ ledger — يُعرض للمستخدم مباشرة (ليس خطأ DB)
+export class LedgerError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "LedgerError";
+  }
+}
+
 // التحقق من توازن القيد — مجموع المدين يجب أن يساوي مجموع الدائن
 export function validateJournalBalance(
   lines: { debit: number; credit: number }[]
@@ -32,17 +40,17 @@ export async function createJournalEntry(
   const { businessId, userId, date, description, sourceType, status = "POSTED", lines, invoiceId } = params;
 
   if (!validateJournalBalance(lines)) {
-    throw new Error("القيد غير متوازن: مجموع المدين لا يساوي مجموع الدائن");
+    throw new LedgerError("القيد غير متوازن: مجموع المدين لا يساوي مجموع الدائن");
   }
 
   if (lines.length < 2) {
-    throw new Error("القيد يحتاج على الأقل سطرين (مدين ودائن)");
+    throw new LedgerError("القيد يحتاج على الأقل سطرين (مدين ودائن)");
   }
 
   // رفض القيود التي جميع سطورها بمبالغ صفرية (no-op entry)
   const hasNonZeroLine = lines.some((l) => l.debit > 0 || l.credit > 0);
   if (!hasNonZeroLine) {
-    throw new Error("القيد لا يحتوي على أي مبالغ — جميع السطور بمبلغ صفر");
+    throw new LedgerError("القيد لا يحتوي على أي مبالغ — جميع السطور بمبلغ صفر");
   }
 
   const client = tx ?? prisma;
@@ -64,13 +72,13 @@ export async function createJournalEntry(
     // يُقبل ترحيل الشهور السابقة ما لم تكن الفترة مقفلة صراحةً (status = CLOSED).
     // غياب السجل = مفتوح افتراضيًا؛ لا نمنع الترحيل.
     if (period?.status === "CLOSED") {
-      throw new Error(
+      throw new LedgerError(
         `لا يمكن تسجيل قيود في شهور سابقة — الفترة ${year}/${String(month).padStart(2, "0")} مقفلة`
       );
     }
   } else if (period?.status === "CLOSED") {
     // الشهر الحالي أو المستقبلي مُقفل يدويًا
-    throw new Error(`الفترة المحاسبية ${year}/${String(month).padStart(2, "0")} مقفلة — لا يمكن إضافة قيود عليها`);
+    throw new LedgerError(`الفترة المحاسبية ${year}/${String(month).padStart(2, "0")} مقفلة — لا يمكن إضافة قيود عليها`);
   }
 
   const run = async (innerTx: Prisma.TransactionClient) => {
