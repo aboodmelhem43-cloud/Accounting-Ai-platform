@@ -482,6 +482,7 @@ export default function SettingsPage() {
                 <input
                   className="input font-mono"
                   type="number"
+                  inputMode="numeric"
                   min={0}
                   value={iSeed}
                   onChange={(e) => setISeed(Math.max(0, parseInt(e.target.value) || 0))}

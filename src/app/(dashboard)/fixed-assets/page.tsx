@@ -223,7 +223,7 @@ export default function FixedAssetsPage() {
                 <option key={m} value={m}>{isAr ? MONTH_NAMES_AR[m - 1] : MONTH_NAMES_EN[m - 1]}</option>
               ))}
             </select>
-            <input type="number" className="input text-sm w-24" value={deprecYear} onChange={(e) => setDeprecYear(Number(e.target.value))} />
+            <input type="number" inputMode="numeric" className="input text-sm w-24" value={deprecYear} onChange={(e) => setDeprecYear(Number(e.target.value))} />
           </div>
         </div>
         <button
@@ -253,15 +253,15 @@ export default function FixedAssetsPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">{isAr ? "تكلفة الشراء *" : "Purchase cost *"}</label>
-              <input type="number" min={0} step="0.01" className="input w-full text-sm" value={form.purchaseCost} onChange={(e) => setForm((f) => ({ ...f, purchaseCost: e.target.value }))} />
+              <input type="number" inputMode="decimal" min={0} step="0.01" className="input w-full text-sm" value={form.purchaseCost} onChange={(e) => setForm((f) => ({ ...f, purchaseCost: e.target.value }))} />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">{isAr ? "القيمة التخريدية" : "Residual value"}</label>
-              <input type="number" min={0} step="0.01" className="input w-full text-sm" value={form.residualValue} onChange={(e) => setForm((f) => ({ ...f, residualValue: e.target.value }))} />
+              <input type="number" inputMode="decimal" min={0} step="0.01" className="input w-full text-sm" value={form.residualValue} onChange={(e) => setForm((f) => ({ ...f, residualValue: e.target.value }))} />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">{isAr ? "العمر الإنتاجي (بالأشهر) *" : "Useful life (months) *"}</label>
-              <input type="number" min={1} className="input w-full text-sm" value={form.usefulLifeMonths} onChange={(e) => setForm((f) => ({ ...f, usefulLifeMonths: e.target.value }))} />
+              <input type="number" inputMode="numeric" min={1} className="input w-full text-sm" value={form.usefulLifeMonths} onChange={(e) => setForm((f) => ({ ...f, usefulLifeMonths: e.target.value }))} />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">{isAr ? "طريقة الإهلاك" : "Depreciation method"}</label>
