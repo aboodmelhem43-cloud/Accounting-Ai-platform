@@ -92,7 +92,12 @@ export async function POST(
       message: "تم تأكيد الفاتورة وترحيل القيد بنجاح",
     });
   } catch (error) {
-    const msg = error instanceof Error ? error.message : "فشل في تأكيد الفاتورة";
-    return NextResponse.json({ error: msg }, { status: 500 });
+    const name = error instanceof Error ? error.constructor.name : "";
+    const isDbError = name.includes("Prisma") || (error instanceof Error && /^P\d{4}/.test(error.message));
+    if (!isDbError && error instanceof Error && error.message) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    console.error("[mobile/invoice/confirm]", error);
+    return NextResponse.json({ error: "فشل في تأكيد الفاتورة" }, { status: 500 });
   }
 }

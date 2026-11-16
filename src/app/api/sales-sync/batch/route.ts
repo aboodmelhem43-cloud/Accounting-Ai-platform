@@ -101,7 +101,10 @@ export async function POST(req: NextRequest) {
 
       results.push({ id: event.id, ok: true, journalEntryId });
     } catch (err) {
-      results.push({ id: event.id, ok: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" });
+      const name = err instanceof Error ? err.constructor.name : "";
+      const isDbError = name.includes("Prisma") || (err instanceof Error && /^P\d{4}/.test(err.message));
+      const msg = (!isDbError && err instanceof Error && err.message) ? err.message : "خطأ غير متوقع";
+      results.push({ id: event.id, ok: false, error: msg });
     }
   }
 
