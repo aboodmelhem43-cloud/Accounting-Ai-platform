@@ -4,7 +4,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { checkInvoiceLimit } from "@/lib/plans";
-import { createJournalEntry } from "@/lib/ledger";
+import { createJournalEntry, LedgerError } from "@/lib/ledger";
 import { logAudit } from "@/lib/audit";
 
 class PlanLimitError extends Error {
@@ -176,6 +176,9 @@ export async function POST(req: NextRequest) {
           ? "انتهت فترة التجربة المجانية. يرجى الترقية للاستمرار."
           : `وصلت للحد الأقصى (${err.limit} فاتورة/شهر). يرجى الترقية.`,
       }, { status: 403 });
+    }
+    if (err instanceof LedgerError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
     }
     return NextResponse.json({ error: "خطأ في الخادم" }, { status: 500 });
   }

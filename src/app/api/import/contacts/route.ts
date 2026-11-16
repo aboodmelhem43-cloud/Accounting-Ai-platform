@@ -129,29 +129,25 @@ export async function POST(req: NextRequest) {
   });
   const existingSet = new Set(existingContacts.map((c) => `${c.name}||${c.type}`));
 
-  let imported = 0;
-  let skipped = 0;
+  const toCreate = parsed.filter((row) => !existingSet.has(`${row.name}||${row.type}`));
+  const skipped = parsed.length - toCreate.length;
 
-  for (const row of parsed) {
-    if (existingSet.has(`${row.name}||${row.type}`)) {
-      skipped++;
-      continue;
-    }
-    await prisma.contact.create({
-      data: {
-        businessId,
-        name: row.name,
-        type: row.type,
-        email: row.email || null,
-        phone: row.phone || null,
-        address: row.address || null,
-        taxNumber: row.taxNumber || null,
-        notes: row.notes || null,
-      },
-    });
-    existingSet.add(`${row.name}||${row.type}`);
-    imported++;
-  }
+  // Batch insert all new contacts in one query instead of N sequential creates
+  await prisma.contact.createMany({
+    data: toCreate.map((row) => ({
+      businessId,
+      name: row.name,
+      type: row.type,
+      email: row.email || null,
+      phone: row.phone || null,
+      address: row.address || null,
+      taxNumber: row.taxNumber || null,
+      notes: row.notes || null,
+    })),
+    skipDuplicates: true,
+  });
+
+  const imported = toCreate.length;
 
   return NextResponse.json({ imported, skipped, total: parsed.length });
 }

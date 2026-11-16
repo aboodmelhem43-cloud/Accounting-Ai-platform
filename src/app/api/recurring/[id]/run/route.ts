@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { createJournalEntry } from "@/lib/ledger";
+import { createJournalEntry, LedgerError } from "@/lib/ledger";
 
 function advanceDate(date: Date, frequency: string, dayOfMonth?: number | null): Date {
   const next = new Date(date);
@@ -55,30 +55,37 @@ export async function POST(
   }
 
   try {
-    const entry = await createJournalEntry({
-      businessId: session.user.businessId,
-      userId: session.user.id,
-      date: template.nextRunDate,
-      description: template.description,
-      sourceType: "MANUAL",
-      status: "POSTED",
-      lines,
-    });
-
-    // Advance next run date
     const nextRun = advanceDate(template.nextRunDate, template.frequency, template.dayOfMonth);
-    const shouldDeactivate = template.endDate && nextRun > template.endDate;
+    const shouldDeactivate = !!(template.endDate && nextRun > template.endDate);
 
-    await prisma.recurringTemplate.update({
-      where: { id },
-      data: {
-        nextRunDate: nextRun,
-        ...(shouldDeactivate ? { isActive: false } : {}),
-      },
+    // Atomic: create entry and advance nextRunDate together — if either fails, neither commits
+    const entry = await prisma.$transaction(async (tx) => {
+      const je = await createJournalEntry({
+        businessId: session.user.businessId,
+        userId: session.user.id,
+        date: template.nextRunDate,
+        description: template.description,
+        sourceType: "MANUAL",
+        status: "POSTED",
+        lines,
+      }, tx);
+
+      await tx.recurringTemplate.update({
+        where: { id },
+        data: {
+          nextRunDate: nextRun,
+          ...(shouldDeactivate ? { isActive: false } : {}),
+        },
+      });
+
+      return je;
     });
 
     return NextResponse.json({ entryId: entry.id, nextRunDate: nextRun });
   } catch (err) {
+    if (err instanceof LedgerError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
     const name = err instanceof Error ? err.constructor.name : "";
     const isDbError = name.includes("Prisma") || (err instanceof Error && (err.message.includes("prisma") || /^P\d{4}/.test(err.message)));
     const message = isDbError ? "خطأ في الخادم" : (err instanceof Error ? err.message : "خطأ في الخادم");

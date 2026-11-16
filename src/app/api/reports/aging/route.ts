@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
 
   const businessId = session.user.businessId;
 
+  const AGING_CAP = 2000;
   const invoices = await prisma.invoice.findMany({
     where: {
       businessId,
@@ -40,6 +41,7 @@ export async function GET(req: NextRequest) {
       extractedData: true,
       payments: { select: { amount: true } },
     },
+    take: AGING_CAP,
   });
 
   const today = new Date();

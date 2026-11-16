@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { createJournalEntry } from "@/lib/ledger";
+import { createJournalEntry, LedgerError } from "@/lib/ledger";
 import { logAudit } from "@/lib/audit";
 import { checkInvoiceLimit } from "@/lib/plans";
 
@@ -117,6 +117,9 @@ export async function POST(
   } catch (err) {
     if (err instanceof Error && err.message === "plan_limit") {
       return NextResponse.json({ error: "وصلت للحد الأقصى من الفواتير في خطتك الحالية" }, { status: 403 });
+    }
+    if (err instanceof LedgerError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
     }
     return NextResponse.json({ error: "خطأ في الخادم" }, { status: 500 });
   }

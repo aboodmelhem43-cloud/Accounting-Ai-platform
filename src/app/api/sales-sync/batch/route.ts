@@ -34,6 +34,18 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Pre-fetch all account IDs referenced across all approve events (avoid N+1)
+  const allAccountIds = new Set<string>();
+  for (const event of events) {
+    const suggested = event.suggestedEntry as { lines?: SuggestedLine[] } | null;
+    for (const line of suggested?.lines ?? []) allAccountIds.add(line.accountId);
+  }
+  const validAccountsAll = await prisma.account.findMany({
+    where: { id: { in: [...allAccountIds] }, businessId: session.user.businessId },
+    select: { id: true },
+  });
+  const validAccountIdSet = new Set(validAccountsAll.map((a) => a.id));
+
   const results: { id: string; ok: boolean; error?: string; journalEntryId?: string }[] = [];
 
   for (const event of events) {
@@ -60,13 +72,9 @@ export async function POST(req: NextRequest) {
       continue;
     }
 
-    // Verify accounts belong to this business
-    const accountIds = [...new Set(lines.map((l) => l.accountId))];
-    const accounts = await prisma.account.findMany({
-      where: { id: { in: accountIds }, businessId: session.user.businessId },
-      select: { id: true },
-    });
-    if (accounts.length !== accountIds.length) {
+    // Verify accounts belong to this business (uses pre-fetched set — no extra DB round trip)
+    const lineAccountIds = [...new Set(lines.map((l) => l.accountId))];
+    if (!lineAccountIds.every((id) => validAccountIdSet.has(id))) {
       results.push({ id: event.id, ok: false, error: "حساب غير صالح في القيد المقترح" });
       continue;
     }

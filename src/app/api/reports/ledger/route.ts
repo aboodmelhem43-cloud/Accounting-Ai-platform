@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "تاريخ غير صالح" }, { status: 400 });
   }
 
+  const LEDGER_CAP = 5000;
   const lines = await prisma.journalLine.findMany({
     where: {
       accountId,
@@ -50,7 +51,14 @@ export async function GET(req: NextRequest) {
       },
     },
     orderBy: { journalEntry: { date: "asc" } },
+    take: LEDGER_CAP,
   });
 
-  return NextResponse.json({ account, lines, from: from.toISOString(), to: to.toISOString() });
+  return NextResponse.json({
+    account,
+    lines,
+    from: from.toISOString(),
+    to: to.toISOString(),
+    capped: lines.length === LEDGER_CAP,
+  });
 }
