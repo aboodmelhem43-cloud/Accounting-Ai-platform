@@ -48,7 +48,11 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-    const invoiceType = (formData.get("invoiceType") as string) ?? "PURCHASE";
+    const rawInvoiceType = ((formData.get("invoiceType") as string) ?? "PURCHASE").toUpperCase();
+    if (rawInvoiceType !== "PURCHASE" && rawInvoiceType !== "SALES") {
+      return NextResponse.json({ error: "invoiceType يجب أن يكون PURCHASE أو SALES" }, { status: 400 });
+    }
+    const invoiceType = rawInvoiceType as "PURCHASE" | "SALES";
 
     if (!file) return NextResponse.json({ error: "لم يتم رفع ملف" }, { status: 400 });
     if (file.size > MAX_SIZE) return NextResponse.json({ error: "حجم الملف يتجاوز 10 ميجابايت" }, { status: 400 });
@@ -90,7 +94,7 @@ export async function POST(req: NextRequest) {
         fileUrl,
         fileType: detectedMime,
         extractedData: extractedData as object,
-        invoiceType: invoiceType.toUpperCase() as "PURCHASE" | "SALES",
+        invoiceType,
         status: "PENDING_REVIEW",
       },
     });
