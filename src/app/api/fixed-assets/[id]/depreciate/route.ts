@@ -96,14 +96,14 @@ export async function POST(
         },
       });
 
+      // تحديث حالة الأصل إلى مهلك بالكامل داخل المعاملة لضمان الاتساق
+      const newTotal = totalDepreciation + amount;
+      if (newTotal >= cost - residual) {
+        await tx.fixedAsset.update({ where: { id }, data: { status: "FULLY_DEPRECIATED" } });
+      }
+
       return { depEntry, journalEntryId: journalEntry.id };
     });
-
-    // Check if fully depreciated (outside transaction — non-critical status update)
-    const newTotal = totalDepreciation + amount;
-    if (newTotal >= cost - residual) {
-      await prisma.fixedAsset.update({ where: { id }, data: { status: "FULLY_DEPRECIATED" } });
-    }
 
     return NextResponse.json({ depEntry, journalEntryId, amount });
   } catch (err) {

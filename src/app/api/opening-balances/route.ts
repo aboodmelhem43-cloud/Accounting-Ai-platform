@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   // Validate balance
   const totalDebit = nonZeroLines.reduce((s, l) => s + l.debit, 0);
   const totalCredit = nonZeroLines.reduce((s, l) => s + l.credit, 0);
-  if (Math.abs(totalDebit - totalCredit) > 0.01) {
+  if (Math.abs(totalDebit - totalCredit) > 0.001) {
     return NextResponse.json({ error: `القيد غير متوازن: مدين ${totalDebit.toFixed(2)} ≠ دائن ${totalCredit.toFixed(2)}` }, { status: 400 });
   }
 
@@ -69,23 +69,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "حساب غير صالح" }, { status: 400 });
   }
 
-  // Delete any existing opening balance entries
-  await prisma.journalEntry.deleteMany({
-    where: {
-      businessId: session.user.businessId,
-      description: { startsWith: "أرصدة افتتاحية" },
-    },
-  });
-
   try {
-    const entry = await createJournalEntry({
-      businessId: session.user.businessId,
-      userId: session.user.id,
-      date: new Date(date),
-      description: `أرصدة افتتاحية — ${date}`,
-      sourceType: "MANUAL",
-      status: "POSTED",
-      lines: nonZeroLines,
+    // حذف الأرصدة القديمة وإنشاء الجديدة في معاملة واحدة لمنع فقدان البيانات
+    const entry = await prisma.$transaction(async (tx) => {
+      await tx.journalEntry.deleteMany({
+        where: {
+          businessId: session.user.businessId,
+          description: { startsWith: "أرصدة افتتاحية" },
+        },
+      });
+
+      return createJournalEntry({
+        businessId: session.user.businessId,
+        userId: session.user.id,
+        date: new Date(date),
+        description: `أرصدة افتتاحية — ${date}`,
+        sourceType: "MANUAL",
+        status: "POSTED",
+        lines: nonZeroLines,
+      }, tx);
     });
 
     await logAudit({
