@@ -114,7 +114,8 @@ export async function sendInviteEmail(
 </html>`;
 
   if (!resend) {
-    console.log(`[INVITE] ${email} → ${inviteUrl}`);
+    // لا نسجل رابط الدعوة كاملاً لأنه يحتوي على رمز سري — نسجل البريد فقط
+    console.log(`[INVITE] no RESEND_API_KEY — invite email not sent to ${email}`);
     return;
   }
 
@@ -601,7 +602,8 @@ export async function sendPasswordResetEmail(
   const html = jvEmailWrapper(dir, isAr ? "ar" : "en", body);
 
   if (!resend) {
-    console.log(`[PASSWORD_RESET] → ${email} | url: ${resetUrl}`);
+    // لا نسجل رابط إعادة تعيين كلمة المرور لأنه يحتوي على رمز سري
+    console.log(`[PASSWORD_RESET] no RESEND_API_KEY — password reset email not sent to ${email}`);
     return;
   }
   const r = await resend.emails.send({ from: FROM_EMAIL, to: email, subject, html });
