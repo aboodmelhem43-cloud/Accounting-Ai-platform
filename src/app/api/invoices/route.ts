@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { extractInvoiceData } from "@/lib/ai/extract-invoice";
 import { checkInvoiceLimit } from "@/lib/plans";
+import { isIpRateLimited } from "@/lib/rate-limit";
 import { detectMimeType } from "@/lib/file-magic";
 import path from "path";
 import fs from "fs/promises";
@@ -23,6 +24,11 @@ const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+
+  // Per-user rate limit to cap Claude Vision API spend (10 req/min via shared RateLimitEntry)
+  if (await isIpRateLimited(`user:${session.user.id}`, "invoice-extract")) {
+    return NextResponse.json({ error: "too_many_requests" }, { status: 429 });
+  }
 
   try {
     const limitCheck = await checkInvoiceLimit(session.user.businessId);

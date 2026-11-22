@@ -3,6 +3,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { isIpRateLimited, getClientIp } from "@/lib/rate-limit";
 
 const schema = z.object({
   token: z.string().min(10).max(2000),
@@ -58,6 +59,11 @@ function verifyResetToken(token: string, passwordHash: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req);
+  if (await isIpRateLimited(ip, "reset-password")) {
+    return NextResponse.json({ error: "الرابط غير صالح أو منتهي الصلاحية" }, { status: 400 });
+  }
+
   let body: unknown;
   try { body = await req.json(); } catch {
     return NextResponse.json({ error: "طلب غير صالح" }, { status: 400 });
