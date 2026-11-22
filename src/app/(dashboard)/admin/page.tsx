@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { PageAnimations } from "@/components/PageAnimations";
 import { useSession } from "next-auth/react";
 
@@ -195,6 +195,7 @@ export default function AdminPage() {
   const [countryFilter, setCountryFilter] = useState("");
   const [countryStats, setCountryStats] = useState<CountryStat[]>([]);
   const [loading, setLoading] = useState(false);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean | null>(null);
 
@@ -251,7 +252,13 @@ export default function AdminPage() {
     }
   }, []);
 
-  useEffect(() => { fetchBusinesses(search, countryFilter, page); }, [fetchBusinesses, search, countryFilter, page]);
+  useEffect(() => {
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      fetchBusinesses(search, countryFilter, page);
+    }, 350);
+    return () => { if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current); };
+  }, [fetchBusinesses, search, countryFilter, page]);
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
   async function testAi() {
