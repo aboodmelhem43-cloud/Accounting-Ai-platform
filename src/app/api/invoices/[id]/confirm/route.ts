@@ -38,7 +38,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   try {
     const body = await req.json();
-    const data = confirmSchema.parse(body);
+    const parseResult = confirmSchema.safeParse(body);
+    if (!parseResult.success) {
+      return NextResponse.json({ error: parseResult.error.errors[0].message }, { status: 400 });
+    }
+    const data = parseResult.data;
 
     // Validate that all accountIds belong to this business
     const accountIds = [...new Set(data.journalLines.map((l) => l.accountId))];
@@ -62,9 +66,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     return NextResponse.json({ journalEntryId: journalEntry.id, message: "تم تأكيد الفاتورة وترحيل القيد بنجاح" });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
-    }
     if (error instanceof LedgerError) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
@@ -125,7 +126,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 
   // إضافة accountId بجانب accountCode
-  const accounts = await prisma.account.findMany({ where: { businessId: session.user.businessId } });
+  const accounts = await prisma.account.findMany({ where: { businessId: session.user.businessId }, take: 2000 });
   const byCode = Object.fromEntries(accounts.map((a) => [a.code, a]));
 
   const linesWithIds = suggestion.lines.map((l) => ({

@@ -39,13 +39,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   const body = await req.json().catch(() => ({}));
-  let parsed: { to: string; subject?: string; message?: string };
-  try {
-    parsed = sendSchema.parse(body);
-  } catch {
+  const parseResult = sendSchema.safeParse(body);
+  if (!parseResult.success) {
     return NextResponse.json({ error: "بريد إلكتروني غير صالح" }, { status: 400 });
   }
-  const { to: rawTo, subject, message } = parsed;
+  const { to: rawTo, subject, message } = parseResult.data;
   const to = rawTo.toLowerCase();
 
   const extracted = invoice.extractedData as ExtractedInvoiceData | null;

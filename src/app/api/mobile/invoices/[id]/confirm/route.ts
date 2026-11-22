@@ -56,7 +56,7 @@ export async function POST(
     }
 
     // تحويل أكواد الحسابات إلى IDs
-    const accounts = await prisma.account.findMany({ where: { businessId: token.businessId } });
+    const accounts = await prisma.account.findMany({ where: { businessId: token.businessId }, take: 2000 });
     const byCode = Object.fromEntries(accounts.map((a) => [a.code, a]));
 
     const journalLines = suggestion.lines
