@@ -574,7 +574,7 @@ export default function CreateInvoicePage() {
                     {fmt(item.quantity * item.unitPrice)} {currencyDisplay}
                   </td>
                   <td className="py-2">
-                    <button type="button" onClick={() => setLineItems((p) => p.filter((_, j) => j !== i))} disabled={lineItems.length <= 1} className="text-red-400 hover:text-red-600 disabled:opacity-30 text-lg">×</button>
+                    <button type="button" onClick={() => setLineItems((p) => p.filter((_, j) => j !== i))} disabled={lineItems.length <= 1} className="text-red-400 hover:text-red-600 disabled:opacity-30 text-lg" aria-label={isAr ? "حذف السطر" : "Remove line"}>×</button>
                   </td>
                 </tr>
               ))}

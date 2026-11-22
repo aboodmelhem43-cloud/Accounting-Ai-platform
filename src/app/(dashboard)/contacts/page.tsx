@@ -199,7 +199,7 @@ export default function ContactsPage() {
       {pageError && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
           <span>{pageError}</span>
-          <button onClick={() => setPageError(null)} className="text-red-400 hover:text-red-600 ms-2">✕</button>
+          <button onClick={() => setPageError(null)} className="text-red-400 hover:text-red-600 ms-2" aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
       )}
       {/* العنوان */}
@@ -317,7 +317,7 @@ export default function ContactsPage() {
                   ? (isAr ? `سجل: ${historyContact.contact.name}` : `History: ${historyContact.contact.name}`)
                   : (isAr ? "جاري التحميل..." : "Loading...")}
               </h2>
-              <button onClick={() => { setHistoryContact(null); setHistoryLoading(false); }} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+              <button onClick={() => { setHistoryContact(null); setHistoryLoading(false); }} className="text-gray-400 hover:text-gray-600 text-2xl" aria-label={isAr ? "إغلاق" : "Close"}>×</button>
             </div>
 
             {historyLoading && (
@@ -450,6 +450,7 @@ export default function ContactsPage() {
               <button
                 onClick={() => setShowModal(false)}
                 className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                aria-label={isAr ? "إغلاق" : "Close"}
               >
                 ×
               </button>

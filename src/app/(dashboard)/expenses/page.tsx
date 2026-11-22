@@ -121,13 +121,13 @@ export default function ExpensesPage() {
       {loadError && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
           <span>{loadError}</span>
-          <button onClick={() => setLoadError(null)}>✕</button>
+          <button onClick={() => setLoadError(null)} aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
       )}
       {saveError && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
           <span>{saveError}</span>
-          <button onClick={() => setSaveError(null)}>✕</button>
+          <button onClick={() => setSaveError(null)} aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
       )}
       <div className="gsap-page-header">

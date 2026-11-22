@@ -290,7 +290,7 @@ export default function CreatePurchaseInvoicePage() {
                   </td>
                   <td className="py-2 px-2 text-center">
                     {lineItems.length > 1 && (
-                      <button onClick={() => removeLine(idx)} className="text-gray-300 hover:text-red-400 text-base leading-none">✕</button>
+                      <button onClick={() => removeLine(idx)} className="text-gray-300 hover:text-red-400 text-base leading-none" aria-label={isAr ? "حذف السطر" : "Remove line"}>✕</button>
                     )}
                   </td>
                 </tr>

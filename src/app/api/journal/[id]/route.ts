@@ -168,7 +168,7 @@ export async function DELETE(
 
   if (!entry) return NextResponse.json({ error: "القيد غير موجود" }, { status: 404 });
   if (entry.status === "POSTED") {
-    return NextResponse.json({ error: "لا يمكن حذف قيد مُرحَّل — أنشئ قيداً عكسياً بدلاً من ذلك" }, { status: 409 });
+    return NextResponse.json({ error: "لا يمكن حذف قيد مُرحَّل — استخدم POST /api/journal/:id/reverse لإنشاء قيد عكسي" }, { status: 409 });
   }
   if (entry.isLocked) {
     return NextResponse.json({ error: "القيد مقفل ولا يمكن حذفه" }, { status: 409 });

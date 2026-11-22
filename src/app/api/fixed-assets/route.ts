@@ -29,6 +29,7 @@ export async function GET(_req: NextRequest) {
   const assets = await prisma.fixedAsset.findMany({
     where: { businessId: session.user.businessId },
     orderBy: { createdAt: "desc" },
+    take: 500,
     include: { depreciationEntries: { orderBy: [{ periodYear: "desc" }, { periodMonth: "desc" }] } },
   });
 

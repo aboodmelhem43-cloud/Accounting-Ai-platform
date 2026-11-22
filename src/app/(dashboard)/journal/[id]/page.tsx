@@ -269,7 +269,7 @@ export default function JournalEntryPage() {
       {actionError && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
           <span>{actionError}</span>
-          <button onClick={() => setActionError(null)} className="text-red-400 hover:text-red-600 ms-2">✕</button>
+          <button onClick={() => setActionError(null)} className="text-red-400 hover:text-red-600 ms-2" aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
       )}
 

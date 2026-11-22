@@ -157,7 +157,7 @@ export default function DocumentsPage() {
       {actionError && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
           <span>{actionError}</span>
-          <button onClick={() => setActionError(null)}>✕</button>
+          <button onClick={() => setActionError(null)} aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
       )}
       {/* Header */}
@@ -345,6 +345,7 @@ export default function DocumentsPage() {
                     onClick={() => handleDelete(doc.id)}
                     className="text-red-400 hover:text-red-600 text-xs px-2 py-1 rounded hover:bg-red-50"
                     title={isAr ? "حذف" : "Delete"}
+                    aria-label={isAr ? "حذف" : "Delete"}
                   >
                     ✕
                   </button>

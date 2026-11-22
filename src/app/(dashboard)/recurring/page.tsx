@@ -228,7 +228,7 @@ export default function RecurringPage() {
       {(error || success) && (
         <div className={`rounded-lg p-3 text-sm flex justify-between ${error ? "bg-red-50 border border-red-200 text-red-700" : "bg-green-50 border border-green-200 text-green-700"}`}>
           <span>{error ?? success}</span>
-          <button onClick={() => { setError(null); setSuccess(null); }}>✕</button>
+          <button onClick={() => { setError(null); setSuccess(null); }} aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
       )}
 
@@ -291,7 +291,7 @@ export default function RecurringPage() {
                   <input type="number" inputMode="decimal" min={0} placeholder={isAr ? "مدين" : "Debit"} className="input w-24 text-xs" value={line.debit || ""} onChange={(e) => updateLine(i, "debit", parseFloat(e.target.value) || 0)} />
                   <input type="number" inputMode="decimal" min={0} placeholder={isAr ? "دائن" : "Credit"} className="input w-24 text-xs" value={line.credit || ""} onChange={(e) => updateLine(i, "credit", parseFloat(e.target.value) || 0)} />
                   {form.lines.length > 2 && (
-                    <button onClick={() => removeLine(i)} className="text-red-400 hover:text-red-600 text-sm">✕</button>
+                    <button onClick={() => removeLine(i)} className="text-red-400 hover:text-red-600 text-sm" aria-label={isAr ? "حذف السطر" : "Remove line"}>✕</button>
                   )}
                 </div>
               ))}
