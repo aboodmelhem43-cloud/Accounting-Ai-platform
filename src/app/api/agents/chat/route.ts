@@ -120,7 +120,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { agentId, message, history } = schema.parse(body);
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: "بيانات غير صالحة" }, { status: 400 });
+  const { agentId, message, history } = parsed.data;
 
   const messages: Anthropic.MessageParam[] = [
     ...history.map((h) => ({ role: h.role as "user" | "assistant", content: h.content })),
