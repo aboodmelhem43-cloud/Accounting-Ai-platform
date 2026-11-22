@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
   const now = new Date();
   const from = fromStr ? new Date(fromStr) : new Date(now.getFullYear(), 0, 1);
   const to = toStr ? new Date(toStr) : now;
+  if (toStr) to.setHours(23, 59, 59, 999);
 
   if (isNaN(from.getTime()) || isNaN(to.getTime())) {
     return NextResponse.json({ error: "تاريخ غير صالح" }, { status: 400 });

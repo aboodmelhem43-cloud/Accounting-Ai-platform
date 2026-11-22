@@ -12,6 +12,10 @@ class PlanLimitError extends Error {
   constructor(public readonly limit: number) { super("plan_limit"); }
 }
 
+class DuplicateInvoiceError extends Error {
+  constructor() { super("duplicate_invoice"); }
+}
+
 const MAX_AMOUNT = 1_000_000_000;
 const isValidDate = (s: string) => !isNaN(new Date(s).getTime());
 
@@ -65,6 +69,13 @@ export async function POST(req: NextRequest) {
       if (!limitCheck.allowed) {
         throw new PlanLimitError(limitCheck.limit);
       }
+
+      // فحص تكرار رقم الفاتورة داخل المعاملة لمنع حالة السباق (TOCTOU)
+      const dupCheck = await tx.invoice.findFirst({
+        where: { businessId, invoiceNumber: data.invoiceNumber, invoiceType: "PURCHASE" },
+        select: { id: true },
+      });
+      if (dupCheck) throw new DuplicateInvoiceError();
 
       const inv = await tx.invoice.create({
         data: {
@@ -169,6 +180,9 @@ export async function POST(req: NextRequest) {
         { error: `لقد وصلت إلى حد الفواتير (${err.limit}) — يرجى الترقية` },
         { status: 403 }
       );
+    }
+    if (err instanceof DuplicateInvoiceError) {
+      return NextResponse.json({ error: "رقم الفاتورة مستخدم مسبقًا" }, { status: 409 });
     }
     if (err instanceof LedgerError) {
       return NextResponse.json({ error: err.message }, { status: 400 });
