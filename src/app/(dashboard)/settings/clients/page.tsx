@@ -305,6 +305,7 @@ export default function PracticeClientsPage() {
                         disabled={removingId === client.id}
                         className="text-xs text-red-400 hover:text-red-600 disabled:opacity-50 px-2 py-1.5"
                         title={isAr ? "إزالة من المكتب" : "Remove from practice"}
+                        aria-label={isAr ? "إزالة من المكتب" : "Remove from practice"}
                       >
                         {removingId === client.id ? "..." : "×"}
                       </button>

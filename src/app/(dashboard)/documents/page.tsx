@@ -345,6 +345,7 @@ export default function DocumentsPage() {
                     onClick={() => handleDelete(doc.id)}
                     className="text-red-400 hover:text-red-600 text-xs px-2 py-1 rounded hover:bg-red-50"
                     title={isAr ? "حذف" : "Delete"}
+                    aria-label={isAr ? "حذف" : "Delete"}
                   >
                     ✕
                   </button>

@@ -244,7 +244,7 @@ export default function OpeningBalancesPage() {
       {(error || success) && (
         <div className={`rounded-lg p-3 text-sm flex justify-between ${error ? "bg-red-50 border border-red-200 text-red-700" : "bg-green-50 border border-green-200 text-green-700"}`}>
           <span>{error ?? success}</span>
-          <button onClick={() => { setError(null); setSuccess(null); }}>✕</button>
+          <button onClick={() => { setError(null); setSuccess(null); }} aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
       )}
 

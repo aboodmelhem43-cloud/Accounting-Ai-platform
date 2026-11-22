@@ -312,6 +312,7 @@ export default function EditJournalEntryPage() {
                         disabled={lines.length <= 2}
                         className="text-red-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed text-lg"
                         title={lang === "ar" ? "حذف السطر" : "Remove row"}
+                        aria-label={lang === "ar" ? "حذف السطر" : "Remove row"}
                       >
                         ×
                       </button>

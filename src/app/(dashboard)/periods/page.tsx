@@ -152,7 +152,7 @@ export default function PeriodsPage() {
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600">✕</button>
+          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600" aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
       )}
 
