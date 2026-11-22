@@ -95,7 +95,7 @@ export default function AuditLogPage() {
       {error && (
         <div className="rounded-lg p-3 text-sm bg-red-50 border border-red-200 text-red-700 flex justify-between">
           <span>{error}</span>
-          <button onClick={() => setError(null)}>✕</button>
+          <button onClick={() => setError(null)} aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
       )}
 

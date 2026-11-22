@@ -157,7 +157,7 @@ export default function DocumentsPage() {
       {actionError && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
           <span>{actionError}</span>
-          <button onClick={() => setActionError(null)}>✕</button>
+          <button onClick={() => setActionError(null)} aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
       )}
       {/* Header */}

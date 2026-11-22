@@ -134,7 +134,7 @@ export default function BankAccountsPage() {
       {pageError && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
           <span>{pageError}</span>
-          <button onClick={() => setPageError(null)} className="text-red-400 hover:text-red-600 ms-2">✕</button>
+          <button onClick={() => setPageError(null)} className="text-red-400 hover:text-red-600 ms-2" aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
       )}
       <div className="gsap-page-header flex items-center justify-between">
@@ -251,7 +251,7 @@ export default function BankAccountsPage() {
                   ? (isAr ? "تعديل الحساب" : "Edit Account")
                   : (isAr ? "إضافة حساب بنكي" : "Add Bank Account")}
               </h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 text-2xl leading-none" aria-label={isAr ? "إغلاق" : "Close"}>×</button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -53,6 +53,12 @@ export async function createJournalEntry(
     throw new LedgerError("القيد لا يحتوي على أي مبالغ — جميع السطور بمبلغ صفر");
   }
 
+  // رفض السطور بمبالغ سالبة — ضروري لحماية القيود البرمجية (recurring templates, AI)
+  const hasNegative = lines.some((l) => l.debit < 0 || l.credit < 0);
+  if (hasNegative) {
+    throw new LedgerError("مبالغ سطور القيد لا يمكن أن تكون سالبة");
+  }
+
   const client = tx ?? prisma;
 
   // التحقق من الفترة المحاسبية
