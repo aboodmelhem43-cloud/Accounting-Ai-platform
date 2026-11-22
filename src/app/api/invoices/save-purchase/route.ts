@@ -57,15 +57,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "المجموع الكلي لا يطابق المجموع الفرعي والضريبة" }, { status: 400 });
   }
 
-  // Duplicate invoice number check per business
-  const existing = await prisma.invoice.findFirst({
-    where: { businessId, invoiceNumber: data.invoiceNumber, invoiceType: "PURCHASE" },
-    select: { id: true },
-  });
-  if (existing) {
-    return NextResponse.json({ error: "رقم الفاتورة مستخدم مسبقًا" }, { status: 409 });
-  }
-
   let invoiceId: string;
   try {
     invoiceId = await prisma.$transaction(async (tx) => {
