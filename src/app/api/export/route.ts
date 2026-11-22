@@ -58,6 +58,7 @@ export async function GET(_req: NextRequest) {
     prisma.contact.findMany({
       where: { businessId },
       orderBy: { name: "asc" },
+      take: 2000,
       select: { name: true, type: true, email: true, phone: true, address: true, taxNumber: true, notes: true },
     }),
     prisma.bankAccount.findMany({
