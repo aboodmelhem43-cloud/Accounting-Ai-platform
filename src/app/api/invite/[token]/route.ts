@@ -40,8 +40,8 @@ export async function GET(
 
 // POST — accept invite
 const acceptSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters").optional(),
-  password: z.string().min(8, "Password must be at least 8 characters").optional(),
+  name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name must be at most 100 characters").optional(),
+  password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password must be at most 128 characters").optional(),
 });
 
 export async function POST(

@@ -42,7 +42,8 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // Get all VAT journal lines in the period
+  // Get all VAT journal lines in the period (cap at 2000 to prevent timeout)
+  const VAT_LINE_CAP = 2000;
   const vatLines = await prisma.journalLine.findMany({
     where: {
       accountId: vatAccount.id,
@@ -58,7 +59,9 @@ export async function GET(req: NextRequest) {
       },
     },
     orderBy: { journalEntry: { date: "asc" } },
+    take: VAT_LINE_CAP,
   });
+  const vatLinesCapped = vatLines.length === VAT_LINE_CAP;
 
   // Credits = output VAT (we owe to tax authority)
   // Debits = input VAT (we can reclaim)
@@ -88,5 +91,6 @@ export async function GET(req: NextRequest) {
     netVat: outputVat - inputVat,
     lines,
     vatAccountCode: vatAccount.code,
+    capped: vatLinesCapped,
   });
 }

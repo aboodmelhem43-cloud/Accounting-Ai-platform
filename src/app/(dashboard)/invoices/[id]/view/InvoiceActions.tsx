@@ -326,7 +326,7 @@ export default function InvoiceActions({
                     max={remaining}
                     value={payAmount}
                     onChange={(e) => setPayAmount(e.target.value)}
-                    placeholder={`${isAr ? "أقصى:" : "Max:"} ${remaining.toFixed(2)}`}
+                    placeholder={`${isAr ? "أقصى:" : "Max:"} ${remaining.toLocaleString(isAr ? "ar-SA" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                     className="input w-full"
                     required
                   />
@@ -417,7 +417,7 @@ export default function InvoiceActions({
                       max={totalAmount}
                       value={creditAmount}
                       onChange={(e) => setCreditAmount(e.target.value)}
-                      placeholder={`${isAr ? "أقصى:" : "Max:"} ${totalAmount.toFixed(2)}`}
+                      placeholder={`${isAr ? "أقصى:" : "Max:"} ${totalAmount.toLocaleString(isAr ? "ar-SA" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                       className="input w-full"
                       required
                     />

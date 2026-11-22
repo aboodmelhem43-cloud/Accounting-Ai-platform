@@ -55,6 +55,9 @@ const PLATFORM_LABELS: Record<string, string> = {
 export default function SalesSyncPage() {
   const { lang } = useLang();
   const ar = lang === "ar";
+  const locale = ar ? "ar-SA" : "en-US";
+  const fmt = (n: number) =>
+    n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const [status, setStatus] = useState("PENDING");
   const [page, setPage] = useState(1);
@@ -285,12 +288,12 @@ export default function SalesSyncPage() {
 
                   <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-2">
                     <span>{new Date(event.occurredAt).toLocaleDateString(ar ? "ar-EG" : "en-GB")}</span>
-                    <span className="font-mono font-semibold text-gray-900">
-                      {event.total.toFixed(2)} {event.currency}
+                    <span className="font-mono font-semibold text-gray-900" dir="ltr">
+                      {fmt(event.total)} {event.currency}
                     </span>
                     {event.vatAmount > 0 && (
-                      <span className="text-xs text-gray-400">
-                        {ar ? "ضريبة" : "VAT"}: {event.vatAmount.toFixed(2)}
+                      <span className="text-xs text-gray-400" dir="ltr">
+                        {ar ? "ضريبة" : "VAT"}: {fmt(event.vatAmount)}
                       </span>
                     )}
                     <span className="text-xs text-gray-400">{event.paymentMethod}</span>
@@ -360,11 +363,11 @@ export default function SalesSyncPage() {
                             {event.suggestedEntry.lines.map((line, i) => (
                               <tr key={i} className="border-b border-gray-100 last:border-0">
                                 <td className="py-1.5 text-gray-800">{line.accountName}</td>
-                                <td className="py-1.5 text-end font-mono text-sm tabular-nums">
-                                  {line.debit > 0 ? line.debit.toFixed(2) : ""}
+                                <td className="py-1.5 text-end font-mono text-sm tabular-nums" dir="ltr">
+                                  {line.debit > 0 ? fmt(line.debit) : ""}
                                 </td>
-                                <td className="py-1.5 text-end font-mono text-sm tabular-nums">
-                                  {line.credit > 0 ? line.credit.toFixed(2) : ""}
+                                <td className="py-1.5 text-end font-mono text-sm tabular-nums" dir="ltr">
+                                  {line.credit > 0 ? fmt(line.credit) : ""}
                                 </td>
                                 <td className="py-1.5 text-gray-500 text-xs">{line.description}</td>
                               </tr>
@@ -373,11 +376,11 @@ export default function SalesSyncPage() {
                           <tfoot>
                             <tr className="text-xs font-semibold text-gray-600 border-t-2 border-gray-300">
                               <td className="py-1.5">{ar ? "المجموع" : "Total"}</td>
-                              <td className="py-1.5 text-end font-mono tabular-nums">
-                                {event.suggestedEntry.lines.reduce((s, l) => s + l.debit, 0).toFixed(2)}
+                              <td className="py-1.5 text-end font-mono tabular-nums" dir="ltr">
+                                {fmt(event.suggestedEntry.lines.reduce((s, l) => s + l.debit, 0))}
                               </td>
-                              <td className="py-1.5 text-end font-mono tabular-nums">
-                                {event.suggestedEntry.lines.reduce((s, l) => s + l.credit, 0).toFixed(2)}
+                              <td className="py-1.5 text-end font-mono tabular-nums" dir="ltr">
+                                {fmt(event.suggestedEntry.lines.reduce((s, l) => s + l.credit, 0))}
                               </td>
                               <td />
                             </tr>

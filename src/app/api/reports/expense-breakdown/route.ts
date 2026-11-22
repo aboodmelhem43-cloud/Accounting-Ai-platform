@@ -12,7 +12,7 @@ export async function GET() {
   const now = new Date();
   const from = new Date(now.getFullYear(), now.getMonth() - 5, 1); // last 6 months
 
-  // Get all EXPENSE account lines in the period
+  // Get EXPENSE account lines in the period (capped to prevent timeout on large datasets)
   const lines = await prisma.journalLine.findMany({
     where: {
       journalEntry: {
@@ -27,6 +27,7 @@ export async function GET() {
       debit: true,
       account: { select: { name: true } },
     },
+    take: 1000,
   });
 
   // Aggregate by account name
