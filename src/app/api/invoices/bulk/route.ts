@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   const errors: string[] = [];
 
   // جلب الحسابات مرة واحدة فقط
-  const accounts = await prisma.account.findMany({ where: { businessId } });
+  const accounts = await prisma.account.findMany({ where: { businessId }, take: 2000 });
   const byCode = Object.fromEntries(accounts.map((a) => [a.code, a]));
 
   for (const invoice of invoices) {

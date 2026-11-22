@@ -64,7 +64,7 @@ model ChatMessage {
   id         String   @id @default(cuid())
   businessId String
   role       String // "user" | "assistant"
-  content    String
+  content    String   @db.Text
   createdAt  DateTime @default(now())
 
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
@@ -133,7 +133,7 @@ model JournalEntry {
   id              String             @id @default(cuid())
   businessId      String
   date            DateTime
-  description     String
+  description     String             @db.Text
   sourceType      JournalSourceType  @default(MANUAL)
   status          JournalEntryStatus @default(POSTED)
   isLocked        Boolean            @default(false)
@@ -358,7 +358,7 @@ model Invite {
 
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
-  @@index([businessId])
+  @@index([businessId, type])
   @@index([token])
 }
 
@@ -435,7 +435,7 @@ model RecurringTemplate {
   id          String    @id @default(cuid())
   businessId  String
   name        String
-  description String
+  description String    @db.Text
   frequency   String // MONTHLY | WEEKLY | QUARTERLY | YEARLY
   dayOfMonth  Int?
   nextRunDate DateTime
