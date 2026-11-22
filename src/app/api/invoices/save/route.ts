@@ -11,6 +11,10 @@ class PlanLimitError extends Error {
   constructor(public readonly limit: number) { super("plan_limit"); }
 }
 
+class DuplicateInvoiceError extends Error {
+  constructor() { super("duplicate_invoice"); }
+}
+
 const MAX_AMOUNT = 1_000_000_000;
 
 const lineItemSchema = z.object({
@@ -80,15 +84,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // التحقق من عدم تكرار رقم الفاتورة لنفس المنشأة
-  const existingInvoice = await prisma.invoice.findFirst({
-    where: { businessId, invoiceNumber: data.invoiceNumber },
-    select: { id: true },
-  });
-  if (existingInvoice) {
-    return NextResponse.json({ error: `رقم الفاتورة "${data.invoiceNumber}" مستخدم بالفعل` }, { status: 409 });
-  }
-
   // قيد محاسبي تلقائي للفاتورة المُنشأة يدوياً
   const journalLines: { accountId: string; debit: number; credit: number; description: string }[] = [];
 
@@ -115,6 +110,13 @@ export async function POST(req: NextRequest) {
       if (!limitCheck.allowed) {
         throw new PlanLimitError(limitCheck.limit);
       }
+
+      // فحص تكرار رقم الفاتورة داخل المعاملة لمنع حالة السباق (TOCTOU)
+      const dupCheck = await tx.invoice.findFirst({
+        where: { businessId, invoiceNumber: data.invoiceNumber },
+        select: { id: true },
+      });
+      if (dupCheck) throw new DuplicateInvoiceError();
 
       const inv = await tx.invoice.create({
       data: {
@@ -176,6 +178,9 @@ export async function POST(req: NextRequest) {
           ? "انتهت فترة التجربة المجانية. يرجى الترقية للاستمرار."
           : `وصلت للحد الأقصى (${err.limit} فاتورة/شهر). يرجى الترقية.`,
       }, { status: 403 });
+    }
+    if (err instanceof DuplicateInvoiceError) {
+      return NextResponse.json({ error: `رقم الفاتورة "${data.invoiceNumber}" مستخدم بالفعل` }, { status: 409 });
     }
     if (err instanceof LedgerError) {
       return NextResponse.json({ error: err.message }, { status: 400 });

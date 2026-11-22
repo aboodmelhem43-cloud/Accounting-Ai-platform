@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const asOfStr = searchParams.get("asOf");
   const asOf = asOfStr ? new Date(asOfStr) : new Date();
+  asOf.setHours(23, 59, 59, 999);
   if (asOfStr && isNaN(asOf.getTime())) {
     return NextResponse.json({ error: "تاريخ غير صالح" }, { status: 400 });
   }

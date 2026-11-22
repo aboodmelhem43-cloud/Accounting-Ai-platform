@@ -14,8 +14,11 @@ export async function GET(req: NextRequest) {
   const defaultFrom = new Date(now.getFullYear(), now.getMonth(), 1);
   const defaultTo = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-  const from = searchParams.get("from") ? new Date(searchParams.get("from")!) : defaultFrom;
-  const to = searchParams.get("to") ? new Date(searchParams.get("to")!) : defaultTo;
+  const fromParam = searchParams.get("from");
+  const toParam = searchParams.get("to");
+  const from = fromParam ? new Date(fromParam) : defaultFrom;
+  const to = toParam ? new Date(toParam) : defaultTo;
+  if (toParam) to.setHours(23, 59, 59, 999);
 
   if (isNaN(from.getTime()) || isNaN(to.getTime())) {
     return NextResponse.json({ error: "تاريخ غير صحيح" }, { status: 400 });
