@@ -310,9 +310,19 @@ export default function InvoiceActions({
 
       {/* Record Payment Modal */}
       {showPayment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md" dir={isAr ? "rtl" : "ltr"}>
-            <h2 className="text-lg font-bold mb-4">{isAr ? "تسجيل دفعة" : "Record Payment"}</h2>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowPayment(false); setError(""); } }}
+          onKeyDown={(e) => { if (e.key === "Escape") { setShowPayment(false); setError(""); } }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="payment-modal-title"
+            className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md"
+            dir={isAr ? "rtl" : "ltr"}
+          >
+            <h2 id="payment-modal-title" className="text-lg font-bold mb-4">{isAr ? "تسجيل دفعة" : "Record Payment"}</h2>
             {error && <div className="bg-red-50 text-red-700 rounded-lg px-4 py-2 text-sm mb-4">{error}</div>}
             <form onSubmit={handlePayment} className="space-y-4">
               <div>
@@ -384,9 +394,19 @@ export default function InvoiceActions({
 
       {/* Credit Note Modal */}
       {showCreditNote && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md" dir={isAr ? "rtl" : "ltr"}>
-            <h2 className="text-lg font-bold mb-1">{isAr ? "إصدار إشعار دائن" : "Issue Credit Note"}</h2>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowCreditNote(false); setError(""); } }}
+          onKeyDown={(e) => { if (e.key === "Escape") { setShowCreditNote(false); setError(""); } }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="credit-note-modal-title"
+            className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md"
+            dir={isAr ? "rtl" : "ltr"}
+          >
+            <h2 id="credit-note-modal-title" className="text-lg font-bold mb-1">{isAr ? "إصدار إشعار دائن" : "Issue Credit Note"}</h2>
             <p className="text-sm text-gray-500 mb-4">
               {isAr ? "سيتم إنشاء قيد عكسي يقلل من الإيراد المسجل" : "A reversal entry will be created reducing the recorded revenue"}
             </p>
@@ -459,9 +479,19 @@ export default function InvoiceActions({
 
       {/* Send Email Modal */}
       {showEmail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md" dir={isAr ? "rtl" : "ltr"}>
-            <h2 className="text-lg font-bold mb-4">{isAr ? "إرسال الفاتورة بالبريد" : "Send Invoice by Email"}</h2>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowEmail(false); setError(""); } }}
+          onKeyDown={(e) => { if (e.key === "Escape") { setShowEmail(false); setError(""); } }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="email-modal-title"
+            className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md"
+            dir={isAr ? "rtl" : "ltr"}
+          >
+            <h2 id="email-modal-title" className="text-lg font-bold mb-4">{isAr ? "إرسال الفاتورة بالبريد" : "Send Invoice by Email"}</h2>
             {emailSent && (
               <div className="bg-green-50 text-green-700 rounded-lg px-4 py-2 text-sm mb-4">
                 {isAr ? "تم الإرسال بنجاح ✓" : "Sent successfully ✓"}
