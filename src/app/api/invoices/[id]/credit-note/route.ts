@@ -81,6 +81,19 @@ export async function POST(
         throw Object.assign(new Error("plan_limit"), { limit: limitCheck.limit });
       }
 
+      // فحص مجموع الإشعارات الدائنة السابقة داخل المعاملة لمنع حالة السباق
+      const existingCreditNotes = await tx.invoice.findMany({
+        where: { businessId: session.user.businessId, relatedInvoiceId: id, documentType: "CREDIT_NOTE" },
+        select: { extractedData: true },
+      });
+      const alreadyCredited = existingCreditNotes.reduce((sum, cn) => {
+        const cnData = cn.extractedData as ExtractedData | null;
+        return sum + (cnData?.grandTotal ?? cnData?.totalAmount ?? 0);
+      }, 0);
+      if (alreadyCredited + amount > originalTotal + 0.001) {
+        throw Object.assign(new Error("exceeds_total"), { alreadyCredited, amount, originalTotal });
+      }
+
       const creditNoteEntry = await createJournalEntry({
       businessId: session.user.businessId,
       userId: session.user.id,
@@ -117,6 +130,12 @@ export async function POST(
   } catch (err) {
     if (err instanceof Error && err.message === "plan_limit") {
       return NextResponse.json({ error: "وصلت للحد الأقصى من الفواتير في خطتك الحالية" }, { status: 403 });
+    }
+    if (err instanceof Error && err.message === "exceeds_total") {
+      const e = err as Error & { alreadyCredited: number; amount: number; originalTotal: number };
+      return NextResponse.json({
+        error: `مجموع الإشعارات الدائنة (${(e.alreadyCredited + e.amount).toFixed(2)}) يتجاوز إجمالي الفاتورة الأصلية (${e.originalTotal})`,
+      }, { status: 400 });
     }
     if (err instanceof LedgerError) {
       return NextResponse.json({ error: err.message }, { status: 400 });

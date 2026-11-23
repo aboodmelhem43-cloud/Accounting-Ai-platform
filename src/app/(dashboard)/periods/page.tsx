@@ -77,11 +77,20 @@ export default function PeriodsPage() {
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <PageAnimations />
       {confirmAction && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4">
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) { setConfirmAction(null); setNotes(""); } }}
+          onKeyDown={(e) => { if (e.key === "Escape") { setConfirmAction(null); setNotes(""); } }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="period-modal-title"
+            className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4"
+          >
             <div className="text-center">
               <div className="text-4xl mb-2">{confirmAction.action === "close" ? "🔒" : "🔓"}</div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 id="period-modal-title" className="text-lg font-semibold text-gray-900">
                 {confirmAction.action === "close"
                   ? (isAr ? "إقفال الفترة؟" : "Close Period?")
                   : (isAr ? "فتح الفترة؟" : "Reopen Period?")}
@@ -150,7 +159,7 @@ export default function PeriodsPage() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
+        <div role="alert" aria-live="assertive" className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex justify-between">
           <span>{error}</span>
           <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600" aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>

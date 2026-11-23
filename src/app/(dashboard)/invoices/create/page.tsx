@@ -220,7 +220,7 @@ export default function CreateInvoicePage() {
           </button>
         </div>
         {saveError && (
-          <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+          <div role="alert" aria-live="assertive" className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
             {saveError}
           </div>
         )}
@@ -613,7 +613,7 @@ export default function CreateInvoicePage() {
       </div>
 
       {validationError && (
-        <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+        <div role="alert" aria-live="assertive" className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
           {validationError}
         </div>
       )}
