@@ -53,14 +53,24 @@ export async function POST(
 
   let reversalEntry: { id: string };
   try {
-    reversalEntry = await createJournalEntry({
-      businessId: session.user.businessId,
-      userId: session.user.id,
-      date: reverseDate,
-      description: reverseDescription,
-      sourceType: "MANUAL",
-      status: "POSTED",
-      lines: reversedLines,
+    reversalEntry = await prisma.$transaction(async (tx) => {
+      const je = await createJournalEntry({
+        businessId: session.user.businessId,
+        userId: session.user.id,
+        date: reverseDate,
+        description: reverseDescription,
+        sourceType: "MANUAL",
+        status: "POSTED",
+        lines: reversedLines,
+      }, tx);
+
+      // Lock the original entry so it cannot be reversed a second time
+      await tx.journalEntry.update({
+        where: { id },
+        data: { isLocked: true },
+      });
+
+      return je;
     });
   } catch (err) {
     if (err instanceof LedgerError) {
