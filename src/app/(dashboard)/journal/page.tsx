@@ -43,6 +43,7 @@ const STATUS_STYLE: Record<string, string> = {
 export default function JournalPage() {
   const { t, lang } = useLang();
   const locale = lang === "ar" ? "ar" : "en";
+  const isAr = lang === "ar";
   const { data: session } = useSession();
   const isOwner = session?.user?.role === "OWNER";
 
@@ -169,9 +170,18 @@ export default function JournalPage() {
       <JournalAnimations />
       {/* Reject modal */}
       {rejectId && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4 space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          onClick={(e) => { if (e.target === e.currentTarget) { setRejectId(null); setRejectReason(""); } }}
+          onKeyDown={(e) => { if (e.key === "Escape") { setRejectId(null); setRejectReason(""); } }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reject-modal-title"
+            className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4 space-y-4"
+          >
+            <h3 id="reject-modal-title" className="text-lg font-semibold text-gray-900">
               {lang === "ar" ? "سبب الرفض" : "Rejection Reason"}
             </h3>
             <textarea
@@ -180,6 +190,7 @@ export default function JournalPage() {
               rows={3}
               placeholder={lang === "ar" ? "اكتب سبب الرفض..." : "Write the reason for rejection..."}
               className="input w-full resize-none"
+              autoFocus
             />
             <div className="flex gap-3">
               <button onClick={() => { setRejectId(null); setRejectReason(""); }} className="btn-secondary flex-1">
