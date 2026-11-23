@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { jwtVerify } from "jose";
 import { prisma } from "./prisma";
+import "./env"; // validates required env vars at startup
 import { verifyOtp } from "./otp";
 import { isSuperAdmin } from "./admin";
 

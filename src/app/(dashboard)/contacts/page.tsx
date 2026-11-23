@@ -197,7 +197,7 @@ export default function ContactsPage() {
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <ContactsAnimations />
       {pageError && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
+        <div role="alert" aria-live="assertive" className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
           <span>{pageError}</span>
           <button onClick={() => setPageError(null)} className="text-red-400 hover:text-red-600 ms-2" aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
@@ -309,10 +309,20 @@ export default function ContactsPage() {
 
       {/* History modal */}
       {(historyLoading || historyContact) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto" dir={isAr ? "rtl" : "ltr"}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) { setHistoryContact(null); setHistoryLoading(false); } }}
+          onKeyDown={(e) => { if (e.key === "Escape") { setHistoryContact(null); setHistoryLoading(false); } }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="history-modal-title"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto"
+            dir={isAr ? "rtl" : "ltr"}
+          >
             <div className="flex items-center justify-between p-6 border-b border-gray-100 sticky top-0 bg-white">
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 id="history-modal-title" className="text-lg font-bold text-gray-900">
                 {historyContact
                   ? (isAr ? `سجل: ${historyContact.contact.name}` : `History: ${historyContact.contact.name}`)
                   : (isAr ? "جاري التحميل..." : "Loading...")}
@@ -406,11 +416,20 @@ export default function ContactsPage() {
 
       {/* Delete confirmation modal */}
       {deleteId && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4">
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setDeleteId(null); }}
+          onKeyDown={(e) => { if (e.key === "Escape") setDeleteId(null); }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-contact-modal-title"
+            className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4"
+          >
             <div className="text-center">
               <div className="text-3xl mb-2">🗑️</div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 id="delete-contact-modal-title" className="text-lg font-semibold text-gray-900">
                 {isAr ? "حذف الاتصال؟" : "Delete Contact?"}
               </h3>
               <p className="text-sm font-medium text-gray-800 mt-1">
@@ -439,10 +458,19 @@ export default function ContactsPage() {
 
       {/* مودال الإضافة/التعديل */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
+          onKeyDown={(e) => { if (e.key === "Escape") setShowModal(false); }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="contact-modal-title"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg"
+          >
             <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 id="contact-modal-title" className="text-lg font-bold text-gray-900">
                 {editContact
                   ? (isAr ? "تعديل الاتصال" : "Edit Contact")
                   : (isAr ? "إضافة اتصال جديد" : "Add New Contact")}

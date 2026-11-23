@@ -43,6 +43,7 @@ const STATUS_STYLE: Record<string, string> = {
 export default function JournalPage() {
   const { t, lang } = useLang();
   const locale = lang === "ar" ? "ar" : "en";
+  const isAr = lang === "ar";
   const { data: session } = useSession();
   const isOwner = session?.user?.role === "OWNER";
 
@@ -169,9 +170,18 @@ export default function JournalPage() {
       <JournalAnimations />
       {/* Reject modal */}
       {rejectId && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4 space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          onClick={(e) => { if (e.target === e.currentTarget) { setRejectId(null); setRejectReason(""); } }}
+          onKeyDown={(e) => { if (e.key === "Escape") { setRejectId(null); setRejectReason(""); } }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reject-modal-title"
+            className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4 space-y-4"
+          >
+            <h3 id="reject-modal-title" className="text-lg font-semibold text-gray-900">
               {lang === "ar" ? "سبب الرفض" : "Rejection Reason"}
             </h3>
             <textarea
@@ -180,6 +190,7 @@ export default function JournalPage() {
               rows={3}
               placeholder={lang === "ar" ? "اكتب سبب الرفض..." : "Write the reason for rejection..."}
               className="input w-full resize-none"
+              autoFocus
             />
             <div className="flex gap-3">
               <button onClick={() => { setRejectId(null); setRejectReason(""); }} className="btn-secondary flex-1">
@@ -199,11 +210,20 @@ export default function JournalPage() {
 
       {/* Delete confirm modal */}
       {confirmDeleteId && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4 space-y-4">
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          onClick={(e) => { if (e.target === e.currentTarget) setConfirmDeleteId(null); }}
+          onKeyDown={(e) => { if (e.key === "Escape") setConfirmDeleteId(null); }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-modal-title"
+            className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4 space-y-4"
+          >
             <div className="text-center">
               <div className="text-3xl mb-2">🗑️</div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 id="delete-modal-title" className="text-lg font-semibold text-gray-900">
                 {lang === "ar" ? "حذف القيد؟" : "Delete Entry?"}
               </h3>
               <p className="text-sm text-gray-500 mt-1">
@@ -211,7 +231,7 @@ export default function JournalPage() {
               </p>
             </div>
             <div className="flex gap-3">
-              <button onClick={() => setConfirmDeleteId(null)} className="btn-secondary flex-1">
+              <button autoFocus onClick={() => setConfirmDeleteId(null)} className="btn-secondary flex-1">
                 {lang === "ar" ? "إلغاء" : "Cancel"}
               </button>
               <button onClick={() => handleDelete(confirmDeleteId)} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg text-sm">
@@ -223,7 +243,7 @@ export default function JournalPage() {
       )}
 
       {actionError && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
+        <div role="alert" aria-live="assertive" className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
           <span>{actionError}</span>
           <button onClick={() => setActionError(null)} className="text-red-400 hover:text-red-600 ms-2" aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
@@ -249,11 +269,12 @@ export default function JournalPage() {
           { key: "POSTED",         ar: "مُرحَّل",          en: "Posted" },
         ];
         return (
-          <div className="gsap-journal-filters flex gap-2 flex-wrap">
+          <div role="group" aria-label={isAr ? "فلتر الحالة" : "Status filter"} className="gsap-journal-filters flex gap-2 flex-wrap">
             {filters.map((f) => (
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
+                aria-pressed={statusFilter === f.key}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
                   statusFilter === f.key
                     ? "bg-blue-600 text-white border-blue-600"
@@ -268,8 +289,8 @@ export default function JournalPage() {
       })()}
 
       {loading && (
-        <div className="text-center py-8 text-gray-500">
-          <div className="spinner mb-2" />
+        <div role="status" aria-live="polite" className="text-center py-8 text-gray-500">
+          <div className="spinner mb-2" aria-hidden="true" />
           <p>{t("common.loading")}</p>
         </div>
       )}

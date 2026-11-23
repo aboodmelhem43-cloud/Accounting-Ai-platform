@@ -329,9 +329,19 @@ export default function BankReconciliationPage() {
 
       {/* Coding Dialog Modal */}
       {codingDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md" dir={isAr ? "rtl" : "ltr"}>
-            <h2 className="text-lg font-bold mb-1">{isAr ? "ترحيل الحركة" : "Code & Post Transaction"}</h2>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={(e) => { if (e.target === e.currentTarget) setCodingDialog(null); }}
+          onKeyDown={(e) => { if (e.key === "Escape") setCodingDialog(null); }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="coding-dialog-title"
+            className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md"
+            dir={isAr ? "rtl" : "ltr"}
+          >
+            <h2 id="coding-dialog-title" className="text-lg font-bold mb-1">{isAr ? "ترحيل الحركة" : "Code & Post Transaction"}</h2>
             <p className="text-sm text-gray-500 mb-4 truncate">{codingDialog.description}</p>
 
             <div className="bg-gray-50 rounded-lg px-4 py-3 mb-4 flex justify-between text-sm">

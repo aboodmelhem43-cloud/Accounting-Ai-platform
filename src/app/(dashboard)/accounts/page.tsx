@@ -442,11 +442,20 @@ export default function AccountsPage() {
         </div>
       )}
       {confirmModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
-            <p className="text-gray-800 text-sm">{confirmModal.message}</p>
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setConfirmModal(null); }}
+          onKeyDown={(e) => { if (e.key === "Escape") setConfirmModal(null); }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="accounts-confirm-modal"
+            className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4"
+          >
+            <p id="accounts-confirm-modal" className="text-gray-800 text-sm">{confirmModal.message}</p>
             <div className="flex gap-3 justify-end">
-              <button onClick={() => setConfirmModal(null)} className="btn-secondary text-sm px-4">
+              <button autoFocus onClick={() => setConfirmModal(null)} className="btn-secondary text-sm px-4">
                 {isAr ? "إلغاء" : "Cancel"}
               </button>
               <button
@@ -461,9 +470,18 @@ export default function AccountsPage() {
       )}
 
       {editModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
-            <h3 className="font-semibold text-gray-800">
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setEditModal(null); }}
+          onKeyDown={(e) => { if (e.key === "Escape") setEditModal(null); }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-account-modal-title"
+            className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4"
+          >
+            <h3 id="edit-account-modal-title" className="font-semibold text-gray-800">
               {isAr ? `تعديل الحساب ${editModal.code}` : `Edit Account ${editModal.code}`}
             </h3>
             <div>

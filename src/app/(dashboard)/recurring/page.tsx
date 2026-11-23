@@ -201,14 +201,23 @@ export default function RecurringPage() {
     <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
       <PageAnimations />
       {confirmDelete && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4">
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setConfirmDelete(null); }}
+          onKeyDown={(e) => { if (e.key === "Escape") setConfirmDelete(null); }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="recurring-delete-modal"
+            className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4"
+          >
             <div className="text-center">
               <div className="text-3xl mb-2">🗑️</div>
-              <h3 className="font-semibold text-gray-900">{isAr ? "حذف القالب؟" : "Delete template?"}</h3>
+              <h3 id="recurring-delete-modal" className="font-semibold text-gray-900">{isAr ? "حذف القالب؟" : "Delete template?"}</h3>
             </div>
             <div className="flex gap-3">
-              <button onClick={() => setConfirmDelete(null)} className="btn-secondary flex-1 text-sm">{isAr ? "إلغاء" : "Cancel"}</button>
+              <button autoFocus onClick={() => setConfirmDelete(null)} className="btn-secondary flex-1 text-sm">{isAr ? "إلغاء" : "Cancel"}</button>
               <button onClick={() => handleDelete(confirmDelete)} className="flex-1 bg-red-600 text-white rounded-lg text-sm font-medium py-2">{isAr ? "حذف" : "Delete"}</button>
             </div>
           </div>

@@ -201,9 +201,18 @@ export default function JournalEntryPage() {
       <PageAnimations />
       {/* Reject modal */}
       {showRejectModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4 space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowRejectModal(false); setRejectReason(""); } }}
+          onKeyDown={(e) => { if (e.key === "Escape") { setShowRejectModal(false); setRejectReason(""); } }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reject-modal-title-detail"
+            className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4 space-y-4"
+          >
+            <h3 id="reject-modal-title-detail" className="text-lg font-semibold text-gray-900">
               {isAr ? "سبب الرفض" : "Rejection Reason"}
             </h3>
             <textarea
@@ -212,6 +221,7 @@ export default function JournalEntryPage() {
               rows={3}
               placeholder={isAr ? "اكتب سبب الرفض..." : "Write the reason for rejection..."}
               className="input w-full resize-none"
+              autoFocus
             />
             <div className="flex gap-3">
               <button
@@ -234,11 +244,20 @@ export default function JournalEntryPage() {
 
       {/* Delete confirm modal */}
       {confirmDelete && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4 space-y-4">
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          onClick={(e) => { if (e.target === e.currentTarget) setConfirmDelete(false); }}
+          onKeyDown={(e) => { if (e.key === "Escape") setConfirmDelete(false); }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-modal-title-detail"
+            className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4 space-y-4"
+          >
             <div className="text-center">
               <div className="text-3xl mb-2">🗑️</div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 id="delete-modal-title-detail" className="text-lg font-semibold text-gray-900">
                 {isAr ? "حذف القيد؟" : "Delete Entry?"}
               </h3>
               <p className="text-sm text-gray-500 mt-1">
@@ -248,7 +267,7 @@ export default function JournalEntryPage() {
               </p>
             </div>
             <div className="flex gap-3">
-              <button onClick={() => setConfirmDelete(false)} className="btn-secondary flex-1">
+              <button autoFocus onClick={() => setConfirmDelete(false)} className="btn-secondary flex-1">
                 {isAr ? "إلغاء" : "Cancel"}
               </button>
               <button
@@ -267,7 +286,7 @@ export default function JournalEntryPage() {
 
       {/* Error banner */}
       {actionError && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
+        <div role="alert" aria-live="assertive" className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center justify-between">
           <span>{actionError}</span>
           <button onClick={() => setActionError(null)} className="text-red-400 hover:text-red-600 ms-2" aria-label={isAr ? "إغلاق" : "Close"}>✕</button>
         </div>
