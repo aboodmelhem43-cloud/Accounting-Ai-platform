@@ -64,7 +64,7 @@ export async function GET(
       } else {
         suggestedEntry = await suggestSalesJournalEntry({
           businessId: token.businessId,
-          customerName: (extracted as any).customerName ?? "عميل غير محدد",
+          customerName: extracted.customerName ?? "عميل غير محدد",
           totalAmount,
           taxAmount,
           netAmount,
@@ -80,11 +80,11 @@ export async function GET(
   return NextResponse.json({
     ...invoice,
     status: mapStatus(invoice.status),
-    vendorName: (ext as any).vendorName ?? (ext as any).sellerName ?? null,
-    total: (ext as any).totalAmount ?? (ext as any).grandTotal ?? null,
+    vendorName: ext.vendorName ?? ext.sellerName ?? null,
+    total: ext.totalAmount ?? ext.grandTotal ?? null,
     currency: resolvedCurrency,
-    invoiceDate: (ext as any).invoiceDate ?? null,
-    invoiceNumber: invoice.invoiceNumber ?? (ext as any).invoiceNumber ?? null,
+    invoiceDate: ext.invoiceDate ?? null,
+    invoiceNumber: invoice.invoiceNumber ?? ext.invoiceNumber ?? null,
     suggestedEntry,
   });
 }
