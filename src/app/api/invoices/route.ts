@@ -126,6 +126,15 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * limit,
       take: limit,
+      // استبعاد extractedData (JSON كبير) من قائمة الفواتير — يُجلب فقط في صفحة التفاصيل
+      select: {
+        id: true, businessId: true, fileUrl: true, fileType: true, status: true,
+        invoiceType: true, journalEntryId: true, contactId: true, dueDate: true,
+        paymentStatus: true, createdAt: true, updatedAt: true, pdfUrl: true,
+        documentType: true, relatedInvoiceId: true, invoiceNumber: true, viewToken: true,
+        etaUuid: true, etaStatus: true, etaSubmittedAt: true,
+        joFotaraUuid: true, joFotaraStatus: true, joFotaraSubmittedAt: true, joFotaraHash: true,
+      },
     }),
     prisma.invoice.count({ where: { businessId: session.user.businessId } }),
   ]);

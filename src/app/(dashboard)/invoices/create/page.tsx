@@ -146,9 +146,9 @@ export default function CreateInvoicePage() {
     }
   }
 
-  const subtotal = lineItems.reduce((s, l) => s + l.quantity * l.unitPrice, 0);
-  const taxAmount = subtotal * (taxRate / 100);
-  const grandTotal = subtotal + taxAmount;
+  const subtotal = Math.round(lineItems.reduce((s, l) => s + l.quantity * l.unitPrice, 0) * 100) / 100;
+  const taxAmount = Math.round(subtotal * (taxRate / 100) * 100) / 100;
+  const grandTotal = Math.round((subtotal + taxAmount) * 100) / 100;
 
   const fmt = (n: number) =>
     n.toLocaleString(isAr ? "ar" : "en", { minimumFractionDigits: 2, maximumFractionDigits: 2 });

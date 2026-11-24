@@ -24,11 +24,12 @@ export async function PATCH(
   });
   if (!statement) return NextResponse.json({ error: "غير موجود" }, { status: 404 });
 
-  const bankTx = await prisma.bankTransaction.findFirst({
+  // Verify bank transaction exists (outside tx for fast 404)
+  const bankTxExists = await prisma.bankTransaction.findFirst({
     where: { id: txId, statementId },
+    select: { id: true },
   });
-  if (!bankTx) return NextResponse.json({ error: "المعاملة غير موجودة" }, { status: 404 });
-  if (bankTx.matched) return NextResponse.json({ error: "تم ترحيل هذه المعاملة مسبقًا" }, { status: 400 });
+  if (!bankTxExists) return NextResponse.json({ error: "المعاملة غير موجودة" }, { status: 404 });
 
   let body: unknown;
   try {
@@ -53,42 +54,61 @@ export async function PATCH(
     return NextResponse.json({ error: "حساب غير صالح" }, { status: 400 });
   }
 
-  const amount = Math.abs(Number(bankTx.amount));
-  const isCredit = bankTx.transactionType === "CREDIT";
+  let result: { transaction: { id: string; matched: boolean; journalEntryId: string | null }; journalEntry: Awaited<ReturnType<typeof createJournalEntry>> };
+  try {
+    result = await prisma.$transaction(async (prismaTx) => {
+      // Re-read inside transaction and use atomic updateMany to guard TOCTOU:
+      // if another concurrent request already set matched=true, updateMany returns count=0
+      const claim = await prismaTx.bankTransaction.updateMany({
+        where: { id: txId, statementId, matched: false },
+        data: { matched: true },
+      });
+      if (claim.count === 0) throw Object.assign(new Error("already_matched"), { code: "ALREADY_MATCHED" });
 
-  // CREDIT (واردة): مدين البنك، دائن الحساب المقابل
-  // DEBIT (صادرة): مدين الحساب المقابل، دائن البنك
-  const lines = isCredit
-    ? [
-        { accountId: bankAccountId, debit: amount, credit: 0 },
-        { accountId: counterpartAccountId, debit: 0, credit: amount },
-      ]
-    : [
-        { accountId: counterpartAccountId, debit: amount, credit: 0 },
-        { accountId: bankAccountId, debit: 0, credit: amount },
-      ];
+      const bankTx = await prismaTx.bankTransaction.findUnique({ where: { id: txId } });
+      if (!bankTx) throw new Error("not_found");
 
-  const result = await prisma.$transaction(async (prismaTx) => {
-    const entry = await createJournalEntry(
-      {
-        businessId: session.user.businessId,
-        userId: session.user.id,
-        date: bankTx.date,
-        description: bankTx.description,
-        sourceType: "MANUAL",
-        status: "POSTED",
-        lines,
-      },
-      prismaTx
-    );
+      const amount = Math.abs(Number(bankTx.amount));
+      const isCredit = bankTx.transactionType === "CREDIT";
 
-    const matched = await prismaTx.bankTransaction.update({
-      where: { id: txId },
-      data: { matched: true, journalEntryId: entry.id },
+      // CREDIT (واردة): مدين البنك، دائن الحساب المقابل
+      // DEBIT (صادرة): مدين الحساب المقابل، دائن البنك
+      const lines = isCredit
+        ? [
+            { accountId: bankAccountId, debit: amount, credit: 0 },
+            { accountId: counterpartAccountId, debit: 0, credit: amount },
+          ]
+        : [
+            { accountId: counterpartAccountId, debit: amount, credit: 0 },
+            { accountId: bankAccountId, debit: 0, credit: amount },
+          ];
+
+      const entry = await createJournalEntry(
+        {
+          businessId: session.user.businessId,
+          userId: session.user.id,
+          date: bankTx.date,
+          description: bankTx.description,
+          sourceType: "MANUAL",
+          status: "POSTED",
+          lines,
+        },
+        prismaTx
+      );
+
+      const matched = await prismaTx.bankTransaction.update({
+        where: { id: txId },
+        data: { journalEntryId: entry.id },
+      });
+
+      return { transaction: matched, journalEntry: entry };
     });
-
-    return { transaction: matched, journalEntry: entry };
-  });
+  } catch (err) {
+    if (err instanceof Error && (err as Error & { code?: string }).code === "ALREADY_MATCHED") {
+      return NextResponse.json({ error: "تم ترحيل هذه المعاملة مسبقًا" }, { status: 409 });
+    }
+    return NextResponse.json({ error: "خطأ في الخادم" }, { status: 500 });
+  }
 
   return NextResponse.json(result);
 }

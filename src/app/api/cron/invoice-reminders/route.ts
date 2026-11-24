@@ -56,9 +56,9 @@ export async function GET(req: NextRequest) {
         dueDate: inv.dueDate!,
       });
       sent++;
-    } catch (e) {
+    } catch (err: unknown) {
       failed++;
-      console.error(`[cron/invoice-reminders] failed for ${contact.email}:`, e);
+      console.error(`[cron/invoice-reminders] failed for ${contact.email}:`, err);
     }
   }
 

@@ -15,6 +15,7 @@ export interface ExtractedInvoiceData {
   totalAmount: number | null;
   grandTotal?: number | null;
   lineItems: InvoiceLineItem[];
+  sellerName?: string | null;    // بديل لـ vendorName في بعض النماذج
   invoiceType: "purchase" | "sales" | null;
   notes: string | null;
   confidence: number;               // 0–1 — مدى ثقة النموذج في الاستخراج

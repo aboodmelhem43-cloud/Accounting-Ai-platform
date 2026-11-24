@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useLang } from "@/components/LanguageProvider";
 import { AccountsAnimations } from "@/components/AccountsAnimations";
 
@@ -105,6 +105,10 @@ export default function AccountsPage() {
   const [editNameAr, setEditNameAr] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
+  // Focus restoration refs — return focus to trigger element when modal closes
+  const editTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const confirmTriggerRef = useRef<HTMLButtonElement | null>(null);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -180,10 +184,18 @@ export default function AccountsPage() {
     }
   }
 
-  function openEditModal(acc: Account) {
+  function openEditModal(acc: Account, trigger?: HTMLButtonElement) {
+    if (trigger) editTriggerRef.current = trigger;
     setEditModal(acc);
     setEditName(acc.name);
     setEditNameAr(acc.nameAr ?? "");
+  }
+
+  function closeEditModal() {
+    setEditModal(null);
+    setActionError("");
+    editTriggerRef.current?.focus();
+    editTriggerRef.current = null;
   }
 
   async function saveEdit() {
@@ -201,7 +213,7 @@ export default function AccountsPage() {
         setActionError(d.error ?? (isAr ? "فشل الحفظ" : "Save failed"));
         return;
       }
-      setEditModal(null);
+      closeEditModal();
       load();
     } catch {
       setActionError(isAr ? "خطأ في الاتصال" : "Connection error");
@@ -418,7 +430,7 @@ export default function AccountsPage() {
                           ) : (
                             <div className="flex gap-1 justify-end">
                               <button
-                                onClick={() => openEditModal(acc)}
+                                onClick={(e) => openEditModal(acc, e.currentTarget)}
                                 className="text-xs text-blue-500 hover:text-blue-700 hover:bg-blue-50 px-2 py-0.5 rounded transition-colors"
                               >
                                 {isAr ? "تعديل" : "Edit"}
@@ -472,8 +484,8 @@ export default function AccountsPage() {
       {editModal && (
         <div
           className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
-          onClick={(e) => { if (e.target === e.currentTarget) setEditModal(null); }}
-          onKeyDown={(e) => { if (e.key === "Escape") setEditModal(null); }}
+          onClick={(e) => { if (e.target === e.currentTarget) closeEditModal(); }}
+          onKeyDown={(e) => { if (e.key === "Escape") closeEditModal(); }}
         >
           <div
             role="dialog"
@@ -494,7 +506,7 @@ export default function AccountsPage() {
             </div>
             {actionError && <p className="text-red-600 text-xs">{actionError}</p>}
             <div className="flex gap-3 justify-end">
-              <button onClick={() => setEditModal(null)} className="btn-secondary text-sm px-4">
+              <button autoFocus onClick={closeEditModal} className="btn-secondary text-sm px-4">
                 {isAr ? "إلغاء" : "Cancel"}
               </button>
               <button onClick={saveEdit} disabled={savingEdit} className="btn-primary text-sm px-4">

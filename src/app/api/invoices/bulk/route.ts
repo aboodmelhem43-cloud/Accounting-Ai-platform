@@ -130,9 +130,9 @@ export async function POST(req: NextRequest) {
       });
 
       confirmed++;
-    } catch (e) {
+    } catch (err: unknown) {
       errors.push(invoice.id);
-      console.error("[bulk/confirm] failed for invoice", invoice.id, e);
+      console.error("[bulk/confirm] failed for invoice", invoice.id, err);
     }
   }
 

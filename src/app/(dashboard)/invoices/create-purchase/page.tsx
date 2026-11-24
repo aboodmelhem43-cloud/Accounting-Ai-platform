@@ -65,9 +65,9 @@ export default function CreatePurchaseInvoicePage() {
       .catch(() => {});
   }, []);
 
-  const subtotal = lineItems.reduce((sum, li) => sum + li.quantity * li.unitPrice, 0);
-  const taxAmount = subtotal * (taxRate / 100);
-  const grandTotal = subtotal + taxAmount;
+  const subtotal = Math.round(lineItems.reduce((sum, li) => sum + li.quantity * li.unitPrice, 0) * 100) / 100;
+  const taxAmount = Math.round(subtotal * (taxRate / 100) * 100) / 100;
+  const grandTotal = Math.round((subtotal + taxAmount) * 100) / 100;
 
   const updateLine = useCallback((index: number, field: keyof LineItem, value: string | number) => {
     setLineItems((prev) => prev.map((li, i) => i === index ? { ...li, [field]: value } : li));

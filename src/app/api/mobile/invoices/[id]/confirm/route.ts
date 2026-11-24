@@ -46,7 +46,7 @@ export async function POST(
     } else {
       suggestion = await suggestSalesJournalEntry({
         businessId: token.businessId,
-        customerName: (extracted as any).customerName ?? "عميل غير محدد",
+        customerName: extracted.customerName ?? "عميل غير محدد",
         totalAmount,
         taxAmount,
         netAmount,

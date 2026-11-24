@@ -34,16 +34,16 @@ export async function GET(
 
   if (!invoice) return NextResponse.json({ error: "الفاتورة غير موجودة" }, { status: 404 });
 
-  const ext = (invoice.extractedData as ExtractedInvoiceData | null) ?? {};
+  const ext = (invoice.extractedData as ExtractedInvoiceData | null) ?? {} as ExtractedInvoiceData;
   const [currency, business] = await Promise.all([
-    Promise.resolve((ext as any).currency ?? null),
+    Promise.resolve(ext.currency ?? null),
     prisma.business.findUnique({ where: { id: token.businessId }, select: { baseCurrency: true } }),
   ]);
   const resolvedCurrency = (currency as string | null) ?? business?.baseCurrency ?? "SAR";
 
   // اقتراح قيد للفواتير قيد المراجعة
   let suggestedEntry: object | null = null;
-  if (invoice.status === "PENDING_REVIEW" && (ext as any).totalAmount) {
+  if (invoice.status === "PENDING_REVIEW" && ext.totalAmount) {
     try {
       const extracted = ext as ExtractedInvoiceData;
       const netAmount = extracted.subtotal ?? (extracted.totalAmount! - (extracted.taxAmount ?? 0));
@@ -64,7 +64,7 @@ export async function GET(
       } else {
         suggestedEntry = await suggestSalesJournalEntry({
           businessId: token.businessId,
-          customerName: (extracted as any).customerName ?? "عميل غير محدد",
+          customerName: extracted.customerName ?? "عميل غير محدد",
           totalAmount,
           taxAmount,
           netAmount,
@@ -80,11 +80,11 @@ export async function GET(
   return NextResponse.json({
     ...invoice,
     status: mapStatus(invoice.status),
-    vendorName: (ext as any).vendorName ?? (ext as any).sellerName ?? null,
-    total: (ext as any).totalAmount ?? (ext as any).grandTotal ?? null,
+    vendorName: ext.vendorName ?? ext.sellerName ?? null,
+    total: ext.totalAmount ?? ext.grandTotal ?? null,
     currency: resolvedCurrency,
-    invoiceDate: (ext as any).invoiceDate ?? null,
-    invoiceNumber: invoice.invoiceNumber ?? (ext as any).invoiceNumber ?? null,
+    invoiceDate: ext.invoiceDate ?? null,
+    invoiceNumber: invoice.invoiceNumber ?? ext.invoiceNumber ?? null,
     suggestedEntry,
   });
 }
