@@ -42,24 +42,22 @@ export async function POST(req: NextRequest) {
 
   const { code, name, nameAr, type } = parsed.data;
 
-  // منع تكرار الكود داخل نفس المنشأة
-  const existing = await prisma.account.findUnique({
-    where: { businessId_code: { businessId: session.user.businessId, code } },
-  });
-  if (existing) {
-    return NextResponse.json({ error: "رمز الحساب مستخدم مسبقاً" }, { status: 409 });
+  try {
+    const account = await prisma.account.create({
+      data: {
+        businessId: session.user.businessId,
+        code,
+        name,
+        nameAr: nameAr ?? name,
+        type,
+        isSystem: false,
+      },
+    });
+    return NextResponse.json(account, { status: 201 });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      return NextResponse.json({ error: "رمز الحساب مستخدم مسبقاً" }, { status: 409 });
+    }
+    throw err;
   }
-
-  const account = await prisma.account.create({
-    data: {
-      businessId: session.user.businessId,
-      code,
-      name,
-      nameAr: nameAr ?? name,
-      type,
-      isSystem: false,
-    },
-  });
-
-  return NextResponse.json(account, { status: 201 });
 }
