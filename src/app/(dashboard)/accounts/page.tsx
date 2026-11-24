@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useLang } from "@/components/LanguageProvider";
 import { AccountsAnimations } from "@/components/AccountsAnimations";
 
@@ -105,6 +105,10 @@ export default function AccountsPage() {
   const [editNameAr, setEditNameAr] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
+  // Focus restoration refs — return focus to trigger element when modal closes
+  const editTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const confirmTriggerRef = useRef<HTMLButtonElement | null>(null);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -180,10 +184,18 @@ export default function AccountsPage() {
     }
   }
 
-  function openEditModal(acc: Account) {
+  function openEditModal(acc: Account, trigger?: HTMLButtonElement) {
+    if (trigger) editTriggerRef.current = trigger;
     setEditModal(acc);
     setEditName(acc.name);
     setEditNameAr(acc.nameAr ?? "");
+  }
+
+  function closeEditModal() {
+    setEditModal(null);
+    setActionError("");
+    editTriggerRef.current?.focus();
+    editTriggerRef.current = null;
   }
 
   async function saveEdit() {
