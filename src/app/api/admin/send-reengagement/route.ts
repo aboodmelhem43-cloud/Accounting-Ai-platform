@@ -51,10 +51,10 @@ export async function POST(req: NextRequest) {
         businessName: biz.name,
       });
       sent++;
-    } catch (e) {
+    } catch (err: unknown) {
       failed++;
-      errors.push(`${owner.email}: ${e}`);
-      console.error(`[re-engagement] failed for ${owner.email}:`, e);
+      errors.push(`${owner.email}: ${err}`);
+      console.error(`[re-engagement] failed for ${owner.email}:`, err);
     }
   }
 
