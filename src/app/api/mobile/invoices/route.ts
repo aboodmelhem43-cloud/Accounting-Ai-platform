@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
 
   const where = {
     businessId: token.businessId,
-    ...(statusFilter ? { status: statusFilter as any } : {}),
+    ...(statusFilter ? { status: statusFilter as import("@prisma/client").InvoiceStatus } : {}),
   };
 
   const [invoices, total, business] = await Promise.all([

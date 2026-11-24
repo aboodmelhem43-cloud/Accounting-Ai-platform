@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { checkActivePlan } from "@/lib/plans";
+import { Prisma } from "@prisma/client";
 
 export async function GET(_req: NextRequest) {
   const session = await getServerSession(authOptions);
