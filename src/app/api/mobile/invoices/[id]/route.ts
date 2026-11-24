@@ -34,16 +34,16 @@ export async function GET(
 
   if (!invoice) return NextResponse.json({ error: "الفاتورة غير موجودة" }, { status: 404 });
 
-  const ext = (invoice.extractedData as ExtractedInvoiceData | null) ?? {};
+  const ext = (invoice.extractedData as ExtractedInvoiceData | null) ?? {} as ExtractedInvoiceData;
   const [currency, business] = await Promise.all([
-    Promise.resolve((ext as any).currency ?? null),
+    Promise.resolve(ext.currency ?? null),
     prisma.business.findUnique({ where: { id: token.businessId }, select: { baseCurrency: true } }),
   ]);
   const resolvedCurrency = (currency as string | null) ?? business?.baseCurrency ?? "SAR";
 
   // اقتراح قيد للفواتير قيد المراجعة
   let suggestedEntry: object | null = null;
-  if (invoice.status === "PENDING_REVIEW" && (ext as any).totalAmount) {
+  if (invoice.status === "PENDING_REVIEW" && ext.totalAmount) {
     try {
       const extracted = ext as ExtractedInvoiceData;
       const netAmount = extracted.subtotal ?? (extracted.totalAmount! - (extracted.taxAmount ?? 0));
